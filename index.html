@@ -214,7 +214,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
   <div class="hdr">
     <div>
       <div class="title">Brief Projet</div>
-      <div class="sub">Studio Graphique — Document interne</div>
+      <div class="sub">Studio Graphique — Document interne &nbsp;·&nbsp; <span id="brief-id-display" style="opacity:0.6"></span></div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
       <div class="hdr-logo">Black &amp; White<br>Burger</div>
@@ -415,6 +415,25 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           <label>Formats / dimensions</label>
           <input type="text" id="formats" placeholder="Ex : 1080×1080, 1080×1920, 1920×1080..." oninput="upd()">
         </div>
+        <div class="row2">
+          <div class="field">
+            <label>Nombre de déclinaisons attendues<span class="req">*</span></label>
+            <input type="number" id="nb-decli" min="1" placeholder="Ex : 5" oninput="upd()" style="max-width:120px">
+            <div style="font-size:10px;color:#bbb;margin-top:4px;line-height:1.4">Nombre total de visuels / fichiers à produire</div>
+          </div>
+          <div class="field">
+            <label>Niveau de priorité<span class="req">*</span></label>
+            <select id="priorite" onchange="updPriorite();upd()">
+              <option value="">— Sélectionner —</option>
+              <option value="normal">Normal</option>
+              <option value="prioritaire">Prioritaire</option>
+              <option value="urgent">Urgent</option>
+            </select>
+            <div id="prio-warn" style="display:none;font-size:11px;color:#cc0000;margin-top:5px;line-height:1.4">
+              ⚑ Urgent : validez d'abord les informations complètes avant de soumettre.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -549,12 +568,20 @@ const checked = sel => [...document.querySelectorAll(sel+' input[type=checkbox]:
 const fmtDate = s => { if(!s)return'—'; const[y,m,d]=s.split('-'); return d+'/'+m+'/'+y };
 const now = () => new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
 
+function genBriefId() {
+  const now = new Date();
+  const yy = now.getFullYear();
+  const rand = String(Math.floor(Math.random()*9000)+1000);
+  return 'BW-'+yy+'-'+rand;
+}
+
 const data = {
+  briefId: genBriefId(),
   dept:'',ref:'',valid:'',desc:'',msg:'',
   types:[],othersTypes:[],supports:[],othersSupports:[],
   vNom:'',sNom:'',vPrix:'',sPrix:'',vDates:'',sDates:'',
   vTexte:'',sTexte:'',vMentions:'',sMentions:'',
-  drive:'',formats:'',launch:'',valinfo:'',simul:'',bloquants:''
+  drive:'',formats:'',nbDecli:'',priorite:'',launch:'',valinfo:'',simul:'',bloquants:''
 };
 
 // ── SECTIONS ACCORDÉON ────────────────────────
@@ -638,6 +665,8 @@ function getMiss(d) {
   if(!d.desc) m.push('Description du projet');
   if(!d.msg) m.push('Message principal');
   if(!d.supports.length&&!d.othersSupports.length) m.push('Supports à créer');
+  if(!d.nbDecli) m.push('Nombre de déclinaisons');
+  if(!d.priorite) m.push('Niveau de priorité');
   if(!d.launch) m.push('Date de lancement');
   if(!d.valinfo) m.push('Validation infos');
   if(!d.simul) m.push('Retour simulation');
@@ -650,6 +679,15 @@ function setBadge(id,state) {
   const el=G(id); if(!el)return;
   el.className='sec-badge '+state;
   el.textContent={done:'Complet',partial:'Partiel',empty:'Vide'}[state];
+}
+
+function updPriorite() {
+  const sel = G('priorite');
+  const warn = G('prio-warn');
+  if(!sel || !warn) return;
+  warn.style.display = sel.value === 'urgent' ? 'block' : 'none';
+  sel.style.borderBottomColor = sel.value === 'urgent' ? '#cc0000' : sel.value === 'prioritaire' ? '#e07b00' : '#e8e8e8';
+  sel.style.color = sel.value === 'urgent' ? '#cc0000' : sel.value === 'prioritaire' ? '#e07b00' : '#111';
 }
 
 function upd() {
@@ -799,7 +837,7 @@ function buildPDF(){
   function cp(n=20){if(y+n>283)np()}
   doc.setFillColor(17,17,17);doc.rect(0,0,W,26,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);doc.text('BRIEF PROJET',ML,11);
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);doc.text('Studio Graphique — Black & White Burger',ML,17);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);doc.text('Studio Graphique — Black & White Burger  ·  '+( d.briefId||''),ML,17);
   doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(180,180,180);doc.text('BLACK & WHITE BURGER',W-ML,14,{align:'right'});
   doc.setFillColor(30,30,30);doc.rect(0,26,W,9,'F');
   doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(190,190,190);doc.text("REGLE D'OR : Ce brief doit etre complete AVANT toute demande de creation.",ML,31.5);
@@ -816,7 +854,8 @@ function buildPDF(){
   cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
   [[d.vNom,'Nom produit',d.sNom],[d.vPrix,'Prix',d.sPrix],[d.vDates,'Dates',d.sDates],[d.vTexte,'Texte exact',d.sTexte],[d.vMentions,'Mentions',d.sMentions]].forEach(([v,l,s],i)=>{cp(8);i%2===0?doc.setFillColor(255,255,255):doc.setFillColor(250,250,250);doc.rect(ML,y-1,CW,8,'F');doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(!v?170:60,!v?0:60,!v?0:60);doc.text(l,ML+3,y+4.5);doc.setTextColor(17,17,17);doc.text(v||'—',ML+58,y+4.5);doc.setTextColor(s==='Oui'?26:100,s==='Oui'?107:100,s==='Oui'?42:100);doc.text(s||'—',ML+CW-18,y+4.5);y+=8});
   y+=3;fl('Lien Drive',d.drive||'—');dv();
-  st(4,'Supports & formats');fl('Supports',allS,!d.supports.length&&!d.othersSupports.length);fl('Formats',d.formats||'—');dv();
+  const prioLabels={'normal':'Normal','prioritaire':'Prioritaire ⚡','urgent':'URGENT ⚑'};
+  st(4,'Supports & formats');fl('Supports',allS,!d.supports.length&&!d.othersSupports.length);fl('Formats',d.formats||'—');fl('Déclinaisons',d.nbDecli?d.nbDecli+' visuel'+(d.nbDecli>1?'s':''):'—',!d.nbDecli);fl('Priorité',prioLabels[d.priorite]||'—',!d.priorite);dv();
   st(5,'Deadlines');fl('Lancement',fmtDate(d.launch),!d.launch);fl('Validation infos',fmtDate(d.valinfo),!d.valinfo);fl('Retour simulation',fmtDate(d.simul),!d.simul);wb("Sans validation dans les delais, la deadline de lancement ne peut pas etre garantie.");dv();
   st(6,'Statut');const miss=getMiss(d);fl('Statut',miss.length?'Incomplet — '+miss.length+' élément(s) manquant(s)':'Complet — prêt pour création');
   if(d.bloquants)fl('Notes',d.bloquants);
@@ -847,6 +886,7 @@ function autoLoad() {
     const raw = localStorage.getItem('bw_brief_draft');
     if(!raw) return;
     const saved = JSON.parse(raw);
+    if(!saved.briefId) saved.briefId = genBriefId();
     Object.assign(data, saved);
     syncFormFromData();
     showMsg('Brouillon restauré automatiquement', '#1a6b2a');
@@ -864,6 +904,9 @@ function showSaveIndicator() {
 
 // INIT
 autoLoad();
+// Show brief ID
+const bidEl = G('brief-id-display');
+if(bidEl) bidEl.textContent = data.briefId || genBriefId();
 upd();
 </script>
 </body>
