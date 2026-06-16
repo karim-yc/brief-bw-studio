@@ -216,7 +216,12 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       <div class="title">Brief Projet</div>
       <div class="sub">Studio Graphique — Document interne</div>
     </div>
-    <div class="hdr-logo">Black &amp; White<br>Burger</div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div class="hdr-logo">Black &amp; White<br>Burger</div>
+      <div id="save-indicator" style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1px;text-transform:uppercase;opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:4px">
+        <i class="ti ti-device-floppy" style="font-size:11px"></i> Sauvegardé
+      </div>
+    </div>
   </div>
 
   <div class="mode-bar">
@@ -353,11 +358,14 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           </div>
           <div class="val-row">
             <div class="val-row-label">Texte exact à utiliser</div>
-            <div class="val-row-body">
-              <input type="text" id="v-texte" placeholder="Copier-coller le texte validé" oninput="upd()">
-              <select class="val-select" id="s-texte" onchange="updValSelect(this);upd()">
-                <option value="">Statut</option><option>Oui</option><option>Non</option>
-              </select>
+            <div class="val-row-body" style="flex-direction:column;align-items:stretch;gap:8px">
+              <textarea id="v-texte" placeholder="Copier-coller le texte exact validé (titre, accroche, prix, mentions...)" oninput="upd()" style="width:100%;border:2px solid #e8e8e8;border-radius:4px;padding:8px 10px;font-family:Roboto,sans-serif;font-size:13px;color:#111;background:transparent;outline:none;resize:vertical;min-height:72px;line-height:1.5;transition:border-color .2s" onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e8e8e8'"></textarea>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span id="v-texte-count" style="font-size:10px;color:#bbb;letter-spacing:0.5px">0 caractère</span>
+                <select class="val-select" id="s-texte" onchange="updValSelect(this);upd()">
+                  <option value="">Statut</option><option>Oui</option><option>Non</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="val-row">
@@ -645,6 +653,14 @@ function setBadge(id,state) {
 }
 
 function upd() {
+  // Textarea char counter
+  const vt = G('v-texte');
+  const cnt = G('v-texte-count');
+  if(vt && cnt) {
+    const n = vt.value.length;
+    cnt.textContent = n + ' caractère' + (n > 1 ? 's' : '');
+    cnt.style.color = n > 500 ? '#e07b00' : '#bbb';
+  }
   const d=collect();
   Object.assign(data,d);
   const s1=d.dept&&d.ref&&d.valid, s2=d.desc&&d.msg;
@@ -670,6 +686,7 @@ function upd() {
     lbl.style.color=miss.length>5?'#cc0000':'#e07b00';
     cb.style.display='none';
   }
+  autoSave();
 }
 
 // ── CHAT ─────────────────────────────────────
@@ -814,9 +831,39 @@ function printBrief(){if(!checkMiss())return;try{const blob=buildPDF().output('b
 function copyLink(){navigator.clipboard?navigator.clipboard.writeText(location.href).then(()=>showMsg('Lien copié !')):showMsg("Copiez l'URL du navigateur",'#666')}
 function toggleEmail(){const r=G('email-row');r.classList.toggle('open')}
 function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.includes('@')){showMsg('Email invalide','#cc0000');return}const d=getExportData();const s=encodeURIComponent('Brief Projet B&W — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W'));const b=encodeURIComponent('Bonjour,\n\nBrief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nLancement : '+fmtDate(d.launch)+'\n\nCordialement,\nStudio Graphique B&W');window.open('mailto:'+dest+'?subject='+s+'&body='+b);toggleEmail();showMsg('Client mail ouvert')}
-function resetAll(){if(!confirm('Effacer tous les champs et recommencer ?'))return;Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);document.querySelectorAll('.val-select').forEach(el=>{el.value='';updValSelect(el)});G('types-others').innerHTML='';G('supports-others').innerHTML='';chatState.step=0;chatState.done=false;upd();showMsg('Formulaire réinitialisé','#666')}
+function resetAll(){if(!confirm('Effacer tous les champs et recommencer ?'))return;try{localStorage.removeItem('bw_brief_draft')}catch(e){};Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);document.querySelectorAll('.val-select').forEach(el=>{el.value='';updValSelect(el)});G('types-others').innerHTML='';G('supports-others').innerHTML='';chatState.step=0;chatState.done=false;upd();showMsg('Formulaire réinitialisé','#666')}
+
+// ── AUTO-SAVE ─────────────────────────────────
+function autoSave() {
+  try {
+    const d = currentMode === 'manual' ? collect() : data;
+    localStorage.setItem('bw_brief_draft', JSON.stringify(d));
+    showSaveIndicator();
+  } catch(e) {}
+}
+
+function autoLoad() {
+  try {
+    const raw = localStorage.getItem('bw_brief_draft');
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    Object.assign(data, saved);
+    syncFormFromData();
+    showMsg('Brouillon restauré automatiquement', '#1a6b2a');
+  } catch(e) {}
+}
+
+let saveTimer = null;
+function showSaveIndicator() {
+  const el = G('save-indicator');
+  if(!el) return;
+  el.style.opacity = '1';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { el.style.opacity = '0'; }, 2000);
+}
 
 // INIT
+autoLoad();
 upd();
 </script>
 </body>
