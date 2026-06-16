@@ -475,7 +475,7 @@ function upd(){
   setBadge('b6',miss.length===0?'done':(miss.length<5?'partial':'empty'));
   const dot=G('sdot'),lbl=G('slbl'),mb=G('miss-box'),ul=G('miss-ul'),cb=G('done-banner');
   if(!miss.length){dot.className='sdot ok';lbl.textContent='Brief complet — prêt pour création';lbl.style.color='#1a6b2a';mb.style.display='none';cb.style.display='flex'}
-  else{dot.className='sdot '+(miss.length>5?'err':'warn');lbl.textContent=miss.length+' élément'+(miss.length>1?'s':'')+' manquant'+(miss.length>1?'s':'');lbl.style.color=miss.length>5?'#cc0000':'#e07b00';ul.innerHTML=miss.map(m=>'<li>'+m+'</li>').join('');mb.style.display='block';cb.style.display='none'}
+  else{dot.className='sdot '+(miss.length>5?'err':'warn');lbl.textContent=miss.length+' élément'+(miss.length>1?'s':'')+' manquant'+(miss.length>1?'s':'');lbl.style.color=miss.length>5?'#cc0000':'#e07b00';mb.style.display='none';cb.style.display='none'}
 }
 
 function msg(t,c='#1a6b2a'){const el=G('amsg');el.textContent=t;el.style.color=c;setTimeout(()=>el.textContent='',2800)}
@@ -512,8 +512,22 @@ function buildPDF(){
   return doc;
 }
 
-function dlPDF(){try{const d=collect();buildPDF().save('Brief_BW_'+(d.dept||'Studio')+'_'+new Date().toISOString().slice(0,10)+'.pdf');msg('PDF téléchargé')}catch(e){msg('Erreur PDF','#cc0000')}}
-function printBrief(){try{const blob=buildPDF().output('blob');const url=URL.createObjectURL(blob);const w=window.open(url,'_blank');if(w)w.onload=()=>w.print();msg('Impression...')}catch(e){msg('Erreur impression','#cc0000')}}
+function showMissAndConfirm(action){
+  const d=collect();const miss=getMiss(d);
+  const mb=G('miss-box');const ul=G('miss-ul');
+  if(miss.length){
+    ul.innerHTML=miss.map(m=>'<li>'+m+'</li>').join('');
+    mb.style.display='block';
+    mb.scrollIntoView({behavior:'smooth',block:'center'});
+    if(!confirm(miss.length+' information'+(miss.length>1?'s manquantes':' manquante')+'\n\n'+miss.map(m=>'• '+m).join('\n')+'\n\nContinuer quand même ?')){
+      return false;
+    }
+  }
+  mb.style.display='none';
+  return true;
+}
+function dlPDF(){if(!showMissAndConfirm())return;try{const d=collect();buildPDF().save('Brief_BW_'+(d.dept||'Studio')+'_'+new Date().toISOString().slice(0,10)+'.pdf');msg('PDF téléchargé')}catch(e){msg('Erreur PDF','#cc0000')}}
+function printBrief(){if(!showMissAndConfirm())return;try{const blob=buildPDF().output('blob');const url=URL.createObjectURL(blob);const w=window.open(url,'_blank');if(w)w.onload=()=>w.print();msg('Impression...')}catch(e){msg('Erreur impression','#cc0000')}}
 function copyLink(){const d=collect();const p=new URLSearchParams();Object.entries(d).forEach(([k,v])=>{if(v&&!(Array.isArray(v)&&!v.length))p.set(k,Array.isArray(v)?v.join('|'):v)});navigator.clipboard?navigator.clipboard.writeText(location.href.split('?')[0]+'?'+p.toString()).then(()=>msg('Lien copié !')):msg('Copiez l\'URL du navigateur','#666')}
 function toggleEmail(){const r=G('email-row');r.style.display=r.style.display==='flex'?'none':'flex'}
 function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.includes('@')){msg('Email invalide','#cc0000');return}const d=collect();const s=encodeURIComponent('Brief Projet — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W'));const b=encodeURIComponent('Bonjour,\n\nBrief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nLancement : '+fmtDate(d.launch)+'\n\nCordialement,\nStudio Graphique B&W');window.open('mailto:'+dest+'?subject='+s+'&body='+b);toggleEmail();msg('Client mail ouvert')}
