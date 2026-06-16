@@ -4,87 +4,97 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brief Projet — Studio Graphique B&W</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:#f0f0f0;min-height:100%}
-body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding:24px 16px 48px}
-.app{max-width:760px;margin:0 auto;background:#fff;color:#111}
+body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding:20px 14px 48px}
+.app{max-width:720px;margin:0 auto;background:#fff;color:#111}
 
-.hdr{background:#111;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
-.hdr-left .title{font-family:'Anton',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;text-transform:uppercase;line-height:1}
-.hdr-left .sub{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:4px}
-.hdr-logo{font-family:'Anton',sans-serif;font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.5);text-align:right;text-transform:uppercase;line-height:1.6}
+/* HEADER */
+.hdr{background:#111;padding:16px 22px;display:flex;align-items:center;justify-content:space-between}
+.hdr .title{font-family:'Anton',sans-serif;font-size:24px;letter-spacing:2px;color:#fff;text-transform:uppercase;line-height:1}
+.hdr .sub{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:4px}
+.hdr-logo{font-family:'Anton',sans-serif;font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.5);text-align:right;text-transform:uppercase;line-height:1.7}
 
-.ai-panel{border-bottom:2px solid #111}
-.ai-mode-bar{display:flex;border-bottom:1px solid #e8e8e8}
-.ai-mode-btn{flex:1;padding:11px 6px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;border:none;background:#fff;color:#aaa;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
-.ai-mode-btn.active{color:#111;border-bottom-color:#111}
-.ai-mode-btn i{font-size:16px}
-@media(max-width:420px){.ai-mode-btn span{display:none}}
+/* MODE BAR */
+.mode-bar{display:flex;border-bottom:2px solid #111}
+.mode-btn{flex:1;padding:11px 6px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;border:none;background:#fff;color:#aaa;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.mode-btn.active{color:#111;border-bottom-color:#111}
+.mode-btn i{font-size:16px}
+@media(max-width:400px){.mode-btn span{display:none}}
 
-.ai-intro{padding:12px 24px;background:#f8f8f8;border-bottom:1px solid #ebebeb}
-.ai-intro p{font-size:12px;color:#555;line-height:1.5}
-.ai-intro strong{color:#111}
-
-.chat-area{padding:14px 24px;min-height:180px;max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:86%;display:flex;flex-direction:column;gap:3px}
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;min-height:420px}
+.chat-area{flex:1;padding:16px 22px;display:flex;flex-direction:column;gap:10px;min-height:320px;max-height:420px;overflow-y:auto}
+.msg{max-width:88%;display:flex;flex-direction:column;gap:3px}
 .msg.ai{align-self:flex-start}
 .msg.user{align-self:flex-end}
-.bubble{padding:10px 14px;font-size:13px;line-height:1.5}
-.msg.ai .bubble{background:#f0f0f0;color:#111;border-radius:0 12px 12px 12px}
-.msg.user .bubble{background:#111;color:#fff;border-radius:12px 0 12px 12px}
+.bubble{padding:11px 14px;font-size:13px;line-height:1.55}
+.msg.ai .bubble{background:#f2f2f2;color:#111;border-radius:0 14px 14px 14px}
+.msg.user .bubble{background:#111;color:#fff;border-radius:14px 0 14px 14px}
 .ts{font-size:9px;color:#ccc;padding:0 4px}
 .msg.user .ts{text-align:right}
 
 .typing-wrap{align-self:flex-start}
-.typing{display:flex;align-items:center;gap:4px;padding:10px 14px;background:#f0f0f0;border-radius:0 12px 12px 12px;width:54px}
+.typing{display:flex;align-items:center;gap:4px;padding:11px 14px;background:#f2f2f2;border-radius:0 14px 14px 14px;width:54px}
 .typing span{width:6px;height:6px;background:#bbb;border-radius:50%;animation:bop 1.2s infinite}
 .typing span:nth-child(2){animation-delay:.2s}
 .typing span:nth-child(3){animation-delay:.4s}
-@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
 
-.chips{display:flex;flex-wrap:wrap;gap:7px;padding:10px 24px;border-top:1px solid #ebebeb;background:#fafafa}
+.chips-wrap{padding:10px 22px;border-top:1px solid #ebebeb;background:#fafafa;display:flex;flex-wrap:wrap;gap:7px}
 .chip{font-size:11px;color:#555;border:1px solid #ddd;padding:5px 11px;border-radius:14px;cursor:pointer;background:#fff;transition:all .15s;white-space:nowrap}
 .chip:hover{border-color:#111;color:#111}
 
-.chat-bar{padding:10px 24px;border-top:1px solid #ebebeb;display:flex;gap:8px;align-items:flex-end}
+.chat-bar{padding:10px 22px;border-top:1px solid #ebebeb;display:flex;gap:8px;align-items:flex-end;background:#fff}
 .chat-input{flex:1;border:1.5px solid #ddd;border-radius:20px;padding:9px 14px;font-family:'Roboto',sans-serif;font-size:13px;color:#111;outline:none;resize:none;min-height:38px;max-height:80px;line-height:1.4;transition:border-color .2s;background:#fff}
 .chat-input:focus{border-color:#111}
-.send-btn{width:38px;height:38px;background:#111;color:#fff;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-btn{width:38px;height:38px;background:#111;color:#fff;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .send-btn:hover{background:#333}
 .send-btn i{font-size:16px}
 
-.voice-area{padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;min-height:220px;justify-content:center}
-.voice-status{font-size:11px;color:#999;letter-spacing:1.5px;text-transform:uppercase;text-align:center}
-.voice-btn{width:76px;height:76px;border-radius:50%;border:2.5px solid #111;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative}
-.voice-btn i{font-size:30px;color:#111}
-.voice-btn.on{background:#111;border-color:#111}
+/* VOICE */
+.voice-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;padding:36px 22px;min-height:340px;justify-content:center}
+.voice-question{font-size:15px;color:#111;text-align:center;line-height:1.55;font-weight:500;min-height:48px;padding:0 10px;max-width:500px}
+.voice-status{font-size:10px;color:#bbb;letter-spacing:1.5px;text-transform:uppercase;text-align:center}
+.voice-btn{width:80px;height:80px;border-radius:50%;border:2.5px solid #111;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative;flex-shrink:0}
+.voice-btn i{font-size:32px;color:#111}
+.voice-btn.on{background:#111}
 .voice-btn.on i{color:#fff}
-.voice-btn.on::after{content:'';position:absolute;width:96px;height:96px;border-radius:50%;border:2px solid rgba(17,17,17,0.2);animation:pulse 1.5s infinite}
+.voice-btn.on::after{content:'';position:absolute;width:100px;height:100px;border-radius:50%;border:2px solid rgba(17,17,17,0.2);animation:pulse 1.5s infinite}
 @keyframes pulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.35);opacity:0}}
-.voice-text{font-size:13px;color:#555;text-align:center;min-height:44px;line-height:1.5;padding:0 16px;font-style:italic}
+.voice-transcript{font-size:13px;color:#888;text-align:center;min-height:36px;line-height:1.5;padding:0 20px;font-style:italic}
 .voice-hint{font-size:11px;color:#ccc;text-align:center}
+.voice-progress{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;padding:0 20px}
+.vpill{font-size:10px;padding:3px 9px;border-radius:10px;background:#e8f5e9;color:#1a6b2a;font-weight:700;letter-spacing:0.3px}
 
-.rule-bar{background:#1e1e1e;color:rgba(255,255,255,0.75);font-size:10.5px;padding:9px 24px;line-height:1.5}
+/* RECAP */
+.recap-wrap{padding:22px}
+.recap-title{font-family:'Anton',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#111;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.recap-title i{font-size:18px;color:#1a6b2a}
+.recap-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.recap-item:last-child{border-bottom:none}
+.recap-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#aaa;min-width:130px;flex-shrink:0;padding-top:1px}
+.recap-value{color:#111;line-height:1.4;flex:1}
+.recap-other{display:inline-block;background:#f0f0f0;color:#555;font-size:11px;padding:2px 8px;border-radius:3px;margin:2px 2px 2px 0}
+
+/* FORMULAIRE MANUEL */
+.form-wrap{padding:0}
+.rule-bar{background:#1e1e1e;color:rgba(255,255,255,0.75);font-size:10.5px;padding:9px 22px;line-height:1.5}
 .rule-bar strong{color:#fff;margin-right:4px}
-
-.prog-wrap{padding:14px 24px 0}
+.prog-wrap{padding:14px 22px 0}
 .prog-track{height:3px;background:#eee;border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;background:#111;transition:width .35s}
 .prog-lbl{font-size:10px;color:#bbb;letter-spacing:1.5px;text-transform:uppercase;margin-top:5px;padding-bottom:2px}
-
-.section{padding:20px 24px;border-bottom:1px solid #ebebeb}
-.sec-head{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.section{padding:18px 22px;border-bottom:1px solid #ebebeb}
+.sec-head{display:flex;align-items:center;gap:9px;margin-bottom:14px}
 .sec-num{background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:10px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sec-title{font-family:'Anton',sans-serif;font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:#111;flex:1}
+.sec-title{font-family:'Anton',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#111;flex:1}
 .sec-badge{font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 8px;border-radius:2px}
-.done{background:#e8f5e9;color:#1a6b2a}
-.partial{background:#fff8e1;color:#b36f00}
-.empty{background:#f5f5f5;color:#bbb}
+.done{background:#e8f5e9;color:#1a6b2a}.partial{background:#fff8e1;color:#b36f00}.empty{background:#f5f5f5;color:#bbb}
 
 .field{margin-bottom:12px}
 .field label{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#777;margin-bottom:5px}
@@ -93,212 +103,206 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 .field input:focus,.field select:focus,.field textarea:focus{border-bottom-color:#111}
 .field textarea{resize:vertical;min-height:56px;border:1.5px solid #ddd;padding:9px 10px;border-radius:2px}
 .field textarea:focus{border-color:#111}
-.ai-filled{border-bottom-color:#1a6b2a !important;background:rgba(26,107,42,0.03) !important;transition:all .4s !important}
 
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:460px){.row2{grid-template-columns:1fr}}
+@media(max-width:440px){.row2{grid-template-columns:1fr}}
 
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:6px}
-@media(max-width:380px){.cg{grid-template-columns:1fr}}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-top:6px}
+@media(max-width:360px){.cg{grid-template-columns:1fr}}
 .chk{display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0}
 .chk input[type=checkbox]{width:14px;height:14px;accent-color:#111;cursor:pointer;flex-shrink:0}
 .chk span{font-size:12px;color:#444}
+.add-other{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#999;cursor:pointer;margin-top:6px;padding:3px 0;border:none;background:none;font-family:'Roboto',sans-serif}
+.add-other:hover{color:#111}
+.other-inputs{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.other-input-row{display:flex;align-items:center;gap:8px}
+.other-input-row input{flex:1;border:none;border-bottom:1.5px solid #ddd;padding:5px 0;font-size:12px;font-family:'Roboto',sans-serif;color:#111;background:transparent;outline:none}
+.other-input-row input:focus{border-bottom-color:#111}
+.rm-other{background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
+.rm-other:hover{color:#cc0000}
 
 .vt{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
-.vt th{background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;padding:8px 9px;font-weight:400;text-align:left}
+.vt th{background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:7px 8px;font-weight:400;text-align:left}
 .vt th:last-child{text-align:center}
-.vt td{padding:7px 9px;border-bottom:1px solid #eee;vertical-align:middle}
+.vt td{padding:6px 8px;border-bottom:1px solid #eee;vertical-align:middle}
 .vt tr:nth-child(even) td{background:#fafafa}
-.vt td:first-child{font-size:11.5px;color:#555;width:33%;font-weight:500}
+.vt td:first-child{font-size:11px;color:#555;width:32%;font-weight:500}
 .vt td:nth-child(2) input{width:100%;border:none;border-bottom:1px solid #ddd;padding:3px 0;font-size:12px;background:transparent;outline:none;font-family:'Roboto',sans-serif;color:#111}
 .vt td:last-child{text-align:center;width:24%}
 .vt td select{border:none;border-bottom:1px solid #ddd;font-size:11px;background:transparent;outline:none;cursor:pointer;padding:2px 0;color:#111;font-family:'Roboto',sans-serif;width:100%}
 
 .warn-box{background:#111;color:#fff;font-size:11px;padding:11px 14px;line-height:1.6;margin-top:12px}
-
-.status-bar{display:flex;align-items:center;gap:9px;padding:10px 0;font-size:11.5px}
+.status-bar{display:flex;align-items:center;gap:9px;padding:10px 0;font-size:11px}
 .sdot{width:9px;height:9px;border-radius:50%;background:#ddd;flex-shrink:0;transition:background .3s}
 .sdot.ok{background:#1a6b2a}.sdot.warn{background:#e07b00}.sdot.err{background:#cc0000}
+.done-banner{background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px 22px;display:none;align-items:center;gap:9px}
 
-
-.done-banner{background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:11px 24px;display:none;align-items:center;gap:9px}
-
-.actions{padding:20px 24px;background:#f7f7f7;border-top:2px solid #111}
+/* ACTIONS */
+.actions{padding:18px 22px;background:#f7f7f7;border-top:2px solid #111}
 .actions-lbl{font-family:'Anton',sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#111;margin-bottom:12px}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 15px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;line-height:1}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;line-height:1}
 .btn:active{transform:scale(0.97)}
 .bp{background:#111;color:#fff}.bp:hover{background:#333}
 .bo{background:#fff;color:#111;border:1.5px solid #111}.bo:hover{background:#f0f0f0}
 .bg{background:transparent;color:#666;border:1.5px solid #ccc}.bg:hover{border-color:#111;color:#111}
 .btn i{font-size:14px}
-
 .email-row{display:none;align-items:center;gap:8px;margin-top:10px}
 .email-row input{flex:1;border:1.5px solid #ddd;padding:9px 12px;font-size:12px;font-family:'Roboto',sans-serif;outline:none;color:#111;background:#fff;border-radius:1px}
 .email-row input:focus{border-color:#111}
 .amsg{font-size:11px;margin-top:8px;min-height:16px}
-.ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:9px 24px;letter-spacing:1px;text-align:center;text-transform:uppercase}
+.ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:8px 22px;letter-spacing:1px;text-align:center;text-transform:uppercase}
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="hdr">
-    <div class="hdr-left">
+    <div>
       <div class="title">Brief Projet</div>
       <div class="sub">Studio Graphique — Document interne</div>
     </div>
     <div class="hdr-logo">Black &amp; White<br>Burger</div>
   </div>
 
-  <div class="ai-panel">
-    <div class="ai-mode-bar">
-      <button class="ai-mode-btn active" id="btn-chat" onclick="switchMode('chat')">
-        <i class="ti ti-message-circle"></i><span>Assistant chat</span>
-      </button>
-      <button class="ai-mode-btn" id="btn-voice" onclick="switchMode('voice')">
-        <i class="ti ti-microphone"></i><span>Assistant vocal</span>
-      </button>
-      <button class="ai-mode-btn" id="btn-manual" onclick="switchMode('manual')">
-        <i class="ti ti-pencil"></i><span>Remplir moi-même</span>
-      </button>
-    </div>
+  <div class="mode-bar">
+    <button class="mode-btn active" id="btn-chat" onclick="switchMode('chat')"><i class="ti ti-message-circle"></i><span>Assistant chat</span></button>
+    <button class="mode-btn" id="btn-voice" onclick="switchMode('voice')"><i class="ti ti-microphone"></i><span>Assistant vocal</span></button>
+    <button class="mode-btn" id="btn-manual" onclick="switchMode('manual')"><i class="ti ti-pencil"></i><span>Remplir moi-même</span></button>
+  </div>
 
-    <div id="mode-chat">
-      <div class="ai-intro"><p><strong>Décrivez votre projet</strong> en quelques mots — je remplis le brief automatiquement et vous pose les questions manquantes.</p></div>
-      <div class="chat-area" id="chat-area">
-        <div class="msg ai">
-          <div class="bubble">Bonjour ! Décrivez-moi votre projet — département, type de demande, deadline — et je remplis le brief pour vous.</div>
-          <div class="ts">Maintenant</div>
+  <!-- CHAT MODE -->
+  <div id="mode-chat">
+    <div class="chat-wrap">
+      <div class="chat-area" id="chat-area"></div>
+      <div class="chips-wrap" id="chips-wrap"></div>
+      <div class="chat-bar">
+        <textarea class="chat-input" id="chat-input" placeholder="Répondez ici..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+        <button class="send-btn" onclick="sendChat()"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+    <div id="chat-recap" style="display:none"></div>
+  </div>
+
+  <!-- VOICE MODE -->
+  <div id="mode-voice" style="display:none">
+    <div class="voice-wrap">
+      <div class="voice-question" id="vq">Appuyez sur le micro et parlez de votre projet.</div>
+      <div class="voice-status" id="vst">Prêt</div>
+      <button class="voice-btn" id="vbtn" onclick="toggleVoice()"><i class="ti ti-microphone"></i></button>
+      <div class="voice-transcript" id="vtxt"></div>
+      <div class="voice-hint">Chrome ou Safari — langue FR</div>
+      <div class="voice-progress" id="vprog"></div>
+    </div>
+    <div id="voice-recap" style="display:none"></div>
+  </div>
+
+  <!-- MANUAL MODE -->
+  <div id="mode-manual" style="display:none">
+    <div class="form-wrap">
+      <div class="rule-bar"><strong>Règle d'or :</strong> Ce brief doit être complété AVANT toute demande de création.</div>
+      <div class="prog-wrap">
+        <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+        <div class="prog-lbl" id="plbl">0 / 6 sections complètes</div>
+      </div>
+
+      <div class="section">
+        <div class="sec-head"><span class="sec-num">1</span><span class="sec-title">Qui demande</span><span class="sec-badge empty" id="b1">Vide</span></div>
+        <div class="field"><label>Département<span class="req">*</span></label>
+          <select id="dept" onchange="upd()">
+            <option value="">— Sélectionner —</option>
+            <option>Marketing</option><option>IT</option><option>Finances</option>
+            <option>Achats</option><option>Travaux</option><option>Direction</option>
+            <option>Franchisé</option><option>Autre</option>
+          </select></div>
+        <div class="row2">
+          <div class="field"><label>Référent unique<span class="req">*</span></label><input type="text" id="ref" placeholder="Prénom Nom" oninput="upd()"></div>
+          <div class="field"><label>Validateur final<span class="req">*</span></label><input type="text" id="valid" placeholder="Prénom Nom" oninput="upd()"></div>
         </div>
       </div>
-      <div class="chips" id="chips">
-        <div class="chip" onclick="useChip(this)">Campagne réseaux sociaux</div>
-        <div class="chip" onclick="useChip(this)">Menu board urgent</div>
-        <div class="chip" onclick="useChip(this)">Lancement produit</div>
-        <div class="chip" onclick="useChip(this)">PLV restaurant</div>
+
+      <div class="section">
+        <div class="sec-head"><span class="sec-num">2</span><span class="sec-title">La demande</span><span class="sec-badge empty" id="b2">Vide</span></div>
+        <div class="field"><label>Description<span class="req">*</span></label><textarea id="desc" placeholder="Décrivez le projet..." oninput="upd()"></textarea></div>
+        <div class="field"><label>Message principal<span class="req">*</span></label><input type="text" id="msg" placeholder="Message à faire passer" oninput="upd()"></div>
+        <div class="field"><label>Type de demande</label>
+          <div class="cg" id="types">
+            <label class="chk"><input type="checkbox" value="Campagne marketing" onchange="upd()"><span>Campagne marketing</span></label>
+            <label class="chk"><input type="checkbox" value="Réseaux sociaux" onchange="upd()"><span>Réseaux sociaux</span></label>
+            <label class="chk"><input type="checkbox" value="Menu board / borne" onchange="upd()"><span>Menu board / borne</span></label>
+            <label class="chk"><input type="checkbox" value="PLV / print" onchange="upd()"><span>PLV / print</span></label>
+            <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span>Packaging</span></label>
+            <label class="chk"><input type="checkbox" value="Travaux / signalétique" onchange="upd()"><span>Travaux / signalétique</span></label>
+            <label class="chk"><input type="checkbox" value="Présentation" onchange="upd()"><span>Présentation</span></label>
+          </div>
+          <div class="other-inputs" id="types-others"></div>
+          <button class="add-other" onclick="addOther('types-others','type','upd')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un autre type</button>
+        </div>
       </div>
-      <div class="chat-bar">
-        <textarea class="chat-input" id="chat-input" placeholder="Décrivez votre projet..." rows="1"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
-          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
-        <button class="send-btn" onclick="sendMsg()"><i class="ti ti-send"></i></button>
+
+      <div class="section">
+        <div class="sec-head"><span class="sec-num">3</span><span class="sec-title">Infos techniques</span><span class="sec-badge empty" id="b3">Vide</span></div>
+        <table class="vt">
+          <thead><tr><th>Information</th><th>Contenu exact</th><th>Validé ?</th></tr></thead>
+          <tbody>
+            <tr><td>Nom produit</td><td><input type="text" id="v-nom" oninput="upd()"></td><td><select id="s-nom" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option></select></td></tr>
+            <tr><td>Prix</td><td><input type="text" id="v-prix" oninput="upd()"></td><td><select id="s-prix" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
+            <tr><td>Dates</td><td><input type="text" id="v-dates" oninput="upd()"></td><td><select id="s-dates" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
+            <tr><td>Texte exact</td><td><input type="text" id="v-texte" oninput="upd()"></td><td><select id="s-texte" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option></select></td></tr>
+            <tr><td>Mentions</td><td><input type="text" id="v-mentions" oninput="upd()"></td><td><select id="s-mentions" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
+          </tbody>
+        </table>
+        <div class="field" style="margin-top:14px"><label>Lien Drive</label><input type="text" id="drive" placeholder="https://drive.google.com/..." oninput="upd()"></div>
       </div>
-    </div>
 
-    <div id="mode-voice" style="display:none">
-      <div class="voice-area">
-        <div class="voice-status" id="vst">Appuyez pour parler</div>
-        <button class="voice-btn" id="vbtn" onclick="toggleVoice()">
-          <i class="ti ti-microphone"></i>
-        </button>
-        <div class="voice-text" id="vtxt">Parlez de votre projet — département, demande, deadline...</div>
-        <div class="voice-hint">Chrome ou Safari requis pour la reconnaissance vocale</div>
+      <div class="section">
+        <div class="sec-head"><span class="sec-num">4</span><span class="sec-title">Supports &amp; formats</span><span class="sec-badge empty" id="b4">Vide</span></div>
+        <div class="cg" id="supports">
+          <label class="chk"><input type="checkbox" value="Post réseaux sociaux" onchange="upd()"><span>Post réseaux sociaux</span></label>
+          <label class="chk"><input type="checkbox" value="Story / Reel 9:16" onchange="upd()"><span>Story / Reel 9:16</span></label>
+          <label class="chk"><input type="checkbox" value="Affiche / flyer" onchange="upd()"><span>Affiche / flyer</span></label>
+          <label class="chk"><input type="checkbox" value="Menu board" onchange="upd()"><span>Menu board</span></label>
+          <label class="chk"><input type="checkbox" value="Newsletter" onchange="upd()"><span>Newsletter</span></label>
+          <label class="chk"><input type="checkbox" value="Bannière web" onchange="upd()"><span>Bannière web</span></label>
+          <label class="chk"><input type="checkbox" value="YouTube / vidéo" onchange="upd()"><span>YouTube / vidéo</span></label>
+          <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span>Packaging</span></label>
+        </div>
+        <div class="other-inputs" id="supports-others"></div>
+        <button class="add-other" onclick="addOther('supports-others','support','upd')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un autre support</button>
+        <div class="field" style="margin-top:12px"><label>Formats / dimensions</label><input type="text" id="formats" placeholder="Ex : 1080x1080, 1080x1920..." oninput="upd()"></div>
       </div>
-    </div>
 
-    <div id="mode-manual" style="display:none">
-      <div class="ai-intro"><p>Mode manuel — remplissez directement les champs ci-dessous.</p></div>
-    </div>
-  </div>
-
-  <div class="rule-bar"><strong>Règle d'or :</strong> Ce brief doit être complété AVANT toute demande de création. Les infos via WhatsApp ou téléphone ne sont pas validées.</div>
-
-  <div class="prog-wrap">
-    <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
-    <div class="prog-lbl" id="plbl">0 / 6 sections complètes</div>
-  </div>
-
-  <div class="section">
-    <div class="sec-head"><span class="sec-num">1</span><span class="sec-title">Qui demande</span><span class="sec-badge empty" id="b1">Vide</span></div>
-    <div class="field"><label>Département<span class="req">*</span></label>
-      <select id="dept" onchange="upd()">
-        <option value="">— Sélectionner —</option>
-        <option>Marketing</option><option>IT</option><option>Finances</option>
-        <option>Achats</option><option>Travaux</option><option>Direction</option>
-        <option>Franchisé</option><option>Autre</option>
-      </select></div>
-    <div class="row2">
-      <div class="field"><label>Référent unique<span class="req">*</span></label><input type="text" id="ref" placeholder="Prénom Nom" oninput="upd()"></div>
-      <div class="field"><label>Validateur final<span class="req">*</span></label><input type="text" id="valid" placeholder="Prénom Nom" oninput="upd()"></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="sec-head"><span class="sec-num">2</span><span class="sec-title">La demande</span><span class="sec-badge empty" id="b2">Vide</span></div>
-    <div class="field"><label>Description<span class="req">*</span></label><textarea id="desc" placeholder="Décrivez le projet et son contexte..." oninput="upd()"></textarea></div>
-    <div class="field"><label>Message principal<span class="req">*</span></label><input type="text" id="msg" placeholder="Message à faire passer" oninput="upd()"></div>
-    <div class="field"><label>Type de demande</label>
-      <div class="cg" id="types">
-        <label class="chk"><input type="checkbox" value="Campagne marketing" onchange="upd()"><span>Campagne marketing</span></label>
-        <label class="chk"><input type="checkbox" value="Réseaux sociaux" onchange="upd()"><span>Réseaux sociaux</span></label>
-        <label class="chk"><input type="checkbox" value="Menu board / borne" onchange="upd()"><span>Menu board / borne</span></label>
-        <label class="chk"><input type="checkbox" value="PLV / print" onchange="upd()"><span>PLV / print</span></label>
-        <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span>Packaging</span></label>
-        <label class="chk"><input type="checkbox" value="Travaux / signalétique" onchange="upd()"><span>Travaux / signalétique</span></label>
-        <label class="chk"><input type="checkbox" value="Présentation" onchange="upd()"><span>Présentation</span></label>
-        <label class="chk"><input type="checkbox" value="Autre" onchange="upd()"><span>Autre</span></label>
+      <div class="section">
+        <div class="sec-head"><span class="sec-num">5</span><span class="sec-title">Deadlines</span><span class="sec-badge empty" id="b5">Vide</span></div>
+        <div class="row2">
+          <div class="field"><label>Date de lancement<span class="req">*</span></label><input type="date" id="launch" onchange="upd()"></div>
+          <div class="field"><label>Validation infos<span class="req">*</span></label><input type="date" id="valinfo" onchange="upd()"></div>
+        </div>
+        <div class="field"><label>Retour simulation<span class="req">*</span></label><input type="date" id="simul" onchange="upd()"></div>
+        <div class="warn-box">Sans validation dans les délais impartis, la deadline de lancement ne peut pas être garantie.</div>
       </div>
+
+      <div class="section">
+        <div class="sec-head"><span class="sec-num">6</span><span class="sec-title">Statut</span><span class="sec-badge empty" id="b6">—</span></div>
+        <div class="status-bar"><span class="sdot" id="sdot"></span><span id="slbl" style="color:#bbb;font-size:11px">Remplissez le formulaire pour voir le statut</span></div>
+        <div class="field" style="margin-top:10px"><label>Notes / bloquants</label><textarea id="bloquants" placeholder="Informations manquantes ou contexte..." oninput="upd()"></textarea></div>
+      </div>
+
+      <div class="done-banner" id="done-banner"><i class="ti ti-check" style="font-size:16px"></i> Brief complet — prêt pour création</div>
     </div>
   </div>
 
-  <div class="section">
-    <div class="sec-head"><span class="sec-num">3</span><span class="sec-title">Infos techniques</span><span class="sec-badge empty" id="b3">Vide</span></div>
-    <table class="vt">
-      <thead><tr><th>Information</th><th>Contenu exact</th><th>Validé ?</th></tr></thead>
-      <tbody>
-        <tr><td>Nom produit</td><td><input type="text" id="v-nom" oninput="upd()"></td><td><select id="s-nom" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option></select></td></tr>
-        <tr><td>Prix</td><td><input type="text" id="v-prix" oninput="upd()"></td><td><select id="s-prix" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
-        <tr><td>Dates</td><td><input type="text" id="v-dates" oninput="upd()"></td><td><select id="s-dates" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
-        <tr><td>Texte exact</td><td><input type="text" id="v-texte" oninput="upd()"></td><td><select id="s-texte" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option></select></td></tr>
-        <tr><td>Mentions</td><td><input type="text" id="v-mentions" oninput="upd()"></td><td><select id="s-mentions" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
-      </tbody>
-    </table>
-    <div class="field" style="margin-top:14px"><label>Lien Drive</label><input type="text" id="drive" placeholder="https://drive.google.com/..." oninput="upd()"></div>
-  </div>
-
-  <div class="section">
-    <div class="sec-head"><span class="sec-num">4</span><span class="sec-title">Supports &amp; formats</span><span class="sec-badge empty" id="b4">Vide</span></div>
-    <div class="cg" id="supports">
-      <label class="chk"><input type="checkbox" value="Post réseaux sociaux" onchange="upd()"><span>Post réseaux sociaux</span></label>
-      <label class="chk"><input type="checkbox" value="Story / Reel 9:16" onchange="upd()"><span>Story / Reel 9:16</span></label>
-      <label class="chk"><input type="checkbox" value="Affiche / flyer" onchange="upd()"><span>Affiche / flyer</span></label>
-      <label class="chk"><input type="checkbox" value="Menu board" onchange="upd()"><span>Menu board</span></label>
-      <label class="chk"><input type="checkbox" value="Newsletter" onchange="upd()"><span>Newsletter</span></label>
-      <label class="chk"><input type="checkbox" value="Bannière web" onchange="upd()"><span>Bannière web</span></label>
-      <label class="chk"><input type="checkbox" value="YouTube / vidéo" onchange="upd()"><span>YouTube / vidéo</span></label>
-      <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span>Packaging</span></label>
-    </div>
-    <div class="field" style="margin-top:12px"><label>Formats / dimensions</label><input type="text" id="formats" placeholder="Ex : 1080x1080, 1080x1920..." oninput="upd()"></div>
-  </div>
-
-  <div class="section">
-    <div class="sec-head"><span class="sec-num">5</span><span class="sec-title">Deadlines</span><span class="sec-badge empty" id="b5">Vide</span></div>
-    <div class="row2">
-      <div class="field"><label>Date de lancement<span class="req">*</span></label><input type="date" id="launch" onchange="upd()"></div>
-      <div class="field"><label>Validation infos<span class="req">*</span></label><input type="date" id="valinfo" onchange="upd()"></div>
-    </div>
-    <div class="field"><label>Retour simulation<span class="req">*</span></label><input type="date" id="simul" onchange="upd()"></div>
-    <div class="warn-box">Sans validation dans les délais impartis, la deadline de lancement ne peut pas être garantie.</div>
-  </div>
-
-  <div class="section">
-    <div class="sec-head"><span class="sec-num">6</span><span class="sec-title">Statut</span><span class="sec-badge empty" id="b6">—</span></div>
-    <div class="status-bar"><span class="sdot" id="sdot"></span><span id="slbl" style="color:#bbb;font-size:11px">Remplissez le formulaire pour voir le statut</span></div>
-    <div class="field" style="margin-top:10px"><label>Notes / bloquants</label><textarea id="bloquants" placeholder="Informations manquantes ou contexte complémentaire..." oninput="upd()"></textarea></div>
-  </div>
-
-
-  <div class="done-banner" id="done-banner"><i class="ti ti-check" style="font-size:16px"></i> Brief complet — prêt pour création</div>
-
-  <div class="actions">
+  <!-- ACTIONS -->
+  <div class="actions" id="actions-bar">
     <div class="actions-lbl">Actions</div>
     <div class="btn-row">
       <button class="btn bp" onclick="dlPDF()"><i class="ti ti-download"></i> PDF</button>
       <button class="btn bo" onclick="printBrief()"><i class="ti ti-printer"></i> Imprimer</button>
       <button class="btn bg" onclick="copyLink()"><i class="ti ti-copy"></i> Lien</button>
       <button class="btn bg" onclick="toggleEmail()"><i class="ti ti-mail"></i> Mail</button>
-      <button class="btn bg" onclick="resetForm()"><i class="ti ti-refresh"></i> Reset</button>
+      <button class="btn bg" onclick="resetAll()"><i class="ti ti-refresh"></i> Reset</button>
     </div>
     <div class="email-row" id="email-row">
       <input type="email" id="email-dest" placeholder="adresse@bnwburger.com">
@@ -311,131 +315,402 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 </div>
 
 <script>
-const G=id=>document.getElementById(id);
-const checked=sel=>[...document.querySelectorAll(sel+' input[type=checkbox]:checked')].map(c=>c.value);
-const fmtDate=s=>{if(!s)return'—';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y};
+const G = id => document.getElementById(id);
+const checked = sel => [...document.querySelectorAll(sel+' input[type=checkbox]:checked')].map(c=>c.value);
+const fmtDate = s => { if(!s) return '—'; const [y,m,d]=s.split('-'); return d+'/'+m+'/'+y };
+const now = () => new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
 
-function switchMode(m){
-  ['chat','voice','manual'].forEach(k=>{
-    G('mode-'+k).style.display=k===m?'block':'none';
-    G('btn-'+k).classList.toggle('active',k===m);
+// ─── DATA STORE ───────────────────────────────────────────────
+const data = {
+  dept:'', ref:'', valid:'', desc:'', msg:'',
+  types:[], othersTypes:[], supports:[], othersSupports:[],
+  vNom:'', sPrix:'', vPrix:'', sDates:'', vDates:'',
+  sNom:'', vTexte:'', sTexte:'', vMentions:'', sMentions:'',
+  drive:'', formats:'', launch:'', valinfo:'', simul:'', bloquants:''
+};
+
+// ─── MODE SWITCH ──────────────────────────────────────────────
+let currentMode = 'chat';
+function switchMode(m) {
+  currentMode = m;
+  ['chat','voice','manual'].forEach(k => {
+    G('mode-'+k).style.display = k===m ? 'block' : 'none';
+    G('btn-'+k).classList.toggle('active', k===m);
+  });
+  if(m==='chat' && chatState.step===0) startChat();
+  if(m==='voice') startVoiceConv();
+  if(m==='manual') syncFormFromData();
+}
+
+// ─── SHARED: ADD OTHER ────────────────────────────────────────
+function addOther(containerId, type, callback, value='') {
+  const wrap = G(containerId);
+  if(!wrap) return;
+  const row = document.createElement('div');
+  row.className = 'other-input-row';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Précisez...';
+  input.value = value;
+  input.oninput = () => {
+    syncOthers();
+    if(callback) window[callback]&&window[callback]();
+  };
+  const rm = document.createElement('button');
+  rm.className = 'rm-other';
+  rm.innerHTML = '<i class="ti ti-x"></i>';
+  rm.onclick = () => { row.remove(); syncOthers(); if(callback) window[callback]&&window[callback](); };
+  row.appendChild(input); row.appendChild(rm);
+  wrap.appendChild(row);
+  input.focus();
+  return input;
+}
+
+function syncOthers() {
+  data.othersTypes = [...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean);
+  data.othersSupports = [...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean);
+}
+
+// ─── CHAT CONVERSATION ────────────────────────────────────────
+const chatState = { step: 0, done: false };
+
+const QUESTIONS = [
+  { key: 'intro', ask: "Bonjour ! Je suis là pour vous aider à remplir votre brief. Pour commencer — c'est pour quel département et quel projet ?" },
+  { key: 'ref_valid', ask: (d) => `Parfait. Qui est le référent unique sur ce projet${d.dept?' au '+d.dept:''}${d.vNom?' pour "'+d.vNom+'"':''}? Et qui valide en dernier recours ?` },
+  { key: 'desc_msg', ask: () => "Décrivez-moi le projet en quelques mots — et quel est le message principal à faire passer ?" },
+  { key: 'supports', ask: () => "Sur quels supports va-t-on diffuser ça ? Réseaux sociaux, menu board, print, newsletter... tout ce qui est prévu." },
+  { key: 'infos_tech', ask: (d) => `Est-ce que vous avez déjà le nom du produit, le prix et les textes exacts validés${d.vNom?' pour "'+d.vNom+'"':''}?` },
+  { key: 'dates', ask: () => "Quelles sont les deadlines ? La date de lancement, et dans quel délai les infos seront validées ?" },
+  { key: 'extras', ask: () => "Y a-t-il un lien Drive avec les fichiers, des formats précis ou des notes à ajouter ?" },
+];
+
+function startChat() {
+  G('chat-area').innerHTML = '';
+  G('chips-wrap').innerHTML = '';
+  chatState.step = 0;
+  chatState.done = false;
+  aiMsg(QUESTIONS[0].ask);
+  showChips(['Marketing','IT','Finances','Achats','Travaux','Direction','Franchisé']);
+}
+
+function aiMsg(text) {
+  const area = G('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.innerHTML = `<div class="bubble">${text}</div><div class="ts">${now()}</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function userMsg(text) {
+  const area = G('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.innerHTML = `<div class="bubble" style="background:#111;color:#fff;border-radius:14px 0 14px 14px">${text}</div><div class="ts" style="text-align:right">${now()}</div>`;
+  div.className = 'msg user';
+  div.innerHTML = `<div class="bubble">${text}</div><div class="ts">${now()}</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function showChips(chips) {
+  const wrap = G('chips-wrap');
+  wrap.innerHTML = '';
+  if(!chips||!chips.length){wrap.style.display='none';return}
+  wrap.style.display='flex';
+  chips.forEach(c => {
+    const d = document.createElement('div');
+    d.className='chip'; d.textContent=c;
+    d.onclick=()=>{G('chat-input').value=c;sendChat()};
+    wrap.appendChild(d);
   });
 }
 
-let isOn=false,recog=null;
-function toggleVoice(){isOn?stopV():startV()}
+function showTyping() {
+  const area = G('chat-area');
+  const d = document.createElement('div');
+  d.className='typing-wrap'; d.id='typ';
+  d.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
+  area.appendChild(d); area.scrollTop=area.scrollHeight;
+}
+function rmTyping(){const t=G('typ');if(t)t.remove()}
+
+function sendChat() {
+  const inp = G('chat-input');
+  const text = inp.value.trim();
+  if(!text) return;
+  userMsg(text);
+  inp.value=''; inp.style.height='auto';
+  G('chips-wrap').style.display='none';
+  showTyping();
+  setTimeout(()=>processChat(text), 800);
+}
+
+function processChat(text) {
+  rmTyping();
+  const t = text.toLowerCase();
+  const step = chatState.step;
+
+  // Parse based on current step
+  if(step===0) {
+    // Department + project name
+    const depts={marketing:'Marketing',it:'IT',tech:'IT',finances:'Finances',finance:'Finances',achats:'Achats',travaux:'Travaux',direction:'Direction','franchis':'Franchisé'};
+    for(const[k,v] of Object.entries(depts)){if(t.includes(k)){data.dept=v;break}}
+    // Try to extract project name
+    const nm=text.match(/(?:projet|campagne|opération|lancement|pour)\s+["«]?([A-Za-zÀ-ÿ0-9\s\-&]{3,30})["»]?/i);
+    if(nm) data.vNom=nm[1].trim().toUpperCase();
+    if(!data.dept) data.desc=text; // store as desc fallback
+    chatState.step=1;
+    const q=QUESTIONS[1].ask(data);
+    aiMsg(q);
+    showChips([]);
+  }
+  else if(step===1) {
+    // Ref + validateur
+    const parts=text.split(/[,\/\net\s]+(?:et|valide[ur]*|responsable|validat[eu]+r|final|dernier)/i);
+    if(parts.length>=2){data.ref=parts[0].trim();data.valid=parts[1].trim()}
+    else{data.ref=text.trim()}
+    chatState.step=2;
+    aiMsg(QUESTIONS[2].ask(data));
+    showChips([]);
+  }
+  else if(step===2) {
+    // Description + message
+    data.desc=text;
+    const msgMatch=text.match(/(?:message|dire|communiquer|mettre en avant|slogan)[:\s]+(.+)/i);
+    if(msgMatch) data.msg=msgMatch[1].trim();
+    chatState.step=3;
+    aiMsg(QUESTIONS[3].ask(data));
+    showChips(['Réseaux sociaux','Menu board','Print','Newsletter','Bannière web','YouTube']);
+  }
+  else if(step===3) {
+    // Supports — known + auto-detect others
+    const known={
+      'réseau':'Réseaux sociaux','social':'Réseaux sociaux','instagram':'Post réseaux sociaux','tiktok':'Story / Reel 9:16',
+      'snap':'Story / Reel 9:16','story':'Story / Reel 9:16','reel':'Story / Reel 9:16',
+      'menu board':'Menu board','borne':'Menu board','print':'PLV / print','flyer':'Affiche / flyer',
+      'affiche':'Affiche / flyer','newsletter':'Newsletter','bannière':'Bannière web','youtube':'YouTube / vidéo',
+      'vidéo':'YouTube / vidéo','packaging':'Packaging'
+    };
+    const found=new Set();
+    const others=[];
+    // Split input by common separators
+    const parts=text.split(/[,\/\n]+|(?:\s+et\s+)|(?:\s+aussi\s+)/i);
+    parts.forEach(p=>{
+      const pl=p.toLowerCase().trim();
+      let matched=false;
+      for(const[k,v] of Object.entries(known)){
+        if(pl.includes(k)){found.add(v);matched=true;break}
+      }
+      if(!matched && pl.length>2 && !['sur','les','des','un','une','du','de','et','le','la'].includes(pl)){
+        others.push(p.trim());
+      }
+    });
+    data.supports=[...found];
+    data.othersSupports=others.filter(o=>o.length>2);
+    chatState.step=4;
+    let reply=QUESTIONS[4].ask(data);
+    if(data.othersSupports.length) reply+=' (J\'ai noté aussi : '+data.othersSupports.join(', ')+'.)';
+    aiMsg(reply);
+    showChips(['Oui, tout est prêt','Le nom oui, le prix non','Pas encore']);
+  }
+  else if(step===4) {
+    // Infos techniques
+    if(t.includes('oui')||t.includes('tout est prêt')||t.includes('validé')){
+      data.sNom='Oui';data.sPrix='Oui';data.sTexte='Oui';
+    }
+    const pm=t.match(/(\d+[,.]?\d*)\s*€/);
+    if(pm){data.vPrix=pm[1]+'€';data.sPrix='Oui'}
+    const nm=text.match(/(?:s'appelle|nom[:\s]+|produit[:\s]+)(["\w\s\-À-ÿ]{2,30})/i);
+    if(nm) data.vNom=nm[1].trim().toUpperCase();
+    // Detect text already provided
+    if(t.includes('texte')&&(t.includes('oui')||t.includes('prêt')||t.includes('validé'))) data.sTexte='Oui';
+    if(t.length>30&&!data.msg) data.msg=text;
+    // Any "other" info mentioned?
+    const otherInfo=text.match(/(?:aussi|plus|il y a aussi|et aussi)[:\s]+(.+)/i);
+    if(otherInfo) data.othersTypes=[...data.othersTypes, otherInfo[1].trim()];
+    chatState.step=5;
+    aiMsg(QUESTIONS[5].ask(data));
+    showChips([]);
+  }
+  else if(step===5) {
+    // Dates
+    const dateRegex=/(\d{1,2})[\/\-\s](\d{1,2})(?:[\/\-\s](\d{4}|\d{2}))?/g;
+    const dates=[]; let m;
+    while((m=dateRegex.exec(text))!==null){
+      const y=m[3]?(m[3].length===2?'20'+m[3]:m[3]):new Date().getFullYear();
+      dates.push(`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);
+    }
+    if(dates[0]) data.launch=dates[0];
+    if(dates[1]) data.valinfo=dates[1];
+    if(t.includes('urgent')||t.includes('asap')){
+      const soon=new Date(); soon.setDate(soon.getDate()+3);
+      data.launch=soon.toISOString().slice(0,10);
+    }
+    chatState.step=6;
+    aiMsg(QUESTIONS[6].ask(data));
+    showChips(['Non, c\'est tout','Oui, j\'ai un Drive']);
+  }
+  else if(step===6) {
+    // Extras
+    const driveMatch=text.match(/https?:\/\/[^\s]+/);
+    if(driveMatch) data.drive=driveMatch[0];
+    const formatsMatch=text.match(/\d+x\d+[^\n,]*/g);
+    if(formatsMatch) data.formats=formatsMatch.join(', ');
+    if(t.length>10&&!t.includes('non')&&!t.includes("c'est tout")) data.bloquants=text;
+    chatState.step=7;
+    chatState.done=true;
+    finishAssistant('chat');
+  }
+}
+
+function finishAssistant(mode) {
+  aiMsg("C'est parfait — j'ai tout noté. Voici le récapitulatif de votre brief :");
+  setTimeout(()=>{
+    showChips([]);
+    const recapHtml=buildRecapHtml();
+    const recapEl=G(mode+'-recap');
+    recapEl.innerHTML=recapHtml;
+    recapEl.style.display='block';
+    recapEl.scrollIntoView({behavior:'smooth'});
+  }, 600);
+}
+
+function buildRecapHtml() {
+  const d = data;
+  const rows=[
+    ['Département', d.dept||'—'],
+    ['Référent unique', d.ref||'—'],
+    ['Validateur final', d.valid||'—'],
+    ['Description', d.desc||'—'],
+    ['Message principal', d.msg||'—'],
+    ['Type de demande', [...d.types,...d.othersTypes].join(', ')||'—'],
+    ['Nom produit', d.vNom||'—'],
+    ['Prix', d.vPrix||(d.sPrix==='N/A'?'N/A':'—')],
+    ['Dates / période', d.vDates||'—'],
+    ['Texte validé', d.sTexte==='Oui'?'Oui':'Non renseigné'],
+    ['Supports', [...d.supports,...d.othersSupports.map(o=>'Autre : '+o)].join(', ')||'—'],
+    ['Formats', d.formats||'—'],
+    ['Lancement', fmtDate(d.launch)],
+    ['Validation infos', fmtDate(d.valinfo)],
+    ['Lien Drive', d.drive||'—'],
+    ['Notes', d.bloquants||'—'],
+  ].filter(([,v])=>v&&v!=='—');
+
+  return `<div class="recap-wrap">
+    <div class="recap-title"><i class="ti ti-check-circle"></i> Récapitulatif du brief</div>
+    ${rows.map(([l,v])=>`<div class="recap-item"><span class="recap-label">${l}</span><span class="recap-value">${v}</span></div>`).join('')}
+  </div>`;
+}
+
+// ─── VOICE CONVERSATION ───────────────────────────────────────
+const voiceState = { step:0, done:false };
+let isListening=false, recog=null;
+
+const VOICE_QUESTIONS=[
+  "Pour commencer, c'est pour quel département et quel projet ?",
+  "Qui est le référent unique sur ce projet ? Et qui valide en dernier ?",
+  "Décrivez le projet en quelques mots. Quel est le message principal ?",
+  "Quels supports prévoyez-vous ? Réseaux sociaux, menu board, print...",
+  "Avez-vous déjà le nom du produit, le prix et les textes validés ?",
+  "Quelles sont les deadlines ? Date de lancement et validation des infos ?",
+  "Y a-t-il un Drive avec les fichiers, des formats précis ou des notes ?",
+];
+
+function startVoiceConv(){
+  voiceState.step=0; voiceState.done=false;
+  G('vprog').innerHTML='';
+  G('vq').textContent=VOICE_QUESTIONS[0];
+  G('vtxt').textContent='';
+  G('voice-recap').style.display='none';
+}
+
+function toggleVoice(){isListening?stopV():startV()}
+
 function startV(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){G('vst').textContent='Non supporté — utilisez Chrome';return}
-  recog=new SR();recog.lang='fr-FR';recog.continuous=false;recog.interimResults=true;
-  recog.onstart=()=>{isOn=true;G('vbtn').classList.add('on');G('vst').textContent='En écoute...'};
+  recog=new SR(); recog.lang='fr-FR'; recog.continuous=false; recog.interimResults=true;
+  recog.onstart=()=>{isListening=true;G('vbtn').classList.add('on');G('vst').textContent='En écoute...'}
   recog.onresult=e=>{
     const t=[...e.results].map(r=>r[0].transcript).join(' ');
     G('vtxt').textContent=t;
-    if(e.results[e.results.length-1].isFinal)processInput(t,true);
+    if(e.results[e.results.length-1].isFinal){processVoice(t)}
   };
   recog.onerror=()=>stopV();
   recog.onend=()=>stopV();
   recog.start();
 }
-function stopV(){isOn=false;if(recog)recog.stop();G('vbtn').classList.remove('on');G('vst').textContent='Appuyez pour parler'}
+function stopV(){isListening=false;if(recog)recog.stop();G('vbtn').classList.remove('on');G('vst').textContent='Appuyez pour répondre'}
 
-function useChip(el){G('chat-input').value=el.textContent;sendMsg()}
-function sendMsg(){
-  const inp=G('chat-input'),t=inp.value.trim();
-  if(!t)return;
-  addMsg(t,'user');inp.value='';inp.style.height='auto';
-  G('chips').style.display='none';
-  showTyping();
-  setTimeout(()=>processInput(t,false),900);
-}
-
-function addMsg(txt,role){
-  const a=G('chat-area'),now=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  const d=document.createElement('div');d.className='msg '+role;
-  d.innerHTML=`<div class="bubble">${txt}</div><div class="ts">${now}</div>`;
-  a.appendChild(d);a.scrollTop=a.scrollHeight;
-}
-function showTyping(){
-  const a=G('chat-area'),d=document.createElement('div');
-  d.className='typing-wrap';d.id='typ';
-  d.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
-  a.appendChild(d);a.scrollTop=a.scrollHeight;
-}
-function rmTyping(){const t=G('typ');if(t)t.remove()}
-
-function setF(id,val){
-  const el=G(id);if(!el)return;
-  if(el.tagName==='SELECT'){[...el.options].forEach(o=>{if(o.text===val||o.value===val)o.selected=true})}
-  else el.value=val;
-  el.classList.add('ai-filled');setTimeout(()=>el.classList.remove('ai-filled'),2500);
-}
-function checkV(gid,val){document.querySelectorAll('#'+gid+' input[type=checkbox]').forEach(b=>{if(b.value===val)b.checked=true})}
-
-function processInput(text,isVoice){
-  const t=text.toLowerCase();const filled=[];
-
-  const dm={marketing:'Marketing',it:'IT',tech:'IT',finance:'Finances',achats:'Achats',travaux:'Travaux',direction:'Direction','franchis':'Franchisé'};
-  for(const[k,v]of Object.entries(dm)){if(t.includes(k)){setF('dept',v);filled.push('département → '+v);break}}
-
-  const tm={'réseau':'Réseaux sociaux','social':'Réseaux sociaux','instagram':'Réseaux sociaux','tiktok':'Réseaux sociaux','snap':'Réseaux sociaux','menu board':'Menu board / borne','borne':'Menu board / borne','campagne':'Campagne marketing','packaging':'Packaging','plv':'PLV / print','flyer':'PLV / print','affiche':'PLV / print','travaux':'Travaux / signalétique','présentation':'Présentation'};
-  for(const[k,v]of Object.entries(tm)){if(t.includes(k)){checkV('types',v)}}
-
-  const sm={'instagram':'Post réseaux sociaux','story':'Story / Reel 9:16','reel':'Story / Reel 9:16','tiktok':'Story / Reel 9:16','youtube':'YouTube / vidéo','vidéo':'YouTube / vidéo','newsletter':'Newsletter','bannière':'Bannière web','menu board':'Menu board','flyer':'Affiche / flyer','affiche':'Affiche / flyer'};
-  for(const[k,v]of Object.entries(sm)){if(t.includes(k)){checkV('supports',v)}}
-
-  if(t.includes('urgent')||t.includes('asap')||t.includes('rapidement')){
-    const d=new Date();d.setDate(d.getDate()+3);
-    const iso=d.toISOString().slice(0,10);
-    setF('launch',iso);setF('valinfo',iso);filled.push('deadline urgente');
+function processVoice(text){
+  stopV();
+  // Reuse same parsing logic as chat
+  processChat(text); // shares data store
+  const step=voiceState.step=chatState.step;
+  // Update voice UI
+  if(step-1<VOICE_QUESTIONS.length && !chatState.done){
+    G('vq').textContent=VOICE_QUESTIONS[step-1]||'';
+    G('vtxt').textContent='';
   }
-
-  const dm2=t.match(/(\d{1,2})[\/\-\s](\d{1,2})(?:[\/\-\s](\d{4}|\d{2}))?/);
-  if(dm2&&!t.includes('urgent')){
-    const y=dm2[3]?(dm2[3].length===2?'20'+dm2[3]:dm2[3]):new Date().getFullYear();
-    setF('launch',`${y}-${dm2[2].padStart(2,'0')}-${dm2[1].padStart(2,'0')}`);
-    filled.push('date → '+dm2[1]+'/'+dm2[2]);
-  }
-
-  const pm=t.match(/(\d+[,.]?\d*)\s*€/);
-  if(pm){setF('v-prix',pm[1]+'€');setF('s-prix','Oui');filled.push('prix → '+pm[1]+'€')}
-
-  const nm=t.match(/(?:projet|campagne|opération|offre|lancement)\s+(["\w\s\-]{3,30})/i);
-  if(nm){const n=nm[1].replace(/['"]/g,'').trim();setF('v-nom',n.toUpperCase());filled.push('nom → '+n.toUpperCase())}
-
-  if(text.length>25&&!G('desc').value){setF('desc',text.charAt(0).toUpperCase()+text.slice(1));filled.push('description remplie')}
-
-  upd();rmTyping();
-
-  let reply='';
-  if(filled.length){
-    reply='J\'ai rempli : '+filled.join(', ')+'. ';
-    const miss=getMiss(collect());
-    if(miss.length){
-      const q={'Département':'Quel département fait cette demande ?','Référent unique':'Qui est le référent unique pour ce projet ?','Description du projet':'Pouvez-vous décrire le projet en quelques mots ?','Message principal':'Quel est le message principal à faire passer ?','Supports à créer':'Quels supports souhaitez-vous créer ?','Date de lancement':'Quelle est la date de lancement ?','Validation infos':'Pour quelle date les informations seront-elles validées ?','Retour simulation':'Dans quel délai pouvez-vous valider la simulation ?','Nom produit / projet':'Quel est le nom exact du produit ou du projet ?','Texte exact à utiliser':'Avez-vous un texte exact déjà validé ?'};
-      reply+='Il me manque encore : <strong>'+miss[0]+'</strong>. '+(q[miss[0]]||'Pouvez-vous me le préciser ?');
-    } else {
-      reply='Brief complet ! Tout est renseigné. Vous pouvez télécharger le PDF.';
+  // Update pills
+  const pills=['dept','ref','desc','supports','vNom','launch'];
+  const labels=['Département','Référent','Description','Supports','Produit','Deadline'];
+  const vprog=G('vprog'); vprog.innerHTML='';
+  pills.forEach((k,i)=>{
+    if(data[k]&&data[k].length){
+      const p=document.createElement('span');p.className='vpill';p.textContent=labels[i];vprog.appendChild(p);
     }
+  });
+  if(chatState.done){
+    G('vq').textContent='Brief complet !';
+    G('vst').textContent='Terminé';
+    G('voice-recap').innerHTML=buildRecapHtml();
+    G('voice-recap').style.display='block';
+    G('voice-recap').scrollIntoView({behavior:'smooth'});
   } else {
-    const qs=['Quel département fait cette demande ?','Quelle est la date de lancement prévue ?','Quels supports souhaitez-vous créer ?','Quel est le message principal à communiquer ?'];
-    reply='Je n\'ai pas bien identifié les informations. '+qs[Math.floor(Math.random()*qs.length)];
+    G('vst').textContent='Appuyez pour répondre';
   }
+}
 
-  if(isVoice){G('vtxt').textContent=text}
-  addMsg(reply,'ai');
+// ─── MANUAL FORM ──────────────────────────────────────────────
+function syncFormFromData(){
+  // Sync data store → form fields
+  const d=data;
+  const setV=(id,v)=>{const el=G(id);if(el)el.value=v};
+  const setSel=(id,v)=>{const el=G(id);if(!el)return;[...el.options].forEach(o=>{if(o.text===v||o.value===v)o.selected=true})};
+  setSel('dept',d.dept); setV('ref',d.ref); setV('valid',d.valid);
+  setV('desc',d.desc); setV('msg',d.msg);
+  setV('v-nom',d.vNom); setV('v-prix',d.vPrix); setV('v-dates',d.vDates);
+  setV('v-texte',d.vTexte); setV('v-mentions',d.vMentions);
+  setSel('s-nom',d.sNom); setSel('s-prix',d.sPrix); setSel('s-dates',d.sDates);
+  setSel('s-texte',d.sTexte); setSel('s-mentions',d.sMentions);
+  setV('drive',d.drive); setV('formats',d.formats);
+  setV('launch',d.launch); setV('valinfo',d.valinfo); setV('simul',d.simul);
+  setV('bloquants',d.bloquants);
+  // Types checkboxes
+  document.querySelectorAll('#types input[type=checkbox]').forEach(cb=>{cb.checked=d.types.includes(cb.value)});
+  // Supports checkboxes
+  document.querySelectorAll('#supports input[type=checkbox]').forEach(cb=>{cb.checked=d.supports.includes(cb.value)});
+  // Others
+  G('types-others').innerHTML=''; d.othersTypes.forEach(v=>addOther('types-others','type','upd',v));
+  G('supports-others').innerHTML=''; d.othersSupports.forEach(v=>addOther('supports-others','support','upd',v));
+  upd();
 }
 
 function collect(){
   return{
-    dept:G('dept').value,ref:G('ref').value.trim(),valid:G('valid').value.trim(),
-    desc:G('desc').value.trim(),msg:G('msg').value.trim(),
-    types:checked('#types'),
-    vNom:G('v-nom').value.trim(),vPrix:G('v-prix').value.trim(),
-    vDates:G('v-dates').value.trim(),vTexte:G('v-texte').value.trim(),
-    vMentions:G('v-mentions').value.trim(),
-    supports:checked('#supports'),formats:G('formats').value.trim(),
-    launch:G('launch').value,valinfo:G('valinfo').value,simul:G('simul').value,
+    dept:G('dept').value, ref:G('ref').value.trim(), valid:G('valid').value.trim(),
+    desc:G('desc').value.trim(), msg:G('msg').value.trim(),
+    types:checked('#types'), othersTypes:[...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean),
+    vNom:G('v-nom').value.trim(), vPrix:G('v-prix').value.trim(),
+    vDates:G('v-dates').value.trim(), vTexte:G('v-texte').value.trim(),
+    vMentions:G('v-mentions').value.trim(), sNom:G('s-nom').value,
+    sPrix:G('s-prix').value, sDates:G('s-dates').value, sTexte:G('s-texte').value,
+    sMentions:G('s-mentions').value, drive:G('drive').value.trim(),
+    formats:G('formats').value.trim(), supports:checked('#supports'),
+    othersSupports:[...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean),
+    launch:G('launch').value, valinfo:G('valinfo').value, simul:G('simul').value,
     bloquants:G('bloquants').value.trim()
   }
 }
@@ -444,24 +719,25 @@ function getMiss(d){
   const m=[];
   if(!d.dept)m.push('Département');if(!d.ref)m.push('Référent unique');
   if(!d.valid)m.push('Validateur final');if(!d.desc)m.push('Description du projet');
-  if(!d.msg)m.push('Message principal');if(!d.supports.length)m.push('Supports à créer');
+  if(!d.msg)m.push('Message principal');
+  if(!d.supports.length&&!d.othersSupports.length)m.push('Supports à créer');
   if(!d.launch)m.push('Date de lancement');if(!d.valinfo)m.push('Validation infos');
   if(!d.simul)m.push('Retour simulation');if(!d.vNom)m.push('Nom produit / projet');
-  if(!d.vTexte)m.push('Texte exact à utiliser');
+  if(!d.vTexte&&d.sTexte!=='Oui')m.push('Texte exact à utiliser');
   return m;
 }
 
-function setBadge(id,state){
-  const el=G(id);if(!el)return;
-  el.className='sec-badge '+state;
-  el.textContent={done:'Complet',partial:'Partiel',empty:'Vide'}[state];
-}
+function setBadge(id,state){const el=G(id);if(!el)return;el.className='sec-badge '+state;el.textContent={done:'Complet',partial:'Partiel',empty:'Vide'}[state]}
 
 function upd(){
   const d=collect();
-  const s1=d.dept&&d.ref&&d.valid,s2=d.desc&&d.msg,s3=d.vNom||d.vPrix||d.vTexte;
-  const s4=d.supports.length>0,s5=d.launch&&d.valinfo&&d.simul;
-  const miss=getMiss(d);const sc=[s1,s2,s3,s4,s5,miss.length===0].filter(Boolean).length;
+  // Sync back to data store
+  Object.assign(data, d);
+  const s1=d.dept&&d.ref&&d.valid, s2=d.desc&&d.msg;
+  const s3=d.vNom||d.vPrix||d.vTexte;
+  const s4=d.supports.length>0||d.othersSupports.length>0;
+  const s5=d.launch&&d.valinfo&&d.simul;
+  const miss=getMiss(d); const sc=[s1,s2,s3,s4,s5,miss.length===0].filter(Boolean).length;
   G('prog').style.width=Math.round(sc/6*100)+'%';
   G('plbl').textContent=sc+' / 6 sections complètes';
   setBadge('b1',s1?'done':(d.dept||d.ref?'partial':'empty'));
@@ -475,59 +751,71 @@ function upd(){
   else{dot.className='sdot '+(miss.length>5?'err':'warn');lbl.textContent=miss.length+' élément'+(miss.length>1?'s':'')+' manquant'+(miss.length>1?'s':'');lbl.style.color=miss.length>5?'#cc0000':'#e07b00';cb.style.display='none'}
 }
 
-function msg(t,c='#1a6b2a'){const el=G('amsg');el.textContent=t;el.style.color=c;setTimeout(()=>el.textContent='',2800)}
+// ─── PDF ──────────────────────────────────────────────────────
+function getExportData(){
+  if(currentMode==='manual') return collect();
+  return {...data, types:[...data.types,...data.othersTypes], supports:[...data.supports,...data.othersSupports]};
+}
+
+function checkMissAndConfirm(){
+  const d=getExportData(); const miss=getMiss(d);
+  if(!miss.length) return true;
+  return confirm(miss.length+' information'+(miss.length>1?'s manquantes':' manquante')+' :\n\n'+miss.map(m=>'• '+m).join('\n')+'\n\nContinuer quand même ?');
+}
 
 function buildPDF(){
-  const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});
-  const d=collect();const W=210,ML=14,CW=196;let y=0;
+  const{jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const d=getExportData(); const W=210,ML=14,CW=196; let y=0;
   function np(){doc.addPage();y=14}
   function cp(n=20){if(y+n>283)np()}
   doc.setFillColor(17,17,17);doc.rect(0,0,W,26,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);doc.text('BRIEF PROJET',ML,11);
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);doc.text('Studio Graphique — Black & White Burger — Document interne',ML,17);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);doc.text('Studio Graphique — Black & White Burger',ML,17);
   doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(180,180,180);doc.text('BLACK & WHITE BURGER',W-ML,14,{align:'right'});
   doc.setFillColor(30,30,30);doc.rect(0,26,W,9,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(190,190,190);doc.text('REGLE D\'OR : Ce brief doit etre complete AVANT toute demande de creation.',ML,31.5);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(190,190,190);
+  doc.text('REGLE D\'OR : Ce brief doit etre complete AVANT toute demande de creation.',ML,31.5);
   y=42;
   function st(n,t){cp(14);doc.setFillColor(17,17,17);doc.rect(ML,y,7,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text(String(n),ML+3.5,y+5,{align:'center'});doc.setTextColor(17,17,17);doc.setFontSize(9.5);doc.text(t.toUpperCase(),ML+11,y+5);y+=11}
   function fl(lbl,val,miss=false){cp(9);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(120,120,120);doc.text(lbl.toUpperCase(),ML,y);const v=val||(miss?'— MANQUANT':'—');doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(miss?180:17,miss?0:17,miss?0:17);const lines=doc.splitTextToSize(v,CW-46);doc.text(lines,ML+46,y);doc.setDrawColor(miss?200:210,miss?0:210,miss?0:210);doc.line(ML+44,y+1.5,ML+CW,y+1.5);y+=7+Math.max(0,(lines.length-1)*5)}
   function dv(){cp(7);doc.setDrawColor(220,220,220);doc.line(ML,y,ML+CW,y);y+=7}
   function wb(t){cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,9,'F');doc.setFont('helvetica','italic');doc.setFontSize(7.5);doc.setTextColor(220,220,220);doc.text(t,ML+4,y+5.5);y+=13}
+  const allTypes=[...(d.types||[]),...(d.othersTypes||[])].join(', ')||'—';
+  const allSupports=[...(d.supports||[]),...(d.othersSupports||[]).map(o=>'Autre : '+o)].join(', ')||'—';
   st(1,'Qui demande');fl('Département',d.dept,!d.dept);fl('Référent unique',d.ref,!d.ref);fl('Validateur final',d.valid,!d.valid);dv();
-  st(2,'La demande');fl('Description',d.desc,!d.desc);fl('Message principal',d.msg,!d.msg);fl('Type de demande',d.types.join(', ')||'—');dv();
+  st(2,'La demande');fl('Description',d.desc,!d.desc);fl('Message principal',d.msg,!d.msg);fl('Type de demande',allTypes);dv();
   st(3,'Informations techniques');
-  cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
-  [[d.vNom,'Nom produit',G('s-nom').value],[d.vPrix,'Prix',G('s-prix').value],[d.vDates,'Dates',G('s-dates').value],[d.vTexte,'Texte exact',G('s-texte').value],[d.vMentions,'Mentions',G('s-mentions').value]].forEach(([v,l,s],i)=>{cp(8);i%2===0?doc.setFillColor(255,255,255):doc.setFillColor(250,250,250);doc.rect(ML,y-1,CW,8,'F');doc.setFont('helvetica','normal');doc.setFontSize(8.5);const miss=!v;doc.setTextColor(miss?170:60,miss?0:60,miss?0:60);doc.text(l,ML+3,y+4.5);doc.setTextColor(17,17,17);doc.text(v||'—',ML+58,y+4.5);doc.setTextColor(s==='Oui'?26:100,s==='Oui'?107:100,s==='Oui'?42:100);doc.text(s||'—',ML+CW-18,y+4.5);y+=8});
+  cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);
+  doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
+  [[d.vNom,'Nom produit',d.sNom],[d.vPrix,'Prix',d.sPrix],[d.vDates,'Dates',d.sDates],[d.vTexte,'Texte exact',d.sTexte],[d.vMentions,'Mentions',d.sMentions]].forEach(([v,l,s],i)=>{
+    cp(8);i%2===0?doc.setFillColor(255,255,255):doc.setFillColor(250,250,250);
+    doc.rect(ML,y-1,CW,8,'F');doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    doc.setTextColor(!v?170:60,!v?0:60,!v?0:60);doc.text(l,ML+3,y+4.5);
+    doc.setTextColor(17,17,17);doc.text(v||'—',ML+58,y+4.5);
+    doc.setTextColor(s==='Oui'?26:100,s==='Oui'?107:100,s==='Oui'?42:100);doc.text(s||'—',ML+CW-18,y+4.5);y+=8;
+  });
   y+=3;fl('Lien Drive',d.drive||'—');dv();
-  st(4,'Supports & formats');fl('Supports',d.supports.join(', ')||'—',!d.supports.length);fl('Formats',d.formats||'—');dv();
-  st(5,'Deadlines');fl('Date de lancement',fmtDate(d.launch),!d.launch);fl('Validation infos',fmtDate(d.valinfo),!d.valinfo);fl('Retour simulation',fmtDate(d.simul),!d.simul);
+  st(4,'Supports & formats');fl('Supports',allSupports,!d.supports.length&&!d.othersSupports.length);fl('Formats',d.formats||'—');dv();
+  st(5,'Deadlines');fl('Lancement',fmtDate(d.launch),!d.launch);fl('Validation infos',fmtDate(d.valinfo),!d.valinfo);fl('Retour simulation',fmtDate(d.simul),!d.simul);
   wb('Sans validation dans les delais, la deadline de lancement ne peut pas etre garantie.');dv();
   st(6,'Statut');const miss=getMiss(d);fl('Statut',miss.length?'Incomplet — '+miss.length+' élément(s) manquant(s)':'Complet — prêt pour création');
   if(d.bloquants)fl('Notes',d.bloquants);
   if(miss.length){cp(8+miss.length*6);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(180,0,0);doc.text('INFORMATIONS MANQUANTES :',ML,y);y+=6;doc.setFont('helvetica','normal');miss.forEach(m=>{cp(6);doc.text('→  '+m,ML+4,y);y+=5.5})}
-  cp(12);y+=6;doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);doc.line(ML,y-2,ML+CW,y-2);doc.text('Studio Graphique — Black & White Burger — '+new Date().toLocaleDateString('fr-BE'),ML,y+3);
+  cp(12);y+=6;doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);doc.line(ML,y-2,ML+CW,y-2);
+  doc.text('Studio Graphique — B&W Burger — '+new Date().toLocaleDateString('fr-BE'),ML,y+3);
   return doc;
 }
 
-function showMissAndConfirm(){
-  const d=collect();const miss=getMiss(d);
-  if(!miss.length)return true;
-  const list=miss.map(m=>'• '+m).join('
-');
-  return confirm(miss.length+' information'+(miss.length>1?'s manquantes':' manquante')+' :
-
-'+list+'
-
-Continuer quand même ?');
-}
-function dlPDF(){if(!showMissAndConfirm())return;try{const d=collect();buildPDF().save('Brief_BW_'+(d.dept||'Studio')+'_'+new Date().toISOString().slice(0,10)+'.pdf');msg('PDF téléchargé')}catch(e){msg('Erreur PDF','#cc0000')}}
-function printBrief(){if(!showMissAndConfirm())return;try{const blob=buildPDF().output('blob');const url=URL.createObjectURL(blob);const w=window.open(url,'_blank');if(w)w.onload=()=>w.print();msg('Impression...')}catch(e){msg('Erreur impression','#cc0000')}}
-function copyLink(){const d=collect();const p=new URLSearchParams();Object.entries(d).forEach(([k,v])=>{if(v&&!(Array.isArray(v)&&!v.length))p.set(k,Array.isArray(v)?v.join('|'):v)});navigator.clipboard?navigator.clipboard.writeText(location.href.split('?')[0]+'?'+p.toString()).then(()=>msg('Lien copié !')):msg('Copiez l\'URL du navigateur','#666')}
+function msg(t,c='#1a6b2a'){const el=G('amsg');el.textContent=t;el.style.color=c;setTimeout(()=>el.textContent='',2800)}
+function dlPDF(){if(!checkMissAndConfirm())return;try{const d=getExportData();buildPDF().save('Brief_BW_'+(d.dept||'Studio')+'_'+new Date().toISOString().slice(0,10)+'.pdf');msg('PDF téléchargé')}catch(e){msg('Erreur PDF','#cc0000')}}
+function printBrief(){if(!checkMissAndConfirm())return;try{const blob=buildPDF().output('blob');const url=URL.createObjectURL(blob);const w=window.open(url,'_blank');if(w)w.onload=()=>w.print();msg('Impression...')}catch(e){msg('Erreur impression','#cc0000')}}
+function copyLink(){navigator.clipboard?navigator.clipboard.writeText(location.href).then(()=>msg('Lien copié !')):msg('Copiez l\'URL du navigateur','#666')}
 function toggleEmail(){const r=G('email-row');r.style.display=r.style.display==='flex'?'none':'flex'}
-function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.includes('@')){msg('Email invalide','#cc0000');return}const d=collect();const s=encodeURIComponent('Brief Projet — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W'));const b=encodeURIComponent('Bonjour,\n\nBrief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nLancement : '+fmtDate(d.launch)+'\n\nCordialement,\nStudio Graphique B&W');window.open('mailto:'+dest+'?subject='+s+'&body='+b);toggleEmail();msg('Client mail ouvert')}
-function resetForm(){if(!confirm('Réinitialiser tous les champs ?'))return;document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);upd();msg('Formulaire réinitialisé','#666')}
+function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.includes('@')){msg('Email invalide','#cc0000');return}const d=getExportData();const s=encodeURIComponent('Brief Projet B&W — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W'));const b=encodeURIComponent('Bonjour,\n\nBrief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nLancement : '+fmtDate(d.launch)+'\n\nCordialement,\nStudio Graphique B&W');window.open('mailto:'+dest+'?subject='+s+'&body='+b);toggleEmail();msg('Client mail ouvert')}
+function resetAll(){if(!confirm('Réinitialiser ?'))return;Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);G('types-others').innerHTML='';G('supports-others').innerHTML='';startChat();upd();msg('Réinitialisé','#666')}
 
-upd();
+// ─── INIT ─────────────────────────────────────────────────────
+switchMode('chat');
 </script>
 </body>
 </html>
