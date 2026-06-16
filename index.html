@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brief Projet — Studio Graphique B&W</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#f0f0f0;min-height:100%}
+body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding:24px 16px 48px}
+.app{max-width:760px;margin:0 auto;background:#fff;color:#111;box-shadow:0 2px 24px rgba(0,0,0,0.10)}
+
+.hdr{background:#111;padding:22px 32px;display:flex;align-items:center;justify-content:space-between}
+.hdr-left .title{font-family:'Anton',sans-serif;font-size:30px;letter-spacing:3px;color:#fff;text-transform:uppercase;line-height:1}
+.hdr-left .sub{font-size:10px;letter-spacing:2.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:5px}
+.hdr-logo{font-family:'Anton',sans-serif;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.55);text-align:right;text-transform:uppercase;line-height:1.6}
+
+.rule-bar{background:#1e1e1e;color:rgba(255,255,255,0.78);font-size:11px;padding:10px 32px;line-height:1.5;border-bottom:1px solid #333}
+.rule-bar strong{color:#fff;margin-right:4px}
+
+.progress-wrap{padding:16px 32px 0;background:#fff}
+.progress-track{height:3px;background:#e5e5e5;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:#111;border-radius:2px;transition:width 0.35s ease}
+.progress-label{font-size:10px;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;padding-bottom:4px}
+
+.section{padding:22px 32px;border-bottom:1px solid #ebebeb}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sec-num{background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:11px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-title{font-family:'Anton',sans-serif;font-size:11.5px;letter-spacing:3.5px;text-transform:uppercase;color:#111}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.3px;color:#777;margin-bottom:5px}
+.field label .req{color:#cc0000;margin-left:2px}
+.field input,.field select,.field textarea{width:100%;border:none;border-bottom:1.5px solid #ddd;padding:7px 0;font-family:'Roboto',sans-serif;font-size:13px;color:#111;background:transparent;outline:none;transition:border-color .2s;-webkit-appearance:none;border-radius:0}
+.field input:focus,.field select:focus,.field textarea:focus{border-bottom-color:#111}
+.field textarea{resize:vertical;min-height:60px;border:1.5px solid #ddd;padding:9px 10px;border-radius:2px}
+.field textarea:focus{border-color:#111}
+.field.error label{color:#cc0000}
+.field.error input,.field.error select{border-bottom-color:#cc0000}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:520px){.row2{grid-template-columns:1fr}}
+
+.checks-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 20px;margin-top:6px}
+@media(max-width:400px){.checks-grid{grid-template-columns:1fr}}
+.chk{display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0;user-select:none}
+.chk input[type=checkbox]{width:14px;height:14px;accent-color:#111;cursor:pointer;flex-shrink:0}
+.chk span{font-size:12px;color:#444}
+
+.note-italic{font-size:10.5px;color:#aaa;font-style:italic;margin-bottom:10px}
+
+.val-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+.val-table th{background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 10px;font-weight:400;text-align:left}
+.val-table th:last-child{text-align:center}
+.val-table td{padding:7px 10px;border-bottom:1px solid #eee;vertical-align:middle}
+.val-table tr:nth-child(even) td{background:#fafafa}
+.val-table td:first-child{font-size:11.5px;color:#444;width:32%;font-weight:500}
+.val-table td:nth-child(2){width:42%}
+.val-table td:nth-child(2) input{width:100%;border:none;border-bottom:1px solid #ddd;padding:3px 0;font-size:12px;background:transparent;outline:none;font-family:'Roboto',sans-serif;color:#111}
+.val-table td:last-child{text-align:center;width:26%}
+.val-table td select{border:none;border-bottom:1px solid #ddd;font-size:11px;background:transparent;outline:none;cursor:pointer;padding:3px 0;color:#111;font-family:'Roboto',sans-serif;width:100%}
+
+.warn-box{background:#111;color:#fff;font-size:11px;padding:11px 16px;line-height:1.6;margin-top:14px;border-radius:1px}
+
+.status-section{padding:0 32px 0}
+.status-bar{display:flex;align-items:center;gap:9px;padding:12px 0;font-size:11.5px;border-bottom:1px solid #ebebeb}
+.sdot{width:9px;height:9px;border-radius:50%;background:#ddd;flex-shrink:0;transition:background .3s}
+.sdot.ok{background:#1a6b2a}
+.sdot.warn{background:#e07b00}
+.sdot.err{background:#cc0000}
+
+.missing-box{background:#fff5f5;border-left:3px solid #cc0000;padding:12px 16px;margin:12px 32px;font-size:11.5px;color:#aa0000;display:none}
+.missing-box strong{display:block;margin-bottom:6px;font-size:11px;letter-spacing:0.5px;text-transform:uppercase}
+.missing-box ul{padding-left:16px}
+.missing-box ul li{margin-bottom:4px}
+
+.complete-banner{background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:11px 32px;display:none;align-items:center;gap:10px}
+
+.actions{padding:22px 32px;background:#f7f7f7;border-top:2px solid #111}
+.actions-label{font-family:'Anton',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#111;margin-bottom:14px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;font-family:'Roboto',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:none;transition:opacity .15s,transform .1s;text-decoration:none;line-height:1}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:#111;color:#fff}
+.btn-primary:hover{background:#333}
+.btn-outline{background:#fff;color:#111;border:1.5px solid #111}
+.btn-outline:hover{background:#f0f0f0}
+.btn-ghost{background:transparent;color:#666;border:1.5px solid #ccc}
+.btn-ghost:hover{border-color:#111;color:#111}
+.btn i{font-size:15px}
+
+.email-row{display:none;align-items:center;gap:8px;margin-top:12px}
+.email-row input{flex:1;border:1.5px solid #ddd;padding:9px 12px;font-size:12px;font-family:'Roboto',sans-serif;outline:none;color:#111;background:#fff;border-radius:1px}
+.email-row input:focus{border-color:#111}
+
+.action-msg{font-size:11px;margin-top:10px;min-height:18px;transition:opacity .3s}
+
+.footer-bar{background:#111;color:rgba(255,255,255,0.35);font-size:10px;padding:10px 32px;letter-spacing:1px;text-align:center;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="title">Brief Projet</div>
+      <div class="sub">Studio Graphique — Document interne</div>
+    </div>
+    <div class="hdr-logo">Black &amp; White<br>Burger</div>
+  </div>
+
+  <div class="rule-bar">
+    <strong>Règle d'or :</strong> Ce brief doit être complété AVANT toute demande de création. Les informations transmises uniquement par WhatsApp ou téléphone ne sont pas considérées comme validées.
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="progress-label" id="prog-label">0 / 6 sections complètes</div>
+  </div>
+
+  <!-- S1 -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-num">1</span><span class="sec-title">Qui demande</span></div>
+    <div class="field" id="f-dept">
+      <label>Département<span class="req">*</span></label>
+      <select id="dept">
+        <option value="">— Sélectionner —</option>
+        <option>Marketing</option><option>IT</option><option>Finances</option>
+        <option>Achats</option><option>Travaux</option><option>Direction</option>
+        <option>Franchisé</option><option>Autre</option>
+      </select>
+    </div>
+    <div class="row2">
+      <div class="field" id="f-ref">
+        <label>Référent unique<span class="req">*</span></label>
+        <input type="text" id="ref" placeholder="Prénom Nom — Fonction">
+      </div>
+      <div class="field" id="f-valid">
+        <label>Validateur final<span class="req">*</span></label>
+        <input type="text" id="valid" placeholder="Prénom Nom — Fonction">
+      </div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-num">2</span><span class="sec-title">La demande</span></div>
+    <div class="field" id="f-desc">
+      <label>Description du projet<span class="req">*</span></label>
+      <textarea id="desc" placeholder="Décrivez brièvement le projet et son contexte..."></textarea>
+    </div>
+    <div class="field" id="f-msg">
+      <label>Message principal à faire passer<span class="req">*</span></label>
+      <input type="text" id="msg" placeholder="Ex : Profite de la Coupe du Monde avec B&W">
+    </div>
+    <div class="field">
+      <label>Type de demande</label>
+      <div class="checks-grid" id="types">
+        <label class="chk"><input type="checkbox" value="Campagne marketing"><span>Campagne marketing</span></label>
+        <label class="chk"><input type="checkbox" value="Réseaux sociaux"><span>Réseaux sociaux</span></label>
+        <label class="chk"><input type="checkbox" value="Menu board / borne"><span>Menu board / borne</span></label>
+        <label class="chk"><input type="checkbox" value="PLV / print restaurant"><span>PLV / print restaurant</span></label>
+        <label class="chk"><input type="checkbox" value="Packaging"><span>Packaging</span></label>
+        <label class="chk"><input type="checkbox" value="Travaux / signalétique"><span>Travaux / signalétique</span></label>
+        <label class="chk"><input type="checkbox" value="Présentation"><span>Présentation</span></label>
+        <label class="chk"><input type="checkbox" value="Autre"><span>Autre</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-num">3</span><span class="sec-title">Informations techniques</span></div>
+    <p class="note-italic">Tout ce qui n'est pas renseigné ici = aller-retour garanti.</p>
+    <table class="val-table">
+      <thead><tr><th>Information</th><th>Contenu exact</th><th>Validé ?</th></tr></thead>
+      <tbody>
+        <tr><td>Nom produit / projet</td><td><input type="text" id="v-nom" placeholder="Nom exact..."></td><td><select id="s-nom"><option value="">—</option><option>Oui</option><option>Non</option></select></td></tr>
+        <tr><td>Prix</td><td><input type="text" id="v-prix" placeholder="Ex : 12,90 €"></td><td><select id="s-prix"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
+        <tr><td>Dates / période</td><td><input type="text" id="v-dates" placeholder="Du ... au ..."></td><td><select id="s-dates"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
+        <tr><td>Texte exact à utiliser</td><td><input type="text" id="v-texte" placeholder="Copier-coller le texte validé"></td><td><select id="s-texte"><option value="">—</option><option>Oui</option><option>Non</option></select></td></tr>
+        <tr><td>Mentions obligatoires</td><td><input type="text" id="v-mentions" placeholder="Ex : *Offre valable jusqu'au..."></td><td><select id="s-mentions"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
+      </tbody>
+    </table>
+    <div class="field" style="margin-top:18px">
+      <label>Fichiers fournis</label>
+      <div class="checks-grid" id="fichiers">
+        <label class="chk"><input type="checkbox" value="Logo"><span>Logo</span></label>
+        <label class="chk"><input type="checkbox" value="Photos"><span>Photos</span></label>
+        <label class="chk"><input type="checkbox" value="Texte validé"><span>Texte validé</span></label>
+        <label class="chk"><input type="checkbox" value="Gabarit"><span>Gabarit</span></label>
+        <label class="chk"><input type="checkbox" value="Références visuelles"><span>Références visuelles</span></label>
+        <label class="chk"><input type="checkbox" value="Aucun"><span>Aucun</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Lien Drive / fichiers</label>
+      <input type="text" id="drive" placeholder="https://drive.google.com/...">
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-num">4</span><span class="sec-title">Supports &amp; formats</span></div>
+    <div class="field">
+      <label>Supports à créer<span class="req">*</span></label>
+      <div class="checks-grid" id="supports">
+        <label class="chk"><input type="checkbox" value="Post réseaux sociaux"><span>Post réseaux sociaux</span></label>
+        <label class="chk"><input type="checkbox" value="Story / Reel 9:16"><span>Story / Reel 9:16</span></label>
+        <label class="chk"><input type="checkbox" value="Affiche / flyer"><span>Affiche / flyer</span></label>
+        <label class="chk"><input type="checkbox" value="Menu board"><span>Menu board</span></label>
+        <label class="chk"><input type="checkbox" value="Borne de commande"><span>Borne de commande</span></label>
+        <label class="chk"><input type="checkbox" value="Packaging"><span>Packaging</span></label>
+        <label class="chk"><input type="checkbox" value="Vitrophanie"><span>Vitrophanie</span></label>
+        <label class="chk"><input type="checkbox" value="Newsletter"><span>Newsletter</span></label>
+        <label class="chk"><input type="checkbox" value="Bannière web"><span>Bannière web</span></label>
+        <label class="chk"><input type="checkbox" value="YouTube / vidéo"><span>YouTube / vidéo</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Formats / dimensions si connus</label>
+      <input type="text" id="formats" placeholder="Ex : 1080x1080, 1080x1920, 1920x1080...">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Prestataire externe</label>
+        <select id="presta">
+          <option value="">— Aucun —</option>
+          <option>Imprimeur</option><option>Graphcom / menu boards</option>
+          <option>Fournisseur packaging</option><option>Vitrophanie</option>
+          <option>Shooting photo / vidéo</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>BAT nécessaire ?</label>
+        <select id="bat">
+          <option value="">— Sélectionner —</option>
+          <option>Oui</option><option>Non</option><option>À confirmer</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-num">5</span><span class="sec-title">Deadlines</span></div>
+    <div class="row2">
+      <div class="field" id="f-launch">
+        <label>Date de lancement<span class="req">*</span></label>
+        <input type="date" id="launch">
+      </div>
+      <div class="field" id="f-valinfo">
+        <label>Validation infos (demandeur)<span class="req">*</span></label>
+        <input type="date" id="valinfo">
+      </div>
+    </div>
+    <div class="field" id="f-simul">
+      <label>Retour sur simulation<span class="req">*</span></label>
+      <input type="date" id="simul">
+    </div>
+    <div class="warn-box">Sans validation dans les délais impartis, la deadline de lancement ne peut pas être garantie.</div>
+  </div>
+
+  <!-- S6 -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-num">6</span><span class="sec-title">Statut &amp; notes</span></div>
+    <div class="status-bar">
+      <span class="sdot" id="sdot"></span>
+      <span id="slabel" style="color:#aaa">Remplissez le formulaire pour voir le statut</span>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label>Bloquants / notes complémentaires</label>
+      <textarea id="bloquants" placeholder="Mentionnez ici ce qui manque ou tout contexte utile..."></textarea>
+    </div>
+  </div>
+
+  <div class="missing-box" id="missing-box">
+    <strong>Informations manquantes</strong>
+    <ul id="missing-ul"></ul>
+  </div>
+
+  <div class="complete-banner" id="complete-banner">
+    <i class="ti ti-check" style="font-size:18px"></i>
+    Brief complet — prêt pour création
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <div class="actions-label">Actions</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="downloadPDF()">
+        <i class="ti ti-download"></i> Télécharger PDF
+      </button>
+      <button class="btn btn-outline" onclick="printBrief()">
+        <i class="ti ti-printer"></i> Imprimer
+      </button>
+      <button class="btn btn-ghost" onclick="copyLink()">
+        <i class="ti ti-copy"></i> Copier le lien
+      </button>
+      <button class="btn btn-ghost" onclick="toggleEmail()">
+        <i class="ti ti-mail"></i> Envoyer par mail
+      </button>
+      <button class="btn btn-ghost" onclick="resetForm()">
+        <i class="ti ti-refresh"></i> Réinitialiser
+      </button>
+    </div>
+    <div class="email-row" id="email-row">
+      <input type="email" id="email-dest" placeholder="adresse@bnwburger.com">
+      <button class="btn btn-primary" onclick="confirmEmail()" style="padding:9px 14px;font-size:11px">
+        <i class="ti ti-send"></i> Envoyer
+      </button>
+      <button class="btn btn-ghost" onclick="toggleEmail()" style="padding:9px 11px">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="action-msg" id="action-msg"></div>
+  </div>
+
+  <div class="footer-bar">Studio Graphique — Black &amp; White Burger — Document interne</div>
+</div>
+
+<script>
+function gc(id){return document.getElementById(id)}
+function getChecked(sel){return[...document.querySelectorAll(sel+' input[type=checkbox]:checked')].map(c=>c.value)}
+function fmtDate(s){if(!s)return'—';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y}
+
+function collect(){
+  return{
+    dept:gc('dept').value,ref:gc('ref').value.trim(),valid:gc('valid').value.trim(),
+    desc:gc('desc').value.trim(),msg:gc('msg').value.trim(),
+    types:getChecked('#types'),
+    vNom:gc('v-nom').value.trim(),sNom:gc('s-nom').value,
+    vPrix:gc('v-prix').value.trim(),sPrix:gc('s-prix').value,
+    vDates:gc('v-dates').value.trim(),sDates:gc('s-dates').value,
+    vTexte:gc('v-texte').value.trim(),sTexte:gc('s-texte').value,
+    vMentions:gc('v-mentions').value.trim(),sMentions:gc('s-mentions').value,
+    fichiers:getChecked('#fichiers'),drive:gc('drive').value.trim(),
+    supports:getChecked('#supports'),formats:gc('formats').value.trim(),
+    presta:gc('presta').value,bat:gc('bat').value,
+    launch:gc('launch').value,valinfo:gc('valinfo').value,simul:gc('simul').value,
+    bloquants:gc('bloquants').value.trim()
+  }
+}
+
+function getMissing(d){
+  const m=[];
+  if(!d.dept)m.push('Département manquant');
+  if(!d.ref)m.push('Référent unique manquant');
+  if(!d.valid)m.push('Validateur final manquant');
+  if(!d.desc)m.push('Description du projet manquante');
+  if(!d.msg)m.push('Message principal manquant');
+  if(!d.supports.length)m.push('Aucun support sélectionné');
+  if(!d.launch)m.push('Date de lancement manquante');
+  if(!d.valinfo)m.push('Date de validation infos manquante');
+  if(!d.simul)m.push('Date de retour simulation manquante');
+  if(!d.vNom)m.push('Nom produit / projet non renseigné');
+  if(!d.vTexte)m.push('Texte exact à utiliser non fourni');
+  return m;
+}
+
+function score(d){
+  let s=0;
+  if(d.dept&&d.ref&&d.valid)s++;
+  if(d.desc&&d.msg)s++;
+  if(d.vNom||d.vPrix||d.vDates||d.vTexte)s++;
+  if(d.supports.length)s++;
+  if(d.launch&&d.valinfo&&d.simul)s++;
+  if(!getMissing(d).length)s++;
+  return s;
+}
+
+function updateUI(){
+  const d=collect();
+  const sc=score(d);
+  gc('prog').style.width=Math.round(sc/6*100)+'%';
+  gc('prog-label').textContent=sc+' / 6 sections complètes';
+  const miss=getMissing(d);
+  const dot=gc('sdot'),lbl=gc('slabel'),mb=gc('missing-box'),ul=gc('missing-ul'),cb=gc('complete-banner');
+  if(!miss.length){
+    dot.className='sdot ok';lbl.textContent='Brief complet — prêt pour création';lbl.style.color='#1a6b2a';
+    mb.style.display='none';cb.style.display='flex';
+  } else {
+    dot.className='sdot '+(miss.length>5?'err':'warn');
+    lbl.textContent=miss.length+' information'+(miss.length>1?'s':'')+' manquante'+(miss.length>1?'s':'');
+    lbl.style.color=miss.length>5?'#cc0000':'#e07b00';
+    ul.innerHTML=miss.map(m=>'<li>'+m+'</li>').join('');
+    mb.style.display='block';cb.style.display='none';
+  }
+}
+
+document.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',updateUI));
+document.querySelectorAll('input[type=checkbox]').forEach(el=>el.addEventListener('change',updateUI));
+
+function buildPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const d=collect();
+  const W=210,ML=14,MR=14,CW=W-ML-MR;
+  let y=0;
+  function np(){doc.addPage();y=14}
+  function cp(n=20){if(y+n>283)np()}
+
+  doc.setFillColor(17,17,17);doc.rect(0,0,W,26,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);
+  doc.text('BRIEF PROJET',ML,11);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);
+  doc.text('Studio Graphique — Black & White Burger — Document interne',ML,17);
+  doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(180,180,180);
+  doc.text('BLACK & WHITE BURGER',W-MR,14,{align:'right'});
+
+  doc.setFillColor(30,30,30);doc.rect(0,26,W,9,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(190,190,190);
+  doc.text('REGLE D\'OR : Ce brief doit etre complete AVANT toute demande de creation.',ML,31.5);
+  y=42;
+
+  function st(n,t){
+    cp(14);
+    doc.setFillColor(17,17,17);doc.rect(ML,y,7,7,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+    doc.text(String(n),ML+3.5,y+5,{align:'center'});
+    doc.setTextColor(17,17,17);doc.setFontSize(9.5);
+    doc.text(t.toUpperCase(),ML+11,y+5);
+    y+=11;
+  }
+
+  function fl(lbl,val,miss=false){
+    cp(9);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(120,120,120);
+    doc.text(lbl.toUpperCase(),ML,y);
+    const v=val||(miss?'— MANQUANT':'—');
+    doc.setFont('helvetica','normal');doc.setFontSize(10);
+    doc.setTextColor(miss?180:17,miss?0:17,miss?0:17);
+    const lines=doc.splitTextToSize(v,CW-46);
+    doc.text(lines,ML+46,y);
+    doc.setDrawColor(miss?200:210,miss?0:210,miss?0:210);
+    doc.line(ML+44,y+1.5,ML+CW,y+1.5);
+    y+=7+Math.max(0,(lines.length-1)*5);
+  }
+
+  function div(){cp(7);doc.setDrawColor(220,220,220);doc.line(ML,y,ML+CW,y);y+=7}
+
+  function wb(t){
+    cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,9,'F');
+    doc.setFont('helvetica','italic');doc.setFontSize(7.5);doc.setTextColor(220,220,220);
+    doc.text(t,ML+4,y+5.5);y+=13;
+  }
+
+  st(1,'Qui demande');fl('Département',d.dept,!d.dept);fl('Référent unique',d.ref,!d.ref);fl('Validateur final',d.valid,!d.valid);div();
+  st(2,'La demande');fl('Description',d.desc,!d.desc);fl('Message principal',d.msg,!d.msg);fl('Type de demande',d.types.join(', ')||'—');div();
+
+  st(3,'Informations techniques');
+  cp(12);
+  doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);
+  doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
+  [[d.vNom,'Nom produit / projet',d.sNom],[d.vPrix,'Prix',d.sPrix],[d.vDates,'Dates / période',d.sDates],[d.vTexte,'Texte exact',d.sTexte],[d.vMentions,'Mentions',d.sMentions]].forEach(([v,l,s],i)=>{
+    cp(8);
+    i%2===0?doc.setFillColor(255,255,255):doc.setFillColor(250,250,250);
+    doc.rect(ML,y-1,CW,8,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    const miss=!v;
+    doc.setTextColor(miss?170:60,miss?0:60,miss?0:60);doc.text(l,ML+3,y+4.5);
+    doc.setTextColor(17,17,17);doc.text(v||'—',ML+58,y+4.5);
+    doc.setTextColor(s==='Oui'?26:100,s==='Oui'?107:100,s==='Oui'?42:100);
+    doc.text(s||'—',ML+CW-18,y+4.5);y+=8;
+  });
+  y+=3;fl('Fichiers fournis',d.fichiers.join(', ')||'—');fl('Lien Drive',d.drive||'—');div();
+
+  st(4,'Supports & formats');fl('Supports à créer',d.supports.join(', ')||'—',!d.supports.length);fl('Formats / dimensions',d.formats||'—');fl('Prestataire',d.presta||'Aucun');fl('BAT nécessaire',d.bat||'—');div();
+
+  st(5,'Deadlines');fl('Date de lancement',fmtDate(d.launch),!d.launch);fl('Validation infos (demandeur)',fmtDate(d.valinfo),!d.valinfo);fl('Retour sur simulation',fmtDate(d.simul),!d.simul);
+  wb('Sans validation dans les delais impartis, la deadline de lancement ne peut pas etre garantie.');
+
+  div();st(6,'Statut');
+  const miss=getMissing(d);
+  fl('Statut',miss.length?'Incomplet — '+miss.length+' élément(s) manquant(s)':'Complet — prêt pour création');
+  if(d.bloquants)fl('Notes / bloquants',d.bloquants);
+  if(miss.length){
+    cp(8+miss.length*6);
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(180,0,0);
+    doc.text('INFORMATIONS MANQUANTES :',ML,y);y+=6;
+    doc.setFont('helvetica','normal');
+    miss.forEach(m=>{cp(6);doc.text('→  '+m,ML+4,y);y+=5.5});
+  }
+  cp(12);y+=6;
+  doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);
+  doc.line(ML,y-2,ML+CW,y-2);
+  doc.text('Studio Graphique — Black & White Burger — '+new Date().toLocaleDateString('fr-BE'),ML,y+3);
+  return doc;
+}
+
+function showMsg(t,c='#1a6b2a'){
+  const el=gc('action-msg');el.textContent=t;el.style.color=c;el.style.opacity='1';
+  setTimeout(()=>{el.style.opacity='0'},2800);
+}
+
+function downloadPDF(){
+  try{
+    const d=collect();
+    buildPDF().save('Brief_BW_'+(d.dept||'Studio')+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+    showMsg('PDF téléchargé avec succès');
+  }catch(e){showMsg('Erreur lors de la génération','#cc0000')}
+}
+
+function printBrief(){
+  try{
+    const blob=buildPDF().output('blob');
+    const url=URL.createObjectURL(blob);
+    const w=window.open(url,'_blank');
+    if(w)w.onload=()=>w.print();
+    showMsg('Ouverture pour impression...');
+  }catch(e){showMsg('Erreur impression','#cc0000')}
+}
+
+function copyLink(){
+  const d=collect();
+  const p=new URLSearchParams();
+  Object.entries(d).forEach(([k,v])=>{if(v&&!(Array.isArray(v)&&!v.length))p.set(k,Array.isArray(v)?v.join('|'):v)});
+  const url=location.href.split('?')[0]+'?'+p.toString();
+  navigator.clipboard?navigator.clipboard.writeText(url).then(()=>showMsg('Lien copié dans le presse-papier')):showMsg('Copiez l\'URL dans la barre d\'adresse','#666');
+}
+
+function toggleEmail(){
+  const r=gc('email-row');r.style.display=r.style.display==='flex'?'none':'flex';
+}
+
+function confirmEmail(){
+  const dest=gc('email-dest').value.trim();
+  if(!dest||!dest.includes('@')){showMsg('Adresse email invalide','#cc0000');return}
+  const d=collect();
+  const subj=encodeURIComponent('Brief Projet — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W Burger'));
+  const body=encodeURIComponent('Bonjour,\n\nVeuillez trouver ci-dessous les informations du brief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nMessage principal : '+(d.msg||'—')+'\nLancement : '+fmtDate(d.launch)+'\nSupports : '+(d.supports.join(', ')||'—')+'\n\nLe PDF complet peut être téléchargé via le formulaire.\n\nCordialement,\nStudio Graphique — Black & White Burger');
+  window.open('mailto:'+dest+'?subject='+subj+'&body='+body);
+  toggleEmail();showMsg('Client mail ouvert');
+}
+
+function resetForm(){
+  if(!confirm('Réinitialiser tous les champs ?'))return;
+  document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');
+  document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);
+  updateUI();showMsg('Formulaire réinitialisé','#666');
+}
+
+updateUI();
+</script>
+</body>
+</html>
