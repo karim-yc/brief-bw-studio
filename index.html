@@ -166,9 +166,9 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
   </div>
 
   <div class="mode-bar">
-    <button class="mode-btn active" id="btn-chat" onclick="switchMode('chat')"><i class="ti ti-message-circle"></i><span>Assistant chat</span></button>
-    <button class="mode-btn" id="btn-voice" onclick="switchMode('voice')"><i class="ti ti-microphone"></i><span>Assistant vocal</span></button>
-    <button class="mode-btn" id="btn-manual" onclick="switchMode('manual')"><i class="ti ti-pencil"></i><span>Remplir moi-même</span></button>
+    <button class="mode-btn active" id="btn-manual" onclick="switchMode('manual')"><i class="ti ti-pencil"></i><span>Formulaire</span></button>
+    <button class="mode-btn" id="btn-chat" onclick="switchMode('chat')"><i class="ti ti-message-circle"></i><span>Assistant IA</span></button>
+    <button class="mode-btn" id="btn-voice" onclick="switchMode('voice')"><i class="ti ti-microphone"></i><span>Vocal</span></button>
   </div>
 
   <!-- CHAT MODE -->
@@ -815,7 +815,7 @@ function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.inclu
 function resetAll(){if(!confirm('Réinitialiser ?'))return;Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);G('types-others').innerHTML='';G('supports-others').innerHTML='';startChat();upd();msg('Réinitialisé','#666')}
 
 // ─── INIT ─────────────────────────────────────────────────────
-switchMode('chat');
+switchMode('manual');
 </script>
 </body>
 </html>
