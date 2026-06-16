@@ -10,7 +10,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:#f0f0f0;min-height:100%}
-body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding:20px 14px 48px}
+body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding:20px 14px 60px}
 .app{max-width:720px;margin:0 auto;background:#fff;color:#111}
 
 /* HEADER */
@@ -21,14 +21,144 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
 /* MODE BAR */
 .mode-bar{display:flex;border-bottom:2px solid #111}
-.mode-btn{flex:1;padding:11px 6px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;border:none;background:#fff;color:#aaa;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
-.mode-btn.active{color:#111;border-bottom-color:#111}
-.mode-btn i{font-size:16px}
+.mode-btn{flex:1;padding:13px 6px;display:flex;align-items:center;justify-content:center;gap:7px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;border:none;background:#fff;color:#bbb;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.mode-btn.active{color:#111;border-bottom-color:#111;background:#fff}
+.mode-btn i{font-size:17px}
 @media(max-width:400px){.mode-btn span{display:none}}
+
+/* PROGRESS */
+.prog-wrap{padding:14px 22px 12px;border-bottom:1px solid #ebebeb}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-title{font-size:12px;font-weight:700;color:#333}
+.prog-count{font-size:12px;font-weight:700;color:#111}
+.prog-track{height:5px;background:#eee;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:#111;border-radius:3px;transition:width .4s ease}
+
+/* RULE BAR */
+.rule-bar{background:#1e1e1e;color:rgba(255,255,255,0.75);font-size:10.5px;padding:10px 22px;line-height:1.5;display:flex;align-items:flex-start;gap:8px}
+.rule-bar i{font-size:14px;color:rgba(255,255,255,0.5);flex-shrink:0;margin-top:1px}
+
+/* SECTION */
+.section{border-bottom:1px solid #ebebeb}
+.sec-head{display:flex;align-items:center;gap:10px;padding:16px 22px;cursor:pointer;user-select:none;transition:background .15s}
+.sec-head:hover{background:#fafafa}
+.sec-num{background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:10px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:2px}
+.sec-title{font-family:'Anton',sans-serif;font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:#111;flex:1}
+.sec-badge{font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 9px;border-radius:10px}
+.done{background:#e8f5e9;color:#1a6b2a}
+.partial{background:#fff3cd;color:#856404}
+.empty{background:#f5f5f5;color:#bbb}
+.sec-chevron{font-size:16px;color:#ccc;transition:transform .25s;flex-shrink:0}
+.sec-head.open .sec-chevron{transform:rotate(180deg)}
+.sec-body{padding:0 22px 20px;display:none}
+.sec-body.open{display:block}
+
+/* FIELDS */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px}
+.req{color:#cc0000;margin-left:2px}
+.field input,.field select,.field textarea{width:100%;border:none;border-bottom:2px solid #e8e8e8;padding:8px 0;font-family:'Roboto',sans-serif;font-size:14px;color:#111;background:transparent;outline:none;transition:border-color .2s;border-radius:0;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-bottom-color:#111}
+.field textarea{resize:vertical;min-height:64px;border:2px solid #e8e8e8;padding:10px 12px;border-radius:4px;font-size:14px}
+.field textarea:focus{border-color:#111}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23999' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;padding-right:24px}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:440px){.row2{grid-template-columns:1fr}}
+
+/* CHECKBOXES */
+.checks-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:8px;display:block}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:380px){.cg{grid-template-columns:1fr}}
+.chk{display:flex;align-items:center;gap:10px;cursor:pointer;padding:9px 0;border-bottom:1px solid #f5f5f5}
+.chk:last-child{border-bottom:none}
+.chk-box{width:20px;height:20px;border:2px solid #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:#fff}
+.chk input[type=checkbox]{display:none}
+.chk input[type=checkbox]:checked + .chk-box{background:#111;border-color:#111}
+.chk input[type=checkbox]:checked + .chk-box::after{content:'';width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+.chk span{font-size:13px;color:#333;line-height:1.3}
+
+/* OTHERS */
+.other-inputs{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.other-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5}
+.other-row input{flex:1;border:none;border-bottom:2px solid #e8e8e8;padding:4px 0;font-size:13px;font-family:'Roboto',sans-serif;color:#111;background:transparent;outline:none;transition:border-color .2s}
+.other-row input:focus{border-bottom-color:#111}
+.rm-btn{width:28px;height:28px;background:#f5f5f5;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.rm-btn:hover{background:#ffebee}
+.rm-btn i{font-size:13px;color:#999}
+.rm-btn:hover i{color:#cc0000}
+
+.add-other-btn{display:flex;align-items:center;gap:8px;padding:10px 0;font-size:12px;font-weight:700;color:#111;cursor:pointer;border:none;background:none;font-family:'Roboto',sans-serif;text-transform:uppercase;letter-spacing:0.5px;border:1.5px dashed #ddd;border-radius:6px;padding:10px 14px;margin-top:8px;width:100%;justify-content:center;transition:all .15s}
+.add-other-btn:hover{border-color:#111;background:#fafafa}
+.add-other-btn i{font-size:15px}
+
+/* VAL TABLE — mobile optimized */
+.val-rows{display:flex;flex-direction:column;gap:0;border:1.5px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:4px}
+.val-row{display:flex;flex-direction:column;padding:12px;border-bottom:1px solid #f0f0f0;gap:8px}
+.val-row:last-child{border-bottom:none}
+.val-row-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#888}
+.val-row-body{display:flex;gap:10px;align-items:flex-end}
+.val-row-body input{flex:1;border:none;border-bottom:2px solid #e8e8e8;padding:6px 0;font-size:13px;font-family:'Roboto',sans-serif;color:#111;background:transparent;outline:none;transition:border-color .2s}
+.val-row-body input:focus{border-bottom-color:#111}
+.val-select{border:none;background:#f5f5f5;border-radius:20px;padding:6px 10px;font-size:11px;font-weight:700;color:#555;outline:none;cursor:pointer;font-family:'Roboto',sans-serif;flex-shrink:0;-webkit-appearance:none;min-width:72px;text-align:center}
+.val-select.validated{background:#e8f5e9;color:#1a6b2a}
+.val-select.invalid{background:#fff0f0;color:#cc0000}
+
+/* DEADLINES */
+.deadline-grid{display:grid;grid-template-columns:1fr;gap:0;border:1.5px solid #e8e8e8;border-radius:6px;overflow:hidden}
+.deadline-item{display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:1px solid #f0f0f0;gap:12px}
+.deadline-item:last-child{border-bottom:none}
+.deadline-lbl{font-size:12px;font-weight:700;color:#333;flex:1}
+.deadline-sub{font-size:10px;color:#aaa;margin-top:2px}
+.deadline-input{border:none;border-bottom:2px solid #e8e8e8;padding:4px 0;font-size:13px;font-family:'Roboto',sans-serif;color:#111;background:transparent;outline:none;transition:border-color .2s;min-width:120px;text-align:right}
+.deadline-input:focus{border-bottom-color:#111}
+@media(max-width:400px){.deadline-item{flex-direction:column;align-items:flex-start}.deadline-input{width:100%;text-align:left}}
+
+/* STATUS */
+.status-wrap{margin:16px 0 0}
+.status-bar{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f8f8f8;border-radius:6px}
+.sdot{width:10px;height:10px;border-radius:50%;background:#ddd;flex-shrink:0;transition:background .3s}
+.sdot.ok{background:#1a6b2a}.sdot.warn{background:#e07b00}.sdot.err{background:#cc0000}
+.slbl{font-size:12px;font-weight:700;color:#999}
+
+/* DONE BANNER */
+.done-banner{background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:14px 22px;display:none;align-items:center;gap:10px;margin:0}
+.done-banner i{font-size:18px}
+
+/* ACTIONS */
+.actions{padding:24px 22px 20px;background:#f8f8f8;border-top:2px solid #111}
+
+.action-primary{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;transition:background .15s;border-radius:4px;margin-bottom:12px}
+.action-primary:hover{background:#333}
+.action-primary:active{transform:scale(0.98)}
+.action-primary i{font-size:20px}
+
+.action-secondary{display:flex;gap:10px;flex-wrap:wrap}
+.action-sec-btn{flex:1;min-width:80px;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 10px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#555;border-radius:4px;transition:all .15s}
+.action-sec-btn:hover{border-color:#111;color:#111}
+.action-sec-btn:active{transform:scale(0.97)}
+.action-sec-btn i{font-size:16px}
+
+.action-danger{display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:1.5px solid #ffcccc;background:#fff5f5;color:#cc0000;border-radius:4px;transition:all .15s;margin-top:10px;width:100%}
+.action-danger:hover{background:#ffebee;border-color:#cc0000}
+.action-danger i{font-size:15px}
+
+/* EMAIL INLINE */
+.email-inline{display:none;margin-top:10px;background:#fff;border:1.5px solid #ddd;border-radius:4px;overflow:hidden}
+.email-inline.open{display:flex}
+.email-inline input{flex:1;border:none;padding:12px 14px;font-size:13px;font-family:'Roboto',sans-serif;color:#111;outline:none}
+.email-inline-send{padding:12px 16px;background:#111;color:#fff;border:none;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;cursor:pointer;letter-spacing:0.5px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.email-inline-send:hover{background:#333}
+
+.amsg{font-size:12px;margin-top:10px;min-height:18px;text-align:center}
+
+/* FOOTER */
+.ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:10px 22px;letter-spacing:1px;text-align:center;text-transform:uppercase}
 
 /* CHAT */
 .chat-wrap{display:flex;flex-direction:column;min-height:420px}
-.chat-area{flex:1;padding:16px 22px;display:flex;flex-direction:column;gap:10px;min-height:320px;max-height:420px;overflow-y:auto}
+.chat-area{flex:1;padding:16px 22px;display:flex;flex-direction:column;gap:10px;min-height:320px;max-height:440px;overflow-y:auto}
 .msg{max-width:88%;display:flex;flex-direction:column;gap:3px}
 .msg.ai{align-self:flex-start}
 .msg.user{align-self:flex-end}
@@ -37,121 +167,45 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 .msg.user .bubble{background:#111;color:#fff;border-radius:14px 0 14px 14px}
 .ts{font-size:9px;color:#ccc;padding:0 4px}
 .msg.user .ts{text-align:right}
-
 .typing-wrap{align-self:flex-start}
 .typing{display:flex;align-items:center;gap:4px;padding:11px 14px;background:#f2f2f2;border-radius:0 14px 14px 14px;width:54px}
 .typing span{width:6px;height:6px;background:#bbb;border-radius:50%;animation:bop 1.2s infinite}
 .typing span:nth-child(2){animation-delay:.2s}
 .typing span:nth-child(3){animation-delay:.4s}
 @keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
-
 .chips-wrap{padding:10px 22px;border-top:1px solid #ebebeb;background:#fafafa;display:flex;flex-wrap:wrap;gap:7px}
-.chip{font-size:11px;color:#555;border:1px solid #ddd;padding:5px 11px;border-radius:14px;cursor:pointer;background:#fff;transition:all .15s;white-space:nowrap}
+.chip{font-size:12px;color:#555;border:1.5px solid #ddd;padding:7px 13px;border-radius:20px;cursor:pointer;background:#fff;transition:all .15s;white-space:nowrap}
 .chip:hover{border-color:#111;color:#111}
-
 .chat-bar{padding:10px 22px;border-top:1px solid #ebebeb;display:flex;gap:8px;align-items:flex-end;background:#fff}
-.chat-input{flex:1;border:1.5px solid #ddd;border-radius:20px;padding:9px 14px;font-family:'Roboto',sans-serif;font-size:13px;color:#111;outline:none;resize:none;min-height:38px;max-height:80px;line-height:1.4;transition:border-color .2s;background:#fff}
+.chat-input{flex:1;border:2px solid #e8e8e8;border-radius:22px;padding:10px 16px;font-family:'Roboto',sans-serif;font-size:13px;color:#111;outline:none;resize:none;min-height:40px;max-height:80px;line-height:1.4;transition:border-color .2s;background:#fff}
 .chat-input:focus{border-color:#111}
-.send-btn{width:38px;height:38px;background:#111;color:#fff;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.send-btn{width:40px;height:40px;background:#111;color:#fff;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .send-btn:hover{background:#333}
-.send-btn i{font-size:16px}
+.send-btn i{font-size:17px}
 
 /* VOICE */
-.voice-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;padding:36px 22px;min-height:340px;justify-content:center}
-.voice-question{font-size:15px;color:#111;text-align:center;line-height:1.55;font-weight:500;min-height:48px;padding:0 10px;max-width:500px}
+.voice-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;padding:40px 22px;min-height:360px;justify-content:center}
+.voice-question{font-size:16px;color:#111;text-align:center;line-height:1.55;font-weight:700;min-height:52px;padding:0 10px;max-width:500px}
 .voice-status{font-size:10px;color:#bbb;letter-spacing:1.5px;text-transform:uppercase;text-align:center}
-.voice-btn{width:80px;height:80px;border-radius:50%;border:2.5px solid #111;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative;flex-shrink:0}
-.voice-btn i{font-size:32px;color:#111}
+.voice-btn{width:84px;height:84px;border-radius:50%;border:2.5px solid #111;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative;flex-shrink:0}
+.voice-btn i{font-size:34px;color:#111}
 .voice-btn.on{background:#111}
 .voice-btn.on i{color:#fff}
-.voice-btn.on::after{content:'';position:absolute;width:100px;height:100px;border-radius:50%;border:2px solid rgba(17,17,17,0.2);animation:pulse 1.5s infinite}
+.voice-btn.on::after{content:'';position:absolute;width:104px;height:104px;border-radius:50%;border:2px solid rgba(17,17,17,0.2);animation:pulse 1.5s infinite}
 @keyframes pulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.35);opacity:0}}
-.voice-transcript{font-size:13px;color:#888;text-align:center;min-height:36px;line-height:1.5;padding:0 20px;font-style:italic}
+.voice-transcript{font-size:13px;color:#888;text-align:center;min-height:40px;line-height:1.5;padding:0 20px;font-style:italic}
 .voice-hint{font-size:11px;color:#ccc;text-align:center}
-.voice-progress{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;padding:0 20px}
-.vpill{font-size:10px;padding:3px 9px;border-radius:10px;background:#e8f5e9;color:#1a6b2a;font-weight:700;letter-spacing:0.3px}
+.voice-progress{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center;padding:0 20px}
+.vpill{font-size:10px;padding:4px 10px;border-radius:10px;background:#e8f5e9;color:#1a6b2a;font-weight:700}
 
 /* RECAP */
-.recap-wrap{padding:22px}
+.recap-wrap{padding:22px;border-top:2px solid #111}
 .recap-title{font-family:'Anton',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#111;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .recap-title i{font-size:18px;color:#1a6b2a}
-.recap-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.recap-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px;align-items:flex-start}
 .recap-item:last-child{border-bottom:none}
-.recap-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#aaa;min-width:130px;flex-shrink:0;padding-top:1px}
+.recap-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;min-width:120px;flex-shrink:0;padding-top:1px}
 .recap-value{color:#111;line-height:1.4;flex:1}
-.recap-other{display:inline-block;background:#f0f0f0;color:#555;font-size:11px;padding:2px 8px;border-radius:3px;margin:2px 2px 2px 0}
-
-/* FORMULAIRE MANUEL */
-.form-wrap{padding:0}
-.rule-bar{background:#1e1e1e;color:rgba(255,255,255,0.75);font-size:10.5px;padding:9px 22px;line-height:1.5}
-.rule-bar strong{color:#fff;margin-right:4px}
-.prog-wrap{padding:14px 22px 0}
-.prog-track{height:3px;background:#eee;border-radius:2px;overflow:hidden}
-.prog-fill{height:100%;background:#111;transition:width .35s}
-.prog-lbl{font-size:10px;color:#bbb;letter-spacing:1.5px;text-transform:uppercase;margin-top:5px;padding-bottom:2px}
-.section{padding:18px 22px;border-bottom:1px solid #ebebeb}
-.sec-head{display:flex;align-items:center;gap:9px;margin-bottom:14px}
-.sec-num{background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:10px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sec-title{font-family:'Anton',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#111;flex:1}
-.sec-badge{font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 8px;border-radius:2px}
-.done{background:#e8f5e9;color:#1a6b2a}.partial{background:#fff8e1;color:#b36f00}.empty{background:#f5f5f5;color:#bbb}
-
-.field{margin-bottom:12px}
-.field label{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#777;margin-bottom:5px}
-.req{color:#cc0000;margin-left:2px}
-.field input,.field select,.field textarea{width:100%;border:none;border-bottom:1.5px solid #ddd;padding:7px 0;font-family:'Roboto',sans-serif;font-size:13px;color:#111;background:transparent;outline:none;transition:border-color .2s;border-radius:0;-webkit-appearance:none}
-.field input:focus,.field select:focus,.field textarea:focus{border-bottom-color:#111}
-.field textarea{resize:vertical;min-height:56px;border:1.5px solid #ddd;padding:9px 10px;border-radius:2px}
-.field textarea:focus{border-color:#111}
-
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:440px){.row2{grid-template-columns:1fr}}
-
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-top:6px}
-@media(max-width:360px){.cg{grid-template-columns:1fr}}
-.chk{display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0}
-.chk input[type=checkbox]{width:14px;height:14px;accent-color:#111;cursor:pointer;flex-shrink:0}
-.chk span{font-size:12px;color:#444}
-.add-other{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#999;cursor:pointer;margin-top:6px;padding:3px 0;border:none;background:none;font-family:'Roboto',sans-serif}
-.add-other:hover{color:#111}
-.other-inputs{display:flex;flex-direction:column;gap:6px;margin-top:6px}
-.other-input-row{display:flex;align-items:center;gap:8px}
-.other-input-row input{flex:1;border:none;border-bottom:1.5px solid #ddd;padding:5px 0;font-size:12px;font-family:'Roboto',sans-serif;color:#111;background:transparent;outline:none}
-.other-input-row input:focus{border-bottom-color:#111}
-.rm-other{background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
-.rm-other:hover{color:#cc0000}
-
-.vt{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
-.vt th{background:#111;color:#fff;font-family:'Anton',sans-serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:7px 8px;font-weight:400;text-align:left}
-.vt th:last-child{text-align:center}
-.vt td{padding:6px 8px;border-bottom:1px solid #eee;vertical-align:middle}
-.vt tr:nth-child(even) td{background:#fafafa}
-.vt td:first-child{font-size:11px;color:#555;width:32%;font-weight:500}
-.vt td:nth-child(2) input{width:100%;border:none;border-bottom:1px solid #ddd;padding:3px 0;font-size:12px;background:transparent;outline:none;font-family:'Roboto',sans-serif;color:#111}
-.vt td:last-child{text-align:center;width:24%}
-.vt td select{border:none;border-bottom:1px solid #ddd;font-size:11px;background:transparent;outline:none;cursor:pointer;padding:2px 0;color:#111;font-family:'Roboto',sans-serif;width:100%}
-
-.warn-box{background:#111;color:#fff;font-size:11px;padding:11px 14px;line-height:1.6;margin-top:12px}
-.status-bar{display:flex;align-items:center;gap:9px;padding:10px 0;font-size:11px}
-.sdot{width:9px;height:9px;border-radius:50%;background:#ddd;flex-shrink:0;transition:background .3s}
-.sdot.ok{background:#1a6b2a}.sdot.warn{background:#e07b00}.sdot.err{background:#cc0000}
-.done-banner{background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px 22px;display:none;align-items:center;gap:9px}
-
-/* ACTIONS */
-.actions{padding:18px 22px;background:#f7f7f7;border-top:2px solid #111}
-.actions-lbl{font-family:'Anton',sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#111;margin-bottom:12px}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;line-height:1}
-.btn:active{transform:scale(0.97)}
-.bp{background:#111;color:#fff}.bp:hover{background:#333}
-.bo{background:#fff;color:#111;border:1.5px solid #111}.bo:hover{background:#f0f0f0}
-.bg{background:transparent;color:#666;border:1.5px solid #ccc}.bg:hover{border-color:#111;color:#111}
-.btn i{font-size:14px}
-.email-row{display:none;align-items:center;gap:8px;margin-top:10px}
-.email-row input{flex:1;border:1.5px solid #ddd;padding:9px 12px;font-size:12px;font-family:'Roboto',sans-serif;outline:none;color:#111;background:#fff;border-radius:1px}
-.email-row input:focus{border-color:#111}
-.amsg{font-size:11px;margin-top:8px;min-height:16px}
-.ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:8px 22px;letter-spacing:1px;text-align:center;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -166,16 +220,267 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
   </div>
 
   <div class="mode-bar">
-    <button class="mode-btn active" id="btn-manual" onclick="switchMode('manual')"><i class="ti ti-pencil"></i><span>Formulaire</span></button>
-    <button class="mode-btn" id="btn-chat" onclick="switchMode('chat')"><i class="ti ti-message-circle"></i><span>Assistant IA</span></button>
-    <button class="mode-btn" id="btn-voice" onclick="switchMode('voice')"><i class="ti ti-microphone"></i><span>Vocal</span></button>
+    <button class="mode-btn active" id="btn-manual" onclick="switchMode('manual')">
+      <i class="ti ti-forms"></i><span>Formulaire</span>
+    </button>
+    <button class="mode-btn" id="btn-chat" onclick="switchMode('chat')">
+      <i class="ti ti-message-circle"></i><span>Assistant IA</span>
+    </button>
+    <button class="mode-btn" id="btn-voice" onclick="switchMode('voice')">
+      <i class="ti ti-microphone"></i><span>Vocal</span>
+    </button>
   </div>
 
-  <!-- CHAT MODE -->
-  <div id="mode-chat">
+  <!-- ── FORMULAIRE ────────────────────────────── -->
+  <div id="mode-manual">
+
+    <div class="prog-wrap">
+      <div class="prog-header">
+        <span class="prog-title">Progression</span>
+        <span class="prog-count" id="plbl">0 / 6</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+    </div>
+
+    <div class="rule-bar">
+      <i class="ti ti-alert-circle"></i>
+      Ce brief doit être complété <strong style="color:#fff;margin:0 3px">AVANT</strong> toute demande de création. Les infos via WhatsApp ne sont pas considérées comme validées.
+    </div>
+
+    <!-- S1 -->
+    <div class="section">
+      <div class="sec-head open" id="sh1" onclick="toggleSec(1)">
+        <span class="sec-num">1</span>
+        <span class="sec-title">Qui demande</span>
+        <span class="sec-badge empty" id="b1">Vide</span>
+        <i class="ti ti-chevron-up sec-chevron"></i>
+      </div>
+      <div class="sec-body open" id="sb1">
+        <div class="field" style="margin-top:4px">
+          <label>Département<span class="req">*</span></label>
+          <select id="dept" onchange="upd()">
+            <option value="">— Sélectionner —</option>
+            <option>Marketing</option><option>IT</option><option>Finances</option>
+            <option>Achats</option><option>Travaux</option><option>Direction</option>
+            <option>Franchisé</option><option>Autre</option>
+          </select>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Référent unique<span class="req">*</span></label>
+            <input type="text" id="ref" placeholder="Prénom Nom" oninput="upd()">
+          </div>
+          <div class="field">
+            <label>Validateur final<span class="req">*</span></label>
+            <input type="text" id="valid" placeholder="Prénom Nom" oninput="upd()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="section">
+      <div class="sec-head" id="sh2" onclick="toggleSec(2)">
+        <span class="sec-num">2</span>
+        <span class="sec-title">La demande</span>
+        <span class="sec-badge empty" id="b2">Vide</span>
+        <i class="ti ti-chevron-down sec-chevron"></i>
+      </div>
+      <div class="sec-body" id="sb2">
+        <div class="field" style="margin-top:4px">
+          <label>Description du projet<span class="req">*</span></label>
+          <textarea id="desc" placeholder="Décrivez le projet et son contexte..." oninput="upd()"></textarea>
+        </div>
+        <div class="field">
+          <label>Message principal<span class="req">*</span></label>
+          <input type="text" id="msg" placeholder="Message clé à faire passer" oninput="upd()">
+        </div>
+        <div class="field">
+          <span class="checks-label">Type de demande</span>
+          <div class="cg" id="types">
+            <label class="chk"><input type="checkbox" value="Campagne marketing" onchange="upd()"><span class="chk-box"></span><span>Campagne marketing</span></label>
+            <label class="chk"><input type="checkbox" value="Réseaux sociaux" onchange="upd()"><span class="chk-box"></span><span>Réseaux sociaux</span></label>
+            <label class="chk"><input type="checkbox" value="Menu board / borne" onchange="upd()"><span class="chk-box"></span><span>Menu board / borne</span></label>
+            <label class="chk"><input type="checkbox" value="PLV / print" onchange="upd()"><span class="chk-box"></span><span>PLV / print</span></label>
+            <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span class="chk-box"></span><span>Packaging</span></label>
+            <label class="chk"><input type="checkbox" value="Travaux / signalétique" onchange="upd()"><span class="chk-box"></span><span>Travaux / signalétique</span></label>
+            <label class="chk"><input type="checkbox" value="Présentation" onchange="upd()"><span class="chk-box"></span><span>Présentation</span></label>
+          </div>
+          <div class="other-inputs" id="types-others"></div>
+          <button class="add-other-btn" onclick="addOther('types-others','upd')">
+            <i class="ti ti-plus"></i> Ajouter un autre type
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="section">
+      <div class="sec-head" id="sh3" onclick="toggleSec(3)">
+        <span class="sec-num">3</span>
+        <span class="sec-title">Infos techniques</span>
+        <span class="sec-badge empty" id="b3">Vide</span>
+        <i class="ti ti-chevron-down sec-chevron"></i>
+      </div>
+      <div class="sec-body" id="sb3">
+        <div class="val-rows" style="margin-top:4px">
+          <div class="val-row">
+            <div class="val-row-label">Nom produit / projet</div>
+            <div class="val-row-body">
+              <input type="text" id="v-nom" placeholder="Nom exact..." oninput="upd()">
+              <select class="val-select" id="s-nom" onchange="updValSelect(this);upd()">
+                <option value="">Statut</option><option>Oui</option><option>Non</option>
+              </select>
+            </div>
+          </div>
+          <div class="val-row">
+            <div class="val-row-label">Prix</div>
+            <div class="val-row-body">
+              <input type="text" id="v-prix" placeholder="Ex : 12,90 €" oninput="upd()">
+              <select class="val-select" id="s-prix" onchange="updValSelect(this);upd()">
+                <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
+              </select>
+            </div>
+          </div>
+          <div class="val-row">
+            <div class="val-row-label">Dates / période</div>
+            <div class="val-row-body">
+              <input type="text" id="v-dates" placeholder="Du ... au ..." oninput="upd()">
+              <select class="val-select" id="s-dates" onchange="updValSelect(this);upd()">
+                <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
+              </select>
+            </div>
+          </div>
+          <div class="val-row">
+            <div class="val-row-label">Texte exact à utiliser</div>
+            <div class="val-row-body">
+              <input type="text" id="v-texte" placeholder="Copier-coller le texte validé" oninput="upd()">
+              <select class="val-select" id="s-texte" onchange="updValSelect(this);upd()">
+                <option value="">Statut</option><option>Oui</option><option>Non</option>
+              </select>
+            </div>
+          </div>
+          <div class="val-row">
+            <div class="val-row-label">Mentions obligatoires</div>
+            <div class="val-row-body">
+              <input type="text" id="v-mentions" placeholder="Ex : *Offre valable jusqu'au..." oninput="upd()">
+              <select class="val-select" id="s-mentions" onchange="updValSelect(this);upd()">
+                <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label>Lien Drive / fichiers</label>
+          <input type="text" id="drive" placeholder="https://drive.google.com/..." oninput="upd()">
+        </div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="section">
+      <div class="sec-head" id="sh4" onclick="toggleSec(4)">
+        <span class="sec-num">4</span>
+        <span class="sec-title">Supports &amp; formats</span>
+        <span class="sec-badge empty" id="b4">Vide</span>
+        <i class="ti ti-chevron-down sec-chevron"></i>
+      </div>
+      <div class="sec-body" id="sb4">
+        <div class="field" style="margin-top:4px">
+          <span class="checks-label">Supports à créer<span class="req">*</span></span>
+          <div class="cg" id="supports">
+            <label class="chk"><input type="checkbox" value="Post réseaux sociaux" onchange="upd()"><span class="chk-box"></span><span>Post réseaux sociaux</span></label>
+            <label class="chk"><input type="checkbox" value="Story / Reel 9:16" onchange="upd()"><span class="chk-box"></span><span>Story / Reel 9:16</span></label>
+            <label class="chk"><input type="checkbox" value="Affiche / flyer" onchange="upd()"><span class="chk-box"></span><span>Affiche / flyer</span></label>
+            <label class="chk"><input type="checkbox" value="Menu board" onchange="upd()"><span class="chk-box"></span><span>Menu board</span></label>
+            <label class="chk"><input type="checkbox" value="Newsletter" onchange="upd()"><span class="chk-box"></span><span>Newsletter</span></label>
+            <label class="chk"><input type="checkbox" value="Bannière web" onchange="upd()"><span class="chk-box"></span><span>Bannière web</span></label>
+            <label class="chk"><input type="checkbox" value="YouTube / vidéo" onchange="upd()"><span class="chk-box"></span><span>YouTube / vidéo</span></label>
+            <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span class="chk-box"></span><span>Packaging</span></label>
+          </div>
+          <div class="other-inputs" id="supports-others"></div>
+          <button class="add-other-btn" onclick="addOther('supports-others','upd')">
+            <i class="ti ti-plus"></i> Ajouter un autre support
+          </button>
+        </div>
+        <div class="field">
+          <label>Formats / dimensions</label>
+          <input type="text" id="formats" placeholder="Ex : 1080×1080, 1080×1920, 1920×1080..." oninput="upd()">
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="section">
+      <div class="sec-head" id="sh5" onclick="toggleSec(5)">
+        <span class="sec-num">5</span>
+        <span class="sec-title">Deadlines</span>
+        <span class="sec-badge empty" id="b5">Vide</span>
+        <i class="ti ti-chevron-down sec-chevron"></i>
+      </div>
+      <div class="sec-body" id="sb5">
+        <div class="deadline-grid" style="margin-top:4px">
+          <div class="deadline-item">
+            <div>
+              <div class="deadline-lbl">Date de lancement<span class="req">*</span></div>
+              <div class="deadline-sub">Quand le projet doit être visible</div>
+            </div>
+            <input type="date" class="deadline-input" id="launch" onchange="upd()">
+          </div>
+          <div class="deadline-item">
+            <div>
+              <div class="deadline-lbl">Validation des infos<span class="req">*</span></div>
+              <div class="deadline-sub">Date limite pour fournir les contenus</div>
+            </div>
+            <input type="date" class="deadline-input" id="valinfo" onchange="upd()">
+          </div>
+          <div class="deadline-item">
+            <div>
+              <div class="deadline-lbl">Retour simulation<span class="req">*</span></div>
+              <div class="deadline-sub">Délai pour valider la maquette</div>
+            </div>
+            <input type="date" class="deadline-input" id="simul" onchange="upd()">
+          </div>
+        </div>
+        <div style="background:#111;color:#fff;font-size:11px;padding:11px 14px;line-height:1.5;margin-top:12px;border-radius:4px">
+          Sans validation dans les délais impartis, la deadline de lancement ne peut pas être garantie.
+        </div>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="section" style="border-bottom:none">
+      <div class="sec-head" id="sh6" onclick="toggleSec(6)">
+        <span class="sec-num">6</span>
+        <span class="sec-title">Statut &amp; notes</span>
+        <span class="sec-badge empty" id="b6">—</span>
+        <i class="ti ti-chevron-down sec-chevron"></i>
+      </div>
+      <div class="sec-body" id="sb6">
+        <div class="status-wrap">
+          <div class="status-bar">
+            <span class="sdot" id="sdot"></span>
+            <span class="slbl" id="slbl">Remplissez le formulaire pour voir le statut</span>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label>Notes / bloquants</label>
+          <textarea id="bloquants" placeholder="Informations manquantes, contexte supplémentaire..." oninput="upd()"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="done-banner" id="done-banner">
+      <i class="ti ti-circle-check"></i> Brief complet — prêt pour création
+    </div>
+
+  </div><!-- /mode-manual -->
+
+  <!-- ── CHAT ─────────────────────────────────── -->
+  <div id="mode-chat" style="display:none">
     <div class="chat-wrap">
       <div class="chat-area" id="chat-area"></div>
-      <div class="chips-wrap" id="chips-wrap"></div>
+      <div class="chips-wrap" id="chips-wrap" style="display:none"></div>
       <div class="chat-bar">
         <textarea class="chat-input" id="chat-input" placeholder="Répondez ici..." rows="1"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
@@ -186,7 +491,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     <div id="chat-recap" style="display:none"></div>
   </div>
 
-  <!-- VOICE MODE -->
+  <!-- ── VOCAL ─────────────────────────────────── -->
   <div id="mode-voice" style="display:none">
     <div class="voice-wrap">
       <div class="voice-question" id="vq">Appuyez sur le micro et parlez de votre projet.</div>
@@ -199,142 +504,97 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     <div id="voice-recap" style="display:none"></div>
   </div>
 
-  <!-- MANUAL MODE -->
-  <div id="mode-manual" style="display:none">
-    <div class="form-wrap">
-      <div class="rule-bar"><strong>Règle d'or :</strong> Ce brief doit être complété AVANT toute demande de création.</div>
-      <div class="prog-wrap">
-        <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
-        <div class="prog-lbl" id="plbl">0 / 6 sections complètes</div>
-      </div>
-
-      <div class="section">
-        <div class="sec-head"><span class="sec-num">1</span><span class="sec-title">Qui demande</span><span class="sec-badge empty" id="b1">Vide</span></div>
-        <div class="field"><label>Département<span class="req">*</span></label>
-          <select id="dept" onchange="upd()">
-            <option value="">— Sélectionner —</option>
-            <option>Marketing</option><option>IT</option><option>Finances</option>
-            <option>Achats</option><option>Travaux</option><option>Direction</option>
-            <option>Franchisé</option><option>Autre</option>
-          </select></div>
-        <div class="row2">
-          <div class="field"><label>Référent unique<span class="req">*</span></label><input type="text" id="ref" placeholder="Prénom Nom" oninput="upd()"></div>
-          <div class="field"><label>Validateur final<span class="req">*</span></label><input type="text" id="valid" placeholder="Prénom Nom" oninput="upd()"></div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="sec-head"><span class="sec-num">2</span><span class="sec-title">La demande</span><span class="sec-badge empty" id="b2">Vide</span></div>
-        <div class="field"><label>Description<span class="req">*</span></label><textarea id="desc" placeholder="Décrivez le projet..." oninput="upd()"></textarea></div>
-        <div class="field"><label>Message principal<span class="req">*</span></label><input type="text" id="msg" placeholder="Message à faire passer" oninput="upd()"></div>
-        <div class="field"><label>Type de demande</label>
-          <div class="cg" id="types">
-            <label class="chk"><input type="checkbox" value="Campagne marketing" onchange="upd()"><span>Campagne marketing</span></label>
-            <label class="chk"><input type="checkbox" value="Réseaux sociaux" onchange="upd()"><span>Réseaux sociaux</span></label>
-            <label class="chk"><input type="checkbox" value="Menu board / borne" onchange="upd()"><span>Menu board / borne</span></label>
-            <label class="chk"><input type="checkbox" value="PLV / print" onchange="upd()"><span>PLV / print</span></label>
-            <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span>Packaging</span></label>
-            <label class="chk"><input type="checkbox" value="Travaux / signalétique" onchange="upd()"><span>Travaux / signalétique</span></label>
-            <label class="chk"><input type="checkbox" value="Présentation" onchange="upd()"><span>Présentation</span></label>
-          </div>
-          <div class="other-inputs" id="types-others"></div>
-          <button class="add-other" onclick="addOther('types-others','type','upd')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un autre type</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="sec-head"><span class="sec-num">3</span><span class="sec-title">Infos techniques</span><span class="sec-badge empty" id="b3">Vide</span></div>
-        <table class="vt">
-          <thead><tr><th>Information</th><th>Contenu exact</th><th>Validé ?</th></tr></thead>
-          <tbody>
-            <tr><td>Nom produit</td><td><input type="text" id="v-nom" oninput="upd()"></td><td><select id="s-nom" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option></select></td></tr>
-            <tr><td>Prix</td><td><input type="text" id="v-prix" oninput="upd()"></td><td><select id="s-prix" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
-            <tr><td>Dates</td><td><input type="text" id="v-dates" oninput="upd()"></td><td><select id="s-dates" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
-            <tr><td>Texte exact</td><td><input type="text" id="v-texte" oninput="upd()"></td><td><select id="s-texte" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option></select></td></tr>
-            <tr><td>Mentions</td><td><input type="text" id="v-mentions" oninput="upd()"></td><td><select id="s-mentions" onchange="upd()"><option value="">—</option><option>Oui</option><option>Non</option><option>N/A</option></select></td></tr>
-          </tbody>
-        </table>
-        <div class="field" style="margin-top:14px"><label>Lien Drive</label><input type="text" id="drive" placeholder="https://drive.google.com/..." oninput="upd()"></div>
-      </div>
-
-      <div class="section">
-        <div class="sec-head"><span class="sec-num">4</span><span class="sec-title">Supports &amp; formats</span><span class="sec-badge empty" id="b4">Vide</span></div>
-        <div class="cg" id="supports">
-          <label class="chk"><input type="checkbox" value="Post réseaux sociaux" onchange="upd()"><span>Post réseaux sociaux</span></label>
-          <label class="chk"><input type="checkbox" value="Story / Reel 9:16" onchange="upd()"><span>Story / Reel 9:16</span></label>
-          <label class="chk"><input type="checkbox" value="Affiche / flyer" onchange="upd()"><span>Affiche / flyer</span></label>
-          <label class="chk"><input type="checkbox" value="Menu board" onchange="upd()"><span>Menu board</span></label>
-          <label class="chk"><input type="checkbox" value="Newsletter" onchange="upd()"><span>Newsletter</span></label>
-          <label class="chk"><input type="checkbox" value="Bannière web" onchange="upd()"><span>Bannière web</span></label>
-          <label class="chk"><input type="checkbox" value="YouTube / vidéo" onchange="upd()"><span>YouTube / vidéo</span></label>
-          <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span>Packaging</span></label>
-        </div>
-        <div class="other-inputs" id="supports-others"></div>
-        <button class="add-other" onclick="addOther('supports-others','support','upd')"><i class="ti ti-plus" style="font-size:12px"></i> Ajouter un autre support</button>
-        <div class="field" style="margin-top:12px"><label>Formats / dimensions</label><input type="text" id="formats" placeholder="Ex : 1080x1080, 1080x1920..." oninput="upd()"></div>
-      </div>
-
-      <div class="section">
-        <div class="sec-head"><span class="sec-num">5</span><span class="sec-title">Deadlines</span><span class="sec-badge empty" id="b5">Vide</span></div>
-        <div class="row2">
-          <div class="field"><label>Date de lancement<span class="req">*</span></label><input type="date" id="launch" onchange="upd()"></div>
-          <div class="field"><label>Validation infos<span class="req">*</span></label><input type="date" id="valinfo" onchange="upd()"></div>
-        </div>
-        <div class="field"><label>Retour simulation<span class="req">*</span></label><input type="date" id="simul" onchange="upd()"></div>
-        <div class="warn-box">Sans validation dans les délais impartis, la deadline de lancement ne peut pas être garantie.</div>
-      </div>
-
-      <div class="section">
-        <div class="sec-head"><span class="sec-num">6</span><span class="sec-title">Statut</span><span class="sec-badge empty" id="b6">—</span></div>
-        <div class="status-bar"><span class="sdot" id="sdot"></span><span id="slbl" style="color:#bbb;font-size:11px">Remplissez le formulaire pour voir le statut</span></div>
-        <div class="field" style="margin-top:10px"><label>Notes / bloquants</label><textarea id="bloquants" placeholder="Informations manquantes ou contexte..." oninput="upd()"></textarea></div>
-      </div>
-
-      <div class="done-banner" id="done-banner"><i class="ti ti-check" style="font-size:16px"></i> Brief complet — prêt pour création</div>
+  <!-- ── ACTIONS ───────────────────────────────── -->
+  <div class="actions">
+    <button class="action-primary" onclick="dlPDF()">
+      <i class="ti ti-download"></i> Télécharger le PDF
+    </button>
+    <div class="action-secondary">
+      <button class="action-sec-btn" onclick="printBrief()">
+        <i class="ti ti-printer"></i> Imprimer
+      </button>
+      <button class="action-sec-btn" onclick="copyLink()">
+        <i class="ti ti-link"></i> Copier le lien
+      </button>
+      <button class="action-sec-btn" onclick="toggleEmail()">
+        <i class="ti ti-mail"></i> Envoyer
+      </button>
     </div>
-  </div>
-
-  <!-- ACTIONS -->
-  <div class="actions" id="actions-bar">
-    <div class="actions-lbl">Actions</div>
-    <div class="btn-row">
-      <button class="btn bp" onclick="dlPDF()"><i class="ti ti-download"></i> PDF</button>
-      <button class="btn bo" onclick="printBrief()"><i class="ti ti-printer"></i> Imprimer</button>
-      <button class="btn bg" onclick="copyLink()"><i class="ti ti-copy"></i> Lien</button>
-      <button class="btn bg" onclick="toggleEmail()"><i class="ti ti-mail"></i> Mail</button>
-      <button class="btn bg" onclick="resetAll()"><i class="ti ti-refresh"></i> Reset</button>
-    </div>
-    <div class="email-row" id="email-row">
+    <div class="email-inline" id="email-row">
       <input type="email" id="email-dest" placeholder="adresse@bnwburger.com">
-      <button class="btn bp" onclick="doEmail()" style="padding:8px 12px;font-size:10px"><i class="ti ti-send"></i> Envoyer</button>
-      <button class="btn bg" onclick="toggleEmail()" style="padding:8px 10px"><i class="ti ti-x"></i></button>
+      <button class="email-inline-send" onclick="doEmail()">
+        <i class="ti ti-send"></i> Envoyer
+      </button>
     </div>
+    <button class="action-danger" onclick="resetAll()">
+      <i class="ti ti-trash"></i> Effacer et recommencer
+    </button>
     <div class="amsg" id="amsg"></div>
   </div>
+
   <div class="ftr">Studio Graphique — Black &amp; White Burger — Document interne</div>
 </div>
 
 <script>
 const G = id => document.getElementById(id);
 const checked = sel => [...document.querySelectorAll(sel+' input[type=checkbox]:checked')].map(c=>c.value);
-const fmtDate = s => { if(!s) return '—'; const [y,m,d]=s.split('-'); return d+'/'+m+'/'+y };
+const fmtDate = s => { if(!s)return'—'; const[y,m,d]=s.split('-'); return d+'/'+m+'/'+y };
 const now = () => new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
 
-// ─── DATA STORE ───────────────────────────────────────────────
 const data = {
-  dept:'', ref:'', valid:'', desc:'', msg:'',
-  types:[], othersTypes:[], supports:[], othersSupports:[],
-  vNom:'', sPrix:'', vPrix:'', sDates:'', vDates:'',
-  sNom:'', vTexte:'', sTexte:'', vMentions:'', sMentions:'',
-  drive:'', formats:'', launch:'', valinfo:'', simul:'', bloquants:''
+  dept:'',ref:'',valid:'',desc:'',msg:'',
+  types:[],othersTypes:[],supports:[],othersSupports:[],
+  vNom:'',sNom:'',vPrix:'',sPrix:'',vDates:'',sDates:'',
+  vTexte:'',sTexte:'',vMentions:'',sMentions:'',
+  drive:'',formats:'',launch:'',valinfo:'',simul:'',bloquants:''
 };
 
-// ─── MODE SWITCH ──────────────────────────────────────────────
-let currentMode = 'chat';
+// ── SECTIONS ACCORDÉON ────────────────────────
+function toggleSec(n) {
+  const head = G('sh'+n), body = G('sb'+n);
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+  const chevron = head.querySelector('.sec-chevron');
+  chevron.className = 'ti ti-chevron-'+(isOpen?'down':'up')+' sec-chevron';
+}
+
+// ── VAL SELECT COLORS ─────────────────────────
+function updValSelect(sel) {
+  sel.className = 'val-select';
+  if(sel.value==='Oui') sel.classList.add('validated');
+  else if(sel.value==='Non') sel.classList.add('invalid');
+}
+document.querySelectorAll('.val-select').forEach(updValSelect);
+
+// ── ADD OTHER ─────────────────────────────────
+function addOther(containerId, callback, value='') {
+  const wrap = G(containerId);
+  if(!wrap) return;
+  const row = document.createElement('div');
+  row.className = 'other-row';
+  const input = document.createElement('input');
+  input.type='text'; input.placeholder='Précisez...'; input.value=value;
+  input.oninput = () => { syncOthers(); window[callback]&&window[callback](); };
+  const rm = document.createElement('button');
+  rm.className='rm-btn'; rm.innerHTML='<i class="ti ti-x"></i>';
+  rm.onclick = () => { row.remove(); syncOthers(); window[callback]&&window[callback](); };
+  row.appendChild(input); row.appendChild(rm);
+  wrap.appendChild(row);
+  input.focus();
+  return input;
+}
+function syncOthers() {
+  data.othersTypes = [...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean);
+  data.othersSupports = [...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean);
+}
+
+// ── MODE SWITCH ───────────────────────────────
+let currentMode = 'manual';
 function switchMode(m) {
   currentMode = m;
   ['chat','voice','manual'].forEach(k => {
-    G('mode-'+k).style.display = k===m ? 'block' : 'none';
+    G('mode-'+k).style.display = k===m?'block':'none';
     G('btn-'+k).classList.toggle('active', k===m);
   });
   if(m==='chat' && chatState.step===0) startChat();
@@ -342,404 +602,59 @@ function switchMode(m) {
   if(m==='manual') syncFormFromData();
 }
 
-// ─── SHARED: ADD OTHER ────────────────────────────────────────
-function addOther(containerId, type, callback, value='') {
-  const wrap = G(containerId);
-  if(!wrap) return;
-  const row = document.createElement('div');
-  row.className = 'other-input-row';
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = 'Précisez...';
-  input.value = value;
-  input.oninput = () => {
-    syncOthers();
-    if(callback) window[callback]&&window[callback]();
-  };
-  const rm = document.createElement('button');
-  rm.className = 'rm-other';
-  rm.innerHTML = '<i class="ti ti-x"></i>';
-  rm.onclick = () => { row.remove(); syncOthers(); if(callback) window[callback]&&window[callback](); };
-  row.appendChild(input); row.appendChild(rm);
-  wrap.appendChild(row);
-  input.focus();
-  return input;
-}
-
-function syncOthers() {
-  data.othersTypes = [...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean);
-  data.othersSupports = [...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean);
-}
-
-// ─── CHAT CONVERSATION ────────────────────────────────────────
-const chatState = { step: 0, done: false };
-
-const QUESTIONS = [
-  { key: 'intro', ask: "Bonjour ! Je suis là pour vous aider à remplir votre brief. Pour commencer — c'est pour quel département et quel projet ?" },
-  { key: 'ref_valid', ask: (d) => `Parfait. Qui est le référent unique sur ce projet${d.dept?' au '+d.dept:''}${d.vNom?' pour "'+d.vNom+'"':''}? Et qui valide en dernier recours ?` },
-  { key: 'desc_msg', ask: () => "Décrivez-moi le projet en quelques mots — et quel est le message principal à faire passer ?" },
-  { key: 'supports', ask: () => "Sur quels supports va-t-on diffuser ça ? Réseaux sociaux, menu board, print, newsletter... tout ce qui est prévu." },
-  { key: 'infos_tech', ask: (d) => `Est-ce que vous avez déjà le nom du produit, le prix et les textes exacts validés${d.vNom?' pour "'+d.vNom+'"':''}?` },
-  { key: 'dates', ask: () => "Quelles sont les deadlines ? La date de lancement, et dans quel délai les infos seront validées ?" },
-  { key: 'extras', ask: () => "Y a-t-il un lien Drive avec les fichiers, des formats précis ou des notes à ajouter ?" },
-];
-
-function startChat() {
-  G('chat-area').innerHTML = '';
-  G('chips-wrap').innerHTML = '';
-  chatState.step = 0;
-  chatState.done = false;
-  aiMsg(QUESTIONS[0].ask);
-  showChips(['Marketing','IT','Finances','Achats','Travaux','Direction','Franchisé']);
-}
-
-function aiMsg(text) {
-  const area = G('chat-area');
-  const div = document.createElement('div');
-  div.className = 'msg ai';
-  div.innerHTML = `<div class="bubble">${text}</div><div class="ts">${now()}</div>`;
-  area.appendChild(div);
-  area.scrollTop = area.scrollHeight;
-}
-
-function userMsg(text) {
-  const area = G('chat-area');
-  const div = document.createElement('div');
-  div.className = 'msg ai';
-  div.innerHTML = `<div class="bubble" style="background:#111;color:#fff;border-radius:14px 0 14px 14px">${text}</div><div class="ts" style="text-align:right">${now()}</div>`;
-  div.className = 'msg user';
-  div.innerHTML = `<div class="bubble">${text}</div><div class="ts">${now()}</div>`;
-  area.appendChild(div);
-  area.scrollTop = area.scrollHeight;
-}
-
-function showChips(chips) {
-  const wrap = G('chips-wrap');
-  wrap.innerHTML = '';
-  if(!chips||!chips.length){wrap.style.display='none';return}
-  wrap.style.display='flex';
-  chips.forEach(c => {
-    const d = document.createElement('div');
-    d.className='chip'; d.textContent=c;
-    d.onclick=()=>{G('chat-input').value=c;sendChat()};
-    wrap.appendChild(d);
-  });
-}
-
-function showTyping() {
-  const area = G('chat-area');
-  const d = document.createElement('div');
-  d.className='typing-wrap'; d.id='typ';
-  d.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
-  area.appendChild(d); area.scrollTop=area.scrollHeight;
-}
-function rmTyping(){const t=G('typ');if(t)t.remove()}
-
-function sendChat() {
-  const inp = G('chat-input');
-  const text = inp.value.trim();
-  if(!text) return;
-  userMsg(text);
-  inp.value=''; inp.style.height='auto';
-  G('chips-wrap').style.display='none';
-  showTyping();
-  setTimeout(()=>processChat(text), 800);
-}
-
-function processChat(text) {
-  rmTyping();
-  const t = text.toLowerCase();
-  const step = chatState.step;
-
-  // Parse based on current step
-  if(step===0) {
-    // Department + project name
-    const depts={marketing:'Marketing',it:'IT',tech:'IT',finances:'Finances',finance:'Finances',achats:'Achats',travaux:'Travaux',direction:'Direction','franchis':'Franchisé'};
-    for(const[k,v] of Object.entries(depts)){if(t.includes(k)){data.dept=v;break}}
-    // Try to extract project name
-    const nm=text.match(/(?:projet|campagne|opération|lancement|pour)\s+["«]?([A-Za-zÀ-ÿ0-9\s\-&]{3,30})["»]?/i);
-    if(nm) data.vNom=nm[1].trim().toUpperCase();
-    if(!data.dept) data.desc=text; // store as desc fallback
-    chatState.step=1;
-    const q=QUESTIONS[1].ask(data);
-    aiMsg(q);
-    showChips([]);
-  }
-  else if(step===1) {
-    // Ref + validateur
-    const parts=text.split(/[,\/\net\s]+(?:et|valide[ur]*|responsable|validat[eu]+r|final|dernier)/i);
-    if(parts.length>=2){data.ref=parts[0].trim();data.valid=parts[1].trim()}
-    else{data.ref=text.trim()}
-    chatState.step=2;
-    aiMsg(QUESTIONS[2].ask(data));
-    showChips([]);
-  }
-  else if(step===2) {
-    // Description + message
-    data.desc=text;
-    const msgMatch=text.match(/(?:message|dire|communiquer|mettre en avant|slogan)[:\s]+(.+)/i);
-    if(msgMatch) data.msg=msgMatch[1].trim();
-    chatState.step=3;
-    aiMsg(QUESTIONS[3].ask(data));
-    showChips(['Réseaux sociaux','Menu board','Print','Newsletter','Bannière web','YouTube']);
-  }
-  else if(step===3) {
-    // Supports — known + auto-detect others
-    const known={
-      'réseau':'Réseaux sociaux','social':'Réseaux sociaux','instagram':'Post réseaux sociaux','tiktok':'Story / Reel 9:16',
-      'snap':'Story / Reel 9:16','story':'Story / Reel 9:16','reel':'Story / Reel 9:16',
-      'menu board':'Menu board','borne':'Menu board','print':'PLV / print','flyer':'Affiche / flyer',
-      'affiche':'Affiche / flyer','newsletter':'Newsletter','bannière':'Bannière web','youtube':'YouTube / vidéo',
-      'vidéo':'YouTube / vidéo','packaging':'Packaging'
-    };
-    const found=new Set();
-    const others=[];
-    // Split input by common separators
-    const parts=text.split(/[,\/\n]+|(?:\s+et\s+)|(?:\s+aussi\s+)/i);
-    parts.forEach(p=>{
-      const pl=p.toLowerCase().trim();
-      let matched=false;
-      for(const[k,v] of Object.entries(known)){
-        if(pl.includes(k)){found.add(v);matched=true;break}
-      }
-      if(!matched && pl.length>2 && !['sur','les','des','un','une','du','de','et','le','la'].includes(pl)){
-        others.push(p.trim());
-      }
-    });
-    data.supports=[...found];
-    data.othersSupports=others.filter(o=>o.length>2);
-    chatState.step=4;
-    let reply=QUESTIONS[4].ask(data);
-    if(data.othersSupports.length) reply+=' (J\'ai noté aussi : '+data.othersSupports.join(', ')+'.)';
-    aiMsg(reply);
-    showChips(['Oui, tout est prêt','Le nom oui, le prix non','Pas encore']);
-  }
-  else if(step===4) {
-    // Infos techniques
-    if(t.includes('oui')||t.includes('tout est prêt')||t.includes('validé')){
-      data.sNom='Oui';data.sPrix='Oui';data.sTexte='Oui';
-    }
-    const pm=t.match(/(\d+[,.]?\d*)\s*€/);
-    if(pm){data.vPrix=pm[1]+'€';data.sPrix='Oui'}
-    const nm=text.match(/(?:s'appelle|nom[:\s]+|produit[:\s]+)(["\w\s\-À-ÿ]{2,30})/i);
-    if(nm) data.vNom=nm[1].trim().toUpperCase();
-    // Detect text already provided
-    if(t.includes('texte')&&(t.includes('oui')||t.includes('prêt')||t.includes('validé'))) data.sTexte='Oui';
-    if(t.length>30&&!data.msg) data.msg=text;
-    // Any "other" info mentioned?
-    const otherInfo=text.match(/(?:aussi|plus|il y a aussi|et aussi)[:\s]+(.+)/i);
-    if(otherInfo) data.othersTypes=[...data.othersTypes, otherInfo[1].trim()];
-    chatState.step=5;
-    aiMsg(QUESTIONS[5].ask(data));
-    showChips([]);
-  }
-  else if(step===5) {
-    // Dates
-    const dateRegex=/(\d{1,2})[\/\-\s](\d{1,2})(?:[\/\-\s](\d{4}|\d{2}))?/g;
-    const dates=[]; let m;
-    while((m=dateRegex.exec(text))!==null){
-      const y=m[3]?(m[3].length===2?'20'+m[3]:m[3]):new Date().getFullYear();
-      dates.push(`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);
-    }
-    if(dates[0]) data.launch=dates[0];
-    if(dates[1]) data.valinfo=dates[1];
-    if(t.includes('urgent')||t.includes('asap')){
-      const soon=new Date(); soon.setDate(soon.getDate()+3);
-      data.launch=soon.toISOString().slice(0,10);
-    }
-    chatState.step=6;
-    aiMsg(QUESTIONS[6].ask(data));
-    showChips(['Non, c\'est tout','Oui, j\'ai un Drive']);
-  }
-  else if(step===6) {
-    // Extras
-    const driveMatch=text.match(/https?:\/\/[^\s]+/);
-    if(driveMatch) data.drive=driveMatch[0];
-    const formatsMatch=text.match(/\d+x\d+[^\n,]*/g);
-    if(formatsMatch) data.formats=formatsMatch.join(', ');
-    if(t.length>10&&!t.includes('non')&&!t.includes("c'est tout")) data.bloquants=text;
-    chatState.step=7;
-    chatState.done=true;
-    finishAssistant('chat');
-  }
-}
-
-function finishAssistant(mode) {
-  aiMsg("C'est parfait — j'ai tout noté. Voici le récapitulatif de votre brief :");
-  setTimeout(()=>{
-    showChips([]);
-    const recapHtml=buildRecapHtml();
-    const recapEl=G(mode+'-recap');
-    recapEl.innerHTML=recapHtml;
-    recapEl.style.display='block';
-    recapEl.scrollIntoView({behavior:'smooth'});
-  }, 600);
-}
-
-function buildRecapHtml() {
-  const d = data;
-  const rows=[
-    ['Département', d.dept||'—'],
-    ['Référent unique', d.ref||'—'],
-    ['Validateur final', d.valid||'—'],
-    ['Description', d.desc||'—'],
-    ['Message principal', d.msg||'—'],
-    ['Type de demande', [...d.types,...d.othersTypes].join(', ')||'—'],
-    ['Nom produit', d.vNom||'—'],
-    ['Prix', d.vPrix||(d.sPrix==='N/A'?'N/A':'—')],
-    ['Dates / période', d.vDates||'—'],
-    ['Texte validé', d.sTexte==='Oui'?'Oui':'Non renseigné'],
-    ['Supports', [...d.supports,...d.othersSupports.map(o=>'Autre : '+o)].join(', ')||'—'],
-    ['Formats', d.formats||'—'],
-    ['Lancement', fmtDate(d.launch)],
-    ['Validation infos', fmtDate(d.valinfo)],
-    ['Lien Drive', d.drive||'—'],
-    ['Notes', d.bloquants||'—'],
-  ].filter(([,v])=>v&&v!=='—');
-
-  return `<div class="recap-wrap">
-    <div class="recap-title"><i class="ti ti-check-circle"></i> Récapitulatif du brief</div>
-    ${rows.map(([l,v])=>`<div class="recap-item"><span class="recap-label">${l}</span><span class="recap-value">${v}</span></div>`).join('')}
-  </div>`;
-}
-
-// ─── VOICE CONVERSATION ───────────────────────────────────────
-const voiceState = { step:0, done:false };
-let isListening=false, recog=null;
-
-const VOICE_QUESTIONS=[
-  "Pour commencer, c'est pour quel département et quel projet ?",
-  "Qui est le référent unique sur ce projet ? Et qui valide en dernier ?",
-  "Décrivez le projet en quelques mots. Quel est le message principal ?",
-  "Quels supports prévoyez-vous ? Réseaux sociaux, menu board, print...",
-  "Avez-vous déjà le nom du produit, le prix et les textes validés ?",
-  "Quelles sont les deadlines ? Date de lancement et validation des infos ?",
-  "Y a-t-il un Drive avec les fichiers, des formats précis ou des notes ?",
-];
-
-function startVoiceConv(){
-  voiceState.step=0; voiceState.done=false;
-  G('vprog').innerHTML='';
-  G('vq').textContent=VOICE_QUESTIONS[0];
-  G('vtxt').textContent='';
-  G('voice-recap').style.display='none';
-}
-
-function toggleVoice(){isListening?stopV():startV()}
-
-function startV(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){G('vst').textContent='Non supporté — utilisez Chrome';return}
-  recog=new SR(); recog.lang='fr-FR'; recog.continuous=false; recog.interimResults=true;
-  recog.onstart=()=>{isListening=true;G('vbtn').classList.add('on');G('vst').textContent='En écoute...'}
-  recog.onresult=e=>{
-    const t=[...e.results].map(r=>r[0].transcript).join(' ');
-    G('vtxt').textContent=t;
-    if(e.results[e.results.length-1].isFinal){processVoice(t)}
-  };
-  recog.onerror=()=>stopV();
-  recog.onend=()=>stopV();
-  recog.start();
-}
-function stopV(){isListening=false;if(recog)recog.stop();G('vbtn').classList.remove('on');G('vst').textContent='Appuyez pour répondre'}
-
-function processVoice(text){
-  stopV();
-  // Reuse same parsing logic as chat
-  processChat(text); // shares data store
-  const step=voiceState.step=chatState.step;
-  // Update voice UI
-  if(step-1<VOICE_QUESTIONS.length && !chatState.done){
-    G('vq').textContent=VOICE_QUESTIONS[step-1]||'';
-    G('vtxt').textContent='';
-  }
-  // Update pills
-  const pills=['dept','ref','desc','supports','vNom','launch'];
-  const labels=['Département','Référent','Description','Supports','Produit','Deadline'];
-  const vprog=G('vprog'); vprog.innerHTML='';
-  pills.forEach((k,i)=>{
-    if(data[k]&&data[k].length){
-      const p=document.createElement('span');p.className='vpill';p.textContent=labels[i];vprog.appendChild(p);
-    }
-  });
-  if(chatState.done){
-    G('vq').textContent='Brief complet !';
-    G('vst').textContent='Terminé';
-    G('voice-recap').innerHTML=buildRecapHtml();
-    G('voice-recap').style.display='block';
-    G('voice-recap').scrollIntoView({behavior:'smooth'});
-  } else {
-    G('vst').textContent='Appuyez pour répondre';
-  }
-}
-
-// ─── MANUAL FORM ──────────────────────────────────────────────
-function syncFormFromData(){
-  // Sync data store → form fields
-  const d=data;
-  const setV=(id,v)=>{const el=G(id);if(el)el.value=v};
-  const setSel=(id,v)=>{const el=G(id);if(!el)return;[...el.options].forEach(o=>{if(o.text===v||o.value===v)o.selected=true})};
-  setSel('dept',d.dept); setV('ref',d.ref); setV('valid',d.valid);
-  setV('desc',d.desc); setV('msg',d.msg);
-  setV('v-nom',d.vNom); setV('v-prix',d.vPrix); setV('v-dates',d.vDates);
-  setV('v-texte',d.vTexte); setV('v-mentions',d.vMentions);
-  setSel('s-nom',d.sNom); setSel('s-prix',d.sPrix); setSel('s-dates',d.sDates);
-  setSel('s-texte',d.sTexte); setSel('s-mentions',d.sMentions);
-  setV('drive',d.drive); setV('formats',d.formats);
-  setV('launch',d.launch); setV('valinfo',d.valinfo); setV('simul',d.simul);
-  setV('bloquants',d.bloquants);
-  // Types checkboxes
-  document.querySelectorAll('#types input[type=checkbox]').forEach(cb=>{cb.checked=d.types.includes(cb.value)});
-  // Supports checkboxes
-  document.querySelectorAll('#supports input[type=checkbox]').forEach(cb=>{cb.checked=d.supports.includes(cb.value)});
-  // Others
-  G('types-others').innerHTML=''; d.othersTypes.forEach(v=>addOther('types-others','type','upd',v));
-  G('supports-others').innerHTML=''; d.othersSupports.forEach(v=>addOther('supports-others','support','upd',v));
-  upd();
-}
-
-function collect(){
-  return{
+// ── COLLECT & VALIDATE ────────────────────────
+function collect() {
+  return {
     dept:G('dept').value, ref:G('ref').value.trim(), valid:G('valid').value.trim(),
     desc:G('desc').value.trim(), msg:G('msg').value.trim(),
-    types:checked('#types'), othersTypes:[...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean),
-    vNom:G('v-nom').value.trim(), vPrix:G('v-prix').value.trim(),
-    vDates:G('v-dates').value.trim(), vTexte:G('v-texte').value.trim(),
-    vMentions:G('v-mentions').value.trim(), sNom:G('s-nom').value,
-    sPrix:G('s-prix').value, sDates:G('s-dates').value, sTexte:G('s-texte').value,
-    sMentions:G('s-mentions').value, drive:G('drive').value.trim(),
-    formats:G('formats').value.trim(), supports:checked('#supports'),
+    types:checked('#types'),
+    othersTypes:[...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean),
+    vNom:G('v-nom').value.trim(), sNom:G('s-nom').value,
+    vPrix:G('v-prix').value.trim(), sPrix:G('s-prix').value,
+    vDates:G('v-dates').value.trim(), sDates:G('s-dates').value,
+    vTexte:G('v-texte').value.trim(), sTexte:G('s-texte').value,
+    vMentions:G('v-mentions').value.trim(), sMentions:G('s-mentions').value,
+    drive:G('drive').value.trim(), formats:G('formats').value.trim(),
+    supports:checked('#supports'),
     othersSupports:[...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean),
     launch:G('launch').value, valinfo:G('valinfo').value, simul:G('simul').value,
     bloquants:G('bloquants').value.trim()
-  }
+  };
 }
 
-function getMiss(d){
+function getMiss(d) {
   const m=[];
-  if(!d.dept)m.push('Département');if(!d.ref)m.push('Référent unique');
-  if(!d.valid)m.push('Validateur final');if(!d.desc)m.push('Description du projet');
-  if(!d.msg)m.push('Message principal');
-  if(!d.supports.length&&!d.othersSupports.length)m.push('Supports à créer');
-  if(!d.launch)m.push('Date de lancement');if(!d.valinfo)m.push('Validation infos');
-  if(!d.simul)m.push('Retour simulation');if(!d.vNom)m.push('Nom produit / projet');
-  if(!d.vTexte&&d.sTexte!=='Oui')m.push('Texte exact à utiliser');
+  if(!d.dept) m.push('Département');
+  if(!d.ref) m.push('Référent unique');
+  if(!d.valid) m.push('Validateur final');
+  if(!d.desc) m.push('Description du projet');
+  if(!d.msg) m.push('Message principal');
+  if(!d.supports.length&&!d.othersSupports.length) m.push('Supports à créer');
+  if(!d.launch) m.push('Date de lancement');
+  if(!d.valinfo) m.push('Validation infos');
+  if(!d.simul) m.push('Retour simulation');
+  if(!d.vNom) m.push('Nom produit / projet');
+  if(!d.vTexte&&d.sTexte!=='Oui') m.push('Texte exact à utiliser');
   return m;
 }
 
-function setBadge(id,state){const el=G(id);if(!el)return;el.className='sec-badge '+state;el.textContent={done:'Complet',partial:'Partiel',empty:'Vide'}[state]}
+function setBadge(id,state) {
+  const el=G(id); if(!el)return;
+  el.className='sec-badge '+state;
+  el.textContent={done:'Complet',partial:'Partiel',empty:'Vide'}[state];
+}
 
-function upd(){
+function upd() {
   const d=collect();
-  // Sync back to data store
-  Object.assign(data, d);
+  Object.assign(data,d);
   const s1=d.dept&&d.ref&&d.valid, s2=d.desc&&d.msg;
   const s3=d.vNom||d.vPrix||d.vTexte;
   const s4=d.supports.length>0||d.othersSupports.length>0;
   const s5=d.launch&&d.valinfo&&d.simul;
-  const miss=getMiss(d); const sc=[s1,s2,s3,s4,s5,miss.length===0].filter(Boolean).length;
+  const miss=getMiss(d);
+  const sc=[s1,s2,s3,s4,s5,miss.length===0].filter(Boolean).length;
   G('prog').style.width=Math.round(sc/6*100)+'%';
-  G('plbl').textContent=sc+' / 6 sections complètes';
+  G('plbl').textContent=sc+' / 6';
   setBadge('b1',s1?'done':(d.dept||d.ref?'partial':'empty'));
   setBadge('b2',s2?'done':(d.desc||d.msg?'partial':'empty'));
   setBadge('b3',s3?'done':'empty');
@@ -747,25 +662,122 @@ function upd(){
   setBadge('b5',s5?'done':(d.launch?'partial':'empty'));
   setBadge('b6',miss.length===0?'done':(miss.length<5?'partial':'empty'));
   const dot=G('sdot'),lbl=G('slbl'),cb=G('done-banner');
-  if(!miss.length){dot.className='sdot ok';lbl.textContent='Brief complet — prêt pour création';lbl.style.color='#1a6b2a';cb.style.display='flex'}
-  else{dot.className='sdot '+(miss.length>5?'err':'warn');lbl.textContent=miss.length+' élément'+(miss.length>1?'s':'')+' manquant'+(miss.length>1?'s':'');lbl.style.color=miss.length>5?'#cc0000':'#e07b00';cb.style.display='none'}
+  if(!miss.length){
+    dot.className='sdot ok';lbl.textContent='Brief complet — prêt pour création';lbl.style.color='#1a6b2a';cb.style.display='flex';
+  } else {
+    dot.className='sdot '+(miss.length>5?'err':'warn');
+    lbl.textContent=miss.length+' élément'+(miss.length>1?'s':'')+' manquant'+(miss.length>1?'s':'');
+    lbl.style.color=miss.length>5?'#cc0000':'#e07b00';
+    cb.style.display='none';
+  }
 }
 
-// ─── PDF ──────────────────────────────────────────────────────
-function getExportData(){
-  if(currentMode==='manual') return collect();
-  return {...data, types:[...data.types,...data.othersTypes], supports:[...data.supports,...data.othersSupports]};
+// ── CHAT ─────────────────────────────────────
+const chatState = {step:0,done:false};
+const QUESTIONS = [
+  "Bonjour ! Pour commencer — c'est pour quel département et quel projet ?",
+  d => `Parfait. Qui est le référent unique${d.dept?' au '+d.dept:''}? Et qui valide en dernier ?`,
+  () => "Décrivez le projet en quelques mots — et quel est le message principal ?",
+  () => "Sur quels supports ? Réseaux sociaux, menu board, print, newsletter...",
+  d => `Vous avez déjà le nom du produit, le prix et les textes validés${d.vNom?' pour "'+d.vNom+'"':''}?`,
+  () => "Quelles sont les deadlines ? Date de lancement et validation des infos ?",
+  () => "Y a-t-il un lien Drive avec les fichiers, des formats précis ou des notes ?"
+];
+
+function startChat(){G('chat-area').innerHTML='';chatState.step=0;chatState.done=false;addAiMsg(QUESTIONS[0]);showChips(['Marketing','IT','Finances','Achats','Travaux','Direction','Franchisé'])}
+function addAiMsg(t){const a=G('chat-area'),d=document.createElement('div');d.className='msg ai';d.innerHTML=`<div class="bubble">${t}</div><div class="ts">${now()}</div>`;a.appendChild(d);a.scrollTop=a.scrollHeight}
+function addUserMsg(t){const a=G('chat-area'),d=document.createElement('div');d.className='msg user';d.innerHTML=`<div class="bubble">${t}</div><div class="ts">${now()}</div>`;a.appendChild(d);a.scrollTop=a.scrollHeight}
+function showChips(arr){const w=G('chips-wrap');w.innerHTML='';if(!arr||!arr.length){w.style.display='none';return}w.style.display='flex';arr.forEach(c=>{const d=document.createElement('div');d.className='chip';d.textContent=c;d.onclick=()=>{G('chat-input').value=c;sendChat()};w.appendChild(d)})}
+function showTyping(){const a=G('chat-area'),d=document.createElement('div');d.className='typing-wrap';d.id='typ';d.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';a.appendChild(d);a.scrollTop=a.scrollHeight}
+function rmTyping(){const t=G('typ');if(t)t.remove()}
+
+function sendChat(){const inp=G('chat-input'),t=inp.value.trim();if(!t)return;addUserMsg(t);inp.value='';inp.style.height='auto';G('chips-wrap').style.display='none';showTyping();setTimeout(()=>processChat(t),800)}
+
+function processChat(text){
+  rmTyping();const t=text.toLowerCase();const step=chatState.step;
+  if(step===0){
+    const dm={marketing:'Marketing',it:'IT',tech:'IT',finances:'Finances',finance:'Finances',achats:'Achats',travaux:'Travaux',direction:'Direction','franchis':'Franchisé'};
+    for(const[k,v]of Object.entries(dm)){if(t.includes(k)){data.dept=v;break}}
+    const nm=text.match(/(?:projet|campagne|opération|lancement|pour)\s+["«]?([A-Za-zÀ-ÿ0-9\s\-&]{3,30})["»]?/i);
+    if(nm)data.vNom=nm[1].trim().toUpperCase();
+    chatState.step=1;addAiMsg(typeof QUESTIONS[1]==='function'?QUESTIONS[1](data):QUESTIONS[1]);showChips([]);
+  } else if(step===1){
+    const parts=text.split(/(?:et|valide[ur]*|responsable|validat[eu]+r|final|dernier)/i);
+    data.ref=parts[0].trim();if(parts[1])data.valid=parts[1].trim();
+    chatState.step=2;addAiMsg(QUESTIONS[2](data));showChips([]);
+  } else if(step===2){
+    data.desc=text;
+    const mm=text.match(/(?:message|slogan|dire|communiquer)[:\s]+(.+)/i);
+    if(mm)data.msg=mm[1].trim();
+    chatState.step=3;addAiMsg(QUESTIONS[3](data));showChips(['Réseaux sociaux','Menu board','Print','Newsletter','Bannière web','YouTube']);
+  } else if(step===3){
+    const km={'réseau':'Réseaux sociaux','social':'Réseaux sociaux','instagram':'Post réseaux sociaux','tiktok':'Story / Reel 9:16','snap':'Story / Reel 9:16','story':'Story / Reel 9:16','reel':'Story / Reel 9:16','menu board':'Menu board','borne':'Menu board','print':'PLV / print','flyer':'Affiche / flyer','affiche':'Affiche / flyer','newsletter':'Newsletter','bannière':'Bannière web','youtube':'YouTube / vidéo','vidéo':'YouTube / vidéo','packaging':'Packaging'};
+    const found=new Set(),others=[];
+    text.split(/[,\/\n]+|(?:\s+et\s+)/i).forEach(p=>{const pl=p.toLowerCase().trim();let m=false;for(const[k,v]of Object.entries(km)){if(pl.includes(k)){found.add(v);m=true;break}}if(!m&&pl.length>2&&!['sur','les','des','un','une','du','de','et','le','la'].includes(pl))others.push(p.trim())});
+    data.supports=[...found];data.othersSupports=others.filter(o=>o.length>2);
+    chatState.step=4;let r=QUESTIONS[4](data);if(data.othersSupports.length)r+=' (Noté aussi : '+data.othersSupports.join(', ')+'.)';addAiMsg(r);showChips(['Oui, tout est prêt','Le nom oui, pas le prix','Pas encore']);
+  } else if(step===4){
+    if(t.includes('oui')||t.includes('prêt')||t.includes('validé')){data.sNom='Oui';data.sPrix='Oui';data.sTexte='Oui'}
+    const pm=t.match(/(\d+[,.]?\d*)\s*€/);if(pm){data.vPrix=pm[1]+'€';data.sPrix='Oui'}
+    const nm=text.match(/(?:s'appelle|nom[:\s]+|produit[:\s]+)(["'\w\s\-À-ÿ]{2,30})/i);if(nm)data.vNom=nm[1].trim().toUpperCase();
+    chatState.step=5;addAiMsg(QUESTIONS[5](data));showChips([]);
+  } else if(step===5){
+    const dr=/(\\d{1,2})[\\/\\-\\s](\\d{1,2})(?:[\\/\\-\\s](\\d{4}|\\d{2}))?/g;const dates=[];let m;
+    const re2=/(\d{1,2})[\/\-\s](\d{1,2})(?:[\/\-\s](\d{4}|\d{2}))?/g;
+    while((m=re2.exec(text))!==null){const y=m[3]?(m[3].length===2?'20'+m[3]:m[3]):new Date().getFullYear();dates.push(`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`)}
+    if(dates[0])data.launch=dates[0];if(dates[1])data.valinfo=dates[1];
+    if(t.includes('urgent')||t.includes('asap')){const s=new Date();s.setDate(s.getDate()+3);data.launch=s.toISOString().slice(0,10)}
+    chatState.step=6;addAiMsg(QUESTIONS[6](data));showChips(["Non, c'est tout","Oui, j'ai un Drive"]);
+  } else if(step===6){
+    const dm2=text.match(/https?:\/\/[^\s]+/);if(dm2)data.drive=dm2[0];
+    const fm=text.match(/\d+x\d+[^\n,]*/g);if(fm)data.formats=fm.join(', ');
+    if(t.length>10&&!t.includes('non')&&!t.includes("c'est tout"))data.bloquants=text;
+    chatState.step=7;chatState.done=true;
+    addAiMsg("Parfait — j'ai tout noté. Voici le récapitulatif :");
+    setTimeout(()=>{showChips([]);const re=G('chat-recap');re.innerHTML=buildRecapHtml();re.style.display='block';re.scrollIntoView({behavior:'smooth'})},600);
+  }
 }
 
-function checkMissAndConfirm(){
-  const d=getExportData(); const miss=getMiss(d);
-  if(!miss.length) return true;
-  return confirm(miss.length+' information'+(miss.length>1?'s manquantes':' manquante')+' :\n\n'+miss.map(m=>'• '+m).join('\n')+'\n\nContinuer quand même ?');
+// ── VOICE ─────────────────────────────────────
+let isOn=false,recog=null;
+const VQ=["Pour commencer, c'est pour quel département et quel projet ?","Qui est le référent unique ? Et qui valide en dernier ?","Décrivez le projet. Quel est le message principal ?","Quels supports prévoyez-vous ?","Avez-vous le nom, le prix et les textes validés ?","Quelles sont les deadlines ?","Y a-t-il un Drive, des formats précis ou des notes ?"];
+function startVoiceConv(){G('vprog').innerHTML='';G('vq').textContent=VQ[0];G('vtxt').textContent='';G('voice-recap').style.display='none'}
+function toggleVoice(){isOn?stopV():startV()}
+function startV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){G('vst').textContent='Non supporté — utilisez Chrome';return}recog=new SR();recog.lang='fr-FR';recog.continuous=false;recog.interimResults=true;recog.onstart=()=>{isOn=true;G('vbtn').classList.add('on');G('vst').textContent='En écoute...'};recog.onresult=e=>{const t=[...e.results].map(r=>r[0].transcript).join(' ');G('vtxt').textContent=t;if(e.results[e.results.length-1].isFinal)processVoice(t)};recog.onerror=()=>stopV();recog.onend=()=>stopV();recog.start()}
+function stopV(){isOn=false;if(recog)recog.stop();G('vbtn').classList.remove('on');G('vst').textContent='Appuyez pour répondre'}
+function processVoice(text){stopV();processChat(text);const step=chatState.step;if(step-1<VQ.length&&!chatState.done){G('vq').textContent=VQ[step-1]||'';G('vtxt').textContent=''}const pills=['dept','ref','desc','vNom','launch'];const labels=['Département','Référent','Description','Produit','Deadline'];const vp=G('vprog');vp.innerHTML='';pills.forEach((k,i)=>{if(data[k]&&data[k].length){const p=document.createElement('span');p.className='vpill';p.textContent=labels[i];vp.appendChild(p)}});if(chatState.done){G('vq').textContent='Brief complet !';G('vst').textContent='Terminé';G('voice-recap').innerHTML=buildRecapHtml();G('voice-recap').style.display='block';G('voice-recap').scrollIntoView({behavior:'smooth'})}else G('vst').textContent='Appuyez pour répondre'}
+
+// ── RECAP ─────────────────────────────────────
+function buildRecapHtml(){
+  const d=data;
+  const rows=[['Département',d.dept],['Référent',d.ref],['Validateur',d.valid],['Description',d.desc],['Message',d.msg],['Types',[...d.types,...d.othersTypes].join(', ')],['Nom produit',d.vNom],['Prix',d.vPrix],['Supports',[...d.supports,...d.othersSupports].join(', ')],['Lancement',fmtDate(d.launch)],['Validation',fmtDate(d.valinfo)],['Drive',d.drive],['Notes',d.bloquants]].filter(([,v])=>v&&v!=='—');
+  return`<div class="recap-wrap"><div class="recap-title"><i class="ti ti-check-circle"></i>Récapitulatif du brief</div>${rows.map(([l,v])=>`<div class="recap-item"><span class="recap-label">${l}</span><span class="recap-value">${v}</span></div>`).join('')}</div>`;
 }
+
+// ── SYNC FORM ─────────────────────────────────
+function syncFormFromData(){
+  const d=data;
+  const sv=(id,v)=>{const el=G(id);if(el)el.value=v};
+  const ss=(id,v)=>{const el=G(id);if(!el)return;[...el.options].forEach(o=>{if(o.text===v||o.value===v)o.selected=true});updValSelect(el)};
+  ss('dept',d.dept);sv('ref',d.ref);sv('valid',d.valid);sv('desc',d.desc);sv('msg',d.msg);
+  sv('v-nom',d.vNom);ss('s-nom',d.sNom);sv('v-prix',d.vPrix);ss('s-prix',d.sPrix);
+  sv('v-dates',d.vDates);ss('s-dates',d.sDates);sv('v-texte',d.vTexte);ss('s-texte',d.sTexte);
+  sv('v-mentions',d.vMentions);ss('s-mentions',d.sMentions);sv('drive',d.drive);
+  sv('formats',d.formats);sv('launch',d.launch);sv('valinfo',d.valinfo);sv('simul',d.simul);sv('bloquants',d.bloquants);
+  document.querySelectorAll('#types input[type=checkbox]').forEach(cb=>cb.checked=d.types.includes(cb.value));
+  document.querySelectorAll('#supports input[type=checkbox]').forEach(cb=>cb.checked=d.supports.includes(cb.value));
+  G('types-others').innerHTML='';d.othersTypes.forEach(v=>addOther('types-others','upd',v));
+  G('supports-others').innerHTML='';d.othersSupports.forEach(v=>addOther('supports-others','upd',v));
+  upd();
+}
+
+// ── EXPORT ────────────────────────────────────
+function getExportData(){return currentMode==='manual'?collect():{...data,types:[...data.types,...data.othersTypes],supports:[...data.supports,...data.othersSupports]}}
+function checkMiss(){const d=getExportData(),miss=getMiss(d);if(!miss.length)return true;return confirm(miss.length+' information'+(miss.length>1?'s manquantes':' manquante')+' :\n\n'+miss.map(m=>'• '+m).join('\n')+'\n\nContinuer quand même ?')}
 
 function buildPDF(){
-  const{jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
-  const d=getExportData(); const W=210,ML=14,CW=196; let y=0;
+  const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});
+  const d=getExportData();const W=210,ML=14,CW=196;let y=0;
   function np(){doc.addPage();y=14}
   function cp(n=20){if(y+n>283)np()}
   doc.setFillColor(17,17,17);doc.rect(0,0,W,26,'F');
@@ -773,49 +785,39 @@ function buildPDF(){
   doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);doc.text('Studio Graphique — Black & White Burger',ML,17);
   doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(180,180,180);doc.text('BLACK & WHITE BURGER',W-ML,14,{align:'right'});
   doc.setFillColor(30,30,30);doc.rect(0,26,W,9,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(190,190,190);
-  doc.text('REGLE D\'OR : Ce brief doit etre complete AVANT toute demande de creation.',ML,31.5);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(190,190,190);doc.text("REGLE D'OR : Ce brief doit etre complete AVANT toute demande de creation.",ML,31.5);
   y=42;
   function st(n,t){cp(14);doc.setFillColor(17,17,17);doc.rect(ML,y,7,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text(String(n),ML+3.5,y+5,{align:'center'});doc.setTextColor(17,17,17);doc.setFontSize(9.5);doc.text(t.toUpperCase(),ML+11,y+5);y+=11}
   function fl(lbl,val,miss=false){cp(9);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(120,120,120);doc.text(lbl.toUpperCase(),ML,y);const v=val||(miss?'— MANQUANT':'—');doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(miss?180:17,miss?0:17,miss?0:17);const lines=doc.splitTextToSize(v,CW-46);doc.text(lines,ML+46,y);doc.setDrawColor(miss?200:210,miss?0:210,miss?0:210);doc.line(ML+44,y+1.5,ML+CW,y+1.5);y+=7+Math.max(0,(lines.length-1)*5)}
   function dv(){cp(7);doc.setDrawColor(220,220,220);doc.line(ML,y,ML+CW,y);y+=7}
   function wb(t){cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,9,'F');doc.setFont('helvetica','italic');doc.setFontSize(7.5);doc.setTextColor(220,220,220);doc.text(t,ML+4,y+5.5);y+=13}
-  const allTypes=[...(d.types||[]),...(d.othersTypes||[])].join(', ')||'—';
-  const allSupports=[...(d.supports||[]),...(d.othersSupports||[]).map(o=>'Autre : '+o)].join(', ')||'—';
+  const allT=[...(d.types||[]),...(d.othersTypes||[])].join(', ')||'—';
+  const allS=[...(d.supports||[]),...(d.othersSupports||[]).map(o=>'Autre : '+o)].join(', ')||'—';
   st(1,'Qui demande');fl('Département',d.dept,!d.dept);fl('Référent unique',d.ref,!d.ref);fl('Validateur final',d.valid,!d.valid);dv();
-  st(2,'La demande');fl('Description',d.desc,!d.desc);fl('Message principal',d.msg,!d.msg);fl('Type de demande',allTypes);dv();
-  st(3,'Informations techniques');
-  cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);
-  doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
-  [[d.vNom,'Nom produit',d.sNom],[d.vPrix,'Prix',d.sPrix],[d.vDates,'Dates',d.sDates],[d.vTexte,'Texte exact',d.sTexte],[d.vMentions,'Mentions',d.sMentions]].forEach(([v,l,s],i)=>{
-    cp(8);i%2===0?doc.setFillColor(255,255,255):doc.setFillColor(250,250,250);
-    doc.rect(ML,y-1,CW,8,'F');doc.setFont('helvetica','normal');doc.setFontSize(8.5);
-    doc.setTextColor(!v?170:60,!v?0:60,!v?0:60);doc.text(l,ML+3,y+4.5);
-    doc.setTextColor(17,17,17);doc.text(v||'—',ML+58,y+4.5);
-    doc.setTextColor(s==='Oui'?26:100,s==='Oui'?107:100,s==='Oui'?42:100);doc.text(s||'—',ML+CW-18,y+4.5);y+=8;
-  });
+  st(2,'La demande');fl('Description',d.desc,!d.desc);fl('Message principal',d.msg,!d.msg);fl('Type de demande',allT);dv();
+  st(3,'Infos techniques');
+  cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
+  [[d.vNom,'Nom produit',d.sNom],[d.vPrix,'Prix',d.sPrix],[d.vDates,'Dates',d.sDates],[d.vTexte,'Texte exact',d.sTexte],[d.vMentions,'Mentions',d.sMentions]].forEach(([v,l,s],i)=>{cp(8);i%2===0?doc.setFillColor(255,255,255):doc.setFillColor(250,250,250);doc.rect(ML,y-1,CW,8,'F');doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(!v?170:60,!v?0:60,!v?0:60);doc.text(l,ML+3,y+4.5);doc.setTextColor(17,17,17);doc.text(v||'—',ML+58,y+4.5);doc.setTextColor(s==='Oui'?26:100,s==='Oui'?107:100,s==='Oui'?42:100);doc.text(s||'—',ML+CW-18,y+4.5);y+=8});
   y+=3;fl('Lien Drive',d.drive||'—');dv();
-  st(4,'Supports & formats');fl('Supports',allSupports,!d.supports.length&&!d.othersSupports.length);fl('Formats',d.formats||'—');dv();
-  st(5,'Deadlines');fl('Lancement',fmtDate(d.launch),!d.launch);fl('Validation infos',fmtDate(d.valinfo),!d.valinfo);fl('Retour simulation',fmtDate(d.simul),!d.simul);
-  wb('Sans validation dans les delais, la deadline de lancement ne peut pas etre garantie.');dv();
+  st(4,'Supports & formats');fl('Supports',allS,!d.supports.length&&!d.othersSupports.length);fl('Formats',d.formats||'—');dv();
+  st(5,'Deadlines');fl('Lancement',fmtDate(d.launch),!d.launch);fl('Validation infos',fmtDate(d.valinfo),!d.valinfo);fl('Retour simulation',fmtDate(d.simul),!d.simul);wb("Sans validation dans les delais, la deadline de lancement ne peut pas etre garantie.");dv();
   st(6,'Statut');const miss=getMiss(d);fl('Statut',miss.length?'Incomplet — '+miss.length+' élément(s) manquant(s)':'Complet — prêt pour création');
   if(d.bloquants)fl('Notes',d.bloquants);
   if(miss.length){cp(8+miss.length*6);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(180,0,0);doc.text('INFORMATIONS MANQUANTES :',ML,y);y+=6;doc.setFont('helvetica','normal');miss.forEach(m=>{cp(6);doc.text('→  '+m,ML+4,y);y+=5.5})}
-  cp(12);y+=6;doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);doc.line(ML,y-2,ML+CW,y-2);
-  doc.text('Studio Graphique — B&W Burger — '+new Date().toLocaleDateString('fr-BE'),ML,y+3);
+  cp(12);y+=6;doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);doc.line(ML,y-2,ML+CW,y-2);doc.text('Studio Graphique — B&W Burger — '+new Date().toLocaleDateString('fr-BE'),ML,y+3);
   return doc;
 }
 
-function msg(t,c='#1a6b2a'){const el=G('amsg');el.textContent=t;el.style.color=c;setTimeout(()=>el.textContent='',2800)}
-function dlPDF(){if(!checkMissAndConfirm())return;try{const d=getExportData();buildPDF().save('Brief_BW_'+(d.dept||'Studio')+'_'+new Date().toISOString().slice(0,10)+'.pdf');msg('PDF téléchargé')}catch(e){msg('Erreur PDF','#cc0000')}}
-function printBrief(){if(!checkMissAndConfirm())return;try{const blob=buildPDF().output('blob');const url=URL.createObjectURL(blob);const w=window.open(url,'_blank');if(w)w.onload=()=>w.print();msg('Impression...')}catch(e){msg('Erreur impression','#cc0000')}}
-function copyLink(){navigator.clipboard?navigator.clipboard.writeText(location.href).then(()=>msg('Lien copié !')):msg('Copiez l\'URL du navigateur','#666')}
-function toggleEmail(){const r=G('email-row');r.style.display=r.style.display==='flex'?'none':'flex'}
-function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.includes('@')){msg('Email invalide','#cc0000');return}const d=getExportData();const s=encodeURIComponent('Brief Projet B&W — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W'));const b=encodeURIComponent('Bonjour,\n\nBrief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nLancement : '+fmtDate(d.launch)+'\n\nCordialement,\nStudio Graphique B&W');window.open('mailto:'+dest+'?subject='+s+'&body='+b);toggleEmail();msg('Client mail ouvert')}
-function resetAll(){if(!confirm('Réinitialiser ?'))return;Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);G('types-others').innerHTML='';G('supports-others').innerHTML='';startChat();upd();msg('Réinitialisé','#666')}
+function showMsg(t,c='#1a6b2a'){const el=G('amsg');el.textContent=t;el.style.color=c;setTimeout(()=>el.textContent='',3000)}
+function dlPDF(){if(!checkMiss())return;try{const d=getExportData();buildPDF().save('Brief_BW_'+(d.dept||'Studio')+'_'+new Date().toISOString().slice(0,10)+'.pdf');showMsg('PDF téléchargé avec succès')}catch(e){showMsg('Erreur lors de la génération','#cc0000')}}
+function printBrief(){if(!checkMiss())return;try{const blob=buildPDF().output('blob');const url=URL.createObjectURL(blob);const w=window.open(url,'_blank');if(w)w.onload=()=>w.print();showMsg('Ouverture pour impression...')}catch(e){showMsg('Erreur impression','#cc0000')}}
+function copyLink(){navigator.clipboard?navigator.clipboard.writeText(location.href).then(()=>showMsg('Lien copié !')):showMsg("Copiez l'URL du navigateur",'#666')}
+function toggleEmail(){const r=G('email-row');r.classList.toggle('open')}
+function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.includes('@')){showMsg('Email invalide','#cc0000');return}const d=getExportData();const s=encodeURIComponent('Brief Projet B&W — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W'));const b=encodeURIComponent('Bonjour,\n\nBrief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nLancement : '+fmtDate(d.launch)+'\n\nCordialement,\nStudio Graphique B&W');window.open('mailto:'+dest+'?subject='+s+'&body='+b);toggleEmail();showMsg('Client mail ouvert')}
+function resetAll(){if(!confirm('Effacer tous les champs et recommencer ?'))return;Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);document.querySelectorAll('.val-select').forEach(el=>{el.value='';updValSelect(el)});G('types-others').innerHTML='';G('supports-others').innerHTML='';chatState.step=0;chatState.done=false;upd();showMsg('Formulaire réinitialisé','#666')}
 
-// ─── INIT ─────────────────────────────────────────────────────
-switchMode('manual');
+// INIT
+upd();
 </script>
 </body>
 </html>
