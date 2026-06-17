@@ -156,6 +156,52 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 /* FOOTER */
 .ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:10px 22px;letter-spacing:1px;text-align:center;text-transform:uppercase}
 
+/* HISTORY DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;display:none;backdrop-filter:blur(2px)}
+.drawer-overlay.open{display:block}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:100%;max-width:420px;background:#fff;z-index:901;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,0.12)}
+.drawer.open{transform:translateX(0)}
+.drawer-head{background:#111;padding:16px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.drawer-head h2{font-family:'Anton',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:#fff;margin:0;flex:1}
+.drawer-close{width:32px;height:32px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s}
+.drawer-close:hover{background:rgba(255,255,255,0.2)}
+.drawer-close i{font-size:16px}
+.drawer-body{flex:1;overflow-y:auto;padding:16px}
+.drawer-empty{text-align:center;padding:48px 20px;color:#bbb}
+.drawer-empty i{font-size:40px;display:block;margin-bottom:12px;opacity:0.4}
+.drawer-empty p{font-size:13px;line-height:1.5}
+.hist-item{border:1px solid #e8e8e8;border-radius:8px;padding:14px;margin-bottom:10px;cursor:pointer;transition:all .15s;position:relative}
+.hist-item:hover{border-color:#111;background:#fafafa}
+.hist-item-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.hist-id{font-size:10px;font-weight:700;color:#999;letter-spacing:1px;text-transform:uppercase;background:#f5f5f5;padding:3px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.hist-dept{font-size:11px;font-weight:700;color:#111;flex:1}
+.hist-date{font-size:10px;color:#bbb;white-space:nowrap}
+.hist-desc{font-size:12px;color:#555;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hist-meta{display:flex;gap:8px;flex-wrap:wrap}
+.hist-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:#f5f5f5;color:#666;white-space:nowrap}
+.hist-tag.prio-urgent{background:#fff0f0;color:#cc0000}
+.hist-tag.prio-prioritaire{background:#fff8e1;color:#856404}
+.hist-actions{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0}
+.hist-btn{flex:1;padding:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;font-family:'Roboto',sans-serif}
+.hist-btn-load{background:#111;color:#fff;border:none}
+.hist-btn-load:hover{background:#333}
+.hist-btn-del{background:#fff;color:#cc0000;border:1px solid #ffcccc}
+.hist-btn-del:hover{background:#fff0f0}
+.hist-counter{font-size:11px;color:#999;text-align:center;padding:8px 0 0;border-top:1px solid #f0f0f0;margin-top:4px}
+
+/* SUBMIT BUTTON */
+.action-submit{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;transition:background .15s;border-radius:4px;margin-bottom:10px}
+.action-submit:hover{background:#155222}
+.action-submit:active{transform:scale(0.98)}
+.action-submit i{font-size:20px}
+.submit-note{font-size:10px;color:#999;text-align:center;margin-bottom:14px;letter-spacing:0.3px}
+
+/* HISTORY BUTTON IN HEADER */
+.hdr-hist-btn{display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(255,255,255,0.1);border:none;border-radius:20px;color:rgba(255,255,255,0.7);font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;font-family:'Roboto',sans-serif;white-space:nowrap}
+.hdr-hist-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
+.hdr-hist-btn i{font-size:14px}
+.hdr-hist-count{background:rgba(255,255,255,0.25);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;font-weight:700}
+
 /* MODAL RESET */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
 .modal-overlay.open{display:flex}
@@ -271,8 +317,13 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       <div class="title">Brief Projet</div>
       <div class="sub">Studio Graphique — Document interne &nbsp;·&nbsp; <span id="brief-id-display" style="opacity:0.6"></span></div>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-      <div class="hdr-logo">Black &amp; White<br>Burger</div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="hdr-hist-btn" onclick="openHistory()">
+          <i class="ti ti-history"></i> Historique <span class="hdr-hist-count" id="hist-count">0</span>
+        </button>
+        <div class="hdr-logo">B&amp;W</div>
+      </div>
       <div id="save-indicator" style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1px;text-transform:uppercase;opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:4px">
         <i class="ti ti-device-floppy" style="font-size:11px"></i> Sauvegardé
       </div>
@@ -622,8 +673,12 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
   <!-- ── ACTIONS ───────────────────────────────── -->
   <div class="actions">
+    <button class="action-submit" onclick="submitBrief()">
+      <i class="ti ti-send"></i> Soumettre le brief
+    </button>
+    <p class="submit-note">Sauvegarde le brief dans l'historique et génère le PDF</p>
     <button class="action-primary" onclick="dlPDF()">
-      <i class="ti ti-download"></i> Télécharger le PDF
+      <i class="ti ti-download"></i> Télécharger le PDF uniquement
     </button>
     <div class="action-secondary">
       <button class="action-sec-btn" onclick="printBrief()">
@@ -649,6 +704,21 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
   </div>
 
   <div class="ftr">Studio Graphique — Black &amp; White Burger — Document interne</div>
+</div>
+
+<!-- HISTORY DRAWER -->
+<div class="drawer-overlay" id="hist-overlay" onclick="closeHistory()"></div>
+<div class="drawer" id="hist-drawer">
+  <div class="drawer-head">
+    <h2>Historique des briefs</h2>
+    <button class="drawer-close" onclick="closeHistory()"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="drawer-body" id="hist-body">
+    <div class="drawer-empty">
+      <i class="ti ti-inbox"></i>
+      <p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l'historique.</p>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL RESET -->
@@ -1193,10 +1263,143 @@ function showSaveIndicator() {
 }
 
 // INIT
+// ── HISTORY ───────────────────────────────────────────
+const HIST_KEY = 'bw_brief_history';
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveToHistory(briefData) {
+  try {
+    const history = getHistory();
+    const entry = {
+      ...briefData,
+      submittedAt: new Date().toISOString(),
+      status: 'submitted'
+    };
+    // Update if same briefId exists, else prepend
+    const idx = history.findIndex(h => h.briefId === briefData.briefId);
+    if(idx >= 0) history[idx] = entry;
+    else history.unshift(entry);
+    // Keep max 50 briefs
+    if(history.length > 50) history.pop();
+    localStorage.setItem(HIST_KEY, JSON.stringify(history));
+    updateHistCount();
+    return entry;
+  } catch(e) { return null; }
+}
+
+function updateHistCount() {
+  const el = G('hist-count');
+  if(!el) return;
+  const n = getHistory().length;
+  el.textContent = n;
+  el.style.display = n > 0 ? 'inline' : 'none';
+}
+
+function openHistory() {
+  renderHistory();
+  G('hist-overlay').classList.add('open');
+  G('hist-drawer').classList.add('open');
+}
+
+function closeHistory() {
+  G('hist-overlay').classList.remove('open');
+  G('hist-drawer').classList.remove('open');
+}
+
+function renderHistory() {
+  const body = G('hist-body');
+  const history = getHistory();
+  if(!history.length) {
+    body.innerHTML = '<div class="drawer-empty"><i class="ti ti-inbox"></i><p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l'historique.</p></div>';
+    return;
+  }
+  const fmtDt = iso => {
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-BE') + ' à ' + d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+  };
+  const prioLabel = {'normal':'Normal','prioritaire':'Prioritaire','urgent':'URGENT'};
+  const prioClass = {'urgent':'prio-urgent','prioritaire':'prio-prioritaire'};
+  body.innerHTML = history.map((b,i) => `
+    <div class="hist-item">
+      <div class="hist-item-head">
+        <span class="hist-id">${b.briefId||'—'}</span>
+        <span class="hist-dept">${b.dept||'—'}</span>
+        <span class="hist-date">${fmtDt(b.submittedAt)}</span>
+      </div>
+      <div class="hist-desc">${b.desc||b.vNom||'Sans description'}</div>
+      <div class="hist-meta">
+        ${b.ref?`<span class="hist-tag">${b.ref}</span>`:''}
+        ${(b.supports||[]).slice(0,2).map(s=>`<span class="hist-tag">${s}</span>`).join('')}
+        ${b.launch?`<span class="hist-tag">📅 ${fmtDate(b.launch)}</span>`:''}
+        ${b.priorite?`<span class="hist-tag ${prioClass[b.priorite]||''}">${prioLabel[b.priorite]||b.priorite}</span>`:''}
+      </div>
+      <div class="hist-actions">
+        <button class="hist-btn hist-btn-load" onclick="loadFromHistory(${i})">
+          <i class="ti ti-arrow-back-up"></i> Rouvrir
+        </button>
+        <button class="hist-btn hist-btn-del" onclick="deleteFromHistory('${b.briefId}',event)">
+          <i class="ti ti-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  `).join('') + `<div class="hist-counter">${history.length} brief${history.length>1?'s':''} sauvegardé${history.length>1?'s':''}</div>`;
+}
+
+function loadFromHistory(idx) {
+  const history = getHistory();
+  const entry = history[idx];
+  if(!entry) return;
+  if(!confirm('Charger ce brief ? Le formulaire actuel sera remplacé.')) return;
+  Object.assign(data, entry);
+  closeHistory();
+  switchMode('manual');
+  syncFormFromData();
+  showMsg('Brief ' + (entry.briefId||'') + ' chargé', '#1a6b2a');
+}
+
+function deleteFromHistory(briefId, e) {
+  e.stopPropagation();
+  if(!confirm('Supprimer ce brief de l'historique ?')) return;
+  try {
+    const history = getHistory().filter(h => h.briefId !== briefId);
+    localStorage.setItem(HIST_KEY, JSON.stringify(history));
+    updateHistCount();
+    renderHistory();
+  } catch(err) {}
+}
+
+function submitBrief() {
+  const d = currentMode === 'manual' ? collect() : {...data};
+  const miss = getMiss(d);
+  if(miss.length) {
+    const go = confirm(miss.length + ' information' + (miss.length>1?'s manquantes':' manquante') + ' :
+
+' + miss.map(m=>'• '+m).join('
+') + '
+
+Soumettre quand même ?');
+    if(!go) return;
+  }
+  Object.assign(data, d);
+  const saved = saveToHistory({...d});
+  if(saved) {
+    showMsg('Brief ' + (d.briefId||'') + ' soumis et sauvegardé ✓', '#1a6b2a');
+    // Also generate PDF
+    setTimeout(() => {
+      try { buildPDF().save('Brief_BW_' + (d.dept||'Studio') + '_' + d.briefId + '.pdf'); } catch(e) {}
+    }, 300);
+  }
+}
+
 autoLoad();
 // Show brief ID
 const bidEl = G('brief-id-display');
 if(bidEl) bidEl.textContent = data.briefId || genBriefId();
+updateHistCount();
 // Open all sections on mobile
 if(window.innerWidth < 600) {
   [1,2,3,4,5,6].forEach(n => {
