@@ -1482,7 +1482,7 @@ function renderHistory(filtered) {
   const history = filtered !== undefined ? filtered : getHistory();
   const allCount = getHistory().length;
   if(!allCount) {
-    body.innerHTML = '<div class="drawer-empty"><i class="ti ti-inbox"></i><p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l\'historique.</p></div>';
+    body.innerHTML = '<div class="drawer-empty"><i class="ti ti-inbox"></i><p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l&#39;historique.</p></div>';
     return;
   }
   if(!history.length) {
@@ -1584,12 +1584,7 @@ function submitBrief() {
   const d = currentMode === 'manual' ? collect() : {...data};
   const miss = getMiss(d);
   if(miss.length) {
-    const go = confirm(miss.length + ' information' + (miss.length>1?'s manquantes':' manquante') + ' :
-
-' + miss.map(m=>'• '+m).join('
-') + '
-
-Soumettre quand même ?');
+    const go = confirm(miss.length + ' information' + (miss.length>1?'s manquantes':' manquante') + ' :\n\n' + miss.map(m=>'\u2022 '+m).join('\n') + '\n\nSoumettre quand même ?');
     if(!go) return;
   }
   Object.assign(data, d);
