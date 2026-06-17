@@ -401,6 +401,46 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       </div>
     </div>
 
+    <!-- REF VISUEL -->
+    <div class="section" id="sec-ref">
+      <div class="sec-head" id="sh-ref" onclick="toggleSec('ref')">
+        <span class="sec-num" style="background:#555">↻</span>
+        <span class="sec-title">Mise à jour d'un visuel existant</span>
+        <span class="sec-badge empty" id="b-ref">Non</span>
+        <i class="ti ti-chevron-down sec-chevron"></i>
+      </div>
+      <div class="sec-body" id="sb-ref">
+        <label class="ref-toggle" onclick="toggleRefSection()">
+          <input type="checkbox" id="is-update">
+          <span class="ref-toggle-box" id="ref-toggle-box"></span>
+          <span>Ce brief concerne la modification d'un visuel déjà créé</span>
+        </label>
+        <div class="ref-fields" id="ref-fields">
+          <div class="field">
+            <label>Type de modification</label>
+            <div class="ref-type-grid" id="ref-type-grid">
+              <button class="ref-type-btn" onclick="selectRefType(this,'update')" type="button"><i class="ti ti-edit"></i> Mise à jour texte / prix</button>
+              <button class="ref-type-btn" onclick="selectRefType(this,'resize')" type="button"><i class="ti ti-resize"></i> Nouveau format / taille</button>
+              <button class="ref-type-btn" onclick="selectRefType(this,'refresh')" type="button"><i class="ti ti-refresh"></i> Rafraîchissement visuel</button>
+              <button class="ref-type-btn" onclick="selectRefType(this,'other')" type="button"><i class="ti ti-dots"></i> Autre modification</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Référence du visuel original <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Lien Drive vers le fichier original, ou ID du brief d'origine (ex : BW-2026-4731). Permet à la production de retrouver rapidement la base de travail.</span></span></label>
+            <input type="text" id="ref-original" placeholder="Lien Drive ou ID brief (ex : BW-2026-4731)" oninput="upd()">
+          </div>
+          <div class="field">
+            <label>Ce qui doit changer</label>
+            <textarea id="ref-changes" placeholder="Décrivez précisément ce qui doit être modifié. Ex : Changer le prix de 9,90€ à 11,90€, mettre à jour la date de fin au 31/12..." oninput="upd()" style="min-height:72px"></textarea>
+          </div>
+          <div class="field">
+            <label>Ce qui doit rester identique</label>
+            <input type="text" id="ref-keep" placeholder="Ex : Conserver le visuel, les couleurs et la mise en page" oninput="upd()">
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- S2 -->
     <div class="section">
       <div class="sec-head" id="sh2" onclick="toggleSec(2)">
@@ -768,17 +808,18 @@ const data = {
   types:[],othersTypes:[],supports:[],othersSupports:[],
   vNom:'',sNom:'',vPrix:'',sPrix:'',vDates:'',sDates:'',
   vTexte:'',sTexte:'',vMentions:'',sMentions:'',
-  drive:'',driveNotes:'',fichiers:[],formats:'',nbDecli:'',priorite:'',launch:'',valinfo:'',simul:'',bloquants:''
+  drive:'',driveNotes:'',fichiers:[],formats:'',nbDecli:'',priorite:'',launch:'',valinfo:'',simul:'',bloquants:'',isUpdate:false,refType:'',refOriginal:'',refChanges:'',refKeep:''
 };
 
 // ── SECTIONS ACCORDÉON ────────────────────────
 function toggleSec(n) {
   const head = G('sh'+n), body = G('sb'+n);
+  if(!head || !body) return;
   const isOpen = body.classList.contains('open');
   head.classList.toggle('open', !isOpen);
   body.classList.toggle('open', !isOpen);
   const chevron = head.querySelector('.sec-chevron');
-  chevron.className = 'ti ti-chevron-'+(isOpen?'down':'up')+' sec-chevron';
+  if(chevron) chevron.className = 'ti ti-chevron-'+(isOpen?'down':'up')+' sec-chevron';
 }
 
 // ── VAL SELECT COLORS ─────────────────────────
@@ -859,7 +900,12 @@ function collect() {
     supports:checked('#supports'),
     othersSupports:[...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean),
     launch:G('launch').value, valinfo:G('valinfo').value, simul:G('simul').value,
-    bloquants:G('bloquants').value.trim()
+    bloquants:G('bloquants').value.trim(),
+    isUpdate:G('is-update')?G('is-update').checked:false,
+    refType:getRefType(),
+    refOriginal:G('ref-original')?G('ref-original').value.trim():'',
+    refChanges:G('ref-changes')?G('ref-changes').value.trim():'',
+    refKeep:G('ref-keep')?G('ref-keep').value.trim():''
   };
 }
 
@@ -967,6 +1013,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+function toggleRefSection() {
+  const cb = G('is-update');
+  const box = G('ref-toggle-box');
+  const fields = G('ref-fields');
+  const badge = G('b-ref');
+  if(!cb || !fields) return;
+  cb.checked = !cb.checked;
+  const checked = cb.checked;
+  if(box) {
+    box.style.background = checked ? '#111' : '#fff';
+    box.style.borderColor = checked ? '#111' : '#ddd';
+    box.innerHTML = checked ? '<span style="display:block;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)"></span>' : '';
+  }
+  if(fields) fields.classList.toggle('open', checked);
+  if(badge) { badge.textContent = checked ? 'Oui' : 'Non'; badge.className = 'sec-badge ' + (checked ? 'partial' : 'empty'); }
+  upd();
+}
+
+function selectRefType(btn, type) {
+  document.querySelectorAll('.ref-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.dataset.reftype = type;
+  upd();
+}
+
+function getRefType() {
+  const active = document.querySelector('.ref-type-btn.active');
+  return active ? (active.dataset.reftype || active.textContent.trim()) : '';
+}
 
 function validateNbDecli() {
   const el = G('nb-decli');
@@ -1223,6 +1299,17 @@ function buildPDF(){
   st(4,'Supports & formats');fl('Supports',allS,!d.supports.length&&!d.othersSupports.length);fl('Formats',d.formats||'—');fl('Déclinaisons',d.nbDecli?d.nbDecli+' visuel'+(d.nbDecli>1?'s':''):'—',!d.nbDecli);fl('Priorité',prioLabels[d.priorite]||'—',!d.priorite);dv();
   st(5,'Deadlines');fl('Lancement',fmtDate(d.launch),!d.launch);fl('Validation infos',fmtDate(d.valinfo),!d.valinfo);fl('Retour simulation',fmtDate(d.simul),!d.simul);wb("Sans validation dans les delais, la deadline de lancement ne peut pas etre garantie.");dv();
   st(6,'Statut');const miss=getMiss(d);fl('Statut',miss.length?'Incomplet — '+miss.length+' élément(s) manquant(s)':'Complet — prêt pour création');
+  if(d.isUpdate){
+    cp(14);
+    doc.setFillColor(85,85,85);doc.rect(ML,y,7,7,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text('↻',ML+3.5,y+5,{align:'center'});
+    doc.setTextColor(17,17,17);doc.setFontSize(9.5);doc.text('MISE À JOUR VISUEL EXISTANT',ML+11,y+5);y+=11;
+    if(d.refType)fl('Type de modification',d.refType);
+    if(d.refOriginal)fl('Référence originale',d.refOriginal);
+    if(d.refChanges)fl('Ce qui change',d.refChanges);
+    if(d.refKeep)fl('Ce qui reste identique',d.refKeep);
+    dv();
+  }
   if(d.bloquants)fl('Notes',d.bloquants);
   if(miss.length){cp(8+miss.length*6);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(180,0,0);doc.text('INFORMATIONS MANQUANTES :',ML,y);y+=6;doc.setFont('helvetica','normal');miss.forEach(m=>{cp(6);doc.text('→  '+m,ML+4,y);y+=5.5})}
   cp(12);y+=6;doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);doc.line(ML,y-2,ML+CW,y-2);
