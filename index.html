@@ -156,6 +156,41 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 /* FOOTER */
 .ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:10px 22px;letter-spacing:1px;text-align:center;text-transform:uppercase}
 
+/* MODAL RESET */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+@media(min-width:480px){.modal-overlay{align-items:center}}
+.modal-box{background:#fff;width:100%;max-width:400px;border-radius:12px 12px 0 0;padding:24px 22px 32px;display:flex;flex-direction:column;gap:16px}
+@media(min-width:480px){.modal-box{border-radius:12px;padding:28px 28px 28px}}
+.modal-icon{width:48px;height:48px;background:#fff0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.modal-icon i{font-size:24px;color:#cc0000}
+.modal-title{font-family:'Anton',sans-serif;font-size:16px;letter-spacing:1px;text-transform:uppercase;text-align:center;color:#111}
+.modal-desc{font-size:13px;color:#666;text-align:center;line-height:1.55}
+.modal-confirm-wrap{display:flex;flex-direction:column;gap:6px}
+.modal-confirm-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888}
+.modal-confirm-input{border:2px solid #e8e8e8;border-radius:6px;padding:10px 14px;font-size:14px;font-family:'Roboto',sans-serif;color:#111;outline:none;width:100%;text-align:center;letter-spacing:3px;transition:border-color .2s}
+.modal-confirm-input:focus{border-color:#cc0000}
+.modal-confirm-input.valid{border-color:#cc0000;background:#fff5f5}
+.modal-actions{display:flex;gap:10px}
+.modal-cancel{flex:1;padding:12px;border:1.5px solid #ddd;background:#fff;color:#555;font-family:'Roboto',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;border-radius:6px;transition:all .15s}
+.modal-cancel:hover{border-color:#111;color:#111}
+.modal-delete{flex:1;padding:12px;border:none;background:#f5f5f5;color:#bbb;font-family:'Roboto',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:not-allowed;border-radius:6px;transition:all .2s}
+.modal-delete.armed{background:#cc0000;color:#fff;cursor:pointer}
+.modal-delete.armed:hover{background:#aa0000}
+
+/* FILES CHECKLIST */
+.files-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:12px}
+.file-chk{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:background .1s}
+.file-chk:nth-child(odd){border-right:1px solid #f0f0f0}
+.file-chk:nth-last-child(-n+2){border-bottom:none}
+.file-chk:hover{background:#fafafa}
+.file-chk input[type=checkbox]{display:none}
+.file-chk-box{width:18px;height:18px;border:2px solid #ddd;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:#fff}
+.file-chk input:checked + .file-chk-box{background:#111;border-color:#111}
+.file-chk input:checked + .file-chk-box::after{content:'';width:4px;height:7px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+.file-chk-label{font-size:12px;color:#333;line-height:1.3}
+.files-note{font-size:11px;color:#999;line-height:1.45;margin-top:8px}
+
 /* TOOLTIPS */
 .tip-wrap{position:relative;display:inline-flex;align-items:center;gap:5px}
 .tip-icon{width:16px;height:16px;border-radius:50%;background:#e8e8e8;color:#777;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s;font-style:normal;line-height:1;user-select:none}
@@ -407,9 +442,28 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
             </div>
           </div>
         </div>
-        <div class="field" style="margin-top:14px">
-          <label>Lien Drive / fichiers</label>
+        <div class="field" style="margin-top:16px">
+          <label>Fichiers disponibles</label>
+          <div class="files-grid" id="fichiers-grid">
+            <label class="file-chk"><input type="checkbox" value="Logo HD" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Logo HD</span></label>
+            <label class="file-chk"><input type="checkbox" value="Photos produit" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Photos produit</span></label>
+            <label class="file-chk"><input type="checkbox" value="Charte graphique" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Charte graphique</span></label>
+            <label class="file-chk"><input type="checkbox" value="Gabarit existant" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Gabarit existant</span></label>
+            <label class="file-chk"><input type="checkbox" value="Texte validé" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Texte validé</span></label>
+            <label class="file-chk"><input type="checkbox" value="Références visuelles" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Références visuelles</span></label>
+            <label class="file-chk"><input type="checkbox" value="Vidéos / assets" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Vidéos / assets</span></label>
+            <label class="file-chk"><input type="checkbox" value="Aucun fichier" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Aucun fichier</span></label>
+          </div>
+          <div class="files-note">Cochez uniquement les fichiers <strong>déjà disponibles</strong> et prêts à partager.</div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Lien Drive / dossier partagé</label>
           <input type="text" id="drive" placeholder="https://drive.google.com/..." oninput="upd()">
+          <div style="font-size:10px;color:#bbb;margin-top:4px">Partagez un lien vers le dossier contenant tous les fichiers cochés ci-dessus.</div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Notes sur les fichiers</label>
+          <input type="text" id="drive-notes" placeholder="Ex : logo en dossier /2024, utiliser la version blanc uniquement" oninput="upd()">
         </div>
       </div>
     </div>
@@ -582,13 +636,30 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         <i class="ti ti-send"></i> Envoyer
       </button>
     </div>
-    <button class="action-danger" onclick="resetAll()">
+    <button class="action-danger" onclick="openResetModal()">
       <i class="ti ti-trash"></i> Effacer et recommencer
     </button>
     <div class="amsg" id="amsg"></div>
   </div>
 
   <div class="ftr">Studio Graphique — Black &amp; White Burger — Document interne</div>
+</div>
+
+<!-- MODAL RESET -->
+<div class="modal-overlay" id="reset-modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-icon"><i class="ti ti-trash"></i></div>
+    <div class="modal-title">Effacer le brief ?</div>
+    <div class="modal-desc">Cette action supprimera tous les champs remplis et le brouillon sauvegardé.<br>Elle est <strong>irréversible</strong>.</div>
+    <div class="modal-confirm-wrap">
+      <span class="modal-confirm-label">Tapez EFFACER pour confirmer</span>
+      <input class="modal-confirm-input" id="reset-confirm-input" type="text" placeholder="EFFACER" oninput="onResetInput(this)" autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeResetModal()">Annuler</button>
+      <button class="modal-delete" id="reset-confirm-btn" onclick="doReset()" disabled>Effacer</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -610,7 +681,7 @@ const data = {
   types:[],othersTypes:[],supports:[],othersSupports:[],
   vNom:'',sNom:'',vPrix:'',sPrix:'',vDates:'',sDates:'',
   vTexte:'',sTexte:'',vMentions:'',sMentions:'',
-  drive:'',formats:'',nbDecli:'',priorite:'',launch:'',valinfo:'',simul:'',bloquants:''
+  drive:'',driveNotes:'',fichiers:[],formats:'',nbDecli:'',priorite:'',launch:'',valinfo:'',simul:'',bloquants:''
 };
 
 // ── SECTIONS ACCORDÉON ────────────────────────
@@ -681,7 +752,9 @@ function collect() {
     vDates:G('v-dates').value.trim(), sDates:G('s-dates').value,
     vTexte:G('v-texte').value.trim(), sTexte:G('s-texte').value,
     vMentions:G('v-mentions').value.trim(), sMentions:G('s-mentions').value,
-    drive:G('drive').value.trim(), formats:G('formats').value.trim(),
+    drive:G('drive')?G('drive').value.trim():'',
+    driveNotes:G('drive-notes')?G('drive-notes').value.trim():'',
+    fichiers:[...document.querySelectorAll('#fichiers-grid input[type=checkbox]:checked')].map(c=>c.value), formats:G('formats').value.trim(),
     supports:checked('#supports'),
     othersSupports:[...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean),
     launch:G('launch').value, valinfo:G('valinfo').value, simul:G('simul').value,
@@ -992,7 +1065,11 @@ function buildPDF(){
   st(3,'Infos techniques');
   cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
   [[d.vNom,'Nom produit',d.sNom],[d.vPrix,'Prix',d.sPrix],[d.vDates,'Dates',d.sDates],[d.vTexte,'Texte exact',d.sTexte],[d.vMentions,'Mentions',d.sMentions]].forEach(([v,l,s],i)=>{cp(8);i%2===0?doc.setFillColor(255,255,255):doc.setFillColor(250,250,250);doc.rect(ML,y-1,CW,8,'F');doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(!v?170:60,!v?0:60,!v?0:60);doc.text(l,ML+3,y+4.5);doc.setTextColor(17,17,17);doc.text(v||'—',ML+58,y+4.5);doc.setTextColor(s==='Oui'?26:100,s==='Oui'?107:100,s==='Oui'?42:100);doc.text(s||'—',ML+CW-18,y+4.5);y+=8});
-  y+=3;fl('Lien Drive',d.drive||'—');dv();
+  y+=3;
+  fl('Fichiers dispo',(d.fichiers&&d.fichiers.length)?d.fichiers.join(', '):'—');
+  fl('Lien Drive',d.drive||'—');
+  if(d.driveNotes)fl('Notes fichiers',d.driveNotes);
+  dv();
   const prioLabels={'normal':'Normal','prioritaire':'Prioritaire ⚡','urgent':'URGENT ⚑'};
   st(4,'Supports & formats');fl('Supports',allS,!d.supports.length&&!d.othersSupports.length);fl('Formats',d.formats||'—');fl('Déclinaisons',d.nbDecli?d.nbDecli+' visuel'+(d.nbDecli>1?'s':''):'—',!d.nbDecli);fl('Priorité',prioLabels[d.priorite]||'—',!d.priorite);dv();
   st(5,'Deadlines');fl('Lancement',fmtDate(d.launch),!d.launch);fl('Validation infos',fmtDate(d.valinfo),!d.valinfo);fl('Retour simulation',fmtDate(d.simul),!d.simul);wb("Sans validation dans les delais, la deadline de lancement ne peut pas etre garantie.");dv();
@@ -1011,7 +1088,36 @@ function printBrief(){if(!checkMiss())return;try{const blob=buildPDF().output('b
 function copyLink(){navigator.clipboard?navigator.clipboard.writeText(location.href).then(()=>showMsg('Lien copié !')):showMsg("Copiez l'URL du navigateur",'#666')}
 function toggleEmail(){const r=G('email-row');r.classList.toggle('open')}
 function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.includes('@')){showMsg('Email invalide','#cc0000');return}const d=getExportData();const s=encodeURIComponent('Brief Projet B&W — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W'));const b=encodeURIComponent('Bonjour,\n\nBrief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nLancement : '+fmtDate(d.launch)+'\n\nCordialement,\nStudio Graphique B&W');window.open('mailto:'+dest+'?subject='+s+'&body='+b);toggleEmail();showMsg('Client mail ouvert')}
-function resetAll(){if(!confirm('Effacer tous les champs et recommencer ?'))return;try{localStorage.removeItem('bw_brief_draft')}catch(e){};Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);document.querySelectorAll('.val-select').forEach(el=>{el.value='';updValSelect(el)});G('types-others').innerHTML='';G('supports-others').innerHTML='';chatState.step=0;chatState.done=false;upd();showMsg('Formulaire réinitialisé','#666')}
+function openResetModal() {
+  G('reset-confirm-input').value='';
+  G('reset-confirm-btn').classList.remove('armed');
+  G('reset-confirm-btn').disabled=true;
+  G('reset-modal').classList.add('open');
+  setTimeout(()=>G('reset-confirm-input').focus(),100);
+}
+function closeResetModal() { G('reset-modal').classList.remove('open'); }
+function closeModal(e) { if(e.target===G('reset-modal')) closeResetModal(); }
+function onResetInput(inp) {
+  const ok = inp.value.trim().toUpperCase()==='EFFACER';
+  inp.classList.toggle('valid',ok);
+  G('reset-confirm-btn').classList.toggle('armed',ok);
+  G('reset-confirm-btn').disabled=!ok;
+}
+function doReset() {
+  closeResetModal();
+  try{localStorage.removeItem('bw_brief_draft')}catch(e){}
+  const newId=genBriefId();
+  Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');
+  data.briefId=newId;
+  document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');
+  document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);
+  document.querySelectorAll('.val-select').forEach(el=>{el.value='';updValSelect(el)});
+  G('types-others').innerHTML=''; G('supports-others').innerHTML='';
+  const bidEl=G('brief-id-display'); if(bidEl) bidEl.textContent=newId;
+  const sameCb=G('same-person'); if(sameCb){sameCb.checked=false;onSamePerson();}
+  chatState.step=0; chatState.done=false;
+  upd(); showMsg('Brief réinitialisé','#666');
+}
 
 // ── AUTO-SAVE ─────────────────────────────────
 function autoSave() {
