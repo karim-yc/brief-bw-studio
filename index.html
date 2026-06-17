@@ -156,6 +156,23 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 /* FOOTER */
 .ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:10px 22px;letter-spacing:1px;text-align:center;text-transform:uppercase}
 
+/* TOOLTIPS */
+.tip-wrap{position:relative;display:inline-flex;align-items:center;gap:5px}
+.tip-icon{width:16px;height:16px;border-radius:50%;background:#e8e8e8;color:#777;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s;font-style:normal;line-height:1;user-select:none}
+.tip-icon:hover{background:#111;color:#fff}
+.tip-box{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:11px;line-height:1.55;padding:10px 13px;border-radius:6px;width:240px;z-index:100;display:none;pointer-events:none;font-weight:400;letter-spacing:0;text-transform:none;box-shadow:0 4px 16px rgba(0,0,0,0.18)}
+.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#111}
+.tip-wrap:hover .tip-box,.tip-wrap:focus-within .tip-box{display:block}
+@media(max-width:480px){.tip-box{left:0;transform:none;width:220px}}
+
+/* PROGRESS CLICKABLE */
+.prog-wrap{cursor:pointer}
+.prog-wrap:hover .prog-track{background:#ddd}
+.prog-details{display:none;padding:10px 14px;background:#fff8e1;border:1px solid #ffe082;border-radius:4px;margin-top:8px;font-size:11.5px;color:#555;line-height:1.6}
+.prog-details ul{padding-left:16px;margin-top:4px}
+.prog-details ul li{margin-bottom:3px;color:#333}
+.prog-details.open{display:block}
+
 /* CHAT */
 .chat-wrap{display:flex;flex-direction:column;min-height:420px}
 .chat-area{flex:1;padding:16px 22px;display:flex;flex-direction:column;gap:10px;min-height:320px;max-height:440px;overflow-y:auto}
@@ -241,12 +258,13 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
   <!-- ── FORMULAIRE ────────────────────────────── -->
   <div id="mode-manual">
 
-    <div class="prog-wrap">
+    <div class="prog-wrap" onclick="toggleProgDetails()" title="Cliquez pour voir les sections à compléter">
       <div class="prog-header">
         <span class="prog-title">Progression</span>
         <span class="prog-count" id="plbl">0 / 6</span>
       </div>
       <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+      <div class="prog-details" id="prog-details"></div>
     </div>
 
     <div class="rule-bar">
@@ -277,7 +295,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         </div>
         <div class="row2">
           <div class="field">
-            <label>Référent unique<span class="req">*</span></label>
+            <label>Référent unique<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">La seule personne à contacter pour ce projet. Toutes les questions et simulations lui seront envoyées.</span></span></label>
             <input type="text" id="ref" placeholder="Prénom Nom" oninput="upd()">
           </div>
           <div class="field">
@@ -345,7 +363,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
             <div class="val-row-body">
               <input type="text" id="v-nom" placeholder="Nom exact..." oninput="upd()">
               <select class="val-select" id="s-nom" onchange="updValSelect(this);upd()">
-                <option value="">Statut</option><option>Oui</option><option>Non</option>
+                <option value="">Statut</option><option value="Oui">✓ Confirmé</option><option value="Non">✗ À confirmer</option><option value="En attente">⏳ En attente</option>
               </select>
             </div>
           </div>
@@ -368,7 +386,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
             </div>
           </div>
           <div class="val-row">
-            <div class="val-row-label">Texte exact à utiliser</div>
+            <div class="val-row-label">Texte exact à utiliser <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Copiez-collez ici le texte final et validé : titre, accroche, prix, slogan... Ce texte sera utilisé tel quel dans les visuels.</span></span></div>
             <div class="val-row-body" style="flex-direction:column;align-items:stretch;gap:8px">
               <textarea id="v-texte" placeholder="Copier-coller le texte exact validé (titre, accroche, prix, mentions...)" oninput="upd()" style="width:100%;border:2px solid #e8e8e8;border-radius:4px;padding:8px 10px;font-family:Roboto,sans-serif;font-size:13px;color:#111;background:transparent;outline:none;resize:vertical;min-height:72px;line-height:1.5;transition:border-color .2s" onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e8e8e8'"></textarea>
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
@@ -380,7 +398,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
             </div>
           </div>
           <div class="val-row">
-            <div class="val-row-label">Mentions obligatoires</div>
+            <div class="val-row-label">Mentions obligatoires <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Texte légal à faire apparaître en petit : conditions de l'offre, mentions promotionnelles, allergènes, etc. Obligatoire pour les offres commerciales.</span></span></div>
             <div class="val-row-body">
               <input type="text" id="v-mentions" placeholder="Ex : *Offre valable jusqu'au..." oninput="upd()">
               <select class="val-select" id="s-mentions" onchange="updValSelect(this);upd()">
@@ -428,7 +446,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         </div>
         <div class="row2">
           <div class="field">
-            <label>Nombre de déclinaisons attendues<span class="req">*</span></label>
+            <label>Nombre de déclinaisons attendues<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Nombre total de fichiers à produire. Ex : 1 post + 2 stories + 1 bannière = 4 déclinaisons. Cela permet d'estimer le temps de production.</span></span></label>
             <input type="number" id="nb-decli" min="1" placeholder="Ex : 5" oninput="upd()" style="max-width:120px">
             <div style="font-size:10px;color:#bbb;margin-top:4px;line-height:1.4">Nombre total de visuels / fichiers à produire</div>
           </div>
@@ -608,8 +626,10 @@ function toggleSec(n) {
 // ── VAL SELECT COLORS ─────────────────────────
 function updValSelect(sel) {
   sel.className = 'val-select';
-  if(sel.value==='Oui') sel.classList.add('validated');
-  else if(sel.value==='Non') sel.classList.add('invalid');
+  if(sel.value==='Oui'||sel.value==='✓ Confirmé') sel.classList.add('validated');
+  else if(sel.value==='Non'||sel.value==='✗ À confirmer') sel.classList.add('invalid');
+  else if(sel.value==='En attente') { sel.style.background='#fff8e1'; sel.style.color='#856404'; }
+  else { sel.style.background=''; sel.style.color=''; }
 }
 document.querySelectorAll('.val-select').forEach(updValSelect);
 
@@ -773,6 +793,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+function toggleProgDetails() {
+  if(currentMode !== 'manual') return;
+  const el = G('prog-details');
+  if(!el) return;
+  const d = collect();
+  const miss = getMiss(d);
+  if(!miss.length) {
+    el.innerHTML = '<strong style="color:#1a6b2a">✓ Brief complet — tout est renseigné !</strong>';
+  } else {
+    el.innerHTML = '<strong>À compléter :</strong><ul>' + miss.map(m => '<li>' + m + '</li>').join('') + '</ul>';
+  }
+  el.classList.toggle('open');
+}
 
 function updPriorite() {
   const sel = G('priorite');
@@ -965,7 +999,9 @@ function buildPDF(){
   st(6,'Statut');const miss=getMiss(d);fl('Statut',miss.length?'Incomplet — '+miss.length+' élément(s) manquant(s)':'Complet — prêt pour création');
   if(d.bloquants)fl('Notes',d.bloquants);
   if(miss.length){cp(8+miss.length*6);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(180,0,0);doc.text('INFORMATIONS MANQUANTES :',ML,y);y+=6;doc.setFont('helvetica','normal');miss.forEach(m=>{cp(6);doc.text('→  '+m,ML+4,y);y+=5.5})}
-  cp(12);y+=6;doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);doc.line(ML,y-2,ML+CW,y-2);doc.text('Studio Graphique — B&W Burger — '+new Date().toLocaleDateString('fr-BE'),ML,y+3);
+  cp(12);y+=6;doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);doc.line(ML,y-2,ML+CW,y-2);
+  const _ts=new Date();const _tsStr=_ts.toLocaleDateString('fr-BE')+' à '+_ts.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+  doc.text('Studio Graphique — B&W Burger — Généré le '+_tsStr+'  ·  '+(d.briefId||''),ML,y+3);
   return doc;
 }
 
