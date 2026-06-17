@@ -208,6 +208,9 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 .prog-details ul li{margin-bottom:3px;color:#333}
 .prog-details.open{display:block}
 
+/* DEADLINE GAP */
+#deadline-gap-msg{transition:all .25s;border-radius:4px}
+
 /* CHAT */
 .chat-wrap{display:flex;flex-direction:column;min-height:420px}
 .chat-area{flex:1;padding:16px 22px;display:flex;flex-direction:column;gap:10px;min-height:320px;max-height:440px;overflow-y:auto}
@@ -358,11 +361,11 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       <div class="sec-body" id="sb2">
         <div class="field" style="margin-top:4px">
           <label>Description du projet<span class="req">*</span></label>
-          <textarea id="desc" placeholder="Décrivez le projet et son contexte..." oninput="upd()"></textarea>
+          <textarea id="desc" placeholder="Ex : Campagne digitale pour le lancement du nouveau burger végétarien, à diffuser sur Instagram et TikTok du 1er au 30 juin..." oninput="upd()"></textarea>
         </div>
         <div class="field">
-          <label>Message principal<span class="req">*</span></label>
-          <input type="text" id="msg" placeholder="Message clé à faire passer" oninput="upd()">
+          <label>Accroche / Claim<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Le message fort et court que le visuel doit communiquer. Ex : "Le burger qui change tout", "Offre valable jusqu'au 31/12", "Nouveau : le B&W Crunch"</span></span></label>
+          <input type="text" id="msg" placeholder='Ex : "Le burger qui change tout" ou "Offre -20% jusqu'+"'"+'au 31/12"' oninput="upd()">
         </div>
         <div class="field">
           <span class="checks-label">Type de demande</span>
@@ -535,24 +538,27 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
               <div class="deadline-lbl">Date de lancement<span class="req">*</span></div>
               <div class="deadline-sub">Quand le projet doit être visible</div>
             </div>
-            <input type="date" class="deadline-input" id="launch" onchange="upd()">
+            <input type="date" class="deadline-input" id="launch" onchange="checkDeadlineGap();upd()">
           </div>
           <div class="deadline-item">
             <div>
               <div class="deadline-lbl">Validation des infos<span class="req">*</span></div>
               <div class="deadline-sub">Date limite pour fournir les contenus</div>
             </div>
-            <input type="date" class="deadline-input" id="valinfo" onchange="upd()">
+            <input type="date" class="deadline-input" id="valinfo" onchange="checkDeadlineGap();upd()">
           </div>
           <div class="deadline-item">
             <div>
               <div class="deadline-lbl">Retour simulation<span class="req">*</span></div>
               <div class="deadline-sub">Délai pour valider la maquette</div>
             </div>
-            <input type="date" class="deadline-input" id="simul" onchange="upd()">
+            <input type="date" class="deadline-input" id="simul" onchange="checkDeadlineGap();upd()">
           </div>
         </div>
-        <div style="background:#111;color:#fff;font-size:11px;padding:11px 14px;line-height:1.5;margin-top:12px;border-radius:4px">
+        <div id="deadline-gap-wrap" style="display:none;margin-top:10px">
+          <div id="deadline-gap-msg" style="font-size:12px;padding:10px 13px;border-radius:4px;line-height:1.5"></div>
+        </div>
+        <div style="background:#111;color:#fff;font-size:11px;padding:11px 14px;line-height:1.5;margin-top:10px;border-radius:4px">
           Sans validation dans les délais impartis, la deadline de lancement ne peut pas être garantie.
         </div>
       </div>
@@ -867,6 +873,43 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+function checkDeadlineGap() {
+  const launch = G('launch') ? G('launch').value : '';
+  const valinfo = G('valinfo') ? G('valinfo').value : '';
+  const wrap = G('deadline-gap-wrap');
+  const msg = G('deadline-gap-msg');
+  if(!wrap || !msg) return;
+  if(!launch || !valinfo) { wrap.style.display='none'; return; }
+  const launchDate = new Date(launch);
+  const valDate = new Date(valinfo);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const gapDays = Math.round((launchDate - valDate) / (1000*60*60*24));
+  const daysToLaunch = Math.round((launchDate - today) / (1000*60*60*24));
+  wrap.style.display = 'block';
+  if(valDate > launchDate) {
+    msg.style.background = '#fff0f0';
+    msg.style.color = '#cc0000';
+    msg.style.border = '1px solid #ffcccc';
+    msg.innerHTML = '<strong>⚠ Problème de dates</strong> — La date de validation est postérieure au lancement. Vérifiez les dates.';
+  } else if(gapDays < 3) {
+    msg.style.background = '#fff8e1';
+    msg.style.color = '#856404';
+    msg.style.border = '1px solid #ffe082';
+    msg.innerHTML = '<strong>⚡ Délai très court</strong> — Seulement ' + gapDays + ' jour' + (gapDays > 1 ? 's' : '') + ' entre la validation et le lancement. Prévoyez un retour rapide.';
+  } else if(daysToLaunch < 7) {
+    msg.style.background = '#fff8e1';
+    msg.style.color = '#856404';
+    msg.style.border = '1px solid #ffe082';
+    msg.innerHTML = '<strong>⏰ Lancement dans ' + daysToLaunch + ' jour' + (daysToLaunch > 1 ? 's' : '') + '</strong> — Assurez-vous que toutes les informations sont prêtes.';
+  } else {
+    msg.style.background = '#e8f5e9';
+    msg.style.color = '#1a6b2a';
+    msg.style.border = '1px solid #c8e6c9';
+    msg.innerHTML = '<strong>✓ Délai correct</strong> — ' + gapDays + ' jour' + (gapDays > 1 ? 's' : '') + ' entre validation et lancement.';
+  }
+}
+
 function toggleProgDetails() {
   if(currentMode !== 'manual') return;
   const el = G('prog-details');
@@ -1154,6 +1197,18 @@ autoLoad();
 // Show brief ID
 const bidEl = G('brief-id-display');
 if(bidEl) bidEl.textContent = data.briefId || genBriefId();
+// Open all sections on mobile
+if(window.innerWidth < 600) {
+  [1,2,3,4,5,6].forEach(n => {
+    const head = G('sh'+n), body = G('sb'+n);
+    if(head && body) {
+      head.classList.add('open');
+      body.classList.add('open');
+      const chevron = head.querySelector('.sec-chevron');
+      if(chevron) chevron.className = 'ti ti-chevron-up sec-chevron';
+    }
+  });
+}
 upd();
 </script>
 </body>
