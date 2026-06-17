@@ -713,6 +713,16 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     <h2>Historique des briefs</h2>
     <button class="drawer-close" onclick="closeHistory()"><i class="ti ti-x"></i></button>
   </div>
+  <div class="hist-toolbar">
+    <input class="hist-search" id="hist-search" type="text" placeholder="Rechercher un brief..." oninput="filterHistory()" autocomplete="off">
+    <button class="hist-clear" id="hist-clear" onclick="clearSearch()" title="Effacer" style="display:none"><i class="ti ti-x" style="font-size:13px"></i></button>
+    <select class="hist-sort" id="hist-sort" onchange="filterHistory()">
+      <option value="date-desc">Plus récent</option>
+      <option value="date-asc">Plus ancien</option>
+      <option value="dept">Département</option>
+      <option value="prio">Priorité</option>
+    </select>
+  </div>
   <div class="drawer-body" id="hist-body">
     <div class="drawer-empty">
       <i class="ti ti-inbox"></i>
@@ -1339,9 +1349,14 @@ function updateHistCount() {
 }
 
 function openHistory() {
-  renderHistory();
+  const search = G('hist-search');
+  if(search) search.value = '';
+  const clear = G('hist-clear');
+  if(clear) clear.style.display = 'none';
+  filterHistory();
   G('hist-overlay').classList.add('open');
   G('hist-drawer').classList.add('open');
+  setTimeout(() => { if(search) search.focus(); }, 300);
 }
 
 function closeHistory() {
@@ -1349,11 +1364,16 @@ function closeHistory() {
   G('hist-drawer').classList.remove('open');
 }
 
-function renderHistory() {
+function renderHistory(filtered) {
   const body = G('hist-body');
-  const history = getHistory();
-  if(!history.length) {
+  const history = filtered !== undefined ? filtered : getHistory();
+  const allCount = getHistory().length;
+  if(!allCount) {
     body.innerHTML = '<div class="drawer-empty"><i class="ti ti-inbox"></i><p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l'historique.</p></div>';
+    return;
+  }
+  if(!history.length) {
+    body.innerHTML = '<div class="hist-no-results">Aucun résultat pour cette recherche.</div>';
     return;
   }
   const fmtDt = iso => {
@@ -1362,12 +1382,14 @@ function renderHistory() {
   };
   const prioLabel = {'normal':'Normal','prioritaire':'Prioritaire','urgent':'URGENT'};
   const prioClass = {'urgent':'prio-urgent','prioritaire':'prio-prioritaire'};
-  body.innerHTML = history.map((b,i) => `
-    <div class="hist-item">
+  const allHistory = getHistory();
+  body.innerHTML = history.map((b) => {
+    const realIdx = allHistory.findIndex(h => h.briefId === b.briefId);
+    return `<div class="hist-item">
       <div class="hist-item-head">
         <span class="hist-id">${b.briefId||'—'}</span>
         <span class="hist-dept">${b.dept||'—'}</span>
-        <span class="hist-date">${fmtDt(b.submittedAt)}</span>
+        <span class="hist-date">${b.submittedAt?fmtDt(b.submittedAt):''}</span>
       </div>
       <div class="hist-desc">${b.desc||b.vNom||'Sans description'}</div>
       <div class="hist-meta">
@@ -1377,15 +1399,46 @@ function renderHistory() {
         ${b.priorite?`<span class="hist-tag ${prioClass[b.priorite]||''}">${prioLabel[b.priorite]||b.priorite}</span>`:''}
       </div>
       <div class="hist-actions">
-        <button class="hist-btn hist-btn-load" onclick="loadFromHistory(${i})">
+        <button class="hist-btn hist-btn-load" onclick="loadFromHistory(${realIdx})">
           <i class="ti ti-arrow-back-up"></i> Rouvrir
         </button>
         <button class="hist-btn hist-btn-del" onclick="deleteFromHistory('${b.briefId}',event)">
           <i class="ti ti-trash"></i> Supprimer
         </button>
       </div>
-    </div>
-  `).join('') + `<div class="hist-counter">${history.length} brief${history.length>1?'s':''} sauvegardé${history.length>1?'s':''}</div>`;
+    </div>`;
+  }).join('') + `<div class="hist-counter">${history.length}${history.length < allCount ? ' résultat'+(history.length>1?'s':'') : ' brief'+(allCount>1?'s':'')} • ${allCount} total</div>`;
+}
+
+function filterHistory() {
+  const q = (G('hist-search')||{value:''}).value.toLowerCase().trim();
+  const sort = (G('hist-sort')||{value:'date-desc'}).value;
+  const clear = G('hist-clear');
+  if(clear) clear.style.display = q ? 'flex' : 'none';
+  let history = getHistory();
+  if(q) {
+    history = history.filter(b =>
+      (b.briefId||'').toLowerCase().includes(q) ||
+      (b.dept||'').toLowerCase().includes(q) ||
+      (b.ref||'').toLowerCase().includes(q) ||
+      (b.desc||'').toLowerCase().includes(q) ||
+      (b.vNom||'').toLowerCase().includes(q) ||
+      (b.priorite||'').toLowerCase().includes(q)
+    );
+  }
+  if(sort === 'date-asc') history = [...history].reverse();
+  else if(sort === 'dept') history = [...history].sort((a,b) => (a.dept||'').localeCompare(b.dept||''));
+  else if(sort === 'prio') {
+    const order = {urgent:0, prioritaire:1, normal:2, '':3};
+    history = [...history].sort((a,b) => (order[a.priorite||'']||3) - (order[b.priorite||'']||3));
+  }
+  renderHistory(history);
+}
+
+function clearSearch() {
+  const el = G('hist-search');
+  if(el) { el.value = ''; el.focus(); }
+  filterHistory();
 }
 
 function loadFromHistory(idx) {
