@@ -1265,6 +1265,19 @@ function showSaveIndicator() {
 // INIT
 // ── HISTORY ───────────────────────────────────────────
 const HIST_KEY = 'bw_brief_history';
+const WEBHOOK_URL = 'https://hook.eu1.make.com/un4wy721ere5mxdujxor3ovihzrlbl1v';
+
+async function sendToWebhook(briefData) {
+  try {
+    await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(briefData)
+    });
+  } catch(e) {
+    console.warn('Webhook non disponible — historique local uniquement', e);
+  }
+}
 
 function getHistory() {
   try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
@@ -1387,12 +1400,43 @@ Soumettre quand même ?');
   Object.assign(data, d);
   const saved = saveToHistory({...d});
   if(saved) {
+    // Send to Make webhook (async, non-blocking)
+    sendToWebhook({...d, types: [...(d.types||[]),...(d.othersTypes||[])], supports: [...(d.supports||[]),...(d.othersSupports||[])]});
     showMsg('Brief ' + (d.briefId||'') + ' soumis et sauvegardé ✓', '#1a6b2a');
-    // Also generate PDF
-    setTimeout(() => {
-      try { buildPDF().save('Brief_BW_' + (d.dept||'Studio') + '_' + d.briefId + '.pdf'); } catch(e) {}
-    }, 300);
+    // Show confirmation screen
+    showConfirmation(d);
   }
+}
+
+function showConfirmation(d) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
+  overlay.innerHTML = `
+    <div style="background:#fff;max-width:380px;width:100%;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+      <div style="background:#1a6b2a;padding:24px 22px;text-align:center">
+        <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+          <i class="ti ti-circle-check" style="font-size:28px;color:#fff"></i>
+        </div>
+        <div style="font-family:Anton,sans-serif;font-size:18px;letter-spacing:2px;text-transform:uppercase;color:#fff">Brief soumis</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:6px">${d.briefId||''}</div>
+      </div>
+      <div style="padding:20px 22px">
+        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px">
+          Votre brief a été sauvegardé le <strong style="color:#111">${new Date().toLocaleDateString('fr-BE')} à ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}</strong>.<br>
+          Département : <strong style="color:#111">${d.dept||'—'}</strong><br>
+          ${d.priorite==='urgent'?'<span style="color:#cc0000;font-weight:500">⚑ Priorité URGENTE</span><br>':''}
+          ${d.launch?'Lancement prévu : <strong style="color:#111">'+fmtDate(d.launch)+'</strong>':''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button onclick="this.closest('div[style*=fixed]').remove();dlPDF()" style="padding:12px;background:#111;color:#fff;border:none;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="ti ti-download" style="font-size:15px"></i> Télécharger le PDF</button>
+          <button onclick="this.closest('div[style*=fixed]').remove();openHistory()" style="padding:12px;background:#fff;color:#111;border:1.5px solid #ddd;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="ti ti-history" style="font-size:15px"></i> Voir l'historique</button>
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="padding:12px;background:transparent;color:#999;border:none;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;cursor:pointer">Fermer et continuer à modifier</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
 }
 
 autoLoad();
