@@ -1366,7 +1366,9 @@ function autoLoad() {
     if(!raw) return;
     const saved = JSON.parse(raw);
     if(!saved.briefId) saved.briefId = genBriefId();
-    Object.assign(data, saved);
+    // Preserve fields that might be newer in form vs brouillon
+    const toRestore = {...saved};
+    Object.assign(data, toRestore);
     syncFormFromData();
     showMsg('Brouillon restauré automatiquement', '#1a6b2a');
     setTimeout(checkDeadlineGap, 200);
@@ -1605,6 +1607,7 @@ function submitBrief() {
 
 function showConfirmation(d) {
   const overlay = document.createElement('div');
+  overlay.id = 'confirm-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
   overlay.innerHTML = `
     <div style="background:#fff;max-width:380px;width:100%;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
@@ -1623,13 +1626,16 @@ function showConfirmation(d) {
           ${d.launch?'Lancement prévu : <strong style="color:#111">'+fmtDate(d.launch)+'</strong>':''}
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <button onclick="this.closest('div[style*=fixed]').remove();dlPDF()" style="padding:12px;background:#111;color:#fff;border:none;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="ti ti-download" style="font-size:15px"></i> Télécharger le PDF</button>
-          <button onclick="this.closest('div[style*=fixed]').remove();openHistory()" style="padding:12px;background:#fff;color:#111;border:1.5px solid #ddd;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="ti ti-history" style="font-size:15px"></i> Voir l'historique</button>
-          <button onclick="this.closest('div[style*=fixed]').remove()" style="padding:12px;background:transparent;color:#999;border:none;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;cursor:pointer">Fermer et continuer à modifier</button>
+          <button onclick="document.getElementById('confirm-overlay').remove();dlPDF()" style="padding:12px;background:#111;color:#fff;border:none;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="ti ti-download" style="font-size:15px"></i> Télécharger le PDF</button>
+          <button onclick="document.getElementById('confirm-overlay').remove();openHistory()" style="padding:12px;background:#fff;color:#111;border:1.5px solid #ddd;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="ti ti-history" style="font-size:15px"></i> Voir l'historique</button>
+          <button onclick="document.getElementById('confirm-overlay').remove()" style="padding:12px;background:transparent;color:#999;border:none;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;cursor:pointer">Fermer et continuer à modifier</button>
         </div>
       </div>
     </div>
   `;
+  // Remove any existing overlay first
+  const existingOverlay = document.getElementById('confirm-overlay');
+  if(existingOverlay) existingOverlay.remove();
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
 }
@@ -1641,7 +1647,7 @@ if(bidEl) bidEl.textContent = data.briefId || genBriefId();
 updateHistCount();
 // Open all sections on mobile
 if(window.innerWidth < 600) {
-  [1,'ref',2,3,4,5,6].forEach(n => {
+  [1,2,3,4,5,6].forEach(n => {
     const head = G('sh'+n), body = G('sb'+n);
     if(head && body) {
       head.classList.add('open');
@@ -1650,6 +1656,13 @@ if(window.innerWidth < 600) {
       if(chevron) chevron.className = 'ti ti-chevron-up sec-chevron';
     }
   });
+  // Also open ref section
+  const refHead = G('sh-ref'), refBody = G('sb-ref');
+  if(refHead && refBody) {
+    refHead.classList.add('open'); refBody.classList.add('open');
+    const ch = refHead.querySelector('.sec-chevron');
+    if(ch) ch.className = 'ti ti-chevron-up sec-chevron';
+  }
 }
 upd();
 </script>
