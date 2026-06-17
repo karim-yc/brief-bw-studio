@@ -372,7 +372,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       <div class="sec-body open" id="sb1">
         <div class="field" style="margin-top:4px">
           <label>Département<span class="req">*</span></label>
-          <select id="dept" onchange="onDeptChange();upd()">
+          <select id="dept" onchange="onDeptChange()">
             <option value="">— Sélectionner —</option>
             <option>Marketing</option><option>IT</option><option>Finances</option>
             <option>Achats</option><option>Travaux</option><option>Direction</option>
@@ -813,7 +813,9 @@ const data = {
 
 // ── SECTIONS ACCORDÉON ────────────────────────
 function toggleSec(n) {
-  const head = G('sh'+n), body = G('sb'+n);
+  const id = typeof n === 'string' && n.includes('-') ? n : (n === 'ref' ? 'ref' : n);
+  const head = G('sh-'+id) || G('sh'+id);
+  const body = G('sb-'+id) || G('sb'+id);
   if(!head || !body) return;
   const isOpen = body.classList.contains('open');
   head.classList.toggle('open', !isOpen);
@@ -1003,16 +1005,7 @@ function onSamePerson() {
 }
 
 // Make the label trigger the hidden checkbox
-document.addEventListener('DOMContentLoaded', () => {
-  const wrap = G('same-person-wrap');
-  if(wrap) wrap.addEventListener('click', (e) => {
-    if(e.target.tagName !== 'INPUT') {
-      const cb = G('same-person');
-      cb.checked = !cb.checked;
-      onSamePerson();
-    }
-  });
-});
+// same-person handled by label onclick
 
 function toggleRefSection() {
   const cb = G('is-update');
@@ -1489,7 +1482,7 @@ function renderHistory(filtered) {
   const history = filtered !== undefined ? filtered : getHistory();
   const allCount = getHistory().length;
   if(!allCount) {
-    body.innerHTML = '<div class="drawer-empty"><i class="ti ti-inbox"></i><p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l'historique.</p></div>';
+    body.innerHTML = '<div class="drawer-empty"><i class="ti ti-inbox"></i><p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l\'historique.</p></div>';
     return;
   }
   if(!history.length) {
@@ -1520,10 +1513,10 @@ function renderHistory(filtered) {
         ${b.priorite?`<span class="hist-tag ${prioClass[b.priorite]||''}">${prioLabel[b.priorite]||b.priorite}</span>`:''}
       </div>
       <div class="hist-actions">
-        <button class="hist-btn hist-btn-load" onclick="loadFromHistory(${realIdx})">
+        <button class="hist-btn hist-btn-load" data-idx="${realIdx}" onclick="loadFromHistory(parseInt(this.dataset.idx))">
           <i class="ti ti-arrow-back-up"></i> Rouvrir
         </button>
-        <button class="hist-btn hist-btn-del" onclick="deleteFromHistory('${b.briefId}',event)">
+        <button class="hist-btn hist-btn-del" data-id="${b.briefId}" onclick="deleteFromHistory(this.dataset.id,event)">
           <i class="ti ti-trash"></i> Supprimer
         </button>
       </div>
@@ -1577,13 +1570,13 @@ function loadFromHistory(idx) {
 }
 
 function deleteFromHistory(briefId, e) {
-  e.stopPropagation();
-  if(!confirm('Supprimer ce brief de l'historique ?')) return;
+  if(e) e.stopPropagation();
+  if(!confirm('Supprimer ce brief de l\'historique ?')) return;
   try {
     const history = getHistory().filter(h => h.briefId !== briefId);
     localStorage.setItem(HIST_KEY, JSON.stringify(history));
     updateHistCount();
-    renderHistory();
+    filterHistory();
   } catch(err) {}
 }
 
@@ -1650,7 +1643,7 @@ if(bidEl) bidEl.textContent = data.briefId || genBriefId();
 updateHistCount();
 // Open all sections on mobile
 if(window.innerWidth < 600) {
-  [1,2,3,4,5,6].forEach(n => {
+  [1,'ref',2,3,4,5,6].forEach(n => {
     const head = G('sh'+n), body = G('sb'+n);
     if(head && body) {
       head.classList.add('open');
