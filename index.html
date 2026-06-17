@@ -243,7 +243,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 .tip-icon:hover{background:#111;color:#fff}
 .tip-box{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#111;color:#fff;font-size:11px;line-height:1.55;padding:10px 13px;border-radius:6px;width:240px;z-index:100;display:none;pointer-events:none;font-weight:400;letter-spacing:0;text-transform:none;box-shadow:0 4px 16px rgba(0,0,0,0.18)}
 .tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#111}
-.tip-wrap:hover .tip-box,.tip-wrap:focus-within .tip-box{display:block}
+.tip-wrap:hover .tip-box,.tip-wrap:focus-within .tip-box,.tip-wrap.tip-open .tip-box{display:block}
 @media(max-width:480px){.tip-box{left:0;transform:none;width:220px}}
 
 /* PROGRESS CLICKABLE */
@@ -322,7 +322,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         <button class="hdr-hist-btn" onclick="openHistory()">
           <i class="ti ti-history"></i> Historique <span class="hdr-hist-count" id="hist-count">0</span>
         </button>
-        <div class="hdr-logo">B&amp;W</div>
+        <div class="hdr-logo" style="font-size:9px">Black &amp; White<br>Burger</div>
       </div>
       <div id="save-indicator" style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1px;text-transform:uppercase;opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:4px">
         <i class="ti ti-device-floppy" style="font-size:11px"></i> Sauvegardé
@@ -555,7 +555,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         <div class="row2">
           <div class="field">
             <label>Nombre de déclinaisons attendues<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Nombre total de fichiers à produire. Ex : 1 post + 2 stories + 1 bannière = 4 déclinaisons. Cela permet d'estimer le temps de production.</span></span></label>
-            <input type="number" id="nb-decli" min="1" placeholder="Ex : 5" oninput="upd()" style="max-width:120px">
+            <input type="number" id="nb-decli" min="1" max="999" placeholder="Ex : 5" oninput="validateNbDecli();upd()" style="max-width:120px">
             <div style="font-size:10px;color:#bbb;margin-top:4px;line-height:1.4">Nombre total de visuels / fichiers à produire</div>
           </div>
           <div class="field">
@@ -676,7 +676,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     <button class="action-submit" onclick="submitBrief()">
       <i class="ti ti-send"></i> Soumettre le brief
     </button>
-    <p class="submit-note">Sauvegarde le brief dans l'historique et génère le PDF</p>
+    <p class="submit-note">Sauvegarde le brief dans l'historique et affiche un récapitulatif</p>
     <button class="action-primary" onclick="dlPDF()">
       <i class="ti ti-download"></i> Télécharger le PDF uniquement
     </button>
@@ -778,6 +778,20 @@ function updValSelect(sel) {
   else if(sel.value==='En attente') { sel.style.background='#fff8e1'; sel.style.color='#856404'; }
   else { sel.style.background=''; sel.style.color=''; }
 }
+
+// Mobile tooltip toggle
+document.addEventListener('click', function(e) {
+  const icon = e.target.closest('.tip-icon');
+  if(icon) {
+    e.stopPropagation();
+    const wrap = icon.closest('.tip-wrap');
+    const isOpen = wrap.classList.contains('tip-open');
+    document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
+    if(!isOpen) wrap.classList.add('tip-open');
+    return;
+  }
+  document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
+});
 document.querySelectorAll('.val-select').forEach(updValSelect);
 
 // ── ADD OTHER ─────────────────────────────────
@@ -942,6 +956,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+function validateNbDecli() {
+  const el = G('nb-decli');
+  if(!el) return;
+  const v = parseInt(el.value);
+  if(el.value !== '' && (isNaN(v) || v < 1)) {
+    el.value = 1;
+    el.style.borderBottomColor = '#e07b00';
+    setTimeout(() => { el.style.borderBottomColor = ''; }, 1500);
+  }
+}
 
 function checkDeadlineGap() {
   const launch = G('launch') ? G('launch').value : '';
@@ -1250,6 +1275,7 @@ function autoLoad() {
     Object.assign(data, saved);
     syncFormFromData();
     showMsg('Brouillon restauré automatiquement', '#1a6b2a');
+    setTimeout(checkDeadlineGap, 200);
   } catch(e) {}
 }
 
@@ -1403,7 +1429,7 @@ Soumettre quand même ?');
     // Send to Make webhook (async, non-blocking)
     sendToWebhook({...d, types: [...(d.types||[]),...(d.othersTypes||[])], supports: [...(d.supports||[]),...(d.othersSupports||[])]});
     showMsg('Brief ' + (d.briefId||'') + ' soumis et sauvegardé ✓', '#1a6b2a');
-    // Show confirmation screen
+    // Show confirmation screen — NO auto PDF
     showConfirmation(d);
   }
 }
