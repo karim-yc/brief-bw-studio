@@ -721,6 +721,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       <option value="date-asc">Plus ancien</option>
       <option value="dept">Département</option>
       <option value="prio">Priorité</option>
+      <option value="latest">Dernières versions</option>
     </select>
   </div>
   <div class="drawer-body" id="hist-body">
@@ -1323,18 +1324,50 @@ function getHistory() {
 function saveToHistory(briefData) {
   try {
     const history = getHistory();
-    const entry = {
-      ...briefData,
-      submittedAt: new Date().toISOString(),
-      status: 'submitted'
-    };
-    // Update if same briefId exists, else prepend
-    const idx = history.findIndex(h => h.briefId === briefData.briefId);
-    if(idx >= 0) history[idx] = entry;
-    else history.unshift(entry);
-    // Keep max 50 briefs
-    if(history.length > 50) history.pop();
+    const now = new Date().toISOString();
+    // Check if a version of this briefId already exists
+    const existingIdx = history.findIndex(h =>
+      h.briefId === briefData.briefId ||
+      h.rootBriefId === briefData.briefId ||
+      briefData.rootBriefId === h.rootBriefId && h.rootBriefId
+    );
+    let entry;
+    if(existingIdx >= 0) {
+      const existing = history[existingIdx];
+      const rootId = existing.rootBriefId || existing.briefId;
+      const prevVersion = existing.version || 1;
+      const newVersion = prevVersion + 1;
+      const newBriefId = rootId + '-v' + newVersion;
+      entry = {
+        ...briefData,
+        briefId: newBriefId,
+        rootBriefId: rootId,
+        version: newVersion,
+        submittedAt: now,
+        status: 'submitted'
+      };
+      // Mark previous as not latest
+      history[existingIdx] = {...existing, isLatest: false};
+      entry.isLatest = true;
+      history.unshift(entry);
+    } else {
+      entry = {
+        ...briefData,
+        rootBriefId: briefData.briefId,
+        version: 1,
+        isLatest: true,
+        submittedAt: now,
+        status: 'submitted'
+      };
+      history.unshift(entry);
+    }
+    // Keep max 100 entries
+    if(history.length > 100) history.pop();
     localStorage.setItem(HIST_KEY, JSON.stringify(history));
+    // Update data.briefId to match the saved entry
+    data.briefId = entry.briefId;
+    const bidEl = G('brief-id-display');
+    if(bidEl) bidEl.textContent = entry.briefId;
     updateHistCount();
     return entry;
   } catch(e) { return null; }
@@ -1387,7 +1420,8 @@ function renderHistory(filtered) {
     const realIdx = allHistory.findIndex(h => h.briefId === b.briefId);
     return `<div class="hist-item">
       <div class="hist-item-head">
-        <span class="hist-id">${b.briefId||'—'}</span>
+        <span class="hist-id">${b.rootBriefId||b.briefId||'—'}</span>
+        ${b.version > 1 ? `<span class="hist-version${b.isLatest?' latest':''}">${b.isLatest?'✓ ':''}v${b.version}</span>` : (b.isLatest===false?'<span class="hist-version">v1</span>':'')}
         <span class="hist-dept">${b.dept||'—'}</span>
         <span class="hist-date">${b.submittedAt?fmtDt(b.submittedAt):''}</span>
       </div>
@@ -1431,6 +1465,8 @@ function filterHistory() {
   else if(sort === 'prio') {
     const order = {urgent:0, prioritaire:1, normal:2, '':3};
     history = [...history].sort((a,b) => (order[a.priorite||'']||3) - (order[b.priorite||'']||3));
+  } else if(sort === 'latest') {
+    history = history.filter(b => b.isLatest !== false);
   }
   renderHistory(history);
 }
@@ -1483,7 +1519,9 @@ Soumettre quand même ?');
     sendToWebhook({...d, types: [...(d.types||[]),...(d.othersTypes||[])], supports: [...(d.supports||[]),...(d.othersSupports||[])]});
     showMsg('Brief ' + (d.briefId||'') + ' soumis et sauvegardé ✓', '#1a6b2a');
     // Show confirmation screen — NO auto PDF
-    showConfirmation(d);
+    // Update d with the potentially new versioned briefId
+    const updatedD = {...d, briefId: data.briefId};
+    showConfirmation(updatedD);
   }
 }
 
