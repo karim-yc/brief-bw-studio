@@ -230,9 +230,11 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     </button>
     <button class="mode-btn" id="btn-chat" onclick="switchMode('chat')">
       <i class="ti ti-message-circle"></i><span>Assistant IA</span>
+      <span style="font-size:8px;font-weight:700;background:#e8e8e8;color:#888;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;line-height:1;margin-left:2px">BÊTA</span>
     </button>
     <button class="mode-btn" id="btn-voice" onclick="switchMode('voice')">
       <i class="ti ti-microphone"></i><span>Vocal</span>
+      <span style="font-size:8px;font-weight:700;background:#e8e8e8;color:#888;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;line-height:1;margin-left:2px">BÊTA</span>
     </button>
   </div>
 
@@ -263,12 +265,15 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       <div class="sec-body open" id="sb1">
         <div class="field" style="margin-top:4px">
           <label>Département<span class="req">*</span></label>
-          <select id="dept" onchange="upd()">
+          <select id="dept" onchange="onDeptChange();upd()">
             <option value="">— Sélectionner —</option>
             <option>Marketing</option><option>IT</option><option>Finances</option>
             <option>Achats</option><option>Travaux</option><option>Direction</option>
-            <option>Franchisé</option><option>Autre</option>
+            <option>Franchisé</option><option value="Autre">Autre</option>
           </select>
+          <div id="dept-autre-wrap" style="display:none;margin-top:8px">
+            <input type="text" id="dept-autre" placeholder="Précisez le département..." oninput="upd()" style="border:none;border-bottom:2px solid #e8e8e8;padding:7px 0;font-family:Roboto,sans-serif;font-size:14px;color:#111;background:transparent;outline:none;width:100%;transition:border-color .2s" onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e8e8e8'">
+          </div>
         </div>
         <div class="row2">
           <div class="field">
@@ -277,6 +282,12 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           </div>
           <div class="field">
             <label>Validateur final<span class="req">*</span></label>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11px;color:#666;font-weight:400;text-transform:none;letter-spacing:0;margin:0">
+                <input type="checkbox" id="same-as-ref" onchange="toggleSameAsRef()" style="width:14px;height:14px;accent-color:#111;cursor:pointer">
+                Même personne que le référent
+              </label>
+            </div>
             <input type="text" id="valid" placeholder="Prénom Nom" oninput="upd()">
           </div>
         </div>
@@ -640,7 +651,8 @@ function switchMode(m) {
 // ── COLLECT & VALIDATE ────────────────────────
 function collect() {
   return {
-    dept:G('dept').value, ref:G('ref').value.trim(), valid:G('valid').value.trim(),
+    dept: (()=>{const s=G('dept');if(!s)return'';if(s.value==='Autre'){const a=G('dept-autre');return a&&a.value.trim()?'Autre — '+a.value.trim():'Autre';}return s.value;})(),
+    ref:G('ref').value.trim(), valid:G('valid').value.trim(),
     desc:G('desc').value.trim(), msg:G('msg').value.trim(),
     types:checked('#types'),
     othersTypes:[...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean),
@@ -680,6 +692,87 @@ function setBadge(id,state) {
   el.className='sec-badge '+state;
   el.textContent={done:'Complet',partial:'Partiel',empty:'Vide'}[state];
 }
+
+function toggleSameAsRef() {
+  const cb = G('same-as-ref');
+  const validEl = G('valid');
+  const refEl = G('ref');
+  if(!cb || !validEl || !refEl) return;
+  if(cb.checked) {
+    validEl.value = refEl.value;
+    validEl.disabled = true;
+    validEl.style.opacity = '0.5';
+    validEl.style.fontStyle = 'italic';
+  } else {
+    validEl.disabled = false;
+    validEl.style.opacity = '1';
+    validEl.style.fontStyle = 'normal';
+  }
+  upd();
+}
+
+// Auto-update validateur when ref changes and checkbox is checked
+document.addEventListener('DOMContentLoaded', () => {
+  const refEl = G('ref');
+  if(refEl) refEl.addEventListener('input', () => {
+    const cb = G('same-as-ref');
+    if(cb && cb.checked) {
+      G('valid').value = refEl.value;
+      upd();
+    }
+  });
+});
+
+function onDeptChange() {
+  const sel = G('dept');
+  const wrap = G('dept-autre-wrap');
+  if(!sel || !wrap) return;
+  wrap.style.display = sel.value === 'Autre' ? 'block' : 'none';
+  if(sel.value === 'Autre') G('dept-autre').focus();
+  upd();
+}
+
+function onRefChange() {
+  const same = G('same-person');
+  if(same && same.checked) {
+    G('valid').value = G('ref').value;
+  }
+  upd();
+}
+
+function onSamePerson() {
+  const cb = G('same-person');
+  const box = G('same-person-box');
+  const validInput = G('valid');
+  if(cb.checked) {
+    box.style.background = '#111';
+    box.style.borderColor = '#111';
+    box.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
+    validInput.value = G('ref').value;
+    validInput.style.opacity = '0.5';
+    validInput.readOnly = true;
+  } else {
+    box.style.background = '#fff';
+    box.style.borderColor = '#ddd';
+    box.innerHTML = '';
+    validInput.readOnly = false;
+    validInput.style.opacity = '1';
+    validInput.focus();
+  }
+  upd();
+}
+
+// Make the label trigger the hidden checkbox
+document.addEventListener('DOMContentLoaded', () => {
+  const wrap = G('same-person-wrap');
+  if(wrap) wrap.addEventListener('click', (e) => {
+    if(e.target.tagName !== 'INPUT') {
+      const cb = G('same-person');
+      cb.checked = !cb.checked;
+      onSamePerson();
+    }
+  });
+});
 
 function updPriorite() {
   const sel = G('priorite');
@@ -814,7 +907,19 @@ function syncFormFromData(){
   const d=data;
   const sv=(id,v)=>{const el=G(id);if(el)el.value=v};
   const ss=(id,v)=>{const el=G(id);if(!el)return;[...el.options].forEach(o=>{if(o.text===v||o.value===v)o.selected=true});updValSelect(el)};
-  ss('dept',d.dept);sv('ref',d.ref);sv('valid',d.valid);sv('desc',d.desc);sv('msg',d.msg);
+  // Handle dept Autre
+  const deptRaw = d.dept||'';
+  const deptSel = G('dept');
+  const deptAutreWrap = G('dept-autre-wrap');
+  const deptAutreInp = G('dept-autre');
+  if(deptRaw.startsWith('Autre — ')) {
+    if(deptSel) [...deptSel.options].forEach(o=>{if(o.value==='Autre')o.selected=true});
+    if(deptAutreWrap) deptAutreWrap.style.display='block';
+    if(deptAutreInp) deptAutreInp.value=deptRaw.replace('Autre — ','');
+  } else {
+    ss('dept',deptRaw);
+    if(deptAutreWrap) deptAutreWrap.style.display='none';
+  }sv('ref',d.ref);sv('valid',d.valid);sv('desc',d.desc);sv('msg',d.msg);
   sv('v-nom',d.vNom);ss('s-nom',d.sNom);sv('v-prix',d.vPrix);ss('s-prix',d.sPrix);
   sv('v-dates',d.vDates);ss('s-dates',d.sDates);sv('v-texte',d.vTexte);ss('s-texte',d.sTexte);
   sv('v-mentions',d.vMentions);ss('s-mentions',d.sMentions);sv('drive',d.drive);
