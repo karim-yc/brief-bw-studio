@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Studio Graphique B&W</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#f0f0f0;min-height:100%}
+body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding:20px 14px 48px}
+.app{max-width:960px;margin:0 auto}
+
+.hdr{background:#111;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:0}
+.hdr-left .title{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;text-transform:uppercase}
+.hdr-left .sub{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:3px}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-logo{font-family:'Anton',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-align:right;text-transform:uppercase;line-height:1.7}
+.back-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;background:rgba(255,255,255,0.1);border:none;border-radius:20px;color:rgba(255,255,255,0.7);font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;font-family:'Roboto',sans-serif;text-decoration:none;transition:all .15s}
+.back-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
+
+.sync-bar{background:#1e1e1e;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.sync-info{font-size:11px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:8px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#1a6b2a;flex-shrink:0}
+.sync-dot.loading{background:#e07b00;animation:pulse-dot 1s infinite}
+.sync-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:16px;color:rgba(255,255,255,0.6);font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;font-family:'Roboto',sans-serif;transition:all .15s}
+.sync-btn:hover{background:rgba(255,255,255,0.15);color:#fff}
+.sync-btn i{font-size:13px}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.filters{background:#fff;padding:12px 24px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#aaa}
+.filter-btn{padding:5px 12px;border:1.5px solid #e0e0e0;border-radius:14px;font-size:11px;font-weight:700;font-family:'Roboto',sans-serif;color:#777;background:#fff;cursor:pointer;transition:all .15s}
+.filter-btn:hover{border-color:#111;color:#111}
+.filter-btn.active{background:#111;border-color:#111;color:#fff}
+.filter-sep{width:1px;height:18px;background:#e8e8e8;flex-shrink:0}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
+.grid-wide{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:12px}
+
+.card{background:#fff;border-radius:8px;overflow:hidden}
+.card-head{padding:14px 18px 10px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Anton',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#aaa}
+.card-icon{width:28px;height:28px;border-radius:6px;background:#f5f5f5;display:flex;align-items:center;justify-content:center}
+.card-icon i{font-size:14px;color:#777}
+.card-body{padding:14px 18px}
+
+.kpi{text-align:center;padding:18px 14px}
+.kpi-val{font-family:'Anton',sans-serif;font-size:36px;color:#111;line-height:1}
+.kpi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#bbb;margin-top:6px}
+.kpi-delta{font-size:11px;font-weight:700;margin-top:4px}
+.delta-up{color:#1a6b2a}.delta-down{color:#cc0000}.delta-neutral{color:#bbb}
+
+.chart-wrap{padding:14px 18px;height:220px;position:relative}
+.chart-wrap canvas{max-height:192px}
+
+.list-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5}
+.list-item:last-child{border-bottom:none}
+.list-rank{font-family:'Anton',sans-serif;font-size:11px;color:#ccc;min-width:18px}
+.list-label{font-size:13px;color:#333;flex:1}
+.list-bar-wrap{flex:1;max-width:120px}
+.list-bar{height:6px;background:#111;border-radius:3px;transition:width .4s}
+.list-count{font-size:12px;font-weight:700;color:#111;min-width:24px;text-align:right}
+.list-pct{font-size:10px;color:#bbb;min-width:32px;text-align:right}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:0.3px}
+.badge-urgent{background:#fff0f0;color:#cc0000}
+.badge-prioritaire{background:#fff8e1;color:#856404}
+.badge-normal{background:#f5f5f5;color:#888}
+
+.empty-state{text-align:center;padding:48px 24px;color:#bbb}
+.empty-state i{font-size:40px;display:block;margin-bottom:12px;opacity:0.4}
+.empty-state p{font-size:13px;line-height:1.6}
+.empty-state a{color:#111;font-weight:700;text-decoration:none}
+
+.recent-table{width:100%;border-collapse:collapse;font-size:12px}
+.recent-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#aaa;border-bottom:1px solid #f0f0f0;font-weight:500;white-space:nowrap}
+.recent-table td{padding:9px 10px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+.recent-table tr:last-child td{border-bottom:none}
+.recent-table tr:hover td{background:#fafafa}
+.td-id{font-family:'Anton',sans-serif;font-size:10px;color:#aaa;letter-spacing:1px}
+.td-dept{font-weight:500;color:#111}
+.td-desc{color:#777;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-date{color:#bbb;white-space:nowrap}
+
+.loading-skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:20px;margin:6px 0}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.section-title{font-family:'Anton',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#777;margin:18px 0 10px;padding-left:2px}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="title">Dashboard</div>
+      <div class="sub">Studio Graphique — Analytics briefs</div>
+    </div>
+    <div class="hdr-right">
+      <a href="index.html" class="back-btn"><i class="ti ti-arrow-left" style="font-size:13px"></i> Formulaire</a>
+      <div class="hdr-logo">Black &amp; White<br>Burger</div>
+    </div>
+  </div>
+
+  <div class="sync-bar">
+    <div class="sync-info">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span id="sync-label">Chargement des données...</span>
+    </div>
+    <button class="sync-btn" onclick="loadData()">
+      <i class="ti ti-refresh"></i> Actualiser
+    </button>
+  </div>
+
+  <div style="background:#fff;padding:10px 24px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;gap:8px;flex-wrap:wrap" id="filters-bar">
+    <span class="filter-label">Période :</span>
+    <button class="filter-btn active" data-days="7" onclick="setFilter(this)">7 jours</button>
+    <button class="filter-btn" data-days="30" onclick="setFilter(this)">30 jours</button>
+    <button class="filter-btn" data-days="90" onclick="setFilter(this)">3 mois</button>
+    <button class="filter-btn" data-days="0" onclick="setFilter(this)">Tout</button>
+    <span class="filter-sep"></span>
+    <span class="filter-label">Voir :</span>
+    <button class="filter-btn active" data-view="all" onclick="setView(this)">Tous</button>
+    <button class="filter-btn" data-view="latest" onclick="setView(this)">Dernières versions</button>
+  </div>
+
+  <div id="main-content">
+    <!-- KPIs -->
+    <div class="section-title">Vue d'ensemble</div>
+    <div class="grid" id="kpi-grid">
+      <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
+      <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
+      <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
+      <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
+    </div>
+
+    <div class="grid-wide">
+      <!-- Briefs par département -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Briefs par département</span>
+          <div class="card-icon"><i class="ti ti-building"></i></div>
+        </div>
+        <div class="card-body" id="dept-list"></div>
+      </div>
+
+      <!-- Activité hebdomadaire -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Activité dans le temps</span>
+          <div class="card-icon"><i class="ti ti-chart-line"></i></div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-activity"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid-wide">
+      <!-- Types de demandes -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Types de demandes</span>
+          <div class="card-icon"><i class="ti ti-tag"></i></div>
+        </div>
+        <div class="card-body" id="types-list"></div>
+      </div>
+
+      <!-- Supports les plus demandés -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Supports les plus demandés</span>
+          <div class="card-icon"><i class="ti ti-devices"></i></div>
+        </div>
+        <div class="card-body" id="supports-list"></div>
+      </div>
+    </div>
+
+    <div class="grid-wide">
+      <!-- Taux de complétion -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Champs souvent vides</span>
+          <div class="card-icon"><i class="ti ti-alert-circle"></i></div>
+        </div>
+        <div class="card-body" id="empty-fields-list"></div>
+      </div>
+
+      <!-- Répartition priorités -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Répartition des priorités</span>
+          <div class="card-icon"><i class="ti ti-gauge"></i></div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-prio"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Briefs récents -->
+    <div class="section-title">Briefs récents</div>
+    <div class="card">
+      <div class="card-body" style="padding:0">
+        <div style="overflow-x:auto">
+          <table class="recent-table" id="recent-table">
+            <thead><tr><th>ID</th><th>Département</th><th>Description</th><th>Priorité</th><th>Lancement</th><th>Soumis le</th></tr></thead>
+            <tbody id="recent-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const HIST_KEY = 'bw_brief_history';
+const SHEET_ID = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
+const API_KEY = ''; // Public read — no API key needed for published sheet
+let allBriefs = [];
+let filteredBriefs = [];
+let currentDays = 7;
+let currentView = 'all';
+let charts = {};
+
+function getLocalHistory() {
+  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function setSyncState(state, msg) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  if(dot) { dot.className = 'sync-dot' + (state==='loading'?' loading':''); }
+  if(lbl) lbl.textContent = msg;
+}
+
+async function loadData() {
+  setSyncState('loading', 'Chargement...');
+
+  // Load from localStorage first (instant)
+  const local = getLocalHistory();
+
+  // Try to load from Google Sheets via published CSV
+  let sheetData = [];
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique`;
+    const resp = await fetch(url);
+    if(resp.ok) {
+      const csv = await resp.text();
+      sheetData = parseCSV(csv);
+    }
+  } catch(e) {
+    console.warn('Sheet unavailable, using local data', e);
+  }
+
+  // Merge: prefer sheet data, fallback to local
+  if(sheetData.length > 0) {
+    allBriefs = sheetData;
+    setSyncState('ok', `${sheetData.length} briefs chargés depuis Google Sheets · ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}`);
+  } else if(local.length > 0) {
+    allBriefs = local;
+    setSyncState('ok', `${local.length} briefs chargés depuis le cache local (activez la Sheet pour plus de données)`);
+  } else {
+    allBriefs = [];
+    setSyncState('ok', 'Aucun brief trouvé — soumettez votre premier brief depuis le formulaire');
+  }
+
+  applyFilters();
+}
+
+function parseCSV(csv) {
+  const lines = csv.split('\n').filter(l => l.trim());
+  if(lines.length < 2) return [];
+  const headers = parseCSVLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const obj = {};
+    headers.forEach((h,i) => { obj[h.replace(/"/g,'')] = (vals[i]||'').replace(/^"|"$/g,''); });
+    // Parse arrays stored as comma-separated strings
+    if(obj.types) obj.types = obj.types.split(',').map(s=>s.trim()).filter(Boolean);
+    if(obj.supports) obj.supports = obj.supports.split(',').map(s=>s.trim()).filter(Boolean);
+    if(obj.fichiers) obj.fichiers = obj.fichiers.split(',').map(s=>s.trim()).filter(Boolean);
+    return obj;
+  }).filter(b => b.briefId || b.dept);
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for(let i = 0; i < line.length; i++) {
+    if(line[i] === '"') { inQuotes = !inQuotes; }
+    else if(line[i] === ',' && !inQuotes) { result.push(current); current = ''; }
+    else { current += line[i]; }
+  }
+  result.push(current);
+  return result;
+}
+
+function setFilter(btn) {
+  document.querySelectorAll('[data-days]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentDays = parseInt(btn.dataset.days);
+  applyFilters();
+}
+
+function setView(btn) {
+  document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentView = btn.dataset.view;
+  applyFilters();
+}
+
+function applyFilters() {
+  let data = [...allBriefs];
+  // Filter by date
+  if(currentDays > 0) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - currentDays);
+    data = data.filter(b => {
+      if(!b.submittedAt) return true;
+      return new Date(b.submittedAt) >= cutoff;
+    });
+  }
+  // Filter latest versions only
+  if(currentView === 'latest') {
+    data = data.filter(b => b.isLatest !== 'false' && b.isLatest !== false);
+  }
+  filteredBriefs = data;
+  renderDashboard(data);
+}
+
+function renderDashboard(data) {
+  renderKPIs(data);
+  renderDeptList(data);
+  renderTypesList(data);
+  renderSupportsList(data);
+  renderEmptyFields(data);
+  renderActivityChart(data);
+  renderPrioChart(data);
+  renderRecentTable(data);
+}
+
+function renderKPIs(data) {
+  const total = data.length;
+  const urgent = data.filter(b => b.priorite === 'urgent').length;
+  const avgDecli = data.filter(b => parseInt(b.nbDecli) > 0).length > 0
+    ? Math.round(data.reduce((s,b) => s + (parseInt(b.nbDecli)||0), 0) / data.filter(b => parseInt(b.nbDecli) > 0).length)
+    : 0;
+  const depts = new Set(data.map(b => b.dept).filter(Boolean)).size;
+
+  const kpis = [
+    {val: total, lbl: 'Briefs soumis', icon: 'ti-file-description', color: '#111'},
+    {val: depts, lbl: 'Départements actifs', icon: 'ti-building', color: '#111'},
+    {val: urgent, lbl: 'Priorité urgente', icon: 'ti-alert-triangle', color: urgent>0?'#cc0000':'#111'},
+    {val: avgDecli || '—', lbl: 'Déclinaisons moy.', icon: 'ti-copy', color: '#111'},
+  ];
+
+  document.getElementById('kpi-grid').innerHTML = kpis.map(k => `
+    <div class="card">
+      <div class="kpi">
+        <div class="kpi-val" style="color:${k.color}">${k.val}</div>
+        <div class="kpi-lbl">${k.lbl}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderList(containerId, data, keyFn, label) {
+  const counts = {};
+  data.forEach(b => {
+    const keys = Array.isArray(keyFn(b)) ? keyFn(b) : [keyFn(b)];
+    keys.filter(Boolean).forEach(k => { counts[k] = (counts[k]||0) + 1; });
+  });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  const max = sorted[0]?.[1] || 1;
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  if(!sorted.length) { el.innerHTML = '<div style="color:#bbb;font-size:12px;padding:8px 0">Aucune donnée</div>'; return; }
+  el.innerHTML = sorted.slice(0,8).map(([k,v],i) => `
+    <div class="list-item">
+      <span class="list-rank">${i+1}</span>
+      <span class="list-label">${k}</span>
+      <div class="list-bar-wrap"><div class="list-bar" style="width:${Math.round(v/max*100)}%"></div></div>
+      <span class="list-count">${v}</span>
+      <span class="list-pct">${Math.round(v/data.length*100)}%</span>
+    </div>`).join('');
+}
+
+function renderDeptList(data) { renderList('dept-list', data, b => b.dept, 'Département'); }
+function renderTypesList(data) { renderList('types-list', data, b => b.types||[], 'Type'); }
+function renderSupportsList(data) { renderList('supports-list', data, b => b.supports||[], 'Support'); }
+
+function renderEmptyFields(data) {
+  if(!data.length) { document.getElementById('empty-fields-list').innerHTML = '<div style="color:#bbb;font-size:12px;padding:8px 0">Aucune donnée</div>'; return; }
+  const fields = [
+    {key: 'vTexte', label: 'Texte exact'},
+    {key: 'vPrix', label: 'Prix'},
+    {key: 'vNom', label: 'Nom produit'},
+    {key: 'vDates', label: 'Dates / période'},
+    {key: 'vMentions', label: 'Mentions obligatoires'},
+    {key: 'drive', label: 'Lien Drive'},
+    {key: 'formats', label: 'Formats / dimensions'},
+    {key: 'nbDecli', label: 'Nb déclinaisons'},
+  ];
+  const max = data.length;
+  const sorted = fields.map(f => ({
+    label: f.label,
+    empty: data.filter(b => !b[f.key] || b[f.key] === '' || b[f.key] === '0').length
+  })).sort((a,b) => b.empty - a.empty);
+  document.getElementById('empty-fields-list').innerHTML = sorted.map((f,i) => `
+    <div class="list-item">
+      <span class="list-rank">${i+1}</span>
+      <span class="list-label">${f.label}</span>
+      <div class="list-bar-wrap"><div class="list-bar" style="width:${Math.round(f.empty/max*100)}%;background:${f.empty/max>0.5?'#cc0000':'#e07b00'}"></div></div>
+      <span class="list-count">${f.empty}</span>
+      <span class="list-pct">${Math.round(f.empty/max*100)}%</span>
+    </div>`).join('');
+}
+
+function renderActivityChart(data) {
+  const ctx = document.getElementById('chart-activity');
+  if(!ctx) return;
+  if(charts.activity) { charts.activity.destroy(); charts.activity = null; }
+
+  // Build daily counts for last 30 days
+  const days = 30;
+  const labels = [];
+  const counts = [];
+  for(let i = days-1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    labels.push(i === 0 ? 'Auj.' : i === 1 ? 'Hier' : d.toLocaleDateString('fr-BE',{day:'numeric',month:'short'}));
+    counts.push(data.filter(b => b.submittedAt && b.submittedAt.slice(0,10) === key).length);
+  }
+
+  charts.activity = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: counts,
+        backgroundColor: '#111',
+        borderRadius: 3,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} brief${ctx.parsed.y>1?'s':''}`}}},
+      scales: {
+        x:{grid:{display:false},ticks:{font:{size:9},color:'#bbb',maxRotation:0,maxTicksLimit:8}},
+        y:{grid:{color:'#f5f5f5'},ticks:{font:{size:10},color:'#bbb',stepSize:1},beginAtZero:true}
+      }
+    }
+  });
+}
+
+function renderPrioChart(data) {
+  const ctx = document.getElementById('chart-prio');
+  if(!ctx) return;
+  if(charts.prio) { charts.prio.destroy(); charts.prio = null; }
+  const normal = data.filter(b => !b.priorite || b.priorite === 'normal').length;
+  const prio = data.filter(b => b.priorite === 'prioritaire').length;
+  const urgent = data.filter(b => b.priorite === 'urgent').length;
+  if(!data.length) return;
+  charts.prio = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Normal','Prioritaire','Urgent'],
+      datasets: [{data:[normal,prio,urgent],backgroundColor:['#e0e0e0','#e07b00','#cc0000'],borderWidth:0,hoverOffset:4}]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      cutout:'68%',
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11,family:'Roboto'},padding:12,boxWidth:12,color:'#555'}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} brief${ctx.parsed>1?'s':''}`}}
+      }
+    }
+  });
+}
+
+function renderRecentTable(data) {
+  const tbody = document.getElementById('recent-tbody');
+  if(!tbody) return;
+  const recent = [...data].sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0)).slice(0,15);
+  if(!recent.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#bbb;padding:24px;font-size:13px">Aucun brief à afficher</td></tr>';
+    return;
+  }
+  const fmtDt = iso => {
+    if(!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' + d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+  };
+  const fmtDate = s => { if(!s)return'—'; try{const[y,m,d]=s.split('-');return d+'/'+m+'/'+y}catch(e){return s} };
+  const prioBadge = p => p==='urgent'?'<span class="badge badge-urgent">URGENT</span>':p==='prioritaire'?'<span class="badge badge-prioritaire">Prioritaire</span>':'<span class="badge badge-normal">Normal</span>';
+  tbody.innerHTML = recent.map(b => `
+    <tr>
+      <td class="td-id">${b.briefId||'—'}</td>
+      <td class="td-dept">${b.dept||'—'}</td>
+      <td class="td-desc" title="${b.desc||''}">${b.desc||b.vNom||'—'}</td>
+      <td>${prioBadge(b.priorite)}</td>
+      <td class="td-date">${fmtDate(b.launch)}</td>
+      <td class="td-date">${fmtDt(b.submittedAt)}</td>
+    </tr>`).join('');
+}
+
+// Init
+loadData();
+// Auto-refresh every 5 minutes
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+</body>
+</html>
