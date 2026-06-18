@@ -395,6 +395,9 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     <button class="mode-btn active" id="btn-manual" onclick="switchMode('manual')">
       <i class="ti ti-forms"></i><span>Formulaire</span>
     </button>
+    <button class="mode-btn" id="btn-rapide" onclick="switchMode('rapide')">
+      <i class="ti ti-bolt"></i><span>Rapide</span>
+    </button>
     <button class="mode-btn" id="btn-chat" onclick="switchMode('chat')">
       <i class="ti ti-message-circle"></i><span>Assistant IA</span>
       <span style="font-size:8px;font-weight:700;background:#e8e8e8;color:#888;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;line-height:1;margin-left:2px">BÊTA</span>
@@ -1118,11 +1121,7 @@ function collect() {
     othersSupports:[...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean),
     launch:G('launch').value, valinfo:G('valinfo').value, simul:G('simul').value,
     bloquants:G('bloquants').value.trim(),
-    isUpdate:G('is-update')?G('is-update').checked:false,
-    refType:getRefType(),
-    refOriginal:G('ref-original')?G('ref-original').value.trim():'',
-    refChanges:G('ref-changes')?G('ref-changes').value.trim():'',
-    refKeep:G('ref-keep')?G('ref-keep').value.trim():''
+    isUpdate: false
   };
 }
 
