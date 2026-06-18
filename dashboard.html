@@ -117,10 +117,10 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
   <div style="background:#fff;padding:10px 24px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;gap:8px;flex-wrap:wrap" id="filters-bar">
     <span class="filter-label">Période :</span>
-    <button class="filter-btn active" data-days="7" onclick="setFilter(this)">7 jours</button>
+    <button class="filter-btn" data-days="7" onclick="setFilter(this)">7 jours</button>
     <button class="filter-btn" data-days="30" onclick="setFilter(this)">30 jours</button>
     <button class="filter-btn" data-days="90" onclick="setFilter(this)">3 mois</button>
-    <button class="filter-btn" data-days="0" onclick="setFilter(this)">Tout</button>
+    <button class="filter-btn active" data-days="0" onclick="setFilter(this)">Tout</button>
     <span class="filter-sep"></span>
     <span class="filter-label">Voir :</span>
     <button class="filter-btn active" data-view="all" onclick="setView(this)">Tous</button>
@@ -218,7 +218,7 @@ const SHEET_ID = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
 const API_KEY = ''; // Public read — no API key needed for published sheet
 let allBriefs = [];
 let filteredBriefs = [];
-let currentDays = 7;
+let currentDays = 0;
 let currentView = 'all';
 let charts = {};
 
@@ -243,8 +243,14 @@ async function loadData() {
   // Try to load from Google Sheets via published CSV
   let sheetData = [];
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique`;
-    const resp = await fetch(url);
+    // Try export URL first
+    const url1 = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique`;
+    let resp = await fetch(url1);
+    if(!resp.ok) {
+      // Fallback to gviz
+      const url2 = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique`;
+      resp = await fetch(url2);
+    }
     if(resp.ok) {
       const csv = await resp.text();
       sheetData = parseCSV(csv);
@@ -253,16 +259,16 @@ async function loadData() {
     console.warn('Sheet unavailable, using local data', e);
   }
 
-  // Merge: prefer sheet data, fallback to local
-  if(sheetData.length > 0) {
-    allBriefs = sheetData;
-    setSyncState('ok', `${sheetData.length} briefs chargés depuis Google Sheets · ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}`);
-  } else if(local.length > 0) {
-    allBriefs = local;
-    setSyncState('ok', `${local.length} briefs chargés depuis le cache local (activez la Sheet pour plus de données)`);
+  // Merge: sheet data + local, deduplicate by briefId
+  const merged = [...sheetData];
+  const sheetIds = new Set(sheetData.map(b => b.briefId));
+  local.forEach(b => { if(b.briefId && !sheetIds.has(b.briefId)) merged.push(b); });
+  allBriefs = merged.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
+  const src = sheetData.length > 0 ? `Google Sheets (${sheetData.length}) + cache local (${local.length - (merged.length - sheetData.length)})` : `cache local uniquement (${local.length})`;
+  if(allBriefs.length > 0) {
+    setSyncState('ok', `${allBriefs.length} brief${allBriefs.length>1?'s':''} · ${src} · ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}`);
   } else {
-    allBriefs = [];
-    setSyncState('ok', 'Aucun brief trouvé — soumettez votre premier brief depuis le formulaire');
+    setSyncState('ok', 'Aucun brief — soumettez votre premier brief depuis le formulaire');
   }
 
   applyFilters();

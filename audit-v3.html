@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit v3 — Brief B&W Studio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#111;line-height:1.5}
+.page{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+.hdr{background:#111;color:#fff;padding:24px 28px;border-radius:10px;margin-bottom:20px}
+.hdr h1{font-size:20px;font-weight:700;letter-spacing:0.5px;margin-bottom:4px}
+.hdr p{font-size:12px;color:rgba(255,255,255,0.5);letter-spacing:0.5px}
+.score-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.score-card{background:#fff;border-radius:8px;padding:16px;text-align:center;border:1px solid #e8e8e8}
+.score-val{font-size:32px;font-weight:700;line-height:1}
+.score-lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.8px;margin-top:5px}
+.score-delta{font-size:11px;font-weight:600;margin-top:3px}
+.up{color:#16a34a}.down{color:#dc2626}.same{color:#888}
+.section{background:#fff;border-radius:10px;border:1px solid #e8e8e8;margin-bottom:14px;overflow:hidden}
+.sec-head{padding:14px 20px;background:#f9f9f9;border-bottom:1px solid #ebebeb;display:flex;align-items:center;gap:10px}
+.sec-head h2{font-size:13px;font-weight:700;flex:1}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap}
+.crit{background:#fef2f2;color:#991b1b}
+.high{background:#fff7ed;color:#9a3412}
+.med{background:#f0fdf4;color:#166534}
+.low{background:#eff6ff;color:#1e40af}
+.info{background:#f0f9ff;color:#075985}
+.sec-body{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.prob{border:1px solid #ebebeb;border-radius:8px;overflow:hidden}
+.prob-head{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:#fafafa}
+.prob-title{font-size:12px;font-weight:600;flex:1;line-height:1.4;margin:0}
+.prob-body{padding:11px 14px;display:flex;flex-direction:column;gap:6px}
+.prob-row{display:flex;gap:8px;font-size:12px;align-items:flex-start}
+.prob-lbl{color:#888;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;min-width:80px;flex-shrink:0;padding-top:1px;font-weight:600}
+.prob-val{color:#333;line-height:1.5;flex:1}
+.prio-table{width:100%;border-collapse:collapse;font-size:12px}
+.prio-table th{padding:9px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.7px;color:#888;border-bottom:1px solid #ebebeb;font-weight:600}
+.prio-table td{padding:10px 12px;border-bottom:1px solid #f5f5f5;vertical-align:top;line-height:1.45}
+.prio-table tr:last-child td{border-bottom:none}
+.prio-table tr:hover td{background:#fafafa}
+.impact-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;flex-shrink:0}
+.d-crit{background:#dc2626}.d-high{background:#ea580c}.d-med{background:#16a34a}.d-low{background:#3b82f6}
+.reco-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:640px){.reco-grid{grid-template-columns:1fr}}
+.reco-col{border-radius:8px;overflow:hidden;border:1px solid #ebebeb}
+.reco-col-head{padding:10px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid #ebebeb}
+.reco-col.qw .reco-col-head{background:#f0fdf4;color:#166534}
+.reco-col.mt .reco-col-head{background:#fff7ed;color:#9a3412}
+.reco-col.lt .reco-col-head{background:#eff6ff;color:#1e40af}
+.reco-items{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.reco-item{font-size:12px;color:#333;line-height:1.45;padding-left:14px;position:relative}
+.reco-item::before{content:'→';position:absolute;left:0;color:#888;font-size:11px;top:2px}
+.diag-box{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:14px 16px;font-size:12px;color:#991b1b;line-height:1.6}
+.diag-box strong{color:#7f1d1d}
+.fix-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px 16px;font-size:12px;color:#166534;line-height:1.6;margin-top:10px}
+.fix-box strong{color:#14532d}
+.quote-box{background:#f8f8f8;border-left:3px solid #ddd;padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;color:#555;font-style:italic;line-height:1.6;margin:8px 0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.two-col{grid-template-columns:1fr}}
+.mini-card{border:1px solid #ebebeb;border-radius:8px;padding:14px}
+.mini-card h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#888;margin-bottom:8px}
+.mini-card ul{font-size:12px;color:#333;line-height:1.8;padding-left:14px}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{font-size:11px;padding:3px 9px;border-radius:12px;background:#f5f5f5;color:#555}
+.tag.green{background:#dcfce7;color:#166534}
+.tag.red{background:#fef2f2;color:#991b1b}
+.tag.orange{background:#fff7ed;color:#9a3412}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <h1>Audit v3 — Brief Projet & Dashboard B&W Studio</h1>
+  <p>Product Design · UX Research · Product Management · Juin 2026</p>
+</div>
+
+<!-- SCORES -->
+<div class="score-row">
+  <div class="score-card"><div class="score-val" style="color:#ea580c">7.6</div><div class="score-lbl">Score global /10</div><div class="score-delta up">↑ vs 6.1 (v1)</div></div>
+  <div class="score-card"><div class="score-val" style="color:#dc2626">2</div><div class="score-lbl">Critiques</div><div class="score-delta up">↓ vs 4</div></div>
+  <div class="score-card"><div class="score-val" style="color:#ea580c">4</div><div class="score-lbl">Élevées</div><div class="score-delta up">↓ vs 7</div></div>
+  <div class="score-card"><div class="score-val" style="color:#16a34a">6</div><div class="score-lbl">Moyennes</div></div>
+  <div class="score-card"><div class="score-val" style="color:#374151">~35%</div><div class="score-lbl">Taux complétion estimé</div><div class="score-delta down">Insuffisant</div></div>
+</div>
+
+<!-- DIAGNOSTIC DASHBOARD -->
+<div class="section">
+  <div class="sec-head"><h2>🔴 Diagnostic — Dashboard vide</h2><span class="badge crit">À corriger maintenant</span></div>
+  <div class="sec-body">
+    <div class="diag-box">
+      <strong>Cause identifiée :</strong> Le scénario Make n'était pas encore actif quand ta collègue a soumis son brief. Le webhook a envoyé les données (d'où le mail reçu), mais le module Google Sheets n'était pas connecté → aucune ligne écrite dans la Sheet → le dashboard ne voit rien.<br><br>
+      <strong>Cause secondaire :</strong> Le filtre par défaut du dashboard est «&nbsp;7 jours&nbsp;» — si un brief avait une date mal parsée, il serait quand même filtré. Et le dashboard chargeait depuis la Sheet OU le localStorage, pas les deux fusionnés.
+    </div>
+    <div class="fix-box">
+      <strong>Corrections appliquées dans ce commit :</strong><br>
+      1. Filtre par défaut → «&nbsp;Tout&nbsp;» (plus de brief caché par défaut)<br>
+      2. Chargement Sheet + localStorage en parallèle, fusion par briefId, dédupliqué<br>
+      3. Double URL de chargement : export CSV + gviz en fallback<br><br>
+      <strong>Action manuelle requise :</strong> Demande à ta collègue de re-soumettre son brief — il ira maintenant dans la Sheet et le dashboard.
+    </div>
+  </div>
+</div>
+
+<!-- ANALYSE FORMULAIRE -->
+<div class="section">
+  <div class="sec-head"><h2>Formulaire trop long — analyse du retour terrain</h2><span class="badge high">Élevée</span></div>
+  <div class="sec-body">
+    <div class="quote-box">«&nbsp;Le formulaire lui a semblé trop long à remplir, ce qui l'a probablement poussée à raccourcir ses réponses ou à ne pas compléter certaines sections.&nbsp;»</div>
+
+    <div class="two-col">
+      <div class="mini-card">
+        <h3>Ce que dit la recherche UX</h3>
+        <ul>
+          <li>Un formulaire de +7 champs visibles en même temps → taux d'abandon &gt;60%</li>
+          <li>La perception de longueur &gt; la longueur réelle — l'accordéon aide mais ne suffit pas</li>
+          <li>Les champs sans exemple concret sont remplis plus vaguement</li>
+          <li>Sans progression claire, l'utilisateur ne sait pas où il en est</li>
+        </ul>
+      </div>
+      <div class="mini-card">
+        <h3>Ce que j'observe dans le code</h3>
+        <ul>
+          <li>6 sections + 1 section "mise à jour" = 7 blocs dès le départ</li>
+          <li>Section 3 "Infos techniques" : 5 champs + statuts = densité max</li>
+          <li>Aucune logique conditionnelle → même formulaire pour un flyer et un rebranding</li>
+          <li>Pas de sauvegarde visible — l'utilisateur ne sait pas que ça se sauvegarde</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLÈMES CRITIQUES -->
+<div class="section">
+  <div class="sec-head"><h2>Problèmes critiques</h2><span class="badge crit">2</span></div>
+  <div class="sec-body">
+
+    <div class="prob">
+      <div class="prob-head">
+        <p class="prob-title">Aucune logique conditionnelle — charge cognitive identique pour toutes les demandes</p>
+        <span class="badge crit">Critique</span>
+      </div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Symptôme</span><span class="prob-val">Ta collègue voit les mêmes champs pour commander un post Instagram que pour une ouverture de restaurant. "Mentions obligatoires", "Texte exact", "Dates/période" — pertinents dans certains cas, parasites dans d'autres.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Impact</span><span class="prob-val">L'utilisateur ignore ou bâcle les champs qui ne concernent pas son projet. Résultat : des champs vides qui ne sont pas vides parce qu'il manque l'info, mais parce que la question était non pertinente.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Dès que le type de demande est coché, masquer les sections non pertinentes. "Réseaux sociaux" → afficher Accroche + Texte + Supports. "Travaux/signalétique" → masquer Prix, Accroche, afficher Dimensions physiques, Adresse installation.</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head">
+        <p class="prob-title">L'indicateur de sauvegarde est invisible — l'utilisateur pense perdre son travail</p>
+        <span class="badge crit">Critique</span>
+      </div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Symptôme</span><span class="prob-val">Le "Sauvegardé" apparaît 2 secondes en haut à droite puis disparaît. Sur mobile, la zone header est souvent hors du champ de vision lors du remplissage.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Impact</span><span class="prob-val">L'utilisateur pressé interrompt le formulaire, revient plus tard et repart de zéro pensant avoir tout perdu. Taux d'abandon augmenté.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Indicateur persistant discret dans la barre de progression : "✓ Brouillon sauvegardé" toujours visible. Au rechargement, bannière verte "Votre brouillon a été restauré — reprenez où vous en étiez."</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROBLÈMES ÉLEVÉS -->
+<div class="section">
+  <div class="sec-head"><h2>Problèmes de gravité élevée</h2><span class="badge high">4</span></div>
+  <div class="sec-body">
+
+    <div class="prob">
+      <div class="prob-head">
+        <p class="prob-title">Taux de complétion estimé ~35% — les champs non obligatoires sont massivement ignorés</p>
+        <span class="badge high">Élevée</span>
+      </div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Observation</span><span class="prob-val">Dans le dashboard de test, "Dates/période", "Mentions obligatoires" et "Formats" affichent 100% de vide. Ce ne sont pas des champs difficiles — ils sont ignorés parce qu'ils ne semblent pas obligatoires et que personne n'explique pourquoi ils sont importants.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Ajouter un sous-titre sous chaque label clé : "Sans cette info, la production devra vous relancer." C'est la motivation directe qui pousse à compléter. Alterner obligatoire/facultatif intelligemment plutôt que tout marquer obligatoire.</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head">
+        <p class="prob-title">La section "Infos techniques" est la plus dense et la plus abandonnée</p>
+        <span class="badge high">Élevée</span>
+      </div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Problème</span><span class="prob-val">5 rangées avec champ texte + select de statut. Sur mobile, chaque rangée nécessite deux interactions. Aucun exemple inline. "Texte exact" avec textarea long décourage.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Réduire à 3 champs max visibles par défaut, les autres en "Ajouter un champ". Exemple pré-rempli pour chaque champ (placeholder amélioré). Fusionner "Nom produit" et "Prix" en un seul champ "Produit + prix" avec format suggéré.</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head">
+        <p class="prob-title">Aucun retour post-soumission exploitable pour le suivi — statuts absents</p>
+        <span class="badge high">Élevée</span>
+      </div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Problème</span><span class="prob-val">Une fois soumis, l'utilisateur ne sait jamais où en est son brief. Pris en charge ? En attente de validation ? En production ? Livré ? Il retourne à WhatsApp pour demander.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Ajouter un champ "Statut" dans la Sheet, mis à jour manuellement ou via Make. Le dashboard affiche le statut par brief : Soumis / En cours / Simulation envoyée / Validé / Livré. Mail automatique à chaque changement de statut.</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head">
+        <p class="prob-title">Le dashboard manque d'actions concrètes — c'est une vitrine, pas un outil de travail</p>
+        <span class="badge high">Élevée</span>
+      </div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Problème</span><span class="prob-val">Le dashboard affiche des stats mais ne permet aucune action. Impossible de cliquer sur un brief pour le voir, de le marquer "traité", de voir ce qui est urgent aujourd'hui.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Ajouter une vue "À traiter aujourd'hui" en haut du dashboard : briefs urgents, briefs dont la deadline de validation approche, briefs sans retour depuis +48h. Chaque brief cliquable ouvre le détail complet.</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROBLÈMES MOYENS -->
+<div class="section">
+  <div class="sec-head"><h2>Problèmes de gravité moyenne</h2><span class="badge med">6</span></div>
+  <div class="sec-body">
+
+    <div class="prob">
+      <div class="prob-head"><p class="prob-title">Le bouton "Soumettre" est trop bas — non visible sans scroll sur mobile</p><span class="badge med">Moyenne</span></div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Bouton flottant "Soumettre" en bas fixe de l'écran sur mobile, visible en permanence. Il montre aussi la progression : "Soumettre — 4/6 complètes".</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head"><p class="prob-title">Les placeholders sont trop vagues — ne guident pas la réponse attendue</p><span class="badge med">Moyenne</span></div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Problème</span><span class="prob-val">"Décrivez le projet et son contexte..." n'apprend rien. "Accroche" sans exemple concret pour B&W reste abstrait pour quelqu'un qui n'a jamais fait de brief.</span></div>
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Placeholders ultra-spécifiques B&W : "Ex : Campagne pour le lancement du nouveau burger végétarien, ciblant les 18-35 ans sur Instagram et TikTok, du 1er au 30 juin."</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head"><p class="prob-title">Pas de mode "Brief rapide" pour les demandes simples récurrentes</p><span class="badge med">Moyenne</span></div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Un bouton "Brief rapide" en haut : 5 champs essentiels seulement (Département, Demande, Support, Deadline, Priorité). Parfait pour une mise à jour de post ou un visuel standard. Option "Voir tous les champs" pour basculer en mode complet.</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head"><p class="prob-title">Les deadlines ne tiennent pas compte des délais réels de production</p><span class="badge med">Moyenne</span></div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Quand l'utilisateur sélectionne une date de lancement, calculer automatiquement les délais minimaux selon le support choisi et afficher un avertissement : "Pour un menu board, prévoir au minimum 5 jours ouvrables. Votre deadline actuelle ne laisse que 3 jours."</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head"><p class="prob-title">Le dashboard ne distingue pas les briefs produits de la semaine des anciens</p><span class="badge med">Moyenne</span></div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Ajouter une section "Cette semaine" distincte visuellement avec les briefs actifs. Le tableau récent doit montrer le statut en premier, pas l'ID.</span></div>
+      </div>
+    </div>
+
+    <div class="prob">
+      <div class="prob-head"><p class="prob-title">Aucune notification quand un brief reste sans action depuis 48h</p><span class="badge med">Moyenne</span></div>
+      <div class="prob-body">
+        <div class="prob-row"><span class="prob-lbl">Solution</span><span class="prob-val">Scénario Make : si un brief soumis n'a pas de statut "En cours" après 48h, envoyer un mail de rappel automatique. Coût : 30 min de configuration.</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- OPPORTUNITÉS -->
+<div class="section">
+  <div class="sec-head"><h2>Plan d'action — 3 horizons</h2></div>
+  <div class="sec-body">
+    <div class="reco-grid">
+      <div class="reco-col qw">
+        <div class="reco-col-head">⚡ Cette semaine</div>
+        <div class="reco-items">
+          <div class="reco-item">Dashboard : filtre "Tout" par défaut ✓ (fait)</div>
+          <div class="reco-item">Dashboard : fusion Sheet + localStorage ✓ (fait)</div>
+          <div class="reco-item">Indicateur "Brouillon sauvegardé" persistant dans la barre de progression</div>
+          <div class="reco-item">Placeholders ultra-spécifiques B&W sur tous les champs texte</div>
+          <div class="reco-item">Bouton "Soumettre" flottant sur mobile</div>
+          <div class="reco-item">Bannière "Brouillon restauré" plus visible au rechargement</div>
+          <div class="reco-item">Scénario Make : notification de relance après 48h sans action</div>
+        </div>
+      </div>
+      <div class="reco-col mt">
+        <div class="reco-col-head">🔧 Ce mois</div>
+        <div class="reco-items">
+          <div class="reco-item">Mode "Brief rapide" — 5 champs essentiels</div>
+          <div class="reco-item">Logique conditionnelle sur 4 types de demande</div>
+          <div class="reco-item">Calcul délais de production selon support</div>
+          <div class="reco-item">Statuts brief dans la Sheet + dashboard</div>
+          <div class="reco-item">Vue "À traiter aujourd'hui" dans le dashboard</div>
+          <div class="reco-item">Briefs cliquables dans le dashboard (détail complet)</div>
+          <div class="reco-item">Mail auto changement de statut</div>
+        </div>
+      </div>
+      <div class="reco-col lt">
+        <div class="reco-col-head">🏗 Prochain trimestre</div>
+        <div class="reco-items">
+          <div class="reco-item">Formulaires spécialisés par département (Travaux ≠ Marketing)</div>
+          <div class="reco-item">Templates réutilisables par type de campagne récurrente</div>
+          <div class="reco-item">Workflow de validation intégré multi-validateurs</div>
+          <div class="reco-item">Dashboard analytics avancé (heatmap champs vides, temps moyen)</div>
+          <div class="reco-item">Compte utilisateur par département</div>
+          <div class="reco-item">Commentaires et échanges sur chaque brief</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIORITÉS -->
+<div class="section">
+  <div class="sec-head"><h2>Recommandations prioritaires — Impact × Effort</h2></div>
+  <div class="sec-body">
+    <table class="prio-table">
+      <thead><tr><th style="width:38%">Recommandation</th><th>Impact</th><th>Effort</th><th>ROI</th><th>Horizon</th></tr></thead>
+      <tbody>
+        <tr><td>Dashboard filtre "Tout" + fusion données</td><td><span class="impact-dot d-crit"></span>Critique</td><td>30 min ✓</td><td style="color:#16a34a;font-weight:600">Immédiat</td><td><span class="badge low">Fait</span></td></tr>
+        <tr><td>Indicateur sauvegarde persistant</td><td><span class="impact-dot d-crit"></span>Critique</td><td>1h</td><td style="color:#16a34a;font-weight:600">Très élevé</td><td><span class="badge med">Cette semaine</span></td></tr>
+        <tr><td>Placeholders spécifiques B&W</td><td><span class="impact-dot d-high"></span>Élevé</td><td>2h</td><td style="color:#16a34a;font-weight:600">Très élevé</td><td><span class="badge med">Cette semaine</span></td></tr>
+        <tr><td>Bouton Soumettre flottant mobile</td><td><span class="impact-dot d-high"></span>Élevé</td><td>1h</td><td style="color:#16a34a;font-weight:600">Élevé</td><td><span class="badge med">Cette semaine</span></td></tr>
+        <tr><td>Mode "Brief rapide" 5 champs</td><td><span class="impact-dot d-crit"></span>Critique</td><td>1 jour</td><td style="color:#16a34a;font-weight:600">Très élevé</td><td><span class="badge high">Ce mois</span></td></tr>
+        <tr><td>Statuts brief dans Sheet + dashboard</td><td><span class="impact-dot d-high"></span>Élevé</td><td>2 jours</td><td style="color:#16a34a;font-weight:600">Élevé</td><td><span class="badge high">Ce mois</span></td></tr>
+        <tr><td>Logique conditionnelle 4 types</td><td><span class="impact-dot d-crit"></span>Critique</td><td>3-5 jours</td><td style="color:#ea580c;font-weight:600">Moyen terme</td><td><span class="badge high">Ce mois</span></td></tr>
+        <tr><td>Vue "À traiter aujourd'hui" dashboard</td><td><span class="impact-dot d-high"></span>Élevé</td><td>1 jour</td><td style="color:#16a34a;font-weight:600">Élevé</td><td><span class="badge high">Ce mois</span></td></tr>
+        <tr><td>Formulaires spécialisés par département</td><td><span class="impact-dot d-crit"></span>Critique</td><td>2-3 semaines</td><td style="color:#3b82f6;font-weight:600">Long terme</td><td><span class="badge low">Trimestre</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p style="font-size:11px;color:#bbb;text-align:center;margin-top:20px">Studio Graphique — Black & White Burger · Audit v3 · Juin 2026</p>
+</div>
+</body>
+</html>
