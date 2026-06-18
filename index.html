@@ -155,6 +155,10 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
 /* FOOTER */
 .ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:10px 22px;letter-spacing:1px;text-align:center;text-transform:uppercase}
+.float-submit{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:2px solid #111;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.12)}
+.float-submit-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;border-radius:6px}
+.float-submit-info{font-size:10px;color:#999;text-align:center;margin-top:6px}
+@media(max-width:600px){.float-submit{display:block}}
 
 /* HISTORY DRAWER */
 .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;display:none;backdrop-filter:blur(2px)}
@@ -259,6 +263,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
 /* PROGRESS CLICKABLE */
 .prog-wrap{cursor:pointer}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .prog-wrap:hover .prog-track{background:#ddd}
 .prog-details{display:none;padding:10px 14px;background:#fff8e1;border:1px solid #ffe082;border-radius:4px;margin-top:8px;font-size:11.5px;color:#555;line-height:1.6}
 .prog-details ul{padding-left:16px;margin-top:4px}
@@ -364,7 +369,12 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     <div class="prog-wrap" onclick="toggleProgDetails()" title="Cliquez pour voir les sections à compléter">
       <div class="prog-header">
         <span class="prog-title">Progression</span>
-        <span class="prog-count" id="plbl">0 / 6</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="save-badge" style="font-size:10px;color:#16a34a;display:none;align-items:center;gap:4px;background:#f0fdf4;padding:2px 8px;border-radius:10px;border:1px solid #bbf7d0">
+            <span style="font-size:11px">✓</span> Brouillon sauvegardé
+          </span>
+          <span class="prog-count" id="plbl">0 / 6</span>
+        </div>
       </div>
       <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
       <div class="prog-details" id="prog-details"></div>
@@ -441,11 +451,11 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           </div>
           <div class="field">
             <label>Référence du visuel original <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Lien Drive vers le fichier original, ou ID du brief d'origine (ex : BW-2026-4731). Permet à la production de retrouver rapidement la base de travail.</span></span></label>
-            <input type="text" id="ref-original" placeholder="Lien Drive ou ID brief (ex : BW-2026-4731)" oninput="upd()">
+            <input type="text" id="ref-original" placeholder="Ex : BW-2026-4731 ou https://drive.google.com/.../visuel-original.ai" oninput="upd()">
           </div>
           <div class="field">
             <label>Ce qui doit changer</label>
-            <textarea id="ref-changes" placeholder="Décrivez précisément ce qui doit être modifié. Ex : Changer le prix de 9,90€ à 11,90€, mettre à jour la date de fin au 31/12..." oninput="upd()" style="min-height:72px"></textarea>
+            <textarea id="ref-changes" placeholder="Ex : Changer le prix de 9,90€ → 11,90€. Mettre à jour la date : 'jusqu'au 31 juillet 2026'. Remplacer la photo produit par la nouvelle version." oninput="upd()" style="min-height:72px"></textarea>
           </div>
           <div class="field">
             <label>Ce qui doit rester identique</label>
@@ -466,11 +476,11 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       <div class="sec-body" id="sb2">
         <div class="field" style="margin-top:4px">
           <label>Description du projet<span class="req">*</span></label>
-          <textarea id="desc" placeholder="Ex : Campagne digitale pour le lancement du nouveau burger végétarien, à diffuser sur Instagram et TikTok du 1er au 30 juin..." oninput="upd()"></textarea>
+          <textarea id="desc" placeholder="Ex : Campagne launch du nouveau B&W Smash Burger sur Instagram & TikTok, cible 18-35 ans, du 1er au 30 juin 2026. Objectif : notoriété et drive-to-store." oninput="upd()"></textarea>
         </div>
         <div class="field">
           <label>Accroche / Claim<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Le message fort et court que le visuel doit communiquer. Ex : "Le burger qui change tout", "Offre valable jusqu'au 31/12", "Nouveau : le B&W Crunch"</span></span></label>
-          <input type="text" id="msg" placeholder='Ex : "Le burger qui change tout" ou "Offre -20% jusqu'+"'"+'au 31/12"' oninput="upd()">
+          <input type="text" id="msg" placeholder='Ex : "Le smash qui change tout" · "Black is back" · "Offre FIFA -20% ce week-end"' oninput="upd()">
         </div>
         <div class="field">
           <span class="checks-label">Type de demande</span>
@@ -504,7 +514,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           <div class="val-row">
             <div class="val-row-label">Nom produit / projet</div>
             <div class="val-row-body">
-              <input type="text" id="v-nom" placeholder="Nom exact..." oninput="upd()">
+              <input type="text" id="v-nom" placeholder="Ex : B&W Smash Burger, FIFA Duo Menu, Black Digital..." oninput="upd()">
               <select class="val-select" id="s-nom" onchange="updValSelect(this);upd()">
                 <option value="">Statut</option><option value="Oui">✓ Confirmé</option><option value="Non">✗ À confirmer</option><option value="En attente">⏳ En attente</option>
               </select>
@@ -513,7 +523,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           <div class="val-row">
             <div class="val-row-label">Prix</div>
             <div class="val-row-body">
-              <input type="text" id="v-prix" placeholder="Ex : 12,90 €" oninput="upd()">
+              <input type="text" id="v-prix" placeholder="Ex : 12,90 € · Duo à 19,90 € · À partir de 8,90 €" oninput="upd()">
               <select class="val-select" id="s-prix" onchange="updValSelect(this);upd()">
                 <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
               </select>
@@ -522,7 +532,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           <div class="val-row">
             <div class="val-row-label">Dates / période</div>
             <div class="val-row-body">
-              <input type="text" id="v-dates" placeholder="Du ... au ..." oninput="upd()">
+              <input type="text" id="v-dates" placeholder="Ex : Du 1er au 30 juin 2026 · Offre valable le 18 juin uniquement" oninput="upd()">
               <select class="val-select" id="s-dates" onchange="updValSelect(this);upd()">
                 <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
               </select>
@@ -543,7 +553,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           <div class="val-row">
             <div class="val-row-label">Mentions obligatoires <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Texte légal à faire apparaître en petit : conditions de l'offre, mentions promotionnelles, allergènes, etc. Obligatoire pour les offres commerciales.</span></span></div>
             <div class="val-row-body">
-              <input type="text" id="v-mentions" placeholder="Ex : *Offre valable jusqu'au..." oninput="upd()">
+              <input type="text" id="v-mentions" placeholder="Ex : *Offre valable jusqu'au 30/06/2026. Dans la limite des stocks disponibles. Restaurants participants." oninput="upd()">
               <select class="val-select" id="s-mentions" onchange="updValSelect(this);upd()">
                 <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
               </select>
@@ -566,12 +576,12 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         </div>
         <div class="field" style="margin-top:12px">
           <label>Lien Drive / dossier partagé</label>
-          <input type="text" id="drive" placeholder="https://drive.google.com/..." oninput="upd()">
+          <input type="text" id="drive" placeholder="Ex : https://drive.google.com/drive/folders/XXX — dossier avec logo, photos, textes" oninput="upd()">
           <div style="font-size:10px;color:#bbb;margin-top:4px">Partagez un lien vers le dossier contenant tous les fichiers cochés ci-dessus.</div>
         </div>
         <div class="field" style="margin-top:12px">
           <label>Notes sur les fichiers</label>
-          <input type="text" id="drive-notes" placeholder="Ex : logo en dossier /2024, utiliser la version blanc uniquement" oninput="upd()">
+          <input type="text" id="drive-notes" placeholder="Ex : Utiliser le logo blanc sur fond noir uniquement. Photos produit : dossier /photos-smash-juin. PAS la version V1 du logo." oninput="upd()">
         </div>
       </div>
     </div>
@@ -604,7 +614,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         </div>
         <div class="field">
           <label>Formats / dimensions</label>
-          <input type="text" id="formats" placeholder="Ex : 1080×1080, 1080×1920, 1920×1080..." oninput="upd()">
+          <input type="text" id="formats" placeholder="Ex : 1080×1080 (post carré), 1080×1920 (story/reel), 1200×628 (FB), 1920×1080 (menu board)" oninput="upd()">
         </div>
         <div class="row2">
           <div class="field">
@@ -686,7 +696,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         </div>
         <div class="field" style="margin-top:14px">
           <label>Notes / bloquants</label>
-          <textarea id="bloquants" placeholder="Informations manquantes, contexte supplémentaire..." oninput="upd()"></textarea>
+          <textarea id="bloquants" placeholder="Ex : Prix non encore validé par la direction. Photos produit disponibles vendredi 20/06. Texte légal en attente du service juridique." oninput="upd()"></textarea>
         </div>
       </div>
     </div>
@@ -757,7 +767,15 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     <div class="amsg" id="amsg"></div>
   </div>
 
-  <div class="ftr">Studio Graphique — Black &amp; White Burger — Document interne</div>
+  <div class="ftr" style="padding-bottom:90px" id="main-ftr">Studio Graphique — Black &amp; White Burger — Document interne</div>
+</div>
+
+<!-- BOUTON FLOTTANT MOBILE -->
+<div class="float-submit" id="float-submit" style="display:none">
+  <button class="float-submit-btn" onclick="submitBrief()">
+    <i class="ti ti-send" style="font-size:16px"></i> Soumettre le brief
+  </button>
+  <div class="float-submit-info" id="float-submit-info">Progression : 0 / 6</div>
 </div>
 
 <!-- HISTORY DRAWER -->
@@ -1225,6 +1243,13 @@ function upd() {
     lbl.style.color=miss.length>5?'#cc0000':'#e07b00';
     cb.style.display='none';
   }
+  // Update floating mobile button
+  const floatBtn = G('float-submit');
+  const floatInfo = G('float-submit-info');
+  if(floatBtn && currentMode==='manual') {
+    floatBtn.style.display = 'block';
+    if(floatInfo) floatInfo.textContent = sc + ' / 6 sections · ' + (miss.length ? miss.length + ' info'+(miss.length>1?'s':'')+' manquante'+(miss.length>1?'s':'') : '✓ Prêt à soumettre');
+  } else if(floatBtn) { floatBtn.style.display = 'none'; }
   autoSave();
 }
 
@@ -1450,7 +1475,17 @@ function autoLoad() {
     const toRestore = {...saved};
     Object.assign(data, toRestore);
     syncFormFromData();
-    showMsg('Brouillon restauré automatiquement', '#1a6b2a');
+    // Show prominent restore banner
+    setTimeout(() => {
+      const existing = G('restore-banner');
+      if(existing) return;
+      const banner = document.createElement('div');
+      banner.id = 'restore-banner';
+      banner.style.cssText = 'background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 14px;margin:0 0 12px;display:flex;align-items:center;gap:10px;font-size:12px;color:#166534;animation:fadeIn .3s ease';
+      banner.innerHTML = '<span style="font-size:16px">↩</span><span><strong>Brouillon restauré</strong> — reprenez où vous en étiez</span><button onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:#166534;cursor:pointer;font-size:16px;line-height:1">×</button>';
+      const progWrap = document.querySelector('.prog-wrap');
+      if(progWrap) progWrap.parentNode.insertBefore(banner, progWrap.nextSibling);
+    }, 500);
     setTimeout(checkDeadlineGap, 200);
   } catch(e) {}
 }
@@ -1458,10 +1493,10 @@ function autoLoad() {
 let saveTimer = null;
 function showSaveIndicator() {
   const el = G('save-indicator');
-  if(!el) return;
-  el.style.opacity = '1';
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => { el.style.opacity = '0'; }, 2000);
+  if(el) { el.style.opacity = '1'; clearTimeout(saveTimer); saveTimer = setTimeout(() => { el.style.opacity = '0'; }, 2000); }
+  // Also show persistent badge in progress bar
+  const badge = G('save-badge');
+  if(badge) { badge.style.display = 'flex'; clearTimeout(badge._t); badge._t = setTimeout(() => { badge.style.display = 'none'; }, 4000); }
 }
 
 // INIT
