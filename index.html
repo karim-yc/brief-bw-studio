@@ -451,14 +451,11 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
             <input type="text" id="dept-autre" placeholder="Précisez le département..." oninput="upd()" style="border:none;border-bottom:2px solid #e8e8e8;padding:7px 0;font-family:Roboto,sans-serif;font-size:14px;color:#111;background:transparent;outline:none;width:100%;transition:border-color .2s" onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e8e8e8'">
           </div>
         </div>
-        <div class="row2">
-          <div class="field">
+        <div class="field">
             <label>Référent unique<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">La seule personne à contacter pour ce projet. Toutes les questions et simulations lui seront envoyées.</span></span></label>
-            <input type="text" id="ref" placeholder="Prénom Nom" oninput="upd()">
+            <input type="text" id="ref" placeholder="Ex : Sophie Martin (Marketing)" oninput="onRefChange()">
           </div>
-          
-            <input type="text" id="valid" placeholder="Prénom Nom" oninput="upd()">
-          </div>
+          <input type="hidden" id="valid" value="">
         </div>
       </div>
     </div>
@@ -786,9 +783,9 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
     <!-- S6 -->
     <div class="section" style="border-bottom:none">
       <div class="sec-head" id="sh6" onclick="toggleSec(6)">
-        <span class="sec-num">6</span>
-        <span class="sec-title">Statut &amp; notes</span>
-        <span class="sec-badge empty" id="b6">—</span>
+        <span class="sec-num" style="background:#888;font-size:14px;padding:0 8px">✎</span>
+        <span class="sec-title">Notes &amp; bloquants</span>
+        <span class="sec-badge" id="b6" style="display:none"></span>
         <i class="ti ti-chevron-down sec-chevron"></i>
       </div>
       <div class="sec-body" id="sb6">
@@ -1084,9 +1081,9 @@ function switchMode(m) {
   if(m==='voice') startVoiceConv();
   if(m==='manual') syncFormFromData();
   if(m==='rapide') initRapide();
-  // Float button only in manual mode
+  // Float button only in manual mode (CSS handles mobile/desktop)
   const fb = G('float-submit');
-  if(fb) fb.style.display = (m==='manual') ? 'block' : 'none';
+  if(fb) fb.style.display = (m==='manual') ? '' : 'none';
 }
 
 // ── COLLECT & VALIDATE ────────────────────────
@@ -1551,7 +1548,7 @@ function upd() {
   const floatBtn = G('float-submit');
   const floatInfo = G('float-submit-info');
   if(floatBtn && currentMode==='manual') {
-    floatBtn.style.display = 'block';
+    floatBtn.style.display = '';  // let CSS media query decide
     if(floatInfo) floatInfo.textContent = sc + ' / 5 sections · ' + (miss.length ? miss.length + ' info'+(miss.length>1?'s':'')+' manquante'+(miss.length>1?'s':'') : '✓ Prêt à soumettre');
   } else if(floatBtn) { floatBtn.style.display = 'none'; }
   autoSave();
