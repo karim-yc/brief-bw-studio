@@ -461,7 +461,7 @@ function renderTodayBar(data) {
   const el = G('today-list'); const cnt = G('today-count');
   if(cnt) cnt.textContent = actions.length + (actions.length > 0 ? ' action'+(actions.length>1?'s':'') : ' — tout est à jour');
   if(!el) return;
-  if(!actions.length) { el.innerHTML = '<div class="today-empty">✅ Tout est à jour — aucun brief n'attend une action urgente</div>'; return; }
+  if(!actions.length) { el.innerHTML = '<div class="today-empty">✅ Tout est à jour — aucun brief n’attend une action urgente</div>'; return; }
   el.innerHTML = actions.slice(0,8).map(a => `
     <div class="action-item">
       <div class="action-urgency ${a.urgencyClass}"></div>
