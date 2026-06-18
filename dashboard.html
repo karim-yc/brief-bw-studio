@@ -448,7 +448,7 @@ function renderTodayBar(data) {
     const daysToVal = valinfo ? Math.round((valinfo - today)/(1000*60*60*24)) : null;
     let urgency = null, urgencyClass = 'yellow', reason = '';
     if(b.priorite === 'urgent' && st === 'soumis') { urgency = 3; urgencyClass = 'red'; reason = '⚑ URGENT — en attente de prise en charge'; }
-    else if(daysToVal !== null && daysToVal <= 1 && st === 'soumis') { urgency = 2; urgencyClass = 'red'; reason = '⚠ Validation infos ' + (daysToVal < 0 ? 'dépassée' : daysToVal === 0 ? 'aujourd'hui' : 'demain'); }
+    else if(daysToVal !== null && daysToVal <= 1 && st === 'soumis') { urgency = 2; urgencyClass = 'red'; reason = '⚠ Validation infos ' + (daysToVal < 0 ? 'dépassée' : daysToVal === 0 ? 'aujourd\u2019hui' : 'demain'); }
     else if(daysToLaunch !== null && daysToLaunch <= 3 && st !== 'livre') { urgency = 2; urgencyClass = 'orange'; reason = '📅 Lancement dans ' + daysToLaunch + ' jour' + (daysToLaunch > 1 ? 's' : ''); }
     else if(st === 'soumis' && b.submittedAt) {
       const submitted = new Date(b.submittedAt);
