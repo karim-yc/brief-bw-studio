@@ -155,6 +155,25 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
 /* FOOTER */
 .ftr{background:#111;color:rgba(255,255,255,0.3);font-size:9px;padding:10px 22px;letter-spacing:1px;text-align:center;text-transform:uppercase}
+
+/* MODE RAPIDE */
+.mode-rapide-bar{background:#1a6b2a;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mode-rapide-bar span{font-size:11px;color:rgba(255,255,255,0.85);letter-spacing:0.3px}
+.mode-rapide-toggle{padding:6px 14px;border:1.5px solid rgba(255,255,255,0.5);border-radius:20px;background:transparent;color:#fff;font-size:11px;font-weight:700;font-family:'Roboto',sans-serif;cursor:pointer;letter-spacing:0.3px;transition:all .15s;white-space:nowrap}
+.mode-rapide-toggle:hover{background:rgba(255,255,255,0.15);border-color:#fff}
+.rapide-form{padding:16px 22px;display:flex;flex-direction:column;gap:14px}
+.rapide-field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px}
+.rapide-field input,.rapide-field select,.rapide-field textarea{width:100%;border:none;border-bottom:2px solid #e8e8e8;padding:8px 0;font-family:'Roboto',sans-serif;font-size:14px;color:#111;background:transparent;outline:none;transition:border-color .2s}
+.rapide-field input:focus,.rapide-field select:focus,.rapide-field textarea:focus{border-bottom-color:#111}
+.rapide-field textarea{border:2px solid #e8e8e8;border-radius:4px;padding:10px 12px;resize:vertical;min-height:60px}
+.rapide-field textarea:focus{border-color:#111}
+.rapide-prio{display:flex;gap:8px;flex-wrap:wrap}
+.rapide-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;border-radius:4px;margin-top:4px}
+.rapide-submit:hover{background:#155222}
+.rapide-submit:active{transform:scale(0.98)}
+.rapide-link{text-align:center;font-size:11px;color:#888;padding:0 0 8px;cursor:pointer}
+.rapide-link:hover{color:#111;text-decoration:underline}
+.rapide-separator{border-top:2px solid #111;margin:4px 0 0}
 .float-submit{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:2px solid #111;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.12)}
 .float-submit-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:#1a6b2a;color:#fff;font-family:'Anton',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;border-radius:6px}
 .float-submit-info{font-size:10px;color:#999;text-align:center;margin-top:6px}
@@ -707,6 +726,70 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
   </div><!-- /mode-manual -->
 
+  <!-- ── MODE RAPIDE ─────────────────────────── -->
+  <div id="mode-rapide" style="display:none">
+    <div class="mode-rapide-bar">
+      <span><i class="ti ti-bolt" style="font-size:13px"></i> Brief rapide — 5 champs essentiels · moins de 2 minutes</span>
+      <button class="mode-rapide-toggle" onclick="switchMode('manual')">Formulaire complet →</button>
+    </div>
+    <div class="rapide-form">
+
+      <div class="rapide-field">
+        <label>Département &amp; Référent <span style="color:#cc0000">*</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <select id="r-dept" onchange="updRapide()">
+            <option value="">— Département —</option>
+            <option>Marketing</option><option>IT</option><option>Finances</option>
+            <option>Achats</option><option>Travaux</option><option>Direction</option>
+            <option>Franchisé</option><option>Autre</option>
+          </select>
+          <input type="text" id="r-ref" placeholder="Prénom Nom" oninput="updRapide()">
+        </div>
+      </div>
+
+      <div class="rapide-field">
+        <label>Quelle est la demande ? <span style="color:#cc0000">*</span></label>
+        <textarea id="r-desc" placeholder="Ex : Post Instagram pour le lancement du B&W Smash Burger. Texte : 'Le smash qui change tout · 12,90€'. À publier le 20 juin." oninput="updRapide()"></textarea>
+      </div>
+
+      <div class="rapide-field">
+        <label>Support(s) <span style="color:#cc0000">*</span></label>
+        <div style="display:flex;gap:7px;flex-wrap:wrap" id="r-supports-btns">
+          <button type="button" class="prio-btn" data-sup="Post réseaux sociaux" onclick="toggleRapideSup(this)"><i class="ti ti-brand-instagram" style="font-size:13px"></i> Post</button>
+          <button type="button" class="prio-btn" data-sup="Story / Reel 9:16" onclick="toggleRapideSup(this)"><i class="ti ti-brand-tiktok" style="font-size:13px"></i> Story/Reel</button>
+          <button type="button" class="prio-btn" data-sup="Affiche / flyer" onclick="toggleRapideSup(this)"><i class="ti ti-file" style="font-size:13px"></i> Flyer</button>
+          <button type="button" class="prio-btn" data-sup="Menu board" onclick="toggleRapideSup(this)"><i class="ti ti-layout" style="font-size:13px"></i> Menu board</button>
+          <button type="button" class="prio-btn" data-sup="Newsletter" onclick="toggleRapideSup(this)"><i class="ti ti-mail" style="font-size:13px"></i> Newsletter</button>
+          <button type="button" class="prio-btn" data-sup="Autre" onclick="toggleRapideSup(this)"><i class="ti ti-dots" style="font-size:13px"></i> Autre</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="rapide-field">
+          <label>Date de lancement <span style="color:#cc0000">*</span></label>
+          <input type="date" id="r-launch" onchange="updRapide()">
+        </div>
+        <div class="rapide-field">
+          <label>Priorité <span style="color:#cc0000">*</span></label>
+          <div class="rapide-prio">
+            <button type="button" class="prio-btn" data-val="normal" onclick="setRapidePrio(this)"><i class="ti ti-clock" style="font-size:12px"></i> Normal</button>
+            <button type="button" class="prio-btn prio-urgent" data-val="urgent" onclick="setRapidePrio(this)"><i class="ti ti-alert-triangle" style="font-size:12px"></i> Urgent</button>
+          </div>
+          <input type="hidden" id="r-priorite" value="normal">
+        </div>
+      </div>
+
+      <div class="rapide-separator"></div>
+
+      <button class="rapide-submit" onclick="submitRapide()" id="r-submit-btn">
+        <i class="ti ti-send" style="font-size:16px"></i> Soumettre le brief rapide
+      </button>
+      <div class="rapide-link" onclick="switchToFullFromRapide()">
+        Besoin d'ajouter des infos ? → Passer au formulaire complet
+      </div>
+    </div>
+  </div>
+
   <!-- ── CHAT ─────────────────────────────────── -->
   <div id="mode-chat" style="display:none">
     <div class="chat-wrap">
@@ -906,13 +989,19 @@ function syncOthers() {
 let currentMode = 'manual';
 function switchMode(m) {
   currentMode = m;
-  ['chat','voice','manual'].forEach(k => {
-    G('mode-'+k).style.display = k===m?'block':'none';
-    G('btn-'+k).classList.toggle('active', k===m);
+  ['chat','voice','manual','rapide'].forEach(k => {
+    const modeEl = G('mode-'+k);
+    const btnEl = G('btn-'+k);
+    if(modeEl) modeEl.style.display = k===m?'block':'none';
+    if(btnEl) btnEl.classList.toggle('active', k===m);
   });
   if(m==='chat' && chatState.step===0) startChat();
   if(m==='voice') startVoiceConv();
   if(m==='manual') syncFormFromData();
+  if(m==='rapide') initRapide();
+  // Float button only in manual mode
+  const fb = G('float-submit');
+  if(fb) fb.style.display = (m==='manual') ? 'block' : 'none';
 }
 
 // ── COLLECT & VALIDATE ────────────────────────
@@ -1500,6 +1589,104 @@ function showSaveIndicator() {
 }
 
 // INIT
+// ── MODE RAPIDE ──────────────────────────────────────
+let rapideSupports = new Set();
+
+function initRapide() {
+  // Set Normal as default priority if not set
+  const prio = G('r-priorite') ? G('r-priorite').value : '';
+  if(!prio) {
+    const normalBtn = document.querySelector('#mode-rapide .prio-btn[data-val="normal"]');
+    if(normalBtn) { normalBtn.classList.add('active'); if(G('r-priorite')) G('r-priorite').value='normal'; }
+  }
+  // Reset support buttons visual state from data
+  document.querySelectorAll('#r-supports-btns .prio-btn').forEach(b => {
+    b.classList.toggle('active', rapideSupports.has(b.dataset.sup));
+  });
+}
+
+function toggleRapideSup(btn) {
+  const sup = btn.dataset.sup;
+  if(rapideSupports.has(sup)) { rapideSupports.delete(sup); btn.classList.remove('active'); }
+  else { rapideSupports.add(sup); btn.classList.add('active'); }
+  updRapide();
+}
+
+function setRapidePrio(btn) {
+  document.querySelectorAll('#mode-rapide .prio-btn[data-val]').forEach(b => b.classList.remove('active','prio-prioritaire'));
+  btn.classList.add('active');
+  if(btn.dataset.val==='prioritaire') btn.classList.add('prio-prioritaire');
+  const hidden = G('r-priorite'); if(hidden) hidden.value = btn.dataset.val;
+  updRapide();
+}
+
+function updRapide() {
+  const dept = G('r-dept') ? G('r-dept').value : '';
+  const ref  = G('r-ref')  ? G('r-ref').value.trim() : '';
+  const desc = G('r-desc') ? G('r-desc').value.trim() : '';
+  const launch = G('r-launch') ? G('r-launch').value : '';
+  const ok = dept && ref && desc && launch && rapideSupports.size > 0;
+  const btn = G('r-submit-btn');
+  if(btn) { btn.style.opacity = ok ? '1' : '0.6'; btn.style.cursor = ok ? 'pointer' : 'not-allowed'; }
+}
+
+function switchToFullFromRapide() {
+  // Copy rapide data into main form
+  const dept = G('r-dept') ? G('r-dept').value : '';
+  const ref  = G('r-ref')  ? G('r-ref').value.trim() : '';
+  const desc = G('r-desc') ? G('r-desc').value.trim() : '';
+  const launch = G('r-launch') ? G('r-launch').value : '';
+  const prio = G('r-priorite') ? G('r-priorite').value : 'normal';
+  if(dept) { const s=G('dept'); if(s){[...s.options].forEach(o=>{if(o.value===dept)o.selected=true})} }
+  if(ref)  { const r=G('ref'); if(r) r.value=ref; }
+  if(desc) { const d=G('desc'); if(d) d.value=desc; }
+  if(launch){ const l=G('launch'); if(l) l.value=launch; }
+  rapideSupports.forEach(sup => {
+    const cb=document.querySelector('#supports input[value="'+sup+'"]');
+    if(cb){cb.checked=true;}
+  });
+  // Set priority
+  document.querySelectorAll('.prio-btn[data-val]').forEach(b=>{
+    b.classList.remove('active','prio-prioritaire');
+    if(b.dataset.val===prio){b.classList.add('active');if(prio==='prioritaire')b.classList.add('prio-prioritaire');}
+  });
+  const ph=G('priorite'); if(ph) ph.value=prio;
+  switchMode('manual');
+  // Open relevant sections
+  [1,2,4,5].forEach(n=>{ const h=G('sh'+n),bo=G('sb'+n);if(h&&bo){h.classList.add('open');bo.classList.add('open');const ch=h.querySelector('.sec-chevron');if(ch)ch.className='ti ti-chevron-up sec-chevron';} });
+  upd();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function submitRapide() {
+  const dept  = G('r-dept') ? G('r-dept').value : '';
+  const ref   = G('r-ref')  ? G('r-ref').value.trim() : '';
+  const desc  = G('r-desc') ? G('r-desc').value.trim() : '';
+  const launch= G('r-launch')? G('r-launch').value : '';
+  const prio  = G('r-priorite')? G('r-priorite').value : 'normal';
+  const sups  = [...rapideSupports];
+  if(!dept||!ref||!desc||!launch||!sups.length) {
+    showMsg('Remplissez tous les champs obligatoires', '#cc0000'); return;
+  }
+  const briefData = {
+    ...data,
+    briefId: data.briefId || genBriefId(),
+    dept, ref, valid: ref,
+    desc, msg: desc.slice(0, 80),
+    supports: sups, types: ['Campagne marketing'],
+    launch, priorite: prio,
+    nbDecli: '1',
+    submittedAt: new Date().toISOString(),
+    rootBriefId: data.briefId || genBriefId(),
+    version: 1, isLatest: true
+  };
+  const saved = saveToHistory(briefData);
+  if(saved) {
+    sendToWebhook({...briefData});
+    showConfirmation(briefData);
+  }
+}
+
 // ── HISTORY ───────────────────────────────────────────
 const HIST_KEY = 'bw_brief_history';
 const WEBHOOK_URL = 'https://hook.eu1.make.com/un4wy721ere5mxdujxor3ovihzrlbl1v';
