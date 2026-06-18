@@ -1008,7 +1008,7 @@ const data = {
   types:[],othersTypes:[],supports:[],othersSupports:[],
   vNom:'',sNom:'',vPrix:'',sPrix:'',vDates:'',sDates:'',
   vTexte:'',sTexte:'',vMentions:'',sMentions:'',
-  drive:'',driveNotes:'',fichiers:[],formats:'',nbDecli:'',priorite:'',launch:'',valinfo:'',simul:'',bloquants:'',isUpdate:false,refType:'',refOriginal:'',refChanges:'',refKeep:''
+  drive:'',driveNotes:'',fichiers:[],formats:'',nbDecli:'',priorite:'',launch:'',valinfo:'',simul:'',bloquants:'',isUpdate:false
 };
 
 // ── SECTIONS ACCORDÉON ────────────────────────
@@ -1710,9 +1710,7 @@ function buildPDF(){
     doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text('↻',ML+3.5,y+5,{align:'center'});
     doc.setTextColor(17,17,17);doc.setFontSize(9.5);doc.text('MISE À JOUR VISUEL EXISTANT',ML+11,y+5);y+=11;
     if(d.refType)fl('Type de modification',d.refType);
-    if(d.refOriginal)fl('Référence originale',d.refOriginal);
-    if(d.refChanges)fl('Ce qui change',d.refChanges);
-    if(d.refKeep)fl('Ce qui reste identique',d.refKeep);
+
     dv();
   }
   if(d.bloquants)fl('Notes',d.bloquants);
