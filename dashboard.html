@@ -80,6 +80,46 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 .recent-table td{padding:9px 10px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
 .recent-table tr:last-child td{border-bottom:none}
 .recent-table tr:hover td{background:#fafafa}
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;text-transform:uppercase;letter-spacing:0.3px;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.status-pill:hover{opacity:0.8}
+.st-soumis{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+.st-encours{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
+.st-simulation{background:#fdf4ff;color:#7e22ce;border-color:#e9d5ff}
+.st-valide{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
+.st-livre{background:#111;color:#fff;border-color:#111}
+.st-urgent{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+
+/* ACTION BAR TODAY */
+.today-bar{background:#fff;border-radius:10px;border:1px solid #e8e8e8;margin-top:14px;overflow:hidden}
+.today-head{padding:12px 20px;background:#111;display:flex;align-items:center;justify-content:space-between}
+.today-head h2{font-size:12px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase}
+.today-count{font-size:11px;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px}
+.today-empty{padding:20px 24px;font-size:13px;color:#aaa;text-align:center}
+.action-item{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid #f5f5f5;transition:background .1s}
+.action-item:last-child{border-bottom:none}
+.action-item:hover{background:#fafafa}
+.action-urgency{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0}
+.action-urgency.red{background:#dc2626}
+.action-urgency.orange{background:#ea580c}
+.action-urgency.yellow{background:#eab308}
+.action-body{flex:1;min-width:0}
+.action-title{font-size:13px;font-weight:600;color:#111;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.action-meta{font-size:11px;color:#888;display:flex;gap:10px;flex-wrap:wrap}
+.action-cta{font-size:11px;font-weight:700;color:#111;background:#f5f5f5;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;white-space:nowrap;transition:background .15s}
+.action-cta:hover{background:#e8e8e8}
+
+/* MODAL STATUT */
+.status-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.status-modal.open{display:flex}
+.status-modal-box{background:#fff;border-radius:10px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.status-modal-head{background:#111;padding:16px 20px;display:flex;align-items:center;gap:10px}
+.status-modal-head h3{font-size:13px;font-weight:700;color:#fff;flex:1}
+.status-modal-close{width:28px;height:28px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center}
+.status-options{padding:16px;display:flex;flex-direction:column;gap:8px}
+.status-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid #e8e8e8;border-radius:8px;cursor:pointer;transition:all .15s;font-size:13px;font-weight:500}
+.status-opt:hover{border-color:#111;background:#f9f9f9}
+.status-opt.selected{border-color:#111;background:#111;color:#fff}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .td-id{font-family:'Anton',sans-serif;font-size:10px;color:#aaa;letter-spacing:1px}
 .td-dept{font-weight:500;color:#111}
 .td-desc{color:#777;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -129,7 +169,16 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
   <div id="main-content">
     <!-- KPIs -->
-    <div class="section-title">Vue d'ensemble</div>
+    <div class="section-title">À traiter maintenant</div>
+<div class="today-bar" id="today-bar">
+  <div class="today-head">
+    <h2>🎯 Briefs qui nécessitent une action</h2>
+    <span class="today-count" id="today-count">—</span>
+  </div>
+  <div id="today-list"><div class="today-empty">Chargement...</div></div>
+</div>
+
+<div class="section-title">Vue d'ensemble</div>
     <div class="grid" id="kpi-grid">
       <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
       <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
@@ -203,7 +252,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       <div class="card-body" style="padding:0">
         <div style="overflow-x:auto">
           <table class="recent-table" id="recent-table">
-            <thead><tr><th>ID</th><th>Département</th><th>Description</th><th>Priorité</th><th>Lancement</th><th>Soumis le</th></tr></thead>
+            <thead><tr><th>ID</th><th>Département</th><th>Description</th><th>Priorité</th><th>Statut</th><th>Lancement</th><th>Soumis le</th></tr></thead>
             <tbody id="recent-tbody"></tbody>
           </table>
         </div>
@@ -212,9 +261,59 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
   </div>
 </div>
 
+<div class="status-modal" id="status-modal" onclick="if(event.target===this)closeStatusModal()">
+  <div class="status-modal-box">
+    <div class="status-modal-head">
+      <h3 id="status-modal-title">Changer le statut</h3>
+      <button class="status-modal-close" onclick="closeStatusModal()">×</button>
+    </div>
+    <div class="status-options" id="status-options">
+      <div class="status-opt" data-status="soumis" onclick="selectStatus(this)"><span class="status-dot" style="background:#3b82f6"></span>Soumis — en attente</div>
+      <div class="status-opt" data-status="encours" onclick="selectStatus(this)"><span class="status-dot" style="background:#ea580c"></span>En cours de production</div>
+      <div class="status-opt" data-status="simulation" onclick="selectStatus(this)"><span class="status-dot" style="background:#7e22ce"></span>Simulation envoyée</div>
+      <div class="status-opt" data-status="valide" onclick="selectStatus(this)"><span class="status-dot" style="background:#16a34a"></span>Validé par le client</div>
+      <div class="status-opt" data-status="livre" onclick="selectStatus(this)"><span class="status-dot" style="background:#111"></span>Livré ✓</div>
+    </div>
+  </div>
+</div>
+
 <script>
 const HIST_KEY = 'bw_brief_history';
 const SHEET_ID = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
+const STATUS_KEY = 'bw_brief_statuts';
+const STATUS_LABELS = {soumis:'Soumis',encours:'En cours',simulation:'Simulation envoyée',valide:'Validé',livre:'Livré'};
+const STATUS_CSS = {soumis:'st-soumis',encours:'st-encours',simulation:'st-simulation',valide:'st-valide',livre:'st-livre'};
+
+function getStatuts() { try{return JSON.parse(localStorage.getItem(STATUS_KEY)||'{}')}catch(e){return{}} }
+function setStatut(briefId, status) {
+  const s = getStatuts(); s[briefId] = status;
+  localStorage.setItem(STATUS_KEY, JSON.stringify(s));
+}
+function getStatut(briefId) { return getStatuts()[briefId] || 'soumis'; }
+
+let _statusTarget = null;
+function openStatusModal(briefId, currentStatus) {
+  _statusTarget = briefId;
+  G('status-modal-title').textContent = 'Statut — ' + briefId;
+  document.querySelectorAll('.status-opt').forEach(o => {
+    o.classList.toggle('selected', o.dataset.status === currentStatus);
+  });
+  G('status-modal').classList.add('open');
+}
+function closeStatusModal() { G('status-modal').classList.remove('open'); _statusTarget = null; }
+function selectStatus(opt) {
+  if(!_statusTarget) return;
+  setStatut(_statusTarget, opt.dataset.status);
+  closeStatusModal();
+  renderDashboard(filteredBriefs);
+}
+
+function statusPill(briefId) {
+  const s = getStatut(briefId);
+  const label = STATUS_LABELS[s] || s;
+  const css = STATUS_CSS[s] || 'st-soumis';
+  return `<span class="status-pill ${css}" onclick="event.stopPropagation();openStatusModal('${briefId}','${s}')" title="Cliquer pour changer">${label} ✎</span>`;
+}
 const API_KEY = ''; // Public read — no API key needed for published sheet
 let allBriefs = [];
 let filteredBriefs = [];
@@ -336,7 +435,50 @@ function applyFilters() {
   renderDashboard(data);
 }
 
+function renderTodayBar(data) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const actions = [];
+  data.forEach(b => {
+    const st = getStatut(b.briefId);
+    if(st === 'livre') return; // skip delivered
+    const launch = b.launch ? new Date(b.launch) : null;
+    const valinfo = b.valinfo ? new Date(b.valinfo) : null;
+    const daysToLaunch = launch ? Math.round((launch - today)/(1000*60*60*24)) : null;
+    const daysToVal = valinfo ? Math.round((valinfo - today)/(1000*60*60*24)) : null;
+    let urgency = null, urgencyClass = 'yellow', reason = '';
+    if(b.priorite === 'urgent' && st === 'soumis') { urgency = 3; urgencyClass = 'red'; reason = '⚑ URGENT — en attente de prise en charge'; }
+    else if(daysToVal !== null && daysToVal <= 1 && st === 'soumis') { urgency = 2; urgencyClass = 'red'; reason = '⚠ Validation infos ' + (daysToVal < 0 ? 'dépassée' : daysToVal === 0 ? 'aujourd'hui' : 'demain'); }
+    else if(daysToLaunch !== null && daysToLaunch <= 3 && st !== 'livre') { urgency = 2; urgencyClass = 'orange'; reason = '📅 Lancement dans ' + daysToLaunch + ' jour' + (daysToLaunch > 1 ? 's' : ''); }
+    else if(st === 'soumis' && b.submittedAt) {
+      const submitted = new Date(b.submittedAt);
+      const hoursSince = Math.round((Date.now() - submitted) / (1000*60*60));
+      if(hoursSince >= 48) { urgency = 1; urgencyClass = 'yellow'; reason = '⏰ Pas de réponse depuis ' + Math.round(hoursSince/24) + 'j'; }
+    }
+    if(urgency !== null) actions.push({...b, urgency, urgencyClass, reason, st});
+  });
+  actions.sort((a,b) => b.urgency - a.urgency);
+  const el = G('today-list'); const cnt = G('today-count');
+  if(cnt) cnt.textContent = actions.length + (actions.length > 0 ? ' action'+(actions.length>1?'s':'') : ' — tout est à jour');
+  if(!el) return;
+  if(!actions.length) { el.innerHTML = '<div class="today-empty">✅ Tout est à jour — aucun brief n'attend une action urgente</div>'; return; }
+  el.innerHTML = actions.slice(0,8).map(a => `
+    <div class="action-item">
+      <div class="action-urgency ${a.urgencyClass}"></div>
+      <div class="action-body">
+        <div class="action-title">${a.dept||'—'} · ${a.desc ? a.desc.slice(0,60)+(a.desc.length>60?'…':'') : a.vNom||'Brief sans titre'}</div>
+        <div class="action-meta">
+          <span>${a.briefId||'—'}</span>
+          <span>${a.reason}</span>
+          ${statusPill(a.briefId)}
+        </div>
+      </div>
+      <button class="action-cta" onclick="openStatusModal('${a.briefId}','${a.st}')">Statut ✎</button>
+    </div>`).join('');
+}
+
 function renderDashboard(data) {
+  renderTodayBar(data);
   renderKPIs(data);
   renderDeptList(data);
   renderTypesList(data);
@@ -508,6 +650,7 @@ function renderRecentTable(data) {
       <td class="td-dept">${b.dept||'—'}</td>
       <td class="td-desc" title="${b.desc||''}">${b.desc||b.vNom||'—'}</td>
       <td>${prioBadge(b.priorite)}</td>
+      <td>${statusPill(b.briefId)}</td>
       <td class="td-date">${fmtDate(b.launch)}</td>
       <td class="td-date">${fmtDt(b.submittedAt)}</td>
     </tr>`).join('');
