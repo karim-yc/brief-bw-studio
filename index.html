@@ -453,21 +453,14 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
             <label>Référent unique<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">La seule personne à contacter pour ce projet. Toutes les questions et simulations lui seront envoyées.</span></span></label>
             <input type="text" id="ref" placeholder="Prénom Nom" oninput="upd()">
           </div>
-          <div class="field">
-            <label>Validateur final<span class="req">*</span></label>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11px;color:#666;font-weight:400;text-transform:none;letter-spacing:0;margin:0">
-                <input type="checkbox" id="same-as-ref" onchange="toggleSameAsRef()" style="width:14px;height:14px;accent-color:#111;cursor:pointer">
-                Même personne que le référent
-              </label>
-            </div>
+          
             <input type="text" id="valid" placeholder="Prénom Nom" oninput="upd()">
           </div>
         </div>
       </div>
     </div>
 
-    <!-- S2 -->!-- S2 -->
+    
     <div class="section">
       <div class="sec-head" id="sh2" onclick="toggleSec(2)">
         <span class="sec-num">2</span>
@@ -1137,7 +1130,6 @@ function getMiss(d) {
   const m=[];
   if(!d.dept) m.push('Département');
   if(!d.ref) m.push('Référent unique');
-  if(!d.valid) m.push('Validateur final');
   if(!d.desc) m.push('Description du projet');
   if(!d.msg) m.push('Message principal');
   if(!d.supports.length&&!d.othersSupports.length) m.push('Supports à créer');
@@ -1343,10 +1335,9 @@ function getPackData() {
 }
 
 function onRefChange() {
-  const same = G('same-person');
-  if(same && same.checked) {
-    G('valid').value = G('ref').value;
-  }
+  // valid = ref automatically
+  const v = G('valid');
+  if(v) v.value = G('ref').value;
   upd();
 }
 
@@ -1373,7 +1364,7 @@ function onSamePerson() {
 }
 
 // Make the label trigger the hidden checkbox
-// same-person handled by label onclick
+
 
 function setPrio(btn) {
   document.querySelectorAll('.prio-btn').forEach(b => {
@@ -1645,7 +1636,7 @@ function processVoice(text){stopV();processChat(text);const step=chatState.step;
 // ── RECAP ─────────────────────────────────────
 function buildRecapHtml(){
   const d=data;
-  const rows=[['Département',d.dept],['Référent',d.ref],['Validateur',d.valid],['Description',d.desc],['Message',d.msg],['Types',[...d.types,...d.othersTypes].join(', ')],['Nom produit',d.vNom],['Prix',d.vPrix],['Supports',[...d.supports,...d.othersSupports].join(', ')],['Lancement',fmtDate(d.launch)],['Validation',fmtDate(d.valinfo)],['Drive',d.drive],['Notes',d.bloquants]].filter(([,v])=>v&&v!=='—');
+  const rows=[['Département',d.dept],['Référent',d.ref],['Description',d.desc],['Message',d.msg],['Types',[...d.types,...d.othersTypes].join(', ')],['Nom produit',d.vNom],['Prix',d.vPrix],['Supports',[...d.supports,...d.othersSupports].join(', ')],['Lancement',fmtDate(d.launch)],['Validation',fmtDate(d.valinfo)],['Drive',d.drive],['Notes',d.bloquants]].filter(([,v])=>v&&v!=='—');
   return`<div class="recap-wrap"><div class="recap-title"><i class="ti ti-check-circle"></i>Récapitulatif du brief</div>${rows.map(([l,v])=>`<div class="recap-item"><span class="recap-label">${l}</span><span class="recap-value">${v}</span></div>`).join('')}</div>`;
 }
 
@@ -1700,7 +1691,7 @@ function buildPDF(){
   function wb(t){cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,9,'F');doc.setFont('helvetica','italic');doc.setFontSize(7.5);doc.setTextColor(220,220,220);doc.text(t,ML+4,y+5.5);y+=13}
   const allT=[...(d.types||[]),...(d.othersTypes||[])].join(', ')||'—';
   const allS=[...(d.supports||[]),...(d.othersSupports||[]).map(o=>'Autre : '+o)].join(', ')||'—';
-  st(1,'Qui demande');fl('Département',d.dept,!d.dept);fl('Référent unique',d.ref,!d.ref);fl('Validateur final',d.valid,!d.valid);dv();
+  st(1,'Qui demande');fl('Département',d.dept,!d.dept);fl('Référent unique',d.ref,!d.ref);dv();
   st(2,'La demande');fl('Description',d.desc,!d.desc);fl('Message principal',d.msg,!d.msg);fl('Type de demande',allT);dv();
   st(3,'Infos techniques');
   cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
