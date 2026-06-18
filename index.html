@@ -284,18 +284,19 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 .prog-wrap{cursor:pointer}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 /* LOGIQUE CONDITIONNELLE */
-.ctx-block{transition:opacity .2s,max-height .3s;overflow:hidden}
-.ctx-block.hidden{max-height:0!important;opacity:0;pointer-events:none;margin:0!important;padding:0!important;border:none!important}
-.ctx-block.visible{max-height:800px;opacity:1}
+.ctx-block{transition:opacity .2s ease,max-height .25s ease;overflow:hidden}
+.ctx-block.hidden{max-height:0!important;opacity:0;pointer-events:none;margin:0!important;padding:0!important;border:none!important;height:0}
+.ctx-block.visible{max-height:1200px;opacity:1}
 .genre-bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0}
-.genre-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border:2px solid #e8e8e8;border-radius:8px;font-size:11px;font-weight:700;font-family:'Roboto',sans-serif;color:#777;background:#fff;cursor:pointer;transition:all .15s;min-width:90px;text-align:center}
-.genre-btn i{font-size:18px}
-.genre-btn:hover{border-color:#111;color:#111}
-.genre-btn.active{background:#111;border-color:#111;color:#fff}
-.dept-context-banner{padding:8px 14px;border-radius:6px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.dept-context-banner.travaux{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
-.dept-context-banner.packaging{background:#f0f9ff;color:#075985;border:1px solid #bae6fd}
-.dept-context-banner.marketing{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.genre-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 16px;border:2px solid #e8e8e8;border-radius:8px;font-size:11px;font-weight:700;font-family:'Roboto',sans-serif;color:#666;background:#fff;cursor:pointer;transition:all .18s;min-width:95px;text-align:center}
+.genre-btn i{font-size:20px}
+.genre-btn:hover{border-color:#111;color:#111;background:#f9f9f9;transform:translateY(-1px)}
+.genre-btn.active{background:#111;border-color:#111;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.dept-context-banner{padding:10px 14px;border-radius:6px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:10px;margin-bottom:8px;animation:fadeIn .2s ease}
+.dept-context-banner strong{font-weight:700;display:block;font-size:12px}
+.dept-context-banner.travaux{background:#fff7ed;color:#9a3412;border:1.5px solid #fed7aa}
+.dept-context-banner.packaging{background:#f0f9ff;color:#075985;border:1.5px solid #bae6fd}
+.dept-context-banner.marketing{background:#f0fdf4;color:#166534;border:1.5px solid #bbf7d0}
 /* Packaging product list */
 .pack-row{display:grid;grid-template-columns:1fr 120px 80px 32px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f0f0f0}
 .pack-row:last-child{border-bottom:none}
@@ -414,7 +415,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
           <span id="save-badge" style="font-size:10px;color:#16a34a;display:none;align-items:center;gap:4px;background:#f0fdf4;padding:2px 8px;border-radius:10px;border:1px solid #bbf7d0">
             <span style="font-size:11px">✓</span> Brouillon sauvegardé
           </span>
-          <span class="prog-count" id="plbl">0 / 6</span>
+          <span class="prog-count" id="plbl">0 / 5</span>
         </div>
       </div>
       <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
@@ -466,47 +467,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
       </div>
     </div>
 
-    <!-- REF VISUEL -->
-    <div class="section" id="sec-ref">
-      <div class="sec-head" id="sh-ref" onclick="toggleSec('ref')">
-        <span class="sec-num" style="background:#555">↻</span>
-        <span class="sec-title">Mise à jour d'un visuel existant</span>
-        <span class="sec-badge empty" id="b-ref">Non</span>
-        <i class="ti ti-chevron-down sec-chevron"></i>
-      </div>
-      <div class="sec-body" id="sb-ref">
-        <label class="ref-toggle" onclick="toggleRefSection()">
-          <input type="checkbox" id="is-update">
-          <span class="ref-toggle-box" id="ref-toggle-box"></span>
-          <span>Ce brief concerne la modification d'un visuel déjà créé</span>
-        </label>
-        <div class="ref-fields" id="ref-fields">
-          <div class="field">
-            <label>Type de modification</label>
-            <div class="ref-type-grid" id="ref-type-grid">
-              <button class="ref-type-btn" onclick="selectRefType(this,'update')" type="button"><i class="ti ti-edit"></i> Mise à jour texte / prix</button>
-              <button class="ref-type-btn" onclick="selectRefType(this,'resize')" type="button"><i class="ti ti-resize"></i> Nouveau format / taille</button>
-              <button class="ref-type-btn" onclick="selectRefType(this,'refresh')" type="button"><i class="ti ti-refresh"></i> Rafraîchissement visuel</button>
-              <button class="ref-type-btn" onclick="selectRefType(this,'other')" type="button"><i class="ti ti-dots"></i> Autre modification</button>
-            </div>
-          </div>
-          <div class="field">
-            <label>Référence du visuel original <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Lien Drive vers le fichier original, ou ID du brief d'origine (ex : BW-2026-4731). Permet à la production de retrouver rapidement la base de travail.</span></span></label>
-            <input type="text" id="ref-original" placeholder="Ex : BW-2026-4731 ou https://drive.google.com/.../visuel-original.ai" oninput="upd()">
-          </div>
-          <div class="field">
-            <label>Ce qui doit changer</label>
-            <textarea id="ref-changes" placeholder="Ex : Changer le prix de 9,90€ → 11,90€. Mettre à jour la date : 'jusqu'au 31 juillet 2026'. Remplacer la photo produit par la nouvelle version." oninput="upd()" style="min-height:72px"></textarea>
-          </div>
-          <div class="field">
-            <label>Ce qui doit rester identique</label>
-            <input type="text" id="ref-keep" placeholder="Ex : Conserver le visuel, les couleurs et la mise en page" oninput="upd()">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- S2 -->
+    <!-- S2 -->!-- S2 -->
     <div class="section">
       <div class="sec-head" id="sh2" onclick="toggleSec(2)">
         <span class="sec-num">2</span>
@@ -1249,7 +1210,7 @@ function applyDeptContext() {
   const dept = currentDept;
   const banner = G('dept-banner');
 
-  // Reset all context blocks
+  // Reset
   showCtx('ctx-marketing', true);
   showCtx('ctx-travaux', false);
   showCtx('ctx-packaging', false);
@@ -1260,16 +1221,31 @@ function applyDeptContext() {
     showCtx('ctx-marketing', false);
     showCtx('ctx-travaux', true);
     showCtx('ctx-prix-row', false);
-    if(banner) { banner.style.display='flex'; banner.className='dept-context-banner travaux'; banner.innerHTML='<i class="ti ti-ruler-2" style="font-size:14px"></i> Mode Travaux — Vitrophanie activé'; }
-  } else if(dept === 'Packaging' || (G('pack-phase') && currentGenre === 'packaging')) {
+    if(banner) {
+      banner.style.display = 'flex';
+      banner.className = 'dept-context-banner travaux';
+      banner.innerHTML = '<i class="ti ti-ruler-2" style="font-size:15px"></i><div><strong>Champs Travaux actifs</strong> — Vitrophanie, mesures, adresse</div>';
+    }
+    // Mark section 2 header with context color
+    const sh2 = G('sh2');
+    if(sh2) sh2.style.borderLeft = '4px solid #ea580c';
+  } else if(dept === 'Packaging') {
     showCtx('ctx-marketing', false);
     showCtx('ctx-packaging', true);
     showCtx('ctx-prix-row', false);
-    if(banner) { banner.style.display='flex'; banner.className='dept-context-banner packaging'; banner.innerHTML='<i class="ti ti-package" style="font-size:14px"></i> Mode Packaging — liste produits activée'; }
+    if(banner) {
+      banner.style.display = 'flex';
+      banner.className = 'dept-context-banner packaging';
+      banner.innerHTML = '<i class="ti ti-package" style="font-size:15px"></i><div><strong>Champs Packaging actifs</strong> — Liste produits, phase de production</div>';
+    }
+    const sh2 = G('sh2');
+    if(sh2) sh2.style.borderLeft = '4px solid #0ea5e9';
     initPackRows();
   } else {
     if(banner) banner.style.display = 'none';
-    applyGenreContext(); // re-apply genre if marketing
+    const sh2 = G('sh2');
+    if(sh2) sh2.style.borderLeft = '';
+    applyGenreContext();
   }
 }
 
@@ -1398,36 +1374,6 @@ function onSamePerson() {
 
 // Make the label trigger the hidden checkbox
 // same-person handled by label onclick
-
-function toggleRefSection() {
-  const cb = G('is-update');
-  const box = G('ref-toggle-box');
-  const fields = G('ref-fields');
-  const badge = G('b-ref');
-  if(!cb || !fields) return;
-  cb.checked = !cb.checked;
-  const checked = cb.checked;
-  if(box) {
-    box.style.background = checked ? '#111' : '#fff';
-    box.style.borderColor = checked ? '#111' : '#ddd';
-    box.innerHTML = checked ? '<span style="display:block;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)"></span>' : '';
-  }
-  if(fields) fields.classList.toggle('open', checked);
-  if(badge) { badge.textContent = checked ? 'Oui' : 'Non'; badge.className = 'sec-badge ' + (checked ? 'partial' : 'empty'); }
-  upd();
-}
-
-function selectRefType(btn, type) {
-  document.querySelectorAll('.ref-type-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  btn.dataset.reftype = type;
-  upd();
-}
-
-function getRefType() {
-  const active = document.querySelector('.ref-type-btn.active');
-  return active ? (active.dataset.reftype || active.textContent.trim()) : '';
-}
 
 function setPrio(btn) {
   document.querySelectorAll('.prio-btn').forEach(b => {
@@ -1576,12 +1522,24 @@ function upd() {
   }
   const d=collect();
   Object.assign(data,d);
-  const s1=d.dept&&d.ref&&d.valid, s2=d.desc&&d.msg;
-  const s3=d.vNom||d.vPrix||d.vTexte;
-  const s4=d.supports.length>0||d.othersSupports.length>0;
-  const s5=d.launch&&d.valinfo&&d.simul;
-  const miss=getMiss(d);
-  const sc=[s1,s2,s3,s4,s5,miss.length===0].filter(Boolean).length;
+  const dept = currentDept || d.dept;
+  const s1 = d.dept && d.ref && d.valid;
+  // s2 — La demande (context-aware)
+  const s2 = dept==='Travaux' ? (d.desc && d.vtype && d.vAdresse && d.vMesures)
+           : dept==='Packaging' ? (d.desc && d.packPhase && d.packProduits)
+           : (d.desc && d.msg);
+  // s3 — Infos techniques (context-aware)
+  const s3 = dept==='Travaux' ? true  // no tech infos needed for travaux
+           : dept==='Packaging' ? true
+           : (d.vNom || d.vPrix || d.vTexte);
+  // s4 — Supports (not required for Travaux/Packaging)
+  const s4 = dept==='Travaux' || dept==='Packaging'
+           ? true
+           : (d.supports.length>0 || d.othersSupports.length>0);
+  // s5 — Deadlines
+  const s5 = d.launch && d.valinfo && d.simul;
+  const miss = getMiss(d);
+  const sc = [s1,s2,s3,s4,s5,miss.length===0].filter(Boolean).length;
   G('prog').style.width=Math.round(sc/6*100)+'%';
   G('plbl').textContent=sc+' / 6';
   setBadge('b1',s1?'done':(d.dept||d.ref?'partial':'empty'));
@@ -1604,7 +1562,7 @@ function upd() {
   const floatInfo = G('float-submit-info');
   if(floatBtn && currentMode==='manual') {
     floatBtn.style.display = 'block';
-    if(floatInfo) floatInfo.textContent = sc + ' / 6 sections · ' + (miss.length ? miss.length + ' info'+(miss.length>1?'s':'')+' manquante'+(miss.length>1?'s':'') : '✓ Prêt à soumettre');
+    if(floatInfo) floatInfo.textContent = sc + ' / 5 sections · ' + (miss.length ? miss.length + ' info'+(miss.length>1?'s':'')+' manquante'+(miss.length>1?'s':'') : '✓ Prêt à soumettre');
   } else if(floatBtn) { floatBtn.style.display = 'none'; }
   autoSave();
 }
@@ -1682,7 +1640,7 @@ function startVoiceConv(){G('vprog').innerHTML='';G('vq').textContent=VQ[0];G('v
 function toggleVoice(){isOn?stopV():startV()}
 function startV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){G('vst').textContent='Non supporté — utilisez Chrome';return}recog=new SR();recog.lang='fr-FR';recog.continuous=false;recog.interimResults=true;recog.onstart=()=>{isOn=true;G('vbtn').classList.add('on');G('vst').textContent='En écoute...'};recog.onresult=e=>{const t=[...e.results].map(r=>r[0].transcript).join(' ');G('vtxt').textContent=t;if(e.results[e.results.length-1].isFinal)processVoice(t)};recog.onerror=()=>stopV();recog.onend=()=>stopV();recog.start()}
 function stopV(){isOn=false;if(recog)recog.stop();G('vbtn').classList.remove('on');G('vst').textContent='Appuyez pour répondre'}
-function processVoice(text){stopV();processChat(text);const step=chatState.step;if(step-1<VQ.length&&!chatState.done){G('vq').textContent=VQ[step-1]||'';G('vtxt').textContent=''}const pills=['dept','ref','desc','vNom','launch'];const labels=['Département','Référent','Description','Produit','Deadline'];const vp=G('vprog');vp.innerHTML='';pills.forEach((k,i)=>{if(data[k]&&data[k].length){const p=document.createElement('span');p.className='vpill';p.textContent=labels[i];vp.appendChild(p)}});if(chatState.done){G('vq').textContent='Brief complet !';G('vst').textContent='Terminé';G('voice-recap').innerHTML=buildRecapHtml();G('voice-recap').style.display='block';G('voice-recap').scrollIntoView({behavior:'smooth'})}else G('vst').textContent='Appuyez pour répondre'}
+function processVoice(text){stopV();processChat(text);const step=chatState.step;if(step-1<VQ.length&&!chatState.done){G('vq').textContent=VQ[step-1]||'';G('vtxt').textContent=''}const pills=['dept','desc','vNom','launch'];const labels=['Département','Référent','Description','Produit','Deadline'];const vp=G('vprog');vp.innerHTML='';pills.forEach((k,i)=>{if(data[k]&&data[k].length){const p=document.createElement('span');p.className='vpill';p.textContent=labels[i];vp.appendChild(p)}});if(chatState.done){G('vq').textContent='Brief complet !';G('vst').textContent='Terminé';G('voice-recap').innerHTML=buildRecapHtml();G('voice-recap').style.display='block';G('voice-recap').scrollIntoView({behavior:'smooth'})}else G('vst').textContent='Appuyez pour répondre'}
 
 // ── RECAP ─────────────────────────────────────
 function buildRecapHtml(){
@@ -1708,7 +1666,7 @@ function syncFormFromData(){
   } else {
     ss('dept',deptRaw);
     if(deptAutreWrap) deptAutreWrap.style.display='none';
-  }sv('ref',d.ref);sv('valid',d.valid);sv('desc',d.desc);sv('msg',d.msg);
+  }sv(d.ref);sv('valid',d.valid);sv('desc',d.desc);sv('msg',d.msg);
   sv('v-nom',d.vNom);ss('s-nom',d.sNom);sv('v-prix',d.vPrix);ss('s-prix',d.sPrix);
   sv('v-dates',d.vDates);ss('s-dates',d.sDates);sv('v-texte',d.vTexte);ss('s-texte',d.sTexte);
   sv('v-mentions',d.vMentions);ss('s-mentions',d.sMentions);sv('drive',d.drive);
@@ -2226,13 +2184,7 @@ if(window.innerWidth < 600) {
       if(chevron) chevron.className = 'ti ti-chevron-up sec-chevron';
     }
   });
-  // Also open ref section
-  const refHead = G('sh-ref'), refBody = G('sb-ref');
-  if(refHead && refBody) {
-    refHead.classList.add('open'); refBody.classList.add('open');
-    const ch = refHead.querySelector('.sec-chevron');
-    if(ch) ch.className = 'ti ti-chevron-up sec-chevron';
-  }
+
 }
 upd();
 </script>
