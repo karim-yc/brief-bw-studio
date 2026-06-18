@@ -1527,8 +1527,8 @@ function upd() {
   const s5 = d.launch && d.valinfo && d.simul;
   const miss = getMiss(d);
   const sc = [s1,s2,s3,s4,s5,miss.length===0].filter(Boolean).length;
-  G('prog').style.width=Math.round(sc/6*100)+'%';
-  G('plbl').textContent=sc+' / 6';
+  G('prog').style.width=Math.round(sc/5*100)+'%';
+  G('plbl').textContent=sc+' / 5';
   setBadge('b1',s1?'done':(d.dept||d.ref?'partial':'empty'));
   setBadge('b2',s2?'done':(d.desc||d.msg?'partial':'empty'));
   setBadge('b3',s3?'done':'empty');
