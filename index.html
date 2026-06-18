@@ -283,6 +283,28 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 /* PROGRESS CLICKABLE */
 .prog-wrap{cursor:pointer}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+/* LOGIQUE CONDITIONNELLE */
+.ctx-block{transition:opacity .2s,max-height .3s;overflow:hidden}
+.ctx-block.hidden{max-height:0!important;opacity:0;pointer-events:none;margin:0!important;padding:0!important;border:none!important}
+.ctx-block.visible{max-height:800px;opacity:1}
+.genre-bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0}
+.genre-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border:2px solid #e8e8e8;border-radius:8px;font-size:11px;font-weight:700;font-family:'Roboto',sans-serif;color:#777;background:#fff;cursor:pointer;transition:all .15s;min-width:90px;text-align:center}
+.genre-btn i{font-size:18px}
+.genre-btn:hover{border-color:#111;color:#111}
+.genre-btn.active{background:#111;border-color:#111;color:#fff}
+.dept-context-banner{padding:8px 14px;border-radius:6px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.dept-context-banner.travaux{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+.dept-context-banner.packaging{background:#f0f9ff;color:#075985;border:1px solid #bae6fd}
+.dept-context-banner.marketing{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+/* Packaging product list */
+.pack-row{display:grid;grid-template-columns:1fr 120px 80px 32px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f0f0f0}
+.pack-row:last-child{border-bottom:none}
+.pack-input{border:none;border-bottom:1.5px solid #e8e8e8;padding:5px 4px;font-size:13px;font-family:'Roboto',sans-serif;color:#111;width:100%;outline:none;background:transparent;transition:border-color .2s}
+.pack-input:focus{border-bottom-color:#111}
+.pack-del{width:28px;height:28px;border:none;background:none;color:#bbb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:color .15s;border-radius:4px}
+.pack-del:hover{color:#dc2626;background:#fef2f2}
+.add-pack-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px dashed #ddd;border-radius:6px;background:#fafafa;color:#888;font-size:12px;font-family:'Roboto',sans-serif;cursor:pointer;transition:all .15s;margin-top:6px}
+.add-pack-btn:hover{border-color:#111;color:#111;background:#f5f5f5}
 .prog-wrap:hover .prog-track{background:#ddd}
 .prog-details{display:none;padding:10px 14px;background:#fff8e1;border:1px solid #ffe082;border-radius:4px;margin-top:8px;font-size:11.5px;color:#555;line-height:1.6}
 .prog-details ul{padding-left:16px;margin-top:4px}
@@ -493,30 +515,136 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
         <i class="ti ti-chevron-down sec-chevron"></i>
       </div>
       <div class="sec-body" id="sb2">
+
+        <!-- Bannière contexte département -->
+        <div id="dept-banner" style="display:none;margin-top:4px;margin-bottom:4px"></div>
+
+        <!-- Description toujours visible -->
         <div class="field" style="margin-top:4px">
           <label>Description du projet<span class="req">*</span></label>
           <textarea id="desc" placeholder="Ex : Campagne launch du nouveau B&W Smash Burger sur Instagram & TikTok, cible 18-35 ans, du 1er au 30 juin 2026. Objectif : notoriété et drive-to-store." oninput="upd()"></textarea>
         </div>
-        <div class="field">
-          <label>Accroche / Claim<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Le message fort et court que le visuel doit communiquer. Ex : "Le burger qui change tout", "Offre valable jusqu'au 31/12", "Nouveau : le B&W Crunch"</span></span></label>
-          <input type="text" id="msg" placeholder='Ex : "Le smash qui change tout" · "Black is back" · "Offre FIFA -20% ce week-end"' oninput="upd()">
-        </div>
-        <div class="field">
-          <span class="checks-label">Type de demande</span>
-          <div class="cg" id="types">
-            <label class="chk"><input type="checkbox" value="Campagne marketing" onchange="upd()"><span class="chk-box"></span><span>Campagne marketing</span></label>
-            <label class="chk"><input type="checkbox" value="Réseaux sociaux" onchange="upd()"><span class="chk-box"></span><span>Réseaux sociaux</span></label>
-            <label class="chk"><input type="checkbox" value="Menu board / borne" onchange="upd()"><span class="chk-box"></span><span>Menu board / borne</span></label>
-            <label class="chk"><input type="checkbox" value="PLV / print" onchange="upd()"><span class="chk-box"></span><span>PLV / print</span></label>
-            <label class="chk"><input type="checkbox" value="Packaging" onchange="upd()"><span class="chk-box"></span><span>Packaging</span></label>
-            <label class="chk"><input type="checkbox" value="Travaux / signalétique" onchange="upd()"><span class="chk-box"></span><span>Travaux / signalétique</span></label>
-            <label class="chk"><input type="checkbox" value="Présentation" onchange="upd()"><span class="chk-box"></span><span>Présentation</span></label>
+
+        <!-- ── MARKETING : Accroche + Genre + Supports ── -->
+        <div class="ctx-block visible" id="ctx-marketing">
+
+          <div class="field">
+            <label>Accroche / Claim <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Le message fort et court que le visuel doit communiquer.</span></span></label>
+            <input type="text" id="msg" placeholder='Ex : "Le smash qui change tout" · "Black is back" · "Offre FIFA -20% ce week-end"' oninput="upd()">
           </div>
-          <div class="other-inputs" id="types-others"></div>
-          <button class="add-other-btn" onclick="addOther('types-others','upd')">
-            <i class="ti ti-plus"></i> Ajouter un autre type
-          </button>
+
+          <div class="field">
+            <label>Genre de campagne</label>
+            <div class="genre-bar" id="genre-bar">
+              <button type="button" class="genre-btn" data-genre="produit" onclick="setGenre(this)">
+                <i class="ti ti-burger"></i>Produit avec prix
+              </button>
+              <button type="button" class="genre-btn" data-genre="image" onclick="setGenre(this)">
+                <i class="ti ti-camera"></i>Image / Influenceur
+              </button>
+              <button type="button" class="genre-btn" data-genre="promo" onclick="setGenre(this)">
+                <i class="ti ti-discount"></i>Promo / Offre
+              </button>
+              <button type="button" class="genre-btn" data-genre="autre" onclick="setGenre(this)">
+                <i class="ti ti-dots"></i>Autre
+              </button>
+            </div>
+            <input type="hidden" id="genre-campagne" value="">
+          </div>
+
+          <!-- Shooting — visible si Image/Influenceur -->
+          <div class="ctx-block hidden field" id="ctx-shooting">
+            <label>Shooting photo nécessaire ?</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+              <button type="button" class="prio-btn" data-val="dispo" onclick="setShoot(this)"><i class="ti ti-check" style="font-size:12px"></i> Déjà disponible</button>
+              <button type="button" class="prio-btn" data-val="produit" onclick="setShoot(this)"><i class="ti ti-camera" style="font-size:12px"></i> Shooting produit</button>
+              <button type="button" class="prio-btn" data-val="lifestyle" onclick="setShoot(this)"><i class="ti ti-users" style="font-size:12px"></i> Shooting lifestyle</button>
+              <button type="button" class="prio-btn" data-val="planifier" onclick="setShoot(this)"><i class="ti ti-calendar" style="font-size:12px"></i> À planifier</button>
+            </div>
+            <input type="hidden" id="shooting-type" value="">
+          </div>
+
+          <div class="field">
+            <span class="checks-label">Supports</span>
+            <div class="cg" id="types">
+              <label class="chk"><input type="checkbox" value="Post réseaux sociaux" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Post réseaux sociaux</span></label>
+              <label class="chk"><input type="checkbox" value="Story / Reel 9:16" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Story / Reel 9:16</span></label>
+              <label class="chk"><input type="checkbox" value="Affiche / flyer A5" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Affiche / flyer A5</span></label>
+              <label class="chk"><input type="checkbox" value="Menu board / borne" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Menu board / borne</span></label>
+              <label class="chk"><input type="checkbox" value="PLV / print" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>PLV / print</span></label>
+              <label class="chk"><input type="checkbox" value="Newsletter" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Newsletter</span></label>
+              <label class="chk"><input type="checkbox" value="Bannière web" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Bannière web</span></label>
+              <label class="chk"><input type="checkbox" value="Présentation" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Présentation</span></label>
+            </div>
+            <div class="other-inputs" id="types-others"></div>
+            <button class="add-other-btn" onclick="addOther('types-others','upd')">
+              <i class="ti ti-plus"></i> Ajouter un autre support
+            </button>
+          </div>
+
         </div>
+
+        <!-- ── TRAVAUX : Vitrophanie ── -->
+        <div class="ctx-block hidden field" id="ctx-travaux">
+          <label>Type de vitrophanie<span class="req">*</span></label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button type="button" class="genre-btn" data-vtype="camouflage" onclick="setVtype(this)">
+              <i class="ti ti-eye-off"></i>Camouflage ouverture
+            </button>
+            <button type="button" class="genre-btn" data-vtype="permanente" onclick="setVtype(this)">
+              <i class="ti ti-building-store"></i>Vitrine permanente
+            </button>
+          </div>
+          <input type="hidden" id="vtype" value="">
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+            <div>
+              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;display:block;margin-bottom:5px">Adresse / restaurant concerné<span class="req">*</span></label>
+              <input type="text" id="v-adresse" style="width:100%;border:none;border-bottom:2px solid #e8e8e8;padding:6px 0;font-family:Roboto,sans-serif;font-size:13px;outline:none" placeholder="Ex : B&W Châtelet — Rue de la Montagne 6, 1000 Bruxelles" oninput="upd()">
+            </div>
+            <div>
+              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;display:block;margin-bottom:5px">Mesures exactes de la vitrine<span class="req">*</span></label>
+              <input type="text" id="v-mesures" style="width:100%;border:none;border-bottom:2px solid #e8e8e8;padding:6px 0;font-family:Roboto,sans-serif;font-size:13px;outline:none" placeholder="Ex : Largeur 3,20m × Hauteur 2,40m — 2 panneaux de 1,60m chacun" oninput="upd()">
+            </div>
+            <div>
+              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;display:block;margin-bottom:5px">Plan vectoriel ou PDF disponible ?</label>
+              <div style="display:flex;gap:8px;margin-top:4px">
+                <button type="button" class="prio-btn" data-val="oui" onclick="setVplan(this)"><i class="ti ti-check" style="font-size:12px"></i> Oui, disponible</button>
+                <button type="button" class="prio-btn" data-val="non" onclick="setVplan(this)"><i class="ti ti-x" style="font-size:12px"></i> Non / À fournir</button>
+              </div>
+              <input type="hidden" id="v-plan" value="">
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PACKAGING ── -->
+        <div class="ctx-block hidden" id="ctx-packaging">
+          <div class="field">
+            <label>Phase de production<span class="req">*</span></label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+              <button type="button" class="genre-btn" data-phase="simulation" onclick="setPhase(this)">
+                <i class="ti ti-file-3d"></i>Simulation initiale
+              </button>
+              <button type="button" class="genre-btn" data-phase="retour" onclick="setPhase(this)">
+                <i class="ti ti-refresh"></i>Retour simulation
+              </button>
+              <button type="button" class="genre-btn" data-phase="patron" onclick="setPhase(this)">
+                <i class="ti ti-template"></i>Adaptation patron
+              </button>
+            </div>
+            <input type="hidden" id="pack-phase" value="">
+          </div>
+          <div class="field" style="margin-top:8px">
+            <label>Produits à réaliser<span class="req">*</span></label>
+            <div style="display:grid;grid-template-columns:1fr 120px 80px 32px;gap:8px;padding:4px 0;border-bottom:1px solid #e8e8e8;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px">
+              <span>Nom du produit</span><span>Format</span><span>Qté</span><span></span>
+            </div>
+            <div id="pack-rows"></div>
+            <button class="add-pack-btn" onclick="addPackRow()">
+              <i class="ti ti-plus"></i> Ajouter un produit
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -539,7 +667,7 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
               </select>
             </div>
           </div>
-          <div class="val-row">
+          <div class="val-row ctx-block visible" id="ctx-prix-row">
             <div class="val-row-label">Prix</div>
             <div class="val-row-body">
               <input type="text" id="v-prix" placeholder="Ex : 12,90 € · Duo à 19,90 € · À partir de 8,90 €" oninput="upd()">
@@ -1022,6 +1150,14 @@ function collect() {
     fichiers:[...document.querySelectorAll('#fichiers-grid input[type=checkbox]:checked')].map(c=>c.value),
     formats:G('formats').value.trim(),
     nbDecli: String(calcDecliTotal()||''),
+    genre: G('genre-campagne') ? G('genre-campagne').value : '',
+    shooting: G('shooting-type') ? G('shooting-type').value : '',
+    vtype: G('vtype') ? G('vtype').value : '',
+    vAdresse: G('v-adresse') ? G('v-adresse').value.trim() : '',
+    vMesures: G('v-mesures') ? G('v-mesures').value.trim() : '',
+    vPlan: G('v-plan') ? G('v-plan').value : '',
+    packPhase: G('pack-phase') ? G('pack-phase').value : '',
+    packProduits: getPackData ? getPackData() : '',
     decliDetails: getDecliData(),
     priorite:G('priorite')?G('priorite').value:'',
     supports:checked('#supports'),
@@ -1090,13 +1226,144 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// ── CURRENT CONTEXT STATE ────────────────────────────────────────────
+let currentDept = '';
+let currentGenre = '';
+let currentVtype = '';
+let currentPhase = '';
+let currentShoot = '';
+let packRows = [];
+
 function onDeptChange() {
   const sel = G('dept');
   const wrap = G('dept-autre-wrap');
   if(!sel || !wrap) return;
   wrap.style.display = sel.value === 'Autre' ? 'block' : 'none';
   if(sel.value === 'Autre') G('dept-autre').focus();
+  currentDept = sel.value;
+  applyDeptContext();
   upd();
+}
+
+function applyDeptContext() {
+  const dept = currentDept;
+  const banner = G('dept-banner');
+
+  // Reset all context blocks
+  showCtx('ctx-marketing', true);
+  showCtx('ctx-travaux', false);
+  showCtx('ctx-packaging', false);
+  showCtx('ctx-prix-row', true);
+  showCtx('ctx-mentions-row', false);
+
+  if(dept === 'Travaux') {
+    showCtx('ctx-marketing', false);
+    showCtx('ctx-travaux', true);
+    showCtx('ctx-prix-row', false);
+    if(banner) { banner.style.display='flex'; banner.className='dept-context-banner travaux'; banner.innerHTML='<i class="ti ti-ruler-2" style="font-size:14px"></i> Mode Travaux — Vitrophanie activé'; }
+  } else if(dept === 'Packaging' || (G('pack-phase') && currentGenre === 'packaging')) {
+    showCtx('ctx-marketing', false);
+    showCtx('ctx-packaging', true);
+    showCtx('ctx-prix-row', false);
+    if(banner) { banner.style.display='flex'; banner.className='dept-context-banner packaging'; banner.innerHTML='<i class="ti ti-package" style="font-size:14px"></i> Mode Packaging — liste produits activée'; }
+    initPackRows();
+  } else {
+    if(banner) banner.style.display = 'none';
+    applyGenreContext(); // re-apply genre if marketing
+  }
+}
+
+function showCtx(id, visible) {
+  const el = G(id);
+  if(!el) return;
+  if(visible) { el.classList.remove('hidden'); el.classList.add('visible'); }
+  else { el.classList.remove('visible'); el.classList.add('hidden'); }
+}
+
+function setGenre(btn) {
+  document.querySelectorAll('.genre-btn[data-genre]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentGenre = btn.dataset.genre;
+  const hidden = G('genre-campagne'); if(hidden) hidden.value = currentGenre;
+  applyGenreContext();
+  upd();
+}
+
+function applyGenreContext() {
+  const g = currentGenre;
+  // Shooting — show for image/influenceur
+  showCtx('ctx-shooting', g === 'image');
+  // Prix — hide for image/influenceur, show for produit/promo/autre
+  showCtx('ctx-prix-row', g !== 'image' && currentDept !== 'Travaux');
+  // Mentions — show for promo
+  showCtx('ctx-mentions-row', g === 'promo');
+}
+
+function setShoot(btn) {
+  document.querySelectorAll('#ctx-shooting .prio-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentShoot = btn.dataset.val;
+  const h = G('shooting-type'); if(h) h.value = currentShoot;
+  upd();
+}
+
+function setVtype(btn) {
+  document.querySelectorAll('.genre-btn[data-vtype]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentVtype = btn.dataset.vtype;
+  const h = G('vtype'); if(h) h.value = currentVtype;
+  upd();
+}
+
+function setVplan(btn) {
+  document.querySelectorAll('#ctx-travaux .prio-btn[data-val]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const h = G('v-plan'); if(h) h.value = btn.dataset.val;
+  upd();
+}
+
+function setPhase(btn) {
+  document.querySelectorAll('.genre-btn[data-phase]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPhase = btn.dataset.phase;
+  const h = G('pack-phase'); if(h) h.value = currentPhase;
+  upd();
+}
+
+// ── PACKAGING ROWS ────────────────────────────────────────────────────
+function initPackRows() {
+  if(!G('pack-rows')) return;
+  if(packRows.length === 0) { addPackRow(); addPackRow(); }
+  else renderPackRows();
+}
+
+function addPackRow() {
+  packRows.push({nom:'', format:'', qte:''});
+  renderPackRows();
+}
+
+function delPackRow(idx) {
+  packRows.splice(idx,1);
+  if(packRows.length===0) packRows.push({nom:'',format:'',qte:''});
+  renderPackRows();
+}
+
+function renderPackRows() {
+  const wrap = G('pack-rows'); if(!wrap) return;
+  wrap.innerHTML = packRows.map((r,i) => `
+    <div class="pack-row">
+      <input class="pack-input" placeholder="Ex : Boîte burger individuelle" value="${r.nom||''}"
+        oninput="packRows[${i}].nom=this.value;upd()">
+      <input class="pack-input" placeholder="Ex : 12×12cm" value="${r.format||''}"
+        oninput="packRows[${i}].format=this.value;upd()">
+      <input class="pack-input" placeholder="Qté" type="number" min="1" value="${r.qte||''}"
+        oninput="packRows[${i}].qte=this.value;upd()">
+      <button class="pack-del" onclick="delPackRow(${i})" title="Supprimer">×</button>
+    </div>`).join('');
+}
+
+function getPackData() {
+  return packRows.filter(r => r.nom.trim()).map(r => r.nom.trim() + (r.format?' ('+r.format+')':'') + (r.qte?' ×'+r.qte:'')).join(' | ');
 }
 
 function onRefChange() {
