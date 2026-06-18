@@ -1073,7 +1073,7 @@ function updateDecliRows() {
   const others = [...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean);
   const all = [...supports, ...others.map(o=>'Autre : '+o)];
   if(!all.length) {
-    wrap.innerHTML = '<div class="decli-row"><span class="decli-label" style="color:#bbb;font-style:italic">Sélectionnez d'abord des supports</span></div>';
+    wrap.innerHTML = '<div class="decli-row"><span class="decli-label" style="color:#bbb;font-style:italic">S\u00e9lectionnez d\u2019abord des supports</span></div>';
     G('decli-total').textContent = '0 déclinaison';
     return;
   }
