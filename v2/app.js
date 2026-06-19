@@ -107,7 +107,43 @@
       const sectionMap = { ref: 1, restaurant: 1, deptAutrePrecision: 1, description: 2 };
       updateCardStatus(sectionMap[id] || guessSection(id));
       renderSidebarOnly();
+      syncConfirmToggle(id);
     }
+  }
+
+  // Insère/retire dynamiquement le toggle Validé/À confirmer sans perdre le focus du champ
+  function syncConfirmToggle(fieldId) {
+    const allFields = [
+      ...CONFIG.champsEtape4Deadlines,
+      ...CONFIG.champsEtape3.campagne, ...CONFIG.champsEtape3.packaging, ...CONFIG.champsEtape3.vitrophanie
+    ];
+    const fieldDef = allFields.find(f => f.id === fieldId);
+    if (!fieldDef || !fieldDef.confirmable) return;
+
+    const wrap = document.querySelector(`[data-field-wrap="${fieldId}"]`);
+    if (!wrap) return;
+    const row = wrap.querySelector('.field-label-row');
+    if (!row) return;
+
+    const existing = row.querySelector('.confirm-toggle');
+    const shouldShow = State.isFieldFilled(fieldDef);
+
+    if (shouldShow && !existing) {
+      row.insertAdjacentHTML('beforeend', Render.confirmToggle(fieldId));
+      bindSingleConfirmToggle(row.querySelector('.confirm-toggle'));
+    } else if (!shouldShow && existing) {
+      existing.remove();
+    }
+  }
+
+  function bindSingleConfirmToggle(el) {
+    if (!el) return;
+    el.addEventListener('click', () => {
+      const id = el.dataset.confirmToggle;
+      State.data.confirmations[id] = !State.data.confirmations[id];
+      scheduleSave();
+      renderAll();
+    });
   }
 
   function guessSection(fieldId) {
