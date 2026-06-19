@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brief Créatif — Studio Graphique B&W</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ════════ HEADER ════════ -->
+  <header class="hdr">
+    <div class="hdr-brand">
+      <span class="hdr-title">Brief Créatif</span>
+      <span class="hdr-sub">Studio Graphique — Black &amp; White Burger</span>
+    </div>
+    <nav class="hdr-actions">
+      <a href="dashboard.html" class="hdr-btn">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M3 13h3v4H3v-4zm5.5-5h3v9h-3V8zM14 4h3v13h-3V4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        Dashboard
+      </a>
+      <button class="hdr-btn" id="btn-history">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 5v5l3.5 2M17 10a7 7 0 1 1-2.05-4.95" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Historique
+        <span class="hdr-badge" id="hist-count">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ════════ MODE TABS ════════ -->
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-mode="form" role="tab">Formulaire</button>
+    <button class="tab" data-mode="rapide" role="tab">Brief rapide</button>
+  </nav>
+
+  <!-- ════════ MAIN LAYOUT ════════ -->
+  <main class="layout">
+
+    <!-- ─── COLONNE PRINCIPALE ─── -->
+    <div class="main-col" id="main-col">
+
+      <div class="banner" id="restore-banner" hidden>
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 4v6l4 2M16 10a6 6 0 1 1-1.76-4.24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Brouillon restauré — reprenez où vous en étiez</span>
+        <button class="banner-close" id="banner-close" aria-label="Fermer">&times;</button>
+      </div>
+
+      <!-- Sections injectées par JS -->
+      <div id="sections-root"></div>
+
+    </div>
+
+    <!-- ─── SIDEBAR STICKY ─── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+
+        <div class="sb-block">
+          <p class="sb-label">Récapitulatif</p>
+          <div class="sb-progress">
+            <div class="sb-dots" id="sb-dots"></div>
+            <span class="sb-progress-text" id="sb-progress-text">0 / 5 sections</span>
+          </div>
+          <div class="sb-track"><div class="sb-fill" id="sb-fill"></div></div>
+        </div>
+
+        <div class="sb-block">
+          <ul class="sb-sections" id="sb-sections"></ul>
+        </div>
+
+        <div class="sb-block" id="sb-issues-block">
+          <div id="sb-blocking"></div>
+          <div id="sb-recommended"></div>
+          <div id="sb-complete"></div>
+        </div>
+
+        <div class="sb-block sb-submit-block">
+          <button class="btn-submit" id="btn-submit" disabled>
+            Soumettre le brief
+          </button>
+          <p class="sb-submit-note" id="sb-submit-note">Complétez les champs requis</p>
+        </div>
+
+        <div class="sb-block sb-secondary">
+          <button class="sb-icon-btn" id="btn-pdf" title="Télécharger en PDF">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 15v1.5A1.5 1.5 0 0 0 5.5 18h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            PDF
+          </button>
+          <button class="sb-icon-btn" id="btn-copy" title="Copier le lien">
+            <svg viewBox="0 0 20 20" fill="none"><rect x="7" y="7" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-7A1.5 1.5 0 0 0 3 5.5v7A1.5 1.5 0 0 0 4.5 14H6" stroke="currentColor" stroke-width="1.4"/></svg>
+            Lien
+          </button>
+          <button class="sb-icon-btn" id="btn-mail" title="Envoyer par email">
+            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 6l6.5 5 6.5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Mail
+          </button>
+        </div>
+
+        <div class="sb-save-state" id="sb-save-state">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l2.5 2.5L12.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="sb-save-text">Brouillon sauvegardé</span>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ════════ MOBILE STICKY SUBMIT ════════ -->
+  <div class="mobile-submit" id="mobile-submit">
+    <div class="mobile-submit-issues" id="mobile-submit-issues"></div>
+    <button class="btn-submit" id="btn-submit-mobile" disabled>Soumettre le brief</button>
+  </div>
+
+</div>
+
+<!-- ════════ TOAST / TOOLTIP CONTAINER ════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="state.js"></script>
+<script src="render.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
