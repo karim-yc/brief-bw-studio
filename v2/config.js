@@ -164,8 +164,7 @@ const CONFIG = {
           { id: 'non', label: 'Non, à fournir' }
         ],
         showIf: d => d.phasePackaging === 'patron' },
-      { id: 'declinaisonsPack', label: 'Déclinaisons à produire', type: 'text', gravity: 'blocking',
-        placeholder: 'Ex : 3 tailles × 2 coloris = 6 déclinaisons' },
+      { id: 'declinaisonsPack', label: 'Produits à réaliser', type: 'packtable', gravity: 'blocking' },
       { id: 'driveP', label: 'Lien Drive / fichiers', type: 'text', gravity: 'recommended',
         placeholder: 'https://drive.google.com/...' }
     ],

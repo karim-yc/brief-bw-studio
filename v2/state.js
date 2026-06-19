@@ -26,6 +26,7 @@ const State = {
     priorite: '', raisonUrgence: '',
     // Confirmations (Validé / À confirmer)
     confirmations: {}, // { fieldId: true/false }
+    packagingProducts: [], // [{ nom, format, qte }] — tableau structuré packaging
     // Meta
     briefId: '',
     submittedAt: ''
@@ -97,6 +98,9 @@ const State = {
 
   /* ── Calcul de complétude d'un champ ───────────────────────── */
   isFieldFilled(field) {
+    if (field.type === 'packtable') {
+      return this.data.packagingProducts.some(p => p.nom && p.nom.trim());
+    }
     const val = this.data[field.id];
     if (field.type === 'pills') return !!val;
     if (Array.isArray(val)) return val.length > 0;

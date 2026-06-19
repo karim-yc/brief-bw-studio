@@ -26,6 +26,14 @@ const Render = {
     if (isBlocking) cls.push('is-blocking');
     else if (isRecommended) cls.push('is-recommended');
 
+    if (f.type === 'packtable') {
+      return `
+        <div class="${cls.join(' ')}" data-field-wrap="${f.id}">
+          <label class="field-label">${f.label}${f.gravity === 'blocking' ? '<span class="req">*</span>' : ''}</label>
+          ${this.packTable()}
+        </div>`;
+    }
+
     let inputHtml = '';
     if (f.type === 'textarea') {
       inputHtml = `<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}">${this.esc(val)}</textarea>`;
@@ -54,6 +62,26 @@ const Render = {
         </div>
         ${inputHtml}
       </div>`;
+  },
+
+  packTable() {
+    const products = State.data.packagingProducts;
+    const rows = products.map((p, i) => `
+      <div class="pack-row">
+        <input type="text" data-pack-field="nom" data-pack-index="${i}" placeholder="Ex : Boîte burger individuelle" value="${this.esc(p.nom)}">
+        <input type="text" data-pack-field="format" data-pack-index="${i}" placeholder="Format" value="${this.esc(p.format)}">
+        <input type="number" min="1" data-pack-field="qte" data-pack-index="${i}" placeholder="Qté" value="${this.esc(p.qte)}">
+        <button type="button" class="pack-del" data-pack-del="${i}">${Icons.trash}</button>
+      </div>`).join('');
+
+    return `
+      <div class="pack-table">
+        <div class="pack-row" style="background:var(--bg-soft);font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.4px">
+          <span>Nom du produit</span><span>Format</span><span>Qté</span><span></span>
+        </div>
+        ${rows}
+      </div>
+      <button type="button" class="btn-add-row" data-add-pack-row>${Icons.plus} Ajouter un produit</button>`;
   },
 
   confirmToggle(fieldId) {
@@ -197,12 +225,8 @@ const Render = {
   },
 
   packagingFields(fields) {
-    // Champs normaux sauf déclinaisons → tableau structuré
-    const normalFields = fields.filter(f => f.id !== 'declinaisonsPack');
-    const declisField = fields.find(f => f.id === 'declinaisonsPack');
-    let html = normalFields.map(f => this.field(f)).join('');
-    if (declisField) html += this.field(declisField);
-    return html;
+    // field() gère désormais nativement le type 'packtable'
+    return fields.map(f => this.field(f)).join('');
   },
 
   /* ════════════════════════════════════════════════════════════

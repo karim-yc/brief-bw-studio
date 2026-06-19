@@ -58,6 +58,39 @@
         renderAll();
       });
     });
+
+    // Packaging table — inputs (nom / format / qté)
+    root.querySelectorAll('[data-pack-field]').forEach(el => {
+      el.addEventListener('input', () => {
+        const idx = parseInt(el.dataset.packIndex, 10);
+        const key = el.dataset.packField;
+        if (State.data.packagingProducts[idx]) {
+          State.data.packagingProducts[idx][key] = el.value;
+          scheduleSave();
+          updateCardStatus(3);
+          renderSidebarOnly();
+        }
+      });
+    });
+
+    // Packaging table — suppression ligne
+    root.querySelectorAll('[data-pack-del]').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.packDel, 10);
+        State.data.packagingProducts.splice(idx, 1);
+        scheduleSave();
+        renderAll();
+      });
+    });
+
+    // Packaging table — ajout ligne
+    root.querySelectorAll('[data-add-pack-row]').forEach(el => {
+      el.addEventListener('click', () => {
+        State.data.packagingProducts.push({ nom: '', format: '', qte: '' });
+        scheduleSave();
+        renderAll();
+      });
+    });
   }
 
   function onFieldInput(e) {
@@ -120,6 +153,9 @@
     const typeCard = e.target.closest('[data-type-select]');
     if (typeCard) {
       State.data.typeDemande = typeCard.dataset.typeSelect;
+      if (State.data.typeDemande === 'packaging' && State.data.packagingProducts.length === 0) {
+        State.data.packagingProducts.push({ nom: '', format: '', qte: '' });
+      }
       scheduleSave();
       renderAll();
       State.openSections[3] = true;
