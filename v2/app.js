@@ -46,6 +46,7 @@
         scheduleSave();
         renderSidebarOnly();
         updateCardStatus(4);
+        updateVolumeTotal();
       });
     });
     root.querySelectorAll('select[data-support-livrable-field]').forEach(el => {
@@ -161,6 +162,16 @@
     if (CONFIG.champsEtape3.autre.some(f => f.id === fieldId)) return 3;
     if (CONFIG.champsEtape4Deadlines.some(f => f.id === fieldId)) return 4;
     return null;
+  }
+
+  function updateVolumeTotal() {
+    const total = Object.values(State.data.volumes).reduce((a, b) => a + (parseInt(b) || 0), 0);
+    const hint = document.querySelector('#card-body-4 .field-hint');
+    if (hint) {
+      const isPackagingPhysique = State.data.typeDemande === 'packaging';
+      const label = isPackagingPhysique ? 'Quantité totale à produire' : 'Total déclinaisons visuelles';
+      hint.textContent = `${label} : ${total}`;
+    }
   }
 
   function updateCardStatus(sectionNum) {
