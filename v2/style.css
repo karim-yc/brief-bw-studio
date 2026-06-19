@@ -554,19 +554,21 @@ select:focus { border-bottom-color: var(--text); }
 .sb-submit-note.is-blocking { color: var(--danger); }
 
 .sb-secondary {
-  display: flex; align-items: center; justify-content: center;
-  gap: 0; padding: 2px 0;
+  display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+  align-items: center; justify-content: center;
+  gap: 0; padding: 2px 0; width: 100%;
 }
 .sb-icon-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 6px 10px;
+  display: inline-flex !important; flex-direction: row !important;
+  align-items: center; gap: 4px; white-space: nowrap;
+  padding: 6px 8px; flex: 0 0 auto;
   background: none; border: none; border-radius: 8px;
   color: var(--text-tertiary); font-size: 11px; font-weight: 500;
   transition: all var(--t-fast);
 }
 .sb-icon-btn:hover { background: var(--bg-soft); color: var(--text-secondary); }
-.sb-icon-btn svg { width: 13px; height: 13px; opacity: 0.7; }
-.sb-secondary-sep { color: var(--border); font-size: 11px; user-select: none; }
+.sb-icon-btn svg { width: 13px; height: 13px; opacity: 0.7; flex-shrink: 0; }
+.sb-secondary-sep { color: var(--border); font-size: 11px; user-select: none; flex: 0 0 auto; }
 
 .sb-save-state {
   display: flex; align-items: center; gap: 6px;
