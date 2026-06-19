@@ -294,6 +294,119 @@
   }
 
   /* ════════════════════════════════════════════════════════════
+     MODE RAPIDE
+     ════════════════════════════════════════════════════════════ */
+  let rapideSupports = new Set();
+
+  function initRapideMode() {
+    const deptSel = document.getElementById('r-dept');
+    deptSel.innerHTML = '<option value="">— Sélectionner —</option>' +
+      CONFIG.departements.map(d => `<option value="${d}">${d}</option>`).join('');
+
+    const supportsEl = document.getElementById('r-supports');
+    const commonSupports = ['post', 'story', 'affiche', 'menuboard', 'newsletter', 'autre-support'];
+    supportsEl.innerHTML = commonSupports.map(sid => {
+      const sup = CONFIG.supports.find(s => s.id === sid);
+      return `<button type="button" class="support-card" data-r-support="${sid}">
+        <span class="chk-dot"></span>${sup.label}
+      </button>`;
+    }).join('');
+
+    const prioEl = document.getElementById('r-priorite');
+    prioEl.innerHTML = CONFIG.prioritesNiveau.map(p =>
+      `<button type="button" class="pill ${p.id === 'urgent' ? 'urgent' : ''}" data-r-priorite="${p.id}">${p.label}</button>`
+    ).join('');
+
+    // Bind events
+    supportsEl.querySelectorAll('[data-r-support]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sid = btn.dataset.rSupport;
+        if (rapideSupports.has(sid)) { rapideSupports.delete(sid); btn.classList.remove('active'); btn.querySelector('.chk-dot').innerHTML = ''; }
+        else { rapideSupports.add(sid); btn.classList.add('active'); btn.querySelector('.chk-dot').innerHTML = Icons.check; }
+        updateRapideSubmit();
+      });
+    });
+
+    prioEl.querySelectorAll('[data-r-priorite]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        prioEl.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('r-priorite').dataset.value = btn.dataset.rPriorite;
+        updateRapideSubmit();
+      });
+    });
+
+    ['r-dept', 'r-ref', 'r-desc', 'r-launch'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateRapideSubmit);
+    });
+
+    document.getElementById('r-submit').addEventListener('click', submitRapide);
+    document.getElementById('r-to-full').addEventListener('click', switchToFullFromRapide);
+  }
+
+  function updateRapideSubmit() {
+    const dept = document.getElementById('r-dept').value;
+    const ref = document.getElementById('r-ref').value.trim();
+    const desc = document.getElementById('r-desc').value.trim();
+    const launch = document.getElementById('r-launch').value;
+    const prio = document.getElementById('r-priorite').dataset.value;
+    const ok = dept && ref && desc && launch && prio && rapideSupports.size > 0;
+    const btn = document.getElementById('r-submit');
+    btn.disabled = !ok;
+    btn.classList.toggle('ready', ok);
+  }
+
+  function submitRapide() {
+    const dept = document.getElementById('r-dept').value;
+    const ref = document.getElementById('r-ref').value.trim();
+    const desc = document.getElementById('r-desc').value.trim();
+    const launch = document.getElementById('r-launch').value;
+    const prio = document.getElementById('r-priorite').dataset.value;
+
+    if (!dept || !ref || !desc || !launch || !prio || !rapideSupports.size) {
+      showToast('Complétez tous les champs du brief rapide');
+      return;
+    }
+
+    State.data.dept = dept;
+    State.data.ref = ref;
+    State.data.description = desc;
+    State.data.dateLancement = launch;
+    State.data.priorite = prio;
+    State.data.typeDemande = 'campagne';
+    State.data.supportsSelected = [...rapideSupports];
+    State.data.briefId = State.genBriefId();
+    State.data.submittedAt = new Date().toISOString();
+
+    State.saveToHistory();
+    sendWebhook(State.data);
+    showToast(`Brief ${State.data.briefId} soumis avec succès`);
+    localStorage.removeItem(STORAGE_KEY);
+    setTimeout(() => location.reload(), 1600);
+  }
+
+  function switchToFullFromRapide() {
+    State.data.dept = document.getElementById('r-dept').value;
+    State.data.ref = document.getElementById('r-ref').value.trim();
+    State.data.description = document.getElementById('r-desc').value.trim();
+    State.data.dateLancement = document.getElementById('r-launch').value;
+    State.data.priorite = document.getElementById('r-priorite').dataset.value || '';
+    State.data.typeDemande = 'campagne';
+    State.data.supportsSelected = [...rapideSupports];
+    scheduleSave();
+    switchMode('form');
+    State.openSections = { 1: true, 2: true, 3: true, 4: true, 5: false };
+    renderAll();
+  }
+
+  function switchMode(mode) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+    document.querySelector('.layout').hidden = mode !== 'form';
+    document.getElementById('rapide-wrap').hidden = mode !== 'rapide';
+    document.getElementById('mobile-submit').style.display = mode === 'form' ? '' : 'none';
+  }
+
+  /* ════════════════════════════════════════════════════════════
      INIT
      ════════════════════════════════════════════════════════════ */
   function init() {
@@ -306,6 +419,12 @@
     document.getElementById('hist-count').textContent = hist.length;
 
     renderAll();
+    initRapideMode();
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+    });
 
     document.getElementById('btn-submit').addEventListener('click', submitBrief);
     document.getElementById('btn-submit-mobile').addEventListener('click', submitBrief);

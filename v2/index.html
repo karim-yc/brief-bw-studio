@@ -109,6 +109,53 @@
 
   </main>
 
+  <!-- ════════ MODE RAPIDE — formulaire allégé ════════ -->
+  <div class="rapide-wrap" id="rapide-wrap" hidden>
+    <div class="rapide-card">
+      <div class="rapide-head">
+        <h2>Brief rapide</h2>
+        <p>5 champs essentiels — moins de 2 minutes</p>
+      </div>
+      <div class="rapide-body">
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Département<span class="req">*</span></label>
+            <select id="r-dept"></select>
+          </div>
+          <div class="field">
+            <label class="field-label">Prénom et nom<span class="req">*</span></label>
+            <input type="text" id="r-ref" placeholder="Ex : Sophie Martin">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Quelle est la demande ?<span class="req">*</span></label>
+          <textarea id="r-desc" placeholder="Ex : Post Instagram pour le lancement du B&amp;W Smash Burger. Texte : « Le smash qui change tout · 12,90€ ». À publier le 20 juin."></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Support(s)<span class="req">*</span></label>
+          <div class="support-grid" id="r-supports"></div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Date de lancement<span class="req">*</span></label>
+            <input type="date" id="r-launch">
+          </div>
+          <div class="field">
+            <label class="field-label">Priorité<span class="req">*</span></label>
+            <div class="pill-group" id="r-priorite"></div>
+          </div>
+        </div>
+
+        <button class="btn-submit ready" id="r-submit" style="margin-top:8px">Soumettre le brief rapide</button>
+        <button class="rapide-link" id="r-to-full">Besoin d'ajouter des infos ? → Passer au formulaire complet</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════ MOBILE STICKY SUBMIT ════════ -->
   <div class="mobile-submit" id="mobile-submit">
     <div class="mobile-submit-issues" id="mobile-submit-issues"></div>
