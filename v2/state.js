@@ -144,7 +144,11 @@ const State = {
         // typeDemande est aussi requis
         if (!this.data.typeDemande) return { status: 'empty', blocking: 1, total: fields.length + 1 };
         break;
-      case 'infos': fields = this.getChampsEtape3(); break;
+      case 'infos':
+        // Pas de type sélectionné → section non applicable, statut neutre (vide, pas complet)
+        if (!this.data.typeDemande) return { status: 'empty', blocking: 0, total: 0, filled: 0 };
+        fields = this.getChampsEtape3();
+        break;
       case 'supports': fields = this.getEtape4Fields(); break;
       default: return { status: 'empty', blocking: 0, total: 0 };
     }
