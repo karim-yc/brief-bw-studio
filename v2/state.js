@@ -20,6 +20,7 @@ const State = {
     // Étape 4
     supportsSelected: [],
     formats: {},     // { supportId: "1080x1080" }
+    supportLivrables: {}, // { supportId: 'png' | 'pdf-print' | ... }
     livrable: '',
     volumes: {},      // { supportId: nombre }
     dateLancement: '', dateValidation: '', dateRetourSimul: '',

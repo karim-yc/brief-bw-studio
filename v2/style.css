@@ -433,35 +433,34 @@ select:focus { border-bottom-color: var(--text); }
    ════════════════════════════════════════════════════════════ */
 .pack-table { border: 1px solid var(--border); border-radius: var(--r-btn); overflow: hidden; }
 .pack-row {
-  display: grid; grid-template-columns: 1fr 110px 70px 32px;
+  display: grid; grid-template-columns: 1fr 110px 64px 52px;
   gap: 10px; align-items: center;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
 }
 .pack-row:last-child { border-bottom: none; }
+.pack-row-head {
+  background: var(--bg-soft); font-size: 10.5px; font-weight: 600;
+  color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px;
+}
 .pack-row input {
   border: none; border-bottom: 1px solid var(--border);
-  padding: 4px 0; font-size: 13px;
+  padding: 4px 0; font-size: 13px; background: transparent; color: var(--text);
+  outline: none; transition: border-color var(--t-fast);
 }
-.pack-del {
-  width: 24px; height: 24px; border-radius: 6px;
+.pack-row input:focus { border-bottom-color: var(--text); }
+.pack-row-actions { display: flex; align-items: center; gap: 2px; justify-content: flex-end; }
+.pack-del, .pack-add-inline {
+  width: 22px; height: 22px; border-radius: 6px;
   border: none; background: none; color: var(--text-tertiary);
   display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
   transition: all var(--t-fast);
 }
+.pack-del svg, .pack-add-inline svg { width: 13px; height: 13px; }
 .pack-del:hover { background: var(--danger-bg); color: var(--danger); }
-.btn-add-row {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 14px;
-  border: 1px dashed var(--border);
-  border-radius: var(--r-pill-sm);
-  font-size: 12px; color: var(--text-secondary);
-  background: transparent;
-  margin-top: 10px;
-  transition: all var(--t-fast);
-}
-.btn-add-row:hover { border-color: var(--text); color: var(--text); }
+.pack-add-inline:hover { background: var(--bg-soft); color: var(--text); }
 
 /* ════════════════════════════════════════════════════════════
    SIDEBAR
@@ -554,16 +553,20 @@ select:focus { border-bottom-color: var(--text); }
 .sb-submit-note { font-size: 11px; color: var(--text-tertiary); text-align: center; }
 .sb-submit-note.is-blocking { color: var(--danger); }
 
-.sb-secondary { display: flex; gap: 6px; }
-.sb-icon-btn {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 10px 4px;
-  background: none; border: none; border-radius: 10px;
-  color: var(--text-secondary); font-size: 10px;
-  transition: background var(--t-fast);
+.sb-secondary {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; padding: 2px 0;
 }
-.sb-icon-btn:hover { background: var(--bg-soft); color: var(--text); }
-.sb-icon-btn svg { width: 16px; height: 16px; }
+.sb-icon-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 10px;
+  background: none; border: none; border-radius: 8px;
+  color: var(--text-tertiary); font-size: 11px; font-weight: 500;
+  transition: all var(--t-fast);
+}
+.sb-icon-btn:hover { background: var(--bg-soft); color: var(--text-secondary); }
+.sb-icon-btn svg { width: 13px; height: 13px; opacity: 0.7; }
+.sb-secondary-sep { color: var(--border); font-size: 11px; user-select: none; }
 
 .sb-save-state {
   display: flex; align-items: center; gap: 6px;

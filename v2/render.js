@@ -66,22 +66,27 @@ const Render = {
 
   packTable() {
     const products = State.data.packagingProducts;
-    const rows = products.map((p, i) => `
+    const rows = products.map((p, i) => {
+      const isLast = i === products.length - 1;
+      return `
       <div class="pack-row">
         <input type="text" data-pack-field="nom" data-pack-index="${i}" placeholder="Ex : Boîte burger individuelle" value="${this.esc(p.nom)}">
         <input type="text" data-pack-field="format" data-pack-index="${i}" placeholder="Format" value="${this.esc(p.format)}">
         <input type="number" min="1" data-pack-field="qte" data-pack-index="${i}" placeholder="Qté" value="${this.esc(p.qte)}">
-        <button type="button" class="pack-del" data-pack-del="${i}">${Icons.trash}</button>
-      </div>`).join('');
+        <div class="pack-row-actions">
+          ${isLast ? `<button type="button" class="pack-add-inline" data-add-pack-row title="Ajouter un produit">${Icons.plus}</button>` : ''}
+          <button type="button" class="pack-del" data-pack-del="${i}" title="Supprimer">${Icons.trash}</button>
+        </div>
+      </div>`;
+    }).join('');
 
     return `
       <div class="pack-table">
-        <div class="pack-row" style="background:var(--bg-soft);font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.4px">
+        <div class="pack-row pack-row-head">
           <span>Nom du produit</span><span>Format</span><span>Qté</span><span></span>
         </div>
         ${rows}
-      </div>
-      <button type="button" class="btn-add-row" data-add-pack-row>${Icons.plus} Ajouter un produit</button>`;
+      </div>`;
   },
 
   confirmToggle(fieldId) {
@@ -236,6 +241,7 @@ const Render = {
     const st = State.getSectionStatus('supports');
     const open = State.openSections[4];
     const selected = State.data.supportsSelected;
+    const isPackagingPhysique = State.data.typeDemande === 'packaging';
 
     const supportCards = CONFIG.supports.map(s => `
       <button type="button" class="support-card ${selected.includes(s.id) ? 'active' : ''}" data-support-toggle="${s.id}">
@@ -243,19 +249,28 @@ const Render = {
         ${s.label}
       </button>`).join('');
 
+    const declisLabel = isPackagingPhysique ? 'Qté' : 'Déclis';
+    const declisPlaceholder = isPackagingPhysique ? 'Quantité' : 'Nb';
+
     const formatRows = selected.map(sid => {
       const sup = CONFIG.supports.find(s => s.id === sid);
       const fmt = State.data.formats[sid] || sup.defaultFormat;
       const vol = State.data.volumes[sid] || '';
+      const liv = State.data.supportLivrables?.[sid] || '';
       return `
-        <div class="pack-row" style="grid-template-columns:1fr 140px 70px">
+        <div class="pack-row" style="grid-template-columns:1fr 110px 64px 90px">
           <span style="font-size:13px">${sup.label}</span>
           <input type="text" data-format-field="${sid}" placeholder="Format" value="${this.esc(fmt)}">
-          <input type="number" min="1" data-volume-field="${sid}" placeholder="Qté" value="${this.esc(vol)}">
+          <input type="number" min="1" data-volume-field="${sid}" placeholder="${declisPlaceholder}" value="${this.esc(vol)}" title="${isPackagingPhysique ? 'Quantité à produire' : 'Nombre de déclinaisons visuelles'}">
+          <select data-support-livrable-field="${sid}">
+            <option value="">Livrable</option>
+            ${CONFIG.livrables.map(l => `<option value="${l.id}" ${liv === l.id ? 'selected' : ''}>${l.label}</option>`).join('')}
+          </select>
         </div>`;
     }).join('');
 
     const totalVol = Object.values(State.data.volumes).reduce((a, b) => a + (parseInt(b) || 0), 0);
+    const totalLabel = isPackagingPhysique ? 'Quantité totale à produire' : 'Total déclinaisons visuelles';
 
     const priorityPills = CONFIG.prioritesNiveau.map(p =>
       `<button type="button" class="pill ${p.id === 'urgent' ? 'urgent' : ''} ${State.data.priorite === p.id ? 'active' : ''}" data-field="priorite" data-value="${p.id}">${p.label}</button>`
@@ -280,16 +295,15 @@ const Render = {
               </div>
               ${selected.length ? `
               <div class="field" style="margin-top:18px">
-                <label class="field-label">Format et volume par support</label>
-                <div class="pack-table">${formatRows}</div>
-                <p class="field-hint">Total déclinaisons : ${totalVol || 0}</p>
-              </div>` : ''}
-              <div class="field" style="margin-top:18px">
-                <label class="field-label">Livrable final</label>
-                <div class="pill-group">
-                  ${CONFIG.livrables.map(l => `<button type="button" class="pill ${State.data.livrable === l.id ? 'active' : ''}" data-field="livrable" data-value="${l.id}">${l.label}</button>`).join('')}
+                <label class="field-label">Format, ${isPackagingPhysique ? 'quantité' : 'déclinaisons'} et livrable par support</label>
+                <div class="pack-table">
+                  <div class="pack-row pack-row-head" style="grid-template-columns:1fr 110px 64px 90px">
+                    <span>Support</span><span>Format</span><span>${declisLabel}</span><span>Livrable</span>
+                  </div>
+                  ${formatRows}
                 </div>
-              </div>
+                <p class="field-hint">${totalLabel} : ${totalVol || 0}</p>
+              </div>` : ''}
             </div>
 
             <div class="subcard">

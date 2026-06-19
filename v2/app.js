@@ -48,6 +48,14 @@
         updateCardStatus(4);
       });
     });
+    root.querySelectorAll('select[data-support-livrable-field]').forEach(el => {
+      el.addEventListener('change', e => {
+        if (!State.data.supportLivrables) State.data.supportLivrables = {};
+        State.data.supportLivrables[e.target.dataset.supportLivrableField] = e.target.value;
+        scheduleSave();
+        renderSidebarOnly();
+      });
+    });
 
     // Confirm toggle (Validé / À confirmer)
     root.querySelectorAll('[data-confirm-toggle]').forEach(el => {
