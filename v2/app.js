@@ -443,12 +443,34 @@
   }
 
   /* ════════════════════════════════════════════════════════════
+     AUTO-OUVERTURE DES SECTIONS NON VIDES AU CHARGEMENT
+     Évite qu'un brouillon restauré affiche des sections fermées
+     qui contiennent pourtant déjà des données saisies.
+     ════════════════════════════════════════════════════════════ */
+  function autoOpenFilledSections() {
+    const keys = { 1: 'qui', 2: 'quoi', 3: 'infos', 4: 'supports' };
+    Object.entries(keys).forEach(([num, key]) => {
+      const st = State.getSectionStatus(key);
+      if (st.status === 'partial' || st.status === 'complete') {
+        State.openSections[num] = true;
+      }
+    });
+    // Section 2 doit aussi s'ouvrir si un type de demande est déjà choisi,
+    // même si la description est vide (sinon les cartes sélectionnées restent invisibles)
+    if (State.data.typeDemande) {
+      State.openSections[2] = true;
+      State.openSections[3] = true;
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════
      INIT
      ════════════════════════════════════════════════════════════ */
   function init() {
     const restored = State.load();
     if (restored && (State.data.dept || State.data.typeDemande)) {
       document.getElementById('restore-banner').hidden = false;
+      autoOpenFilledSections();
     }
 
     const hist = State.getHistory();
