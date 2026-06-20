@@ -62,7 +62,8 @@
    RESET
    ════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: var(--bg); -webkit-text-size-adjust: 100%; }
+html { background: var(--bg); -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+body { overflow-x: hidden; }
 body {
   font-family: var(--font);
   color: var(--text);
@@ -451,6 +452,7 @@ select:focus { border-bottom-color: var(--text); }
   background: var(--bg-soft); font-size: 10.5px; font-weight: 600;
   color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px;
 }
+.pack-row-supports { grid-template-columns: 1fr 110px 64px 90px; }
 .pack-row input {
   border: none; border-bottom: 1px solid var(--border);
   padding: 4px 0; font-size: 13px; background: transparent; color: var(--text);
@@ -600,9 +602,11 @@ select:focus { border-bottom-color: var(--text); }
 .cond-block {
   transition: opacity var(--t-med) var(--ease), max-height var(--t-slow) var(--ease);
   overflow: hidden;
+  display: flex; flex-direction: column; gap: 22px;
 }
-.cond-block.hidden { max-height: 0 !important; opacity: 0; pointer-events: none; }
+.cond-block.hidden { max-height: 0 !important; opacity: 0; pointer-events: none; gap: 0; }
 .cond-block.visible { max-height: 2000px; opacity: 1; }
+.cond-block > .field:first-child { margin-top: 4px; }
 
 /* ════════════════════════════════════════════════════════════
    MODE RAPIDE
@@ -668,6 +672,25 @@ select:focus { border-bottom-color: var(--text); }
 @media (max-width: 560px) {
   .card-grid { grid-template-columns: repeat(2, 1fr); }
   .support-grid { grid-template-columns: repeat(2, 1fr); }
+  .hdr { padding: 0 14px; }
+  .hdr-actions { gap: 4px; }
+  .hdr-btn { padding: 6px 9px; font-size: 11px; }
+  .hdr-btn svg { width: 12px; height: 12px; }
+  .hdr-soon { display: none; } /* "Bientôt" superflu sur très petit écran, le badge suffit visuellement */
+  .hdr-badge { font-size: 9px; padding: 1px 5px; }
+
+  /* Tableau format/déclinaisons/livrable par support : trop dense en grille
+     fixe sur petit écran → on empile chaque ligne en mini-carte verticale */
+  .pack-row-supports.pack-row-head { display: none; }
+  .pack-row-supports {
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+    padding: 12px !important;
+  }
+  .pack-row-supports span:first-child {
+    font-weight: 600; font-size: 13px; margin-bottom: 2px;
+  }
+  .pack-row-supports select { width: 100%; }
 }
 
 /* ════════════════════════════════════════════════════════════

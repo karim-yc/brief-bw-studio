@@ -222,7 +222,7 @@ const Render = {
       const vol = State.data.volumes[sid] || '';
       const liv = State.data.supportLivrables?.[sid] || '';
       return `
-        <div class="pack-row" style="grid-template-columns:1fr 110px 64px 90px">
+        <div class="pack-row pack-row-supports">
           <span style="font-size:13px">${sup.label}</span>
           <input type="text" data-format-field="${sid}" placeholder="Format" value="${this.esc(fmt)}">
           <input type="number" min="1" data-volume-field="${sid}" placeholder="Nb" value="${this.esc(vol)}" title="Nombre de déclinaisons visuelles">
@@ -244,7 +244,7 @@ const Render = {
       <div class="field" style="margin-top:18px">
         <label class="field-label">Format, déclinaisons et livrable par support</label>
         <div class="pack-table">
-          <div class="pack-row pack-row-head" style="grid-template-columns:1fr 110px 64px 90px">
+          <div class="pack-row pack-row-head pack-row-supports">
             <span>Support</span><span>Format</span><span>Déclis</span><span>Livrable</span>
           </div>
           ${formatRows}
