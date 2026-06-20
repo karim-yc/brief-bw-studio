@@ -691,6 +691,20 @@ select:focus { border-bottom-color: var(--text); }
     font-weight: 600; font-size: 13px; margin-bottom: 2px;
   }
   .pack-row-supports select { width: 100%; }
+
+  /* Tableau Produits à réaliser (Packaging) : même traitement —
+     empilement vertical en mini-carte au lieu de 4 colonnes serrées */
+  .pack-row-products.pack-row-head { display: none; }
+  .pack-row-products {
+    grid-template-columns: 1fr auto !important;
+    grid-template-areas: "nom actions" "format format" "qte qte";
+    gap: 8px !important;
+    padding: 14px !important;
+  }
+  .pack-field-nom { grid-area: nom; font-weight: 600; }
+  .pack-field-format { grid-area: format; }
+  .pack-field-qte { grid-area: qte; }
+  .pack-row-products .pack-row-actions { grid-area: actions; align-self: start; }
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -810,6 +824,39 @@ select:focus { border-bottom-color: var(--text); }
 .modal-actions { display: flex; border-top: 1px solid var(--border); }
 
 /* ════════════════════════════════════════════════════════════
+   RÉCAPITULATIF — blocs espacés, lisibles, sans mur de texte
+   ════════════════════════════════════════════════════════════ */
+.recap-doc {
+  background: var(--bg-soft); border-radius: 12px;
+  padding: 4px; display: flex; flex-direction: column;
+}
+.recap-block {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.recap-block:last-child { border-bottom: none; }
+.recap-block-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 6px;
+}
+.recap-block-body {
+  font-size: 12.5px; line-height: 1.7; color: var(--text-secondary);
+}
+.recap-block-header {
+  background: var(--accent); border-radius: 10px 10px 0 0; border-bottom: none;
+  padding: 16px 18px;
+}
+.recap-brief-id {
+  font-family: var(--font-display); font-size: 13px; color: #fff; letter-spacing: 0.5px;
+}
+.recap-submitter { font-size: 11.5px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+
+@media (max-width: 560px) {
+  .recap-block { padding: 12px 14px; }
+  .recap-block-body { font-size: 12px; }
+}
+
+/* ════════════════════════════════════════════════════════════
    PRINT
    ════════════════════════════════════════════════════════════ */
 @media print {
@@ -824,6 +871,7 @@ select:focus { border-bottom-color: var(--text); }
   [data-section="5"] .card-head { background: #000; padding: 16px 0; }
   [data-section="5"] .card-head .card-title,
   [data-section="5"] .card-head .card-num { color: #fff; }
+  .recap-block { break-inside: avoid; }
   body { background: #fff; }
 }
 

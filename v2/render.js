@@ -69,21 +69,21 @@ const Render = {
     const rows = products.map((p, i) => {
       const isLast = i === products.length - 1;
       return `
-      <div class="pack-row">
-        <input type="text" data-pack-field="nom" data-pack-index="${i}" placeholder="Ex : Boîte burger individuelle" value="${this.esc(p.nom)}">
-        <input type="text" data-pack-field="format" data-pack-index="${i}" placeholder="Format" value="${this.esc(p.format)}">
-        <input type="number" min="1" data-pack-field="qte" data-pack-index="${i}" placeholder="Qté" value="${this.esc(p.qte)}">
+      <div class="pack-row pack-row-products">
+        <input type="text" class="pack-field-nom" data-pack-field="nom" data-pack-index="${i}" placeholder="Ex : Boîte burger individuelle" value="${this.esc(p.nom)}">
+        <input type="text" class="pack-field-format" data-pack-field="format" data-pack-index="${i}" placeholder="Format" value="${this.esc(p.format)}">
+        <input type="number" min="1" class="pack-field-qte" data-pack-field="qte" data-pack-index="${i}" placeholder="Qté / variante" value="${this.esc(p.qte)}">
         <div class="pack-row-actions">
           ${isLast ? `<button type="button" class="pack-add-inline" data-add-pack-row title="Ajouter un produit">${Icons.plus}</button>` : ''}
-          <button type="button" class="pack-del" data-pack-del="${i}" title="Supprimer">${Icons.trash}</button>
+          ${products.length > 1 ? `<button type="button" class="pack-del" data-pack-del="${i}" title="Supprimer">${Icons.trash}</button>` : ''}
         </div>
       </div>`;
     }).join('');
 
     return `
       <div class="pack-table">
-        <div class="pack-row pack-row-head">
-          <span>Nom du produit</span><span>Format</span><span>Qté</span><span></span>
+        <div class="pack-row pack-row-products pack-row-head">
+          <span>Nom du produit</span><span>Format</span><span>Qté / variante</span><span></span>
         </div>
         ${rows}
       </div>`;
@@ -346,7 +346,7 @@ const Render = {
         </div>
         <div class="card-body ${open ? 'open' : ''}" id="card-body-5">
           <div class="card-body-inner">
-            <div style="font-size:12.5px;line-height:1.8;color:var(--text-secondary);background:var(--bg-soft);border-radius:12px;padding:20px">
+            <div class="recap-doc">
 ${Recap.toHtml(r)}
             </div>
           </div>

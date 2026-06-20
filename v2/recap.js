@@ -150,40 +150,36 @@ const Recap = {
       ? r.driveLinks.map(l => `· ${l}`).join('<br>')
       : 'Aucun lien fourni';
 
-    return `
-<strong style="color:var(--text)">BRIEF ${r.briefId}</strong><br>
-Soumis par : ${r.demandeur} — ${r.departement}${r.restaurant ? ' · ' + r.restaurant : ''}<br><br>
+    const block = (title, body, color) => `<div class="recap-block"><div class="recap-block-title" style="color:${color || 'var(--text)'}">${title}</div><div class="recap-block-body">${body}</div></div>`;
 
-<strong style="color:var(--text)">CONTEXTE</strong><br>
-${r.contexte}<br><br>
+    let html = `<div class="recap-block recap-block-header">
+      <div class="recap-brief-id">BRIEF ${r.briefId}</div>
+      <div class="recap-submitter">Soumis par ${r.demandeur} — ${r.departement}${r.restaurant ? ' · ' + r.restaurant : ''}</div>
+    </div>`;
 
-<strong style="color:var(--text)">TYPE DE DEMANDE</strong><br>
-${r.typeDemande}${r.genreCampagne ? ' — ' + r.genreCampagne : ''}${r.phasePackaging ? ' — ' + r.phasePackaging : ''}${r.typeVitrophanie ? ' — ' + r.typeVitrophanie : ''}<br>
-Priorité : ${r.priorite}${r.raisonUrgence ? ' — ' + r.raisonUrgence : ''}<br><br>
+    html += block('Contexte', r.contexte);
+    html += block('Type de demande',
+      `${r.typeDemande}${r.genreCampagne ? ' — ' + r.genreCampagne : ''}${r.phasePackaging ? ' — ' + r.phasePackaging : ''}${r.typeVitrophanie ? ' — ' + r.typeVitrophanie : ''}<br>Priorité : ${r.priorite}${r.raisonUrgence ? ' — ' + r.raisonUrgence : ''}`);
 
-${showSupportsSection ? `<strong style="color:var(--text)">SUPPORTS À PRODUIRE</strong><br>
-${supportsLines}
-${r.totalVolume ? 'Total : ' + r.totalVolume + ' déclinaisons visuelles<br>' : ''}
-<br>` : ''}
-${packagingLines ? '<strong style="color:var(--text)">PRODUITS PACKAGING</strong><br>' + packagingLines + '<br><br>' : ''}
+    if (showSupportsSection) {
+      html += block('Supports à produire',
+        supportsLines + (r.totalVolume ? `<div style="margin-top:6px;font-weight:600">Total : ${r.totalVolume} déclinaisons visuelles</div>` : ''));
+    }
+    if (packagingLines) {
+      html += block('Produits packaging', packagingLines);
+    }
 
-<strong style="color:var(--success)">INFOS VALIDÉES</strong><br>
-${validatedLines}<br><br>
+    html += block('Infos validées', validatedLines, 'var(--success)');
+    html += block('Infos à confirmer <span style="font-size:10px;font-weight:400;color:var(--text-tertiary)">— fournies mais pas encore validées</span>', toConfirmLines, 'var(--warning)');
+    html += block('Fichiers / liens', driveLines);
+    html += block('Deadlines',
+      `Lancement : ${r.dateLancement}<br>Validation infos : ${r.dateValidation}${r.dateRetourSimul ? '<br>Retour simulation : ' + r.dateRetourSimul : ''}`);
+    html += block(`Points bloquants (${r.blocking.length}) <span style="font-size:10px;font-weight:400;color:var(--text-tertiary)">— empêchent la soumission</span>`,
+      r.blocking.length ? r.blocking.map(b => '· ' + b).join('<br>') : 'Aucun ✓', 'var(--danger)');
+    html += block(`Recommandés non fournis (${r.recommended.length}) <span style="font-size:10px;font-weight:400;color:var(--text-tertiary)">— utiles mais non bloquants</span>`,
+      r.recommended.length ? r.recommended.map(b => '· ' + b).join('<br>') : 'Aucun ✓', 'var(--warning)');
 
-<strong style="color:var(--warning)">INFOS À CONFIRMER</strong> <span style="font-size:10.5px;font-weight:400;color:var(--text-tertiary)">— fournies mais pas encore validées</span><br>
-${toConfirmLines}<br><br>
-
-<strong style="color:var(--text)">FICHIERS / LIENS</strong><br>
-${driveLines}<br><br>
-
-<strong style="color:var(--text)">DEADLINES</strong><br>
-Lancement : ${r.dateLancement} · Validation infos : ${r.dateValidation}${r.dateRetourSimul ? ' · Retour simulation : ' + r.dateRetourSimul : ''}<br><br>
-
-<strong style="color:var(--danger)">POINTS BLOQUANTS (${r.blocking.length})</strong> <span style="font-size:10.5px;font-weight:400;color:var(--text-tertiary)">— empêchent la soumission</span><br>
-${r.blocking.length ? r.blocking.map(b => '· ' + b).join('<br>') : 'Aucun ✓'}<br><br>
-
-<strong style="color:var(--warning)">RECOMMANDÉS NON FOURNIS (${r.recommended.length})</strong> <span style="font-size:10.5px;font-weight:400;color:var(--text-tertiary)">— utiles mais non bloquants</span><br>
-${r.recommended.length ? r.recommended.map(b => '· ' + b).join('<br>') : 'Aucun ✓'}`;
+    return html;
   },
 
   /* ── Rendu texte brut pour le mail ─────────────────────────────── */
