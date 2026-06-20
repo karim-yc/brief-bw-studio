@@ -347,8 +347,9 @@
     const payload = {
       ...data,
       recap,
-      mailSubject: `Brief ${recap.briefId} — ${recap.typeDemande}${recap.raisonUrgence ? ' [URGENT]' : ''}`,
-      mailBody: Recap.toPlainText(recap)
+      mailSubject: `Nouveau brief B&W — ${recap.briefId} — ${recap.typeDemande}${recap.raisonUrgence ? ' [URGENT]' : ' — ' + recap.priorite}`,
+      mailBody: Recap.toPlainText(recap),
+      mailHtml: Recap.toMailHtml(recap)
     };
     fetch(WEBHOOK_URL, {
       method: 'POST',

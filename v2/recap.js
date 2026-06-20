@@ -229,5 +229,62 @@ const Recap = {
     lines.push(`RECOMMANDÉS NON FOURNIS — utiles mais non bloquants (${r.recommended.length})`);
     lines.push(r.recommended.length ? r.recommended.map(b => `- ${b}`).join('\n') : 'Aucun');
     return lines.join('\n');
+  },
+
+  /* ── Rendu HTML autonome pour le mail (client mail externe) ──────
+     Les clients mail (Gmail, Outlook) ignorent les <style> externes
+     et les variables CSS — tout doit être en styles inline, sans
+     dépendre de variables --accent etc. Réutilise la même structure
+     de blocs que toHtml() mais avec des couleurs en dur. */
+  toMailHtml(r) {
+    const c = {
+      text: '#1d1d1f', secondary: '#6b6b6f', tertiary: '#a3a3a6',
+      bg: '#fafafa', border: '#ececee', accent: '#1d1d1f',
+      success: '#1e8e4a', successBg: '#f0faf3',
+      warning: '#b8650a', warningBg: '#fdf6ec',
+      danger: '#d63a2f', dangerBg: '#fdf1f0'
+    };
+
+    const block = (title, body, color) => `
+      <tr><td style="padding:14px 18px;border-bottom:1px solid ${c.border}">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:${color || c.text};margin-bottom:6px">${title}</div>
+        <div style="font-size:13px;line-height:1.7;color:${c.secondary};font-family:Arial,sans-serif">${body}</div>
+      </td></tr>`;
+
+    const supportsLines = r.supports.length
+      ? r.supports.map(s => `${s.label} — ${s.format || 'format non précisé'} · ${s.volume || '0'} ${s.volumeLabel.toLowerCase()}${s.livrable ? ' · ' + s.livrable : ''}`).join('<br>')
+      : 'Aucun support sélectionné';
+    const packagingLines = r.packagingProducts.length
+      ? r.packagingProducts.map(p => `${p.nom}${p.format ? ' — ' + p.format : ''}${p.qte ? ' × ' + p.qte : ''}`).join('<br>')
+      : '';
+    const validatedLines = r.validated.length ? r.validated.map(v => `${v.label} : ${v.value}`).join('<br>') : 'Aucune';
+    const toConfirmLines = r.toConfirm.length ? r.toConfirm.map(v => `${v.label} : ${v.value}`).join('<br>') : 'Aucune';
+    const driveLines = r.driveLinks.length ? r.driveLinks.map(l => l).join('<br>') : 'Aucun lien fourni';
+    const showSupports = r.typeDemandeId === 'campagne';
+
+    let rows = '';
+    rows += block('Contexte', r.contexte);
+    rows += block('Type de demande',
+      `${r.typeDemande}${r.genreCampagne ? ' — ' + r.genreCampagne : ''}${r.phasePackaging ? ' — ' + r.phasePackaging : ''}${r.typeVitrophanie ? ' — ' + r.typeVitrophanie : ''}<br>Priorité : ${r.priorite}${r.raisonUrgence ? ' — ' + r.raisonUrgence : ''}`);
+    if (showSupports) rows += block('Supports à produire', supportsLines + (r.totalVolume ? `<br><strong>Total : ${r.totalVolume} déclinaisons visuelles</strong>` : ''));
+    if (packagingLines) rows += block('Produits packaging', packagingLines);
+    rows += block('Infos validées', validatedLines, c.success);
+    rows += block('Infos à confirmer — fournies mais pas encore validées', toConfirmLines, c.warning);
+    rows += block('Fichiers / liens', driveLines);
+    rows += block('Deadlines', `Lancement : ${r.dateLancement}<br>Validation infos : ${r.dateValidation}${r.dateRetourSimul ? '<br>Retour simulation : ' + r.dateRetourSimul : ''}`);
+    rows += block(`Points bloquants — empêchent la soumission (${r.blocking.length})`,
+      r.blocking.length ? r.blocking.map(b => b).join('<br>') : 'Aucun', c.danger);
+    rows += block(`Recommandés non fournis — utiles mais non bloquants (${r.recommended.length})`,
+      r.recommended.length ? r.recommended.map(b => b).join('<br>') : 'Aucun', c.warning);
+
+    return `<!DOCTYPE html><html><body style="margin:0;padding:24px;background:#f5f5f5;font-family:Arial,sans-serif">
+<table role="presentation" style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid ${c.border}" cellpadding="0" cellspacing="0">
+  <tr><td style="background:${c.accent};padding:18px 22px">
+    <div style="font-family:Arial Black,Arial,sans-serif;color:#fff;font-size:16px;letter-spacing:0.5px">BRIEF ${r.briefId}</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:4px">Soumis par ${r.demandeur} — ${r.departement}${r.restaurant ? ' · ' + r.restaurant : ''}</div>
+  </td></tr>
+  ${rows}
+</table>
+</body></html>`;
   }
 };
