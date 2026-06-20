@@ -25,7 +25,6 @@ const Recap = {
     const vtypeInfo = d.typeVitrophanie ? CONFIG.typesVitrophanie.find(v => v.id === d.typeVitrophanie) : null;
     // Les supports/déclinaisons/livrables n'existent que pour Campagne Marketing.
     // Packaging a son propre tableau de produits structuré (packagingProducts).
-    const isPackagingPhysique = false;
 
     // ── Supports détaillés (format, déclinaisons, livrable) — Campagne uniquement ──
     const supports = d.supportsSelected.map(sid => {
@@ -94,7 +93,6 @@ const Recap = {
 
       supports,
       totalVolume,
-      isPackagingPhysique,
       packagingProducts,
 
       validated,
@@ -124,6 +122,10 @@ const Recap = {
 
   /* ── Rendu HTML pour la carte récap dans l'interface ──────────── */
   toHtml(r) {
+    // "Supports à produire" n'a de sens que pour Campagne Marketing.
+    // Pour Packaging/Vitrophanie/Autre, cette section est masquée plutôt
+    // que d'afficher un "Aucun support sélectionné" trompeur et hors sujet.
+    const showSupportsSection = r.typeDemandeId === 'campagne';
     const supportsLines = r.supports.length
       ? '<ul style="margin-left:18px">' + r.supports.map(s =>
           `<li>${s.label} — ${s.format || 'format non précisé'} · ${s.volume || '0'} ${s.volumeLabel.toLowerCase()}${s.livrable ? ' · ' + s.livrable : ''}</li>`
@@ -159,11 +161,11 @@ ${r.contexte}<br><br>
 ${r.typeDemande}${r.genreCampagne ? ' — ' + r.genreCampagne : ''}${r.phasePackaging ? ' — ' + r.phasePackaging : ''}${r.typeVitrophanie ? ' — ' + r.typeVitrophanie : ''}<br>
 Priorité : ${r.priorite}${r.raisonUrgence ? ' — ' + r.raisonUrgence : ''}<br><br>
 
-<strong style="color:var(--text)">SUPPORTS À PRODUIRE</strong><br>
+${showSupportsSection ? `<strong style="color:var(--text)">SUPPORTS À PRODUIRE</strong><br>
 ${supportsLines}
-${r.totalVolume ? 'Total : ' + r.totalVolume + (r.isPackagingPhysique ? ' unités' : ' déclinaisons visuelles') + '<br>' : ''}
-${packagingLines ? '<br><strong style="color:var(--text)">PRODUITS PACKAGING</strong><br>' + packagingLines : ''}
-<br>
+${r.totalVolume ? 'Total : ' + r.totalVolume + ' déclinaisons visuelles<br>' : ''}
+<br>` : ''}
+${packagingLines ? '<strong style="color:var(--text)">PRODUITS PACKAGING</strong><br>' + packagingLines + '<br><br>' : ''}
 
 <strong style="color:var(--success)">INFOS VALIDÉES</strong><br>
 ${validatedLines}<br><br>
@@ -196,13 +198,16 @@ ${r.recommended.length ? r.recommended.map(b => '· ' + b).join('<br>') : 'Aucun
     lines.push('TYPE DE DEMANDE');
     lines.push(`${r.typeDemande}${r.genreCampagne ? ' — ' + r.genreCampagne : ''}${r.phasePackaging ? ' — ' + r.phasePackaging : ''}${r.typeVitrophanie ? ' — ' + r.typeVitrophanie : ''}`);
     lines.push(`Priorité : ${r.priorite}${r.raisonUrgence ? ' — ' + r.raisonUrgence : ''}`);
-    lines.push('');
-    lines.push('SUPPORTS À PRODUIRE');
-    if (r.supports.length) {
-      r.supports.forEach(s => lines.push(`- ${s.label} — ${s.format || 'format non précisé'} · ${s.volume || '0'} ${s.volumeLabel.toLowerCase()}${s.livrable ? ' · ' + s.livrable : ''}`));
-      if (r.totalVolume) lines.push(`Total : ${r.totalVolume}${r.isPackagingPhysique ? ' unités' : ' déclinaisons visuelles'}`);
-    } else {
-      lines.push('Aucun support sélectionné');
+    // "Supports à produire" uniquement pertinent pour Campagne Marketing
+    if (r.typeDemandeId === 'campagne') {
+      lines.push('');
+      lines.push('SUPPORTS À PRODUIRE');
+      if (r.supports.length) {
+        r.supports.forEach(s => lines.push(`- ${s.label} — ${s.format || 'format non précisé'} · ${s.volume || '0'} ${s.volumeLabel.toLowerCase()}${s.livrable ? ' · ' + s.livrable : ''}`));
+        if (r.totalVolume) lines.push(`Total : ${r.totalVolume} déclinaisons visuelles`);
+      } else {
+        lines.push('Aucun support sélectionné');
+      }
     }
     if (r.packagingProducts.length) {
       lines.push('');
