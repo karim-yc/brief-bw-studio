@@ -334,10 +334,20 @@
 
   function sendWebhook(data) {
     const WEBHOOK_URL = 'https://hook.eu1.make.com/un4wy721ere5mxdujxor3ovihzrlbl1v';
+    // Source de vérité unique : on envoie les données brutes ET le récap
+    // structuré + le texte du mail déjà formaté, pour que Make n'ait
+    // qu'à transmettre tel quel sans reconstruire sa propre logique.
+    const recap = Recap.build();
+    const payload = {
+      ...data,
+      recap,
+      mailSubject: `Brief ${recap.briefId} — ${recap.typeDemande}${recap.raisonUrgence ? ' [URGENT]' : ''}`,
+      mailBody: Recap.toPlainText(recap)
+    };
     fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     }).catch(err => console.warn('Webhook non joignable', err));
   }
 
@@ -510,19 +520,120 @@
       document.getElementById('restore-banner').hidden = true;
     });
 
-    document.getElementById('btn-pdf').addEventListener('click', () => window.print());
+    document.getElementById('btn-pdf').addEventListener('click', () => {
+      // S'assurer que la section Récap est ouverte avant impression
+      State.openSections[5] = true;
+      renderAll();
+      setTimeout(() => window.print(), 150);
+    });
 
     document.getElementById('btn-copy').addEventListener('click', () => {
-      navigator.clipboard?.writeText(location.href);
-      showToast('Lien copié');
+      const r = Recap.build();
+      const text = Recap.toPlainText(r);
+      navigator.clipboard?.writeText(text);
+      showToast('Récapitulatif copié dans le presse-papier');
     });
 
     document.getElementById('btn-mail').addEventListener('click', () => {
-      const subject = encodeURIComponent(`Brief créatif — ${State.data.briefId || 'nouveau'}`);
-      window.location.href = `mailto:?subject=${subject}`;
+      const r = Recap.build();
+      const subject = encodeURIComponent(`Brief ${r.briefId} — ${r.typeDemande}${r.raisonUrgence ? ' [URGENT]' : ''}`);
+      const body = encodeURIComponent(Recap.toPlainText(r));
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
     });
 
+    initHistoryDrawer();
+
     window.scrollTo(0, 0);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     HISTORIQUE — drawer fonctionnel
+     ════════════════════════════════════════════════════════════ */
+  const STATUS_LABELS = {
+    soumis: 'Soumis', encours: 'En cours', simulation: 'Simulation envoyée',
+    valide: 'Validé', livre: 'Livré'
+  };
+
+  function initHistoryDrawer() {
+    document.getElementById('btn-history').addEventListener('click', openHistoryDrawer);
+    document.getElementById('dr-close').addEventListener('click', closeHistoryDrawer);
+    document.getElementById('dr-overlay').addEventListener('click', closeHistoryDrawer);
+    document.getElementById('brief-detail-close').addEventListener('click', closeBriefDetail);
+    document.getElementById('brief-detail-overlay').addEventListener('click', e => {
+      if (e.target.id === 'brief-detail-overlay') closeBriefDetail();
+    });
+  }
+
+  function openHistoryDrawer() {
+    renderHistoryList();
+    document.getElementById('dr-overlay').classList.add('open');
+    document.getElementById('drawer').classList.add('open');
+  }
+
+  function closeHistoryDrawer() {
+    document.getElementById('dr-overlay').classList.remove('open');
+    document.getElementById('drawer').classList.remove('open');
+  }
+
+  function renderHistoryList() {
+    const hist = State.getHistory();
+    const body = document.getElementById('dr-body');
+
+    if (!hist.length) {
+      body.innerHTML = `
+        <div class="dr-empty">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M10 5v5l3.5 2M17 10a7 7 0 1 1-2.05-4.95" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Aucun brief soumis pour l'instant.<br>L'historique apparaîtra ici après votre première soumission.
+        </div>`;
+      return;
+    }
+
+    body.innerHTML = hist.map(b => {
+      const typeInfo = CONFIG.typesDemande.find(t => t.id === b.typeDemande);
+      const typeLabel = typeInfo ? typeInfo.label : (b.typeDemande || 'Demande');
+      const typeClass = 'type-' + (b.typeDemande || 'autre');
+      const status = State.getBriefStatus(b.briefId);
+      const date = b.submittedAt ? new Date(b.submittedAt).toLocaleDateString('fr-BE', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+      return `
+        <div class="hist-item" data-open-brief="${b.briefId}">
+          <div class="hist-item-head">
+            <span class="hist-id">${b.briefId}</span>
+            <span class="hist-badge ${typeClass}">${typeLabel}</span>
+          </div>
+          <div class="hist-title">${b.ref || 'Sans nom'} — ${b.dept || '—'}</div>
+          <div class="hist-desc">${(b.description || '').slice(0, 70) || 'Sans description'}</div>
+          <div class="hist-meta">
+            <span class="hist-date">${date}</span>
+            <span class="hist-status">${STATUS_LABELS[status] || status}</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    body.querySelectorAll('[data-open-brief]').forEach(el => {
+      el.addEventListener('click', () => openBriefDetail(el.dataset.openBrief));
+    });
+  }
+
+  function openBriefDetail(briefId) {
+    const hist = State.getHistory();
+    const brief = hist.find(b => b.briefId === briefId);
+    if (!brief) return;
+
+    // Construit le récap à partir des données archivées de CE brief précis
+    // (pas State.data courant, qui peut être un autre brouillon en cours)
+    const savedData = State.data;
+    State.data = { ...savedData, ...brief };
+    const r = Recap.build();
+    State.data = savedData; // restaure le brouillon en cours sans l'écraser
+
+    document.getElementById('brief-detail-title').textContent = `Brief ${r.briefId}`;
+    document.getElementById('brief-detail-sub').textContent = `${r.demandeur} — ${r.departement} · ${new Date(brief.submittedAt).toLocaleDateString('fr-BE')}`;
+    document.getElementById('brief-detail-content').innerHTML = Recap.toHtml(r);
+    document.getElementById('brief-detail-overlay').classList.add('open');
+  }
+
+  function closeBriefDetail() {
+    document.getElementById('brief-detail-overlay').classList.remove('open');
   }
 
   document.addEventListener('DOMContentLoaded', init);

@@ -86,6 +86,21 @@ const State = {
     catch (e) { return []; }
   },
 
+  getBriefStatus(briefId) {
+    try {
+      const statuses = JSON.parse(localStorage.getItem('bw_brief_v2_statuses') || '{}');
+      return statuses[briefId] || 'soumis';
+    } catch (e) { return 'soumis'; }
+  },
+
+  setBriefStatus(briefId, status) {
+    try {
+      const statuses = JSON.parse(localStorage.getItem('bw_brief_v2_statuses') || '{}');
+      statuses[briefId] = status;
+      localStorage.setItem('bw_brief_v2_statuses', JSON.stringify(statuses));
+    } catch (e) {}
+  },
+
   /* ── Récupère les champs actifs de l'étape 3 selon le type ─── */
   getChampsEtape3() {
     const type = this.data.typeDemande;

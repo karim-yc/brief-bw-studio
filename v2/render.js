@@ -332,19 +332,7 @@ const Render = {
      ════════════════════════════════════════════════════════════ */
   section5() {
     const open = State.openSections[5];
-    const issues = State.getAllIssues();
-    const d = State.data;
-
-    const typeLabel = CONFIG.typesDemande.find(t => t.id === d.typeDemande)?.label || '—';
-
-    const supportsLines = d.supportsSelected.map(sid => {
-      const sup = CONFIG.supports.find(s => s.id === sid);
-      const fmt = d.formats[sid] || sup.defaultFormat;
-      const vol = d.volumes[sid] || 0;
-      return `<li>${sup.label} — ${fmt} × ${vol}</li>`;
-    }).join('');
-
-    const confirmedFields = issues.complete.filter(f => f.confirmable || f.gravity !== 'optional');
+    const r = Recap.build();
 
     return `
       <div class="card" data-section="5">
@@ -355,28 +343,8 @@ const Render = {
         </div>
         <div class="card-body ${open ? 'open' : ''}" id="card-body-5">
           <div class="card-body-inner">
-            <div style="font-family:monospace;font-size:12.5px;line-height:1.8;color:var(--text-secondary);background:var(--bg-soft);border-radius:12px;padding:20px">
-<strong style="color:var(--text)">BRIEF ${d.briefId || '(généré à la soumission)'}</strong><br>
-Soumis par : ${d.ref || '—'} — ${d.dept || '—'}${d.restaurant ? ' · ' + d.restaurant : ''}<br><br>
-
-<strong style="color:var(--text)">CONTEXTE</strong><br>
-${d.description || '—'}<br><br>
-
-<strong style="color:var(--text)">TYPE</strong><br>
-${typeLabel}${d.genreCampagne ? ' — ' + CONFIG.genresCampagne.find(g=>g.id===d.genreCampagne)?.label : ''}<br>
-Priorité : ${d.priorite || '—'}${d.priorite === 'urgent' ? ' — ' + (d.raisonUrgence || 'raison non précisée') : ''}<br><br>
-
-<strong style="color:var(--text)">SUPPORTS</strong><br>
-${supportsLines ? '<ul style="margin-left:18px">' + supportsLines + '</ul>' : 'Aucun support sélectionné'}<br>
-
-<strong style="color:var(--text)">DEADLINES</strong><br>
-Lancement : ${d.dateLancement || '—'} · Validation : ${d.dateValidation || '—'}<br><br>
-
-<strong style="color:var(--danger)">POINTS BLOQUANTS (${issues.blocking.length})</strong><br>
-${issues.blocking.length ? issues.blocking.map(i => '· ' + i.field.label).join('<br>') : 'Aucun ✓'}<br><br>
-
-<strong style="color:var(--warning)">RECOMMANDÉS NON FOURNIS (${issues.recommended.length})</strong><br>
-${issues.recommended.length ? issues.recommended.map(i => '· ' + i.field.label).join('<br>') : 'Aucun ✓'}
+            <div style="font-size:12.5px;line-height:1.8;color:var(--text-secondary);background:var(--bg-soft);border-radius:12px;padding:20px">
+${Recap.toHtml(r)}
             </div>
           </div>
         </div>

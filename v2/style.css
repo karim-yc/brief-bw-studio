@@ -118,6 +118,13 @@ svg { display: block; }
 }
 .hdr-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
 .hdr-btn svg { width: 14px; height: 14px; }
+.hdr-btn-disabled { cursor: default; opacity: 0.45; }
+.hdr-btn-disabled:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
+.hdr-soon {
+  font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+  background: rgba(255,255,255,0.12); padding: 1px 5px; border-radius: 6px;
+  margin-left: 2px;
+}
 .hdr-badge {
   background: rgba(255,255,255,0.2);
   border-radius: 8px;
@@ -674,13 +681,78 @@ select:focus { border-bottom-color: var(--text); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ════════════════════════════════════════════════════════════
+   HISTORY DRAWER
+   ════════════════════════════════════════════════════════════ */
+.dr-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300;
+  display: none; backdrop-filter: blur(4px);
+}
+.dr-overlay.open { display: block; }
+.drawer {
+  position: fixed; right: 0; top: 0; bottom: 0; width: min(440px, 100vw);
+  background: var(--bg); z-index: 301;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--t-slow) var(--ease);
+  box-shadow: -20px 0 60px rgba(0,0,0,0.15);
+}
+.drawer.open { transform: translateX(0); }
+.dr-head {
+  background: var(--accent); padding: 18px 24px;
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.dr-head-title { font-size: 14px; font-weight: 600; color: #fff; flex: 1; }
+.dr-close {
+  width: 28px; height: 28px; border: none; background: rgba(255,255,255,0.1);
+  border-radius: 50%; color: #fff; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.dr-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+.dr-empty { text-align: center; padding: 60px 24px; color: var(--text-tertiary); font-size: 13px; }
+.dr-empty svg { width: 40px; height: 40px; margin: 0 auto 14px; opacity: 0.3; display: block; }
+
+.hist-item {
+  padding: 16px 24px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background var(--t-fast);
+}
+.hist-item:hover { background: var(--bg-soft); }
+.hist-item-head { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.hist-id { font-family: var(--font-display); font-size: 10px; color: var(--text-tertiary); letter-spacing: 0.5px; }
+.hist-badge {
+  font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 8px;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.hist-badge.type-campagne { background: var(--success-bg); color: var(--success); }
+.hist-badge.type-packaging { background: #eff6ff; color: #1e40af; }
+.hist-badge.type-vitrophanie { background: var(--warning-bg); color: var(--warning); }
+.hist-badge.type-autre { background: var(--bg-soft); color: var(--text-secondary); }
+.hist-title { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.hist-desc {
+  font-size: 12px; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px;
+}
+.hist-meta { display: flex; align-items: center; justify-content: space-between; }
+.hist-date { font-size: 11px; color: var(--text-tertiary); }
+.hist-status {
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+  background: var(--bg-soft); color: var(--text-secondary);
+}
+
+/* ════════════════════════════════════════════════════════════
    PRINT
    ════════════════════════════════════════════════════════════ */
 @media print {
-  .hdr, .tabs, .sidebar, .mobile-submit, .banner, .card-head .card-chevron { display: none !important; }
-  .layout { grid-template-columns: 1fr; padding: 0; }
-  .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
-  .card-body { max-height: none !important; }
+  /* On masque tout sauf la carte Récapitulatif (section 5) — c'est
+     le document de production destiné à l'impression, pas le formulaire brut */
+  .hdr, .tabs, .sidebar, .mobile-submit, .banner, .rapide-wrap,
+  [data-section="1"], [data-section="2"], [data-section="3"], [data-section="4"],
+  .card-head .card-chevron, .info-banner { display: none !important; }
+  .layout { grid-template-columns: 1fr; padding: 0; max-width: 100%; }
+  .card { box-shadow: none; border: none; break-inside: avoid; }
+  .card-body { max-height: none !important; display: block !important; }
+  [data-section="5"] .card-head { background: #000; padding: 16px 0; }
+  [data-section="5"] .card-head .card-title,
+  [data-section="5"] .card-head .card-num { color: #fff; }
   body { background: #fff; }
 }
 
