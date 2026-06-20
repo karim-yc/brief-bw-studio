@@ -739,6 +739,27 @@ select:focus { border-bottom-color: var(--text); }
 }
 
 /* ════════════════════════════════════════════════════════════
+   MODAL — détail brief depuis historique
+   ════════════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 400;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+  backdrop-filter: blur(6px);
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--bg); border-radius: 16px; width: 100%; max-width: 320px;
+  overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.modal-cancel {
+  flex: 1; padding: 14px; border: none; background: transparent;
+  font-size: 14px; color: var(--text-secondary); cursor: pointer;
+  font-family: inherit; transition: background var(--t-fast);
+}
+.modal-cancel:hover { background: var(--bg-soft); }
+.modal-actions { display: flex; border-top: 1px solid var(--border); }
+
+/* ════════════════════════════════════════════════════════════
    PRINT
    ════════════════════════════════════════════════════════════ */
 @media print {

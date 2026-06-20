@@ -47,13 +47,16 @@ const Recap = {
     // ── Champs validés / à confirmer / manquants ─────────────────
     const validated = [];
     const toConfirm = [];
+    // Champs déjà affichés ailleurs dans le récap (demandeur, contexte, type, priorité)
+    // → exclus de la liste "Infos validées" pour éviter la redondance
+    const alreadyShownElsewhere = ['dept', 'ref', 'restaurant', 'deptAutrePrecision', 'description', 'priorite', 'raisonUrgence'];
     issues.complete.forEach(f => {
       if (f.type === 'virtual') return;
+      if (alreadyShownElsewhere.includes(f.id)) return;
       const val = d[f.id];
       if (val === undefined || val === '' || (Array.isArray(val) && !val.length)) return;
       const entry = { label: f.label, value: this.formatFieldValue(f, val) };
-      if (f.confirmable) validated.push(entry);
-      else validated.push(entry);
+      validated.push(entry);
     });
     issues.blocking.concat(issues.recommended).forEach(i => {
       if (i.reason === 'a_confirmer') {
