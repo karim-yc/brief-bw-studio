@@ -183,13 +183,15 @@ const State = {
         fields = CONFIG.champsEtape2.slice();
         // typeDemande est aussi requis
         if (!this.data.typeDemande) return { status: 'empty', blocking: 1, total: fields.length + 1 };
+        // Pour Campagne Marketing, "au moins un support" fait partie de cette section
+        if (this.data.typeDemande === 'campagne') fields = fields.concat(this.getSupportsFields());
         break;
       case 'infos':
         // Pas de type sélectionné → section non applicable, statut neutre (vide, pas complet)
         if (!this.data.typeDemande) return { status: 'empty', blocking: 0, total: 0, filled: 0 };
         fields = this.getChampsEtape3();
         break;
-      case 'supports': fields = this.getEtape4Fields(); break;
+      case 'supports': fields = this.getDeadlinesFields(); break;
       default: return { status: 'empty', blocking: 0, total: 0 };
     }
     if (!fields.length) return { status: 'complete', blocking: 0, total: 0 };
@@ -206,14 +208,18 @@ const State = {
     return { status, blocking: blocking.length, recommended: recommended.length, total, filled: filledCount };
   },
 
-  /* ── Champs virtuels étape 4 (supports + deadlines + priorité) */
-  getEtape4Fields() {
-    const fields = [...CONFIG.champsEtape4Deadlines];
-    // Supports = au moins 1 sélectionné (bloquant virtuel)
-    fields.push({
+  /* ── Contrainte "au moins un support" — appartient désormais à la
+     section 2 (Que faut-il créer), uniquement pour Campagne Marketing ── */
+  getSupportsFields() {
+    return [{
       id: '__supports', label: 'Au moins un support sélectionné', type: 'virtual', gravity: 'blocking',
       virtualCheck: () => this.data.supportsSelected.length > 0
-    });
+    }];
+  },
+
+  /* ── Champs deadlines + priorité — section 4 uniquement ── */
+  getDeadlinesFields() {
+    const fields = [...CONFIG.champsEtape4Deadlines];
     fields.push({
       id: 'priorite', label: 'Niveau de priorité', type: 'pills', gravity: 'blocking'
     });
@@ -236,8 +242,9 @@ const State = {
       ...this.getChampsEtape1(),
       ...(this.data.typeDemande ? [] : [{ id: '__type', label: 'Type de demande', gravity: 'blocking', type: 'virtual', virtualCheck: () => !!this.data.typeDemande }]),
       ...CONFIG.champsEtape2,
+      ...(this.data.typeDemande === 'campagne' ? this.getSupportsFields() : []),
       ...this.getChampsEtape3(),
-      ...this.getEtape4Fields()
+      ...this.getDeadlinesFields()
     ];
 
     const blocking = [];

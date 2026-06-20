@@ -202,7 +202,7 @@ const CONFIG = {
     ]
   },
 
-  /* ── ÉTAPE 4 — Supports & deadlines ─────────────────────────
+  /* ── ÉTAPE 4 — Deadlines & priorité ──────────────────────────
      Toujours la même, indépendamment du type */
   champsEtape4Deadlines: [
     { id: 'dateLancement', label: 'Date de lancement', type: 'date', gravity: 'blocking', confirmable: true },
@@ -223,7 +223,7 @@ const CONFIG = {
     { id: 1, key: 'qui', title: 'Qui demande ?' },
     { id: 2, key: 'quoi', title: 'Que faut-il créer ?' },
     { id: 3, key: 'infos', title: 'Infos indispensables' },
-    { id: 4, key: 'supports', title: 'Supports & deadlines' },
+    { id: 4, key: 'supports', title: 'Deadlines & priorité' },
     { id: 5, key: 'recap', title: 'Récapitulatif' }
   ]
 };

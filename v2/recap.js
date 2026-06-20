@@ -23,9 +23,11 @@ const Recap = {
     const genreInfo = d.genreCampagne ? CONFIG.genresCampagne.find(g => g.id === d.genreCampagne) : null;
     const phaseInfo = d.phasePackaging ? CONFIG.phasesPackaging.find(p => p.id === d.phasePackaging) : null;
     const vtypeInfo = d.typeVitrophanie ? CONFIG.typesVitrophanie.find(v => v.id === d.typeVitrophanie) : null;
-    const isPackagingPhysique = d.typeDemande === 'packaging';
+    // Les supports/déclinaisons/livrables n'existent que pour Campagne Marketing.
+    // Packaging a son propre tableau de produits structuré (packagingProducts).
+    const isPackagingPhysique = false;
 
-    // ── Supports détaillés (format, déclinaisons/qté, livrable) ──
+    // ── Supports détaillés (format, déclinaisons, livrable) — Campagne uniquement ──
     const supports = d.supportsSelected.map(sid => {
       const sup = CONFIG.supports.find(s => s.id === sid);
       const livrableId = d.supportLivrables?.[sid];
@@ -35,7 +37,7 @@ const Recap = {
         label: sup ? sup.label : sid,
         format: d.formats[sid] || (sup ? sup.defaultFormat : ''),
         volume: d.volumes[sid] || '',
-        volumeLabel: isPackagingPhysique ? 'Qté' : 'Déclinaisons',
+        volumeLabel: 'Déclinaisons',
         livrable: livrableInfo ? livrableInfo.label : ''
       };
     });

@@ -45,7 +45,7 @@
         State.data.volumes[e.target.dataset.volumeField] = e.target.value;
         scheduleSave();
         renderSidebarOnly();
-        updateCardStatus(4);
+        updateCardStatus(2);
         updateVolumeTotal();
       });
     });
@@ -166,11 +166,11 @@
 
   function updateVolumeTotal() {
     const total = Object.values(State.data.volumes).reduce((a, b) => a + (parseInt(b) || 0), 0);
-    const hint = document.querySelector('#card-body-4 .field-hint');
+    // Le bloc supports vit maintenant dans la section 2 (Que faut-il créer),
+    // uniquement pour Campagne Marketing — plus de notion "packaging physique" ici.
+    const hint = document.querySelector('#card-body-2 .field-hint');
     if (hint) {
-      const isPackagingPhysique = State.data.typeDemande === 'packaging';
-      const label = isPackagingPhysique ? 'Quantité totale à produire' : 'Total déclinaisons visuelles';
-      hint.textContent = `${label} : ${total}`;
+      hint.textContent = `Total déclinaisons visuelles : ${total}`;
     }
   }
 
@@ -281,7 +281,13 @@
 
   function scrollToField(fieldId) {
     // S'assurer que la bonne section est ouverte
-    const sectionGuess = guessSection(fieldId) || (fieldId === '__supports' || fieldId === 'priorite' || fieldId === 'raisonUrgence' || fieldId.startsWith('date') ? 4 : (fieldId === '__type' ? 2 : 1));
+    let sectionGuess = guessSection(fieldId);
+    if (!sectionGuess) {
+      if (fieldId === '__supports') sectionGuess = 2; // supports vivent en section 2 désormais
+      else if (fieldId === 'priorite' || fieldId === 'raisonUrgence' || fieldId.startsWith('date')) sectionGuess = 4;
+      else if (fieldId === '__type') sectionGuess = 2;
+      else sectionGuess = 1;
+    }
     State.openSections[sectionGuess] = true;
     renderAll();
 

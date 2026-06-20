@@ -174,6 +174,11 @@ const Render = {
         </div>`;
     }
 
+    // "Ce qu'il faut produire" — uniquement pertinent pour Campagne Marketing.
+    // Packaging et Vitrophanie ont leurs propres champs dédiés en section 3,
+    // pas de notion de "supports marketing" à sélectionner.
+    const supportsBlock = type === 'campagne' ? this.supportsBlock() : '';
+
     return `
       <div class="card" data-section="2">
         <div class="card-head ${open ? 'open' : ''}" data-toggle="2">
@@ -192,9 +197,60 @@ const Render = {
               ${subContent}
               ${this.field(CONFIG.champsEtape2[0])}
             </div>
+            <div class="cond-block ${type === 'campagne' ? 'visible' : 'hidden'}">
+              ${supportsBlock}
+            </div>
           </div>
         </div>
       </div>`;
+  },
+
+  /* ── Bloc "Ce qu'il faut produire" — supports/formats/déclinaisons/livrables.
+     Visible uniquement pour Campagne Marketing, intégré à la section 2. ── */
+  supportsBlock() {
+    const selected = State.data.supportsSelected;
+
+    const supportCards = CONFIG.supports.map(s => `
+      <button type="button" class="support-card ${selected.includes(s.id) ? 'active' : ''}" data-support-toggle="${s.id}">
+        <span class="chk-dot">${selected.includes(s.id) ? Icons.check : ''}</span>
+        ${s.label}
+      </button>`).join('');
+
+    const formatRows = selected.map(sid => {
+      const sup = CONFIG.supports.find(s => s.id === sid);
+      const fmt = State.data.formats[sid] || sup.defaultFormat;
+      const vol = State.data.volumes[sid] || '';
+      const liv = State.data.supportLivrables?.[sid] || '';
+      return `
+        <div class="pack-row" style="grid-template-columns:1fr 110px 64px 90px">
+          <span style="font-size:13px">${sup.label}</span>
+          <input type="text" data-format-field="${sid}" placeholder="Format" value="${this.esc(fmt)}">
+          <input type="number" min="1" data-volume-field="${sid}" placeholder="Nb" value="${this.esc(vol)}" title="Nombre de déclinaisons visuelles">
+          <select data-support-livrable-field="${sid}">
+            <option value="">Livrable</option>
+            ${CONFIG.livrables.map(l => `<option value="${l.id}" ${liv === l.id ? 'selected' : ''}>${l.label}</option>`).join('')}
+          </select>
+        </div>`;
+    }).join('');
+
+    const totalVol = Object.values(State.data.volumes).reduce((a, b) => a + (parseInt(b) || 0), 0);
+
+    return `
+      <div class="field" style="margin-top:4px">
+        <label class="field-label">Supports à produire<span class="req">*</span></label>
+        <div class="support-grid">${supportCards}</div>
+      </div>
+      ${selected.length ? `
+      <div class="field" style="margin-top:18px">
+        <label class="field-label">Format, déclinaisons et livrable par support</label>
+        <div class="pack-table">
+          <div class="pack-row pack-row-head" style="grid-template-columns:1fr 110px 64px 90px">
+            <span>Support</span><span>Format</span><span>Déclis</span><span>Livrable</span>
+          </div>
+          ${formatRows}
+        </div>
+        <p class="field-hint">Total déclinaisons visuelles : ${totalVol || 0}</p>
+      </div>` : ''}`;
   },
 
   /* ════════════════════════════════════════════════════════════
@@ -235,42 +291,13 @@ const Render = {
   },
 
   /* ════════════════════════════════════════════════════════════
-     SECTION 4 — SUPPORTS & DEADLINES (2 sous-cartes)
+     SECTION 4 — DEADLINES & PRIORITÉ
+     Ne contient plus que ce qui concerne le calendrier de production.
+     Les supports à produire ont été déplacés en section 2 (Que faut-il créer).
      ════════════════════════════════════════════════════════════ */
   section4() {
     const st = State.getSectionStatus('supports');
     const open = State.openSections[4];
-    const selected = State.data.supportsSelected;
-    const isPackagingPhysique = State.data.typeDemande === 'packaging';
-
-    const supportCards = CONFIG.supports.map(s => `
-      <button type="button" class="support-card ${selected.includes(s.id) ? 'active' : ''}" data-support-toggle="${s.id}">
-        <span class="chk-dot">${selected.includes(s.id) ? Icons.check : ''}</span>
-        ${s.label}
-      </button>`).join('');
-
-    const declisLabel = isPackagingPhysique ? 'Qté' : 'Déclis';
-    const declisPlaceholder = isPackagingPhysique ? 'Quantité' : 'Nb';
-
-    const formatRows = selected.map(sid => {
-      const sup = CONFIG.supports.find(s => s.id === sid);
-      const fmt = State.data.formats[sid] || sup.defaultFormat;
-      const vol = State.data.volumes[sid] || '';
-      const liv = State.data.supportLivrables?.[sid] || '';
-      return `
-        <div class="pack-row" style="grid-template-columns:1fr 110px 64px 90px">
-          <span style="font-size:13px">${sup.label}</span>
-          <input type="text" data-format-field="${sid}" placeholder="Format" value="${this.esc(fmt)}">
-          <input type="number" min="1" data-volume-field="${sid}" placeholder="${declisPlaceholder}" value="${this.esc(vol)}" title="${isPackagingPhysique ? 'Quantité à produire' : 'Nombre de déclinaisons visuelles'}">
-          <select data-support-livrable-field="${sid}">
-            <option value="">Livrable</option>
-            ${CONFIG.livrables.map(l => `<option value="${l.id}" ${liv === l.id ? 'selected' : ''}>${l.label}</option>`).join('')}
-          </select>
-        </div>`;
-    }).join('');
-
-    const totalVol = Object.values(State.data.volumes).reduce((a, b) => a + (parseInt(b) || 0), 0);
-    const totalLabel = isPackagingPhysique ? 'Quantité totale à produire' : 'Total déclinaisons visuelles';
 
     const priorityPills = CONFIG.prioritesNiveau.map(p =>
       `<button type="button" class="pill ${p.id === 'urgent' ? 'urgent' : ''} ${State.data.priorite === p.id ? 'active' : ''}" data-field="priorite" data-value="${p.id}">${p.label}</button>`
@@ -280,48 +307,24 @@ const Render = {
       <div class="card" data-section="4">
         <div class="card-head ${open ? 'open' : ''}" data-toggle="4">
           <div class="card-num">4</div>
-          <div class="card-title">Supports &amp; deadlines</div>
+          <div class="card-title">Deadlines &amp; priorité</div>
           ${this.statusBadge(st.status)}
           <div class="card-chevron">${Icons.chevron}</div>
         </div>
         <div class="card-body ${open ? 'open' : ''}" id="card-body-4">
           <div class="card-body-inner">
-
-            <div class="subcard">
-              <div class="subcard-title">${Icons.packaging} Ce qu'il faut produire</div>
-              <div class="field">
-                <label class="field-label">Supports à produire<span class="req">*</span></label>
-                <div class="support-grid">${supportCards}</div>
-              </div>
-              ${selected.length ? `
-              <div class="field" style="margin-top:18px">
-                <label class="field-label">Format, ${isPackagingPhysique ? 'quantité' : 'déclinaisons'} et livrable par support</label>
-                <div class="pack-table">
-                  <div class="pack-row pack-row-head" style="grid-template-columns:1fr 110px 64px 90px">
-                    <span>Support</span><span>Format</span><span>${declisLabel}</span><span>Livrable</span>
-                  </div>
-                  ${formatRows}
-                </div>
-                <p class="field-hint">${totalLabel} : ${totalVol || 0}</p>
-              </div>` : ''}
+            <div class="field-row">
+              ${this.field(CONFIG.champsEtape4Deadlines[0])}
+              ${this.field(CONFIG.champsEtape4Deadlines[1])}
             </div>
-
-            <div class="subcard">
-              <div class="subcard-title">Quand le produire</div>
-              <div class="field-row">
-                ${this.field(CONFIG.champsEtape4Deadlines[0])}
-                ${this.field(CONFIG.champsEtape4Deadlines[1])}
-              </div>
-              ${this.field(CONFIG.champsEtape4Deadlines[2])}
-              <div class="field" style="margin-top:4px">
-                <label class="field-label">Priorité<span class="req">*</span></label>
-                <div class="pill-group">${priorityPills}</div>
-              </div>
-              <div class="cond-block ${State.data.priorite === 'urgent' ? 'visible' : 'hidden'}">
-                ${this.field({ id: 'raisonUrgence', label: 'Pourquoi cette demande est-elle urgente ?', type: 'text', gravity: 'blocking', placeholder: 'Ex : Lancement avancé par la direction, campagne presse imminente...' })}
-              </div>
+            ${this.field(CONFIG.champsEtape4Deadlines[2])}
+            <div class="field" style="margin-top:4px">
+              <label class="field-label">Priorité<span class="req">*</span></label>
+              <div class="pill-group">${priorityPills}</div>
             </div>
-
+            <div class="cond-block ${State.data.priorite === 'urgent' ? 'visible' : 'hidden'}">
+              ${this.field({ id: 'raisonUrgence', label: 'Pourquoi cette demande est-elle urgente ?', type: 'text', gravity: 'blocking', placeholder: 'Ex : Lancement avancé par la direction, campagne presse imminente...' })}
+            </div>
           </div>
         </div>
       </div>`;
@@ -390,7 +393,7 @@ ${Recap.toHtml(r)}
   renderSectionList() {
     const el = document.getElementById('sb-sections');
     const keys = ['qui', 'quoi', 'infos', 'supports'];
-    const titles = ['Qui demande', 'Quoi créer', 'Infos indispensables', 'Supports & deadlines'];
+    const titles = ['Qui demande', 'Quoi créer', 'Infos indispensables', 'Deadlines & priorité'];
 
     el.innerHTML = keys.map((k, i) => {
       const st = State.getSectionStatus(k);
