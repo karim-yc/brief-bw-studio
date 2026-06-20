@@ -82,8 +82,28 @@ const State = {
   },
 
   getHistory() {
-    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
-    catch (e) { return []; }
+    try {
+      const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      // Tri explicite plus récent → plus ancien, indépendant de l'ordre de stockage
+      return hist.sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
+    } catch (e) { return []; }
+  },
+
+  deleteFromHistory(briefId) {
+    try {
+      const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      const filtered = hist.filter(b => b.briefId !== briefId);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered));
+      return true;
+    } catch (e) { return false; }
+  },
+
+  clearHistory() {
+    try {
+      localStorage.removeItem(HISTORY_KEY);
+      localStorage.removeItem('bw_brief_v2_statuses');
+      return true;
+    } catch (e) { return false; }
   },
 
   getBriefStatus(briefId) {

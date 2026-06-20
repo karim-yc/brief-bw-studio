@@ -166,7 +166,7 @@ ${packagingLines ? '<br><strong style="color:var(--text)">PRODUITS PACKAGING</st
 <strong style="color:var(--success)">INFOS VALIDÉES</strong><br>
 ${validatedLines}<br><br>
 
-<strong style="color:var(--warning)">INFOS À CONFIRMER</strong><br>
+<strong style="color:var(--warning)">INFOS À CONFIRMER</strong> <span style="font-size:10.5px;font-weight:400;color:var(--text-tertiary)">— fournies mais pas encore validées</span><br>
 ${toConfirmLines}<br><br>
 
 <strong style="color:var(--text)">FICHIERS / LIENS</strong><br>
@@ -175,10 +175,10 @@ ${driveLines}<br><br>
 <strong style="color:var(--text)">DEADLINES</strong><br>
 Lancement : ${r.dateLancement} · Validation infos : ${r.dateValidation}${r.dateRetourSimul ? ' · Retour simulation : ' + r.dateRetourSimul : ''}<br><br>
 
-<strong style="color:var(--danger)">POINTS BLOQUANTS (${r.blocking.length})</strong><br>
+<strong style="color:var(--danger)">POINTS BLOQUANTS (${r.blocking.length})</strong> <span style="font-size:10.5px;font-weight:400;color:var(--text-tertiary)">— empêchent la soumission</span><br>
 ${r.blocking.length ? r.blocking.map(b => '· ' + b).join('<br>') : 'Aucun ✓'}<br><br>
 
-<strong style="color:var(--warning)">RECOMMANDÉS NON FOURNIS (${r.recommended.length})</strong><br>
+<strong style="color:var(--warning)">RECOMMANDÉS NON FOURNIS (${r.recommended.length})</strong> <span style="font-size:10.5px;font-weight:400;color:var(--text-tertiary)">— utiles mais non bloquants</span><br>
 ${r.recommended.length ? r.recommended.map(b => '· ' + b).join('<br>') : 'Aucun ✓'}`;
   },
 
@@ -211,7 +211,7 @@ ${r.recommended.length ? r.recommended.map(b => '· ' + b).join('<br>') : 'Aucun
     lines.push('INFOS VALIDÉES');
     lines.push(r.validated.length ? r.validated.map(v => `- ${v.label} : ${v.value}`).join('\n') : 'Aucune');
     lines.push('');
-    lines.push('INFOS À CONFIRMER');
+    lines.push('INFOS À CONFIRMER (fournies mais pas encore validées)');
     lines.push(r.toConfirm.length ? r.toConfirm.map(v => `- ${v.label} : ${v.value}`).join('\n') : 'Aucune');
     lines.push('');
     lines.push('FICHIERS / LIENS');
@@ -220,10 +220,10 @@ ${r.recommended.length ? r.recommended.map(b => '· ' + b).join('<br>') : 'Aucun
     lines.push('DEADLINES');
     lines.push(`Lancement : ${r.dateLancement} · Validation infos : ${r.dateValidation}${r.dateRetourSimul ? ' · Retour simulation : ' + r.dateRetourSimul : ''}`);
     lines.push('');
-    lines.push(`POINTS BLOQUANTS (${r.blocking.length})`);
+    lines.push(`POINTS BLOQUANTS — empêchent la soumission (${r.blocking.length})`);
     lines.push(r.blocking.length ? r.blocking.map(b => `- ${b}`).join('\n') : 'Aucun');
     lines.push('');
-    lines.push(`RECOMMANDÉS NON FOURNIS (${r.recommended.length})`);
+    lines.push(`RECOMMANDÉS NON FOURNIS — utiles mais non bloquants (${r.recommended.length})`);
     lines.push(r.recommended.length ? r.recommended.map(b => `- ${b}`).join('\n') : 'Aucun');
     return lines.join('\n');
   }

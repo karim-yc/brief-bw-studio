@@ -562,22 +562,55 @@
     document.getElementById('brief-detail-overlay').addEventListener('click', e => {
       if (e.target.id === 'brief-detail-overlay') closeBriefDetail();
     });
+    document.getElementById('dr-clear-all').addEventListener('click', () => {
+      const hist = State.getHistory();
+      if (!hist.length) return;
+      if (confirm(`Vider tout l'historique (${hist.length} brief${hist.length > 1 ? 's' : ''}) ? Cette action est irréversible.`)) {
+        State.clearHistory();
+        renderHistoryList();
+        document.getElementById('hist-count').textContent = '0';
+      }
+    });
+
+    // Fermeture au clavier — Échap ferme la couche la plus haute (modale d'abord, puis drawer)
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      const modalOpen = document.getElementById('brief-detail-overlay').classList.contains('open');
+      const drawerOpen = document.getElementById('drawer').classList.contains('open');
+      if (modalOpen) closeBriefDetail();
+      else if (drawerOpen) closeHistoryDrawer();
+    });
   }
 
   function openHistoryDrawer() {
     renderHistoryList();
     document.getElementById('dr-overlay').classList.add('open');
     document.getElementById('drawer').classList.add('open');
+    lockScroll();
   }
 
   function closeHistoryDrawer() {
     document.getElementById('dr-overlay').classList.remove('open');
     document.getElementById('drawer').classList.remove('open');
+    unlockScroll();
+  }
+
+  // Compteur de verrous scroll : la modale peut s'ouvrir par-dessus le drawer,
+  // il ne faut débloquer le scroll que quand TOUTES les couches sont fermées.
+  let scrollLockCount = 0;
+  function lockScroll() {
+    scrollLockCount++;
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockScroll() {
+    scrollLockCount = Math.max(0, scrollLockCount - 1);
+    if (scrollLockCount === 0) document.body.style.overflow = '';
   }
 
   function renderHistoryList() {
     const hist = State.getHistory();
     const body = document.getElementById('dr-body');
+    const footer = document.getElementById('dr-footer');
 
     if (!hist.length) {
       body.innerHTML = `
@@ -585,8 +618,10 @@
           <svg viewBox="0 0 24 24" fill="none"><path d="M10 5v5l3.5 2M17 10a7 7 0 1 1-2.05-4.95" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Aucun brief soumis pour l'instant.<br>L'historique apparaîtra ici après votre première soumission.
         </div>`;
+      footer.hidden = true;
       return;
     }
+    footer.hidden = false;
 
     body.innerHTML = hist.map(b => {
       const typeInfo = CONFIG.typesDemande.find(t => t.id === b.typeDemande);
@@ -599,6 +634,7 @@
           <div class="hist-item-head">
             <span class="hist-id">${b.briefId}</span>
             <span class="hist-badge ${typeClass}">${typeLabel}</span>
+            <button class="hist-del-btn" data-del-brief="${b.briefId}" title="Supprimer ce brief" aria-label="Supprimer">${Icons.trash}</button>
           </div>
           <div class="hist-title">${b.ref || 'Sans nom'} — ${b.dept || '—'}</div>
           <div class="hist-desc">${(b.description || '').slice(0, 70) || 'Sans description'}</div>
@@ -608,6 +644,18 @@
           </div>
         </div>`;
     }).join('');
+
+    body.querySelectorAll('[data-del-brief]').forEach(el => {
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = el.dataset.delBrief;
+        if (confirm(`Supprimer définitivement le brief ${id} ?`)) {
+          State.deleteFromHistory(id);
+          renderHistoryList();
+          document.getElementById('hist-count').textContent = State.getHistory().length;
+        }
+      });
+    });
 
     body.querySelectorAll('[data-open-brief]').forEach(el => {
       el.addEventListener('click', () => openBriefDetail(el.dataset.openBrief));
@@ -630,10 +678,12 @@
     document.getElementById('brief-detail-sub').textContent = `${r.demandeur} — ${r.departement} · ${new Date(brief.submittedAt).toLocaleDateString('fr-BE')}`;
     document.getElementById('brief-detail-content').innerHTML = Recap.toHtml(r);
     document.getElementById('brief-detail-overlay').classList.add('open');
+    lockScroll();
   }
 
   function closeBriefDetail() {
     document.getElementById('brief-detail-overlay').classList.remove('open');
+    unlockScroll();
   }
 
   document.addEventListener('DOMContentLoaded', init);
