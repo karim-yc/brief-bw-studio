@@ -52,13 +52,10 @@ const Render = {
       inputHtml = `<input type="text" data-field="${f.id}" placeholder="${f.placeholder || ''}" value="${this.esc(val)}">`;
     }
 
-    const confirmToggle = f.confirmable && State.isFieldFilled(f) ? this.confirmToggle(f.id) : '';
-
     return `
       <div class="${cls.join(' ')}" data-field-wrap="${f.id}">
         <div class="field-label-row">
           <label class="field-label">${f.label}${f.gravity === 'blocking' ? '<span class="req">*</span>' : ''}</label>
-          ${confirmToggle}
         </div>
         ${inputHtml}
       </div>`;
@@ -87,13 +84,6 @@ const Render = {
         </div>
         ${rows}
       </div>`;
-  },
-
-  confirmToggle(fieldId) {
-    const confirmed = !!State.data.confirmations[fieldId];
-    return `<button type="button" class="confirm-toggle ${confirmed ? 'confirmed' : 'unconfirmed'}" data-confirm-toggle="${fieldId}">
-      ${confirmed ? Icons.check : ''} ${confirmed ? 'Validé' : 'À confirmer'}
-    </button>`;
   },
 
   esc(s) {
@@ -336,6 +326,7 @@ const Render = {
   section5() {
     const open = State.openSections[5];
     const r = Recap.build();
+    const globalConfirmed = !!State.data.globalConfirmed;
 
     return `
       <div class="card" data-section="5">
@@ -349,6 +340,15 @@ const Render = {
             <div class="recap-doc">
 ${Recap.toHtml(r)}
             </div>
+            <div class="reserves-wrap">
+              <label class="field-label" for="field-reserves">Informations à confirmer / réserves <span class="field-label-optional">(facultatif)</span></label>
+              <p class="field-hint">Prix encore à confirmer, date provisoire, texte non validé, gabarit en attente, mesure à vérifier…</p>
+              <textarea id="field-reserves" data-field="reserves" placeholder="Indiquez ici toute information encore incertaine ou à valider avant l'exécution." rows="3">${Render.esc(State.data.reserves || '')}</textarea>
+            </div>
+            <label class="global-confirm-label ${globalConfirmed ? 'is-confirmed' : ''}">
+              <input type="checkbox" id="chk-global-confirm" ${globalConfirmed ? 'checked' : ''}>
+              <span>Je confirme que les informations obligatoires fournies sont correctes et exploitables par le studio graphique.</span>
+            </label>
           </div>
         </div>
       </div>`;
@@ -423,7 +423,7 @@ ${Recap.toHtml(r)}
         <div class="sb-issue-group">
           <div class="sb-issue-head blocking">Bloquant — ${issues.blocking.length}</div>
           <div class="sb-issue-list">
-            ${issues.blocking.map(i => `<div class="sb-issue-item blocking-item" data-goto-field="${i.field.id}">${i.field.label}${i.reason === 'a_confirmer' ? ' (à confirmer)' : ''}</div>`).join('')}
+            ${issues.blocking.map(i => `<div class="sb-issue-item blocking-item" data-goto-field="${i.field.id}">${i.field.label}</div>`).join('')}
           </div>
         </div>`;
     } else {

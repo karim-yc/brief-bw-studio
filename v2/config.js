@@ -89,7 +89,7 @@ const CONFIG = {
   /* ════════════════════════════════════════════════════════════
      CHAMPS PAR SECTION
      gravity: 'blocking' | 'recommended' | 'optional'
-     confirmable: true → affiche le toggle Validé/À confirmer
+     → affiche le toggle Validé/À confirmer
      showIf: fonction(formData) => bool —条件 d'affichage
      ════════════════════════════════════════════════════════════ */
 
@@ -124,13 +124,13 @@ const CONFIG = {
       { id: 'nomProduit', label: 'Nom du produit', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : B&W Smash Burger',
         showIf: d => d.genreCampagne !== 'image' },
-      { id: 'prix', label: 'Prix exact', type: 'text', gravity: 'blocking', confirmable: true,
+      { id: 'prix', label: 'Prix exact', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : 12,90 €',
         showIf: d => d.genreCampagne === 'produit' || d.genreCampagne === 'promo' },
-      { id: 'texteExact', label: 'Texte exact validé', type: 'textarea', gravity: 'blocking', confirmable: true,
+      { id: 'texteExact', label: 'Texte exact validé', type: 'textarea', gravity: 'blocking',
         placeholder: 'Texte final à reproduire sur le visuel, mot pour mot.',
         showIf: d => d.genreCampagne === 'produit' || d.genreCampagne === 'promo' },
-      { id: 'mentions', label: 'Mentions légales', type: 'text', gravity: 'blocking', confirmable: true,
+      { id: 'mentions', label: 'Mentions légales', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : *Offre valable jusqu\'au 30/06/2026. Voir conditions en restaurant.',
         showIf: d => d.genreCampagne === 'promo' },
       { id: 'shooting', label: 'Shooting nécessaire', type: 'pills', gravity: 'recommended',
@@ -146,11 +146,11 @@ const CONFIG = {
     ],
 
     packaging: [
-      { id: 'texteExactPack', label: 'Texte exact packaging', type: 'textarea', gravity: 'blocking', confirmable: true,
+      { id: 'texteExactPack', label: 'Texte exact packaging', type: 'textarea', gravity: 'blocking',
         placeholder: 'Texte final validé à reproduire sur le packaging.' },
       { id: 'logoVersion', label: 'Version du logo à utiliser', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : Logo noir sur fond blanc, version 2026' },
-      { id: 'formatPack', label: 'Format / dimensions', type: 'text', gravity: 'blocking', confirmable: true,
+      { id: 'formatPack', label: 'Format / dimensions', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : 12 × 12 × 6 cm',
         showIf: d => d.phasePackaging !== 'retour' },
       { id: 'matierePack', label: 'Matière / support', type: 'text', gravity: 'recommended',
@@ -158,7 +158,7 @@ const CONFIG = {
         showIf: d => d.phasePackaging === 'patron' },
       { id: 'fournisseur', label: 'Fournisseur', type: 'text', gravity: 'optional',
         placeholder: 'Ex : Imprimerie Dupont' },
-      { id: 'gabaritDispo', label: 'Gabarit ou BAT disponible', type: 'pills', gravity: 'blocking', confirmable: true,
+      { id: 'gabaritDispo', label: 'Gabarit ou BAT disponible', type: 'pills', gravity: 'blocking',
         options: [
           { id: 'oui', label: 'Oui, disponible' },
           { id: 'non', label: 'Non, à fournir' }
@@ -172,14 +172,14 @@ const CONFIG = {
     vitrophanie: [
       { id: 'adresse', label: 'Adresse du restaurant', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : Rue de la Montagne 6, 1000 Bruxelles' },
-      { id: 'mesures', label: 'Mesures exactes', type: 'text', gravity: 'blocking', confirmable: true,
+      { id: 'mesures', label: 'Mesures exactes', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : Largeur 3,20 m × Hauteur 2,40 m' },
       { id: 'photosDevanture', label: 'Photos de la devanture disponibles', type: 'pills', gravity: 'blocking',
         options: [
           { id: 'oui', label: 'Oui, disponibles' },
           { id: 'non', label: 'Non, à prendre' }
         ] },
-      { id: 'planVectoriel', label: 'Plan vectoriel disponible', type: 'pills', gravity: 'recommended', confirmable: true,
+      { id: 'planVectoriel', label: 'Plan vectoriel disponible', type: 'pills', gravity: 'recommended',
         options: [
           { id: 'oui', label: 'Oui, disponible' },
           { id: 'non', label: 'Non, à fournir' }
@@ -188,7 +188,7 @@ const CONFIG = {
       { id: 'contraintesPose', label: 'Contraintes de pose', type: 'text', gravity: 'optional',
         placeholder: 'Ex : Accès uniquement le matin avant 9h' },
       { id: 'matiereVitro', label: 'Matière / support', type: 'text', gravity: 'recommended',
-        placeholder: 'Ex : Vinyle micro-perforé', confirmable: true,
+        placeholder: 'Ex : Vinyle micro-perforé',
         showIf: d => d.typeVitrophanie === 'permanente' },
       { id: 'driveV', label: 'Lien Drive / fichiers', type: 'text', gravity: 'recommended',
         placeholder: 'https://drive.google.com/...' }
@@ -205,8 +205,8 @@ const CONFIG = {
   /* ── ÉTAPE 4 — Deadlines & priorité ──────────────────────────
      Toujours la même, indépendamment du type */
   champsEtape4Deadlines: [
-    { id: 'dateLancement', label: 'Date de lancement', type: 'date', gravity: 'blocking', confirmable: true },
-    { id: 'dateValidation', label: 'Date de validation des infos', type: 'date', gravity: 'blocking', confirmable: true },
+    { id: 'dateLancement', label: 'Date de lancement', type: 'date', gravity: 'blocking' },
+    { id: 'dateValidation', label: 'Date de validation des infos', type: 'date', gravity: 'blocking' },
     { id: 'dateRetourSimul', label: 'Date de retour simulation', type: 'date', gravity: 'recommended' }
   ],
 

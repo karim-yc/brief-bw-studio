@@ -329,21 +329,44 @@ select:focus { border-bottom-color: var(--text); }
 .field.is-recommended { position: relative; padding-left: 12px; border-left: 2px solid var(--warning-border); margin-left: -12px; }
 
 /* ════════════════════════════════════════════════════════════
-   CONFIRM TOGGLE (Validé / À confirmer)
+   RÉSERVES & CONFIRMATION GLOBALE (section 5)
    ════════════════════════════════════════════════════════════ */
-.confirm-toggle {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 10px;
-  border-radius: var(--r-pill);
-  font-size: 10.5px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.3px;
-  cursor: pointer; border: 1px solid transparent;
-  transition: all var(--t-fast);
-  white-space: nowrap;
+.reserves-wrap {
+  margin-top: 28px;
+  padding: 18px;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--r-card);
 }
-.confirm-toggle.unconfirmed { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
-.confirm-toggle.confirmed { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
-.confirm-toggle svg { width: 11px; height: 11px; }
+.reserves-wrap .field-label { color: var(--warning); margin-bottom: 4px; }
+.reserves-wrap .field-label-optional { font-weight: 400; font-size: 10px; text-transform: none; color: var(--text-tertiary); letter-spacing: 0; }
+.reserves-wrap .field-hint { font-size: 11.5px; color: var(--text-tertiary); margin: 0 0 10px; line-height: 1.5; }
+.reserves-wrap textarea {
+  width: 100%; box-sizing: border-box;
+  border: 1px solid var(--warning-border); border-radius: var(--r-input);
+  padding: 10px 12px; font-size: 13px; font-family: inherit;
+  background: #fff; color: var(--text); resize: vertical; min-height: 72px;
+}
+.reserves-wrap textarea:focus { outline: none; border-color: var(--warning); box-shadow: 0 0 0 3px var(--warning-bg); }
+
+.global-confirm-label {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-top: 20px; padding: 16px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-card);
+  cursor: pointer;
+  font-size: 13px; line-height: 1.55; color: var(--text-secondary);
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.global-confirm-label input[type="checkbox"] {
+  margin: 2px 0 0; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;
+  accent-color: var(--success);
+}
+.global-confirm-label.is-confirmed {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--text);
+}
 
 /* ════════════════════════════════════════════════════════════
    SELECTABLE CARDS (type de demande)

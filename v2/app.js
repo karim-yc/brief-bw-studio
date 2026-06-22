@@ -58,16 +58,6 @@
       });
     });
 
-    // Confirm toggle (Validé / À confirmer)
-    root.querySelectorAll('[data-confirm-toggle]').forEach(el => {
-      el.addEventListener('click', () => {
-        const id = el.dataset.confirmToggle;
-        State.data.confirmations[id] = !State.data.confirmations[id];
-        scheduleSave();
-        renderAll();
-      });
-    });
-
     // Packaging table — inputs (nom / format / qté)
     root.querySelectorAll('[data-pack-field]').forEach(el => {
       el.addEventListener('input', () => {
@@ -100,10 +90,34 @@
         renderAll();
       });
     });
+
+    // Champ reserves (textarea section 5)
+    const reservesEl = root.querySelector('[data-field="reserves"]');
+    if (reservesEl) {
+      reservesEl.addEventListener('input', () => {
+        State.data.reserves = reservesEl.value;
+        scheduleSave();
+        renderSidebarOnly();
+      });
+    }
+
+    // Checkbox confirmation globale (section 5)
+    const chkGlobal = root.querySelector('#chk-global-confirm');
+    if (chkGlobal) {
+      chkGlobal.addEventListener('change', () => {
+        State.data.globalConfirmed = chkGlobal.checked;
+        scheduleSave();
+        renderSidebarOnly();
+        // Met à jour la classe visuelle sur le label
+        const lbl = root.querySelector('.global-confirm-label');
+        if (lbl) lbl.classList.toggle('is-confirmed', chkGlobal.checked);
+      });
+    }
   }
 
   function onFieldInput(e) {
     const id = e.target.dataset.field;
+    if (id === 'reserves') return; // géré par son propre listener dans bindFieldEvents
     State.data[id] = e.target.value;
     scheduleSave();
 
@@ -116,43 +130,7 @@
       const sectionMap = { ref: 1, restaurant: 1, deptAutrePrecision: 1, description: 2 };
       updateCardStatus(sectionMap[id] || guessSection(id));
       renderSidebarOnly();
-      syncConfirmToggle(id);
     }
-  }
-
-  // Insère/retire dynamiquement le toggle Validé/À confirmer sans perdre le focus du champ
-  function syncConfirmToggle(fieldId) {
-    const allFields = [
-      ...CONFIG.champsEtape4Deadlines,
-      ...CONFIG.champsEtape3.campagne, ...CONFIG.champsEtape3.packaging, ...CONFIG.champsEtape3.vitrophanie
-    ];
-    const fieldDef = allFields.find(f => f.id === fieldId);
-    if (!fieldDef || !fieldDef.confirmable) return;
-
-    const wrap = document.querySelector(`[data-field-wrap="${fieldId}"]`);
-    if (!wrap) return;
-    const row = wrap.querySelector('.field-label-row');
-    if (!row) return;
-
-    const existing = row.querySelector('.confirm-toggle');
-    const shouldShow = State.isFieldFilled(fieldDef);
-
-    if (shouldShow && !existing) {
-      row.insertAdjacentHTML('beforeend', Render.confirmToggle(fieldId));
-      bindSingleConfirmToggle(row.querySelector('.confirm-toggle'));
-    } else if (!shouldShow && existing) {
-      existing.remove();
-    }
-  }
-
-  function bindSingleConfirmToggle(el) {
-    if (!el) return;
-    el.addEventListener('click', () => {
-      const id = el.dataset.confirmToggle;
-      State.data.confirmations[id] = !State.data.confirmations[id];
-      scheduleSave();
-      renderAll();
-    });
   }
 
   function guessSection(fieldId) {

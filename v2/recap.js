@@ -15,7 +15,7 @@ const Recap = {
     d.formats = d.formats || {};
     d.volumes = d.volumes || {};
     d.supportLivrables = d.supportLivrables || {};
-    d.confirmations = d.confirmations || {};
+
     d.packagingProducts = d.packagingProducts || [];
     const issues = State.getAllIssues();
 
@@ -45,25 +45,8 @@ const Recap = {
     // ── Produits packaging (tableau structuré) ───────────────────
     const packagingProducts = (d.packagingProducts || []).filter(p => p.nom && p.nom.trim());
 
-    // ── Champs validés / à confirmer / manquants ─────────────────
-    const validated = [];
-    const toConfirm = [];
-    // Champs déjà affichés ailleurs dans le récap (demandeur, contexte, type, priorité)
-    // → exclus de la liste "Infos validées" pour éviter la redondance
-    const alreadyShownElsewhere = ['dept', 'ref', 'restaurant', 'deptAutrePrecision', 'description', 'priorite', 'raisonUrgence'];
-    issues.complete.forEach(f => {
-      if (f.type === 'virtual') return;
-      if (alreadyShownElsewhere.includes(f.id)) return;
-      const val = d[f.id];
-      if (val === undefined || val === '' || (Array.isArray(val) && !val.length)) return;
-      const entry = { label: f.label, value: this.formatFieldValue(f, val) };
-      validated.push(entry);
-    });
-    issues.blocking.concat(issues.recommended).forEach(i => {
-      if (i.reason === 'a_confirmer') {
-        toConfirm.push({ label: i.field.label, value: this.formatFieldValue(i.field, d[i.field.id]) });
-      }
-    });
+    // ── Réserves libres (champ libre facultatif) ─────────────────
+    const reserves = d.reserves || '';
 
     // ── Fichiers / liens Drive (tous les champs drive*) ───────────
     const driveLinks = [];
@@ -72,8 +55,8 @@ const Recap = {
     });
 
     // ── Bloquants / recommandés lisibles ──────────────────────────
-    const blockingList = issues.blocking.map(i => i.field.label + (i.reason === 'a_confirmer' ? ' (à confirmer)' : ''));
-    const recommendedList = issues.recommended.map(i => i.field.label + (i.reason === 'a_confirmer' ? ' (à confirmer)' : ''));
+    const blockingList = issues.blocking.map(i => i.field.label);
+    const recommendedList = issues.recommended.map(i => i.field.label);
 
     return {
       briefId: d.briefId || '(généré à la soumission)',
@@ -95,8 +78,7 @@ const Recap = {
       totalVolume,
       packagingProducts,
 
-      validated,
-      toConfirm,
+      reserves,
       driveLinks,
 
       dateLancement: d.dateLancement || '—',
@@ -138,14 +120,6 @@ const Recap = {
         ).join('') + '</ul>'
       : '';
 
-    const validatedLines = r.validated.length
-      ? r.validated.map(v => `· ${v.label} : ${v.value}`).join('<br>')
-      : 'Aucune';
-
-    const toConfirmLines = r.toConfirm.length
-      ? r.toConfirm.map(v => `· ${v.label} : ${v.value}`).join('<br>')
-      : 'Aucune';
-
     const driveLines = r.driveLinks.length
       ? r.driveLinks.map(l => `· ${l}`).join('<br>')
       : 'Aucun lien fourni';
@@ -169,8 +143,7 @@ const Recap = {
       html += block('Produits packaging', packagingLines);
     }
 
-    html += block('Infos validées', validatedLines, 'var(--success)');
-    html += block('Infos à confirmer <span style="font-size:10px;font-weight:400;color:var(--text-tertiary)">— fournies mais pas encore validées</span>', toConfirmLines, 'var(--warning)');
+    if (r.reserves) html += block('Infos à confirmer / réserves', r.reserves.replace(/\n/g, '<br>'), 'var(--warning)');
     html += block('Fichiers / liens', driveLines);
     html += block('Deadlines',
       `Lancement : ${r.dateLancement}<br>Validation infos : ${r.dateValidation}${r.dateRetourSimul ? '<br>Retour simulation : ' + r.dateRetourSimul : ''}`);
@@ -211,12 +184,11 @@ const Recap = {
       r.packagingProducts.forEach(p => lines.push(`- ${p.nom}${p.format ? ' — ' + p.format : ''}${p.qte ? ' × ' + p.qte : ''}`));
     }
     lines.push('');
-    lines.push('INFOS VALIDÉES');
-    lines.push(r.validated.length ? r.validated.map(v => `- ${v.label} : ${v.value}`).join('\n') : 'Aucune');
-    lines.push('');
-    lines.push('INFOS À CONFIRMER (fournies mais pas encore validées)');
-    lines.push(r.toConfirm.length ? r.toConfirm.map(v => `- ${v.label} : ${v.value}`).join('\n') : 'Aucune');
-    lines.push('');
+    if (r.reserves) {
+      lines.push('INFOS À CONFIRMER / RÉSERVES');
+      lines.push(r.reserves);
+      lines.push('');
+    }
     lines.push('FICHIERS / LIENS');
     lines.push(r.driveLinks.length ? r.driveLinks.map(l => `- ${l}`).join('\n') : 'Aucun lien fourni');
     lines.push('');
@@ -257,8 +229,6 @@ const Recap = {
     const packagingLines = r.packagingProducts.length
       ? r.packagingProducts.map(p => `${p.nom}${p.format ? ' — ' + p.format : ''}${p.qte ? ' × ' + p.qte : ''}`).join('<br>')
       : '';
-    const validatedLines = r.validated.length ? r.validated.map(v => `${v.label} : ${v.value}`).join('<br>') : 'Aucune';
-    const toConfirmLines = r.toConfirm.length ? r.toConfirm.map(v => `${v.label} : ${v.value}`).join('<br>') : 'Aucune';
     const driveLines = r.driveLinks.length ? r.driveLinks.map(l => l).join('<br>') : 'Aucun lien fourni';
     const showSupports = r.typeDemandeId === 'campagne';
 
@@ -268,8 +238,7 @@ const Recap = {
       `${r.typeDemande}${r.genreCampagne ? ' — ' + r.genreCampagne : ''}${r.phasePackaging ? ' — ' + r.phasePackaging : ''}${r.typeVitrophanie ? ' — ' + r.typeVitrophanie : ''}<br>Priorité : ${r.priorite}${r.raisonUrgence ? ' — ' + r.raisonUrgence : ''}`);
     if (showSupports) rows += block('Supports à produire', supportsLines + (r.totalVolume ? `<br><strong>Total : ${r.totalVolume} déclinaisons visuelles</strong>` : ''));
     if (packagingLines) rows += block('Produits packaging', packagingLines);
-    rows += block('Infos validées', validatedLines, c.success);
-    rows += block('Infos à confirmer — fournies mais pas encore validées', toConfirmLines, c.warning);
+    if (r.reserves) rows += block('Infos à confirmer / réserves', r.reserves.replace(/\n/g, '<br>'), c.warning);
     rows += block('Fichiers / liens', driveLines);
     rows += block('Deadlines', `Lancement : ${r.dateLancement}<br>Validation infos : ${r.dateValidation}${r.dateRetourSimul ? '<br>Retour simulation : ' + r.dateRetourSimul : ''}`);
     rows += block(`Points bloquants — empêchent la soumission (${r.blocking.length})`,

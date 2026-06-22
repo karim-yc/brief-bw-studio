@@ -25,8 +25,8 @@ const State = {
     volumes: {},      // { supportId: nombre }
     dateLancement: '', dateValidation: '', dateRetourSimul: '',
     priorite: '', raisonUrgence: '',
-    // Confirmations (Validé / À confirmer)
-    confirmations: {}, // { fieldId: true/false }
+    reserves: '',      // Infos à confirmer / réserves (champ libre)
+    globalConfirmed: false, // Confirmation globale avant soumission
     packagingProducts: [], // [{ nom, format, qte }] — tableau structuré packaging
     // Meta
     briefId: '',
@@ -143,11 +143,6 @@ const State = {
     return val !== undefined && val !== null && String(val).trim() !== '';
   },
 
-  isFieldConfirmed(field) {
-    if (!field.confirmable) return true; // pas concerné = considéré ok
-    return !!this.data.confirmations[field.id];
-  },
-
   /* ── Calcul du statut d'une liste de champs ────────────────── */
   computeFieldsStatus(fields) {
     const blocking = [];
@@ -156,15 +151,11 @@ const State = {
 
     fields.forEach(f => {
       const filled = this.isFieldFilled(f);
-      const confirmed = this.isFieldConfirmed(f);
-
       if (f.gravity === 'blocking') {
         if (!filled) blocking.push({ field: f, reason: 'manquant' });
-        else if (f.confirmable && !confirmed) blocking.push({ field: f, reason: 'a_confirmer' });
         else complete.push(f);
       } else if (f.gravity === 'recommended') {
         if (!filled) recommended.push({ field: f, reason: 'manquant' });
-        else if (f.confirmable && !confirmed) recommended.push({ field: f, reason: 'a_confirmer' });
         else complete.push(f);
       } else {
         if (filled) complete.push(f);
@@ -253,15 +244,11 @@ const State = {
 
     allFields.forEach(f => {
       const filled = f.type === 'virtual' ? f.virtualCheck() : this.isFieldFilled(f);
-      const confirmed = this.isFieldConfirmed(f);
-
       if (f.gravity === 'blocking') {
         if (!filled) blocking.push({ field: f, reason: 'manquant' });
-        else if (f.confirmable && !confirmed) blocking.push({ field: f, reason: 'a_confirmer' });
         else complete.push(f);
       } else if (f.gravity === 'recommended') {
         if (!filled) recommended.push({ field: f, reason: 'manquant' });
-        else if (f.confirmable && !confirmed) recommended.push({ field: f, reason: 'a_confirmer' });
         else complete.push(f);
       } else if (filled) {
         complete.push(f);
@@ -272,7 +259,7 @@ const State = {
   },
 
   isReadyToSubmit() {
-    return this.getAllIssues().blocking.length === 0;
+    return this.getAllIssues().blocking.length === 0 && !!this.data.globalConfirmed;
   },
 
   getOverallProgress() {
