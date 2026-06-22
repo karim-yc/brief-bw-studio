@@ -219,6 +219,38 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   .brief-card{padding:14px}
   .stats-grid{grid-template-columns:1fr}
 }
+
+/* ── Bouton PDF ───────────────────────────────────────────── */
+.btn-pdf{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--black);color:#fff;border:none;border-radius:var(--r-sm);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;letter-spacing:.3px;transition:opacity .15s;white-space:nowrap;text-transform:uppercase}
+.btn-pdf:hover{opacity:.8}
+.btn-pdf i{font-size:13px}
+
+/* ── Zone d'impression (cachée à l'écran) ─────────────────── */
+#brief-print-area{display:none}
+
+/* ── CSS Print ────────────────────────────────────────────── */
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body>*:not(#brief-print-area){display:none!important}
+  #brief-print-area{display:block!important;font-family:'Helvetica Neue',Arial,sans-serif;color:#111;font-size:12pt;line-height:1.55;padding:0;margin:0}
+  .p-page{max-width:100%;padding:24mm 20mm}
+  .p-header{border-bottom:2px solid #111;padding-bottom:12pt;margin-bottom:18pt}
+  .p-brand{font-size:8pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:6pt}
+  .p-id{font-size:22pt;font-weight:900;letter-spacing:1px;color:#111;margin:0 0 4pt}
+  .p-type{font-size:11pt;color:#444;margin:0}
+  .p-badges{display:flex;gap:8pt;flex-wrap:wrap;margin-top:8pt}
+  .p-badge{font-size:8pt;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2pt 7pt;border:1pt solid #ccc;border-radius:20pt;color:#444}
+  .p-badge.urgent{border-color:#dc2626;color:#dc2626}
+  .p-badge.prio{border-color:#ea580c;color:#ea580c}
+  .p-section{margin-bottom:14pt;padding-bottom:14pt;border-bottom:1pt solid #eee}
+  .p-section:last-child{border-bottom:none;margin-bottom:0}
+  .p-label{font-size:7.5pt;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#999;margin-bottom:4pt}
+  .p-val{font-size:11pt;color:#111}
+  .p-val.muted{color:#555}
+  .p-reserves{background:#fff8e7;border-left:3pt solid #f59e0b;padding:8pt 10pt;border-radius:0 4pt 4pt 0}
+  .p-footer{margin-top:18pt;padding-top:10pt;border-top:1pt solid #eee;font-size:8pt;color:#aaa;display:flex;justify-content:space-between}
+  @page{size:A4 portrait;margin:0}
+}
 </style>
 </head>
 <body>
@@ -351,6 +383,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 
 </main>
+
+
+<!-- ZONE IMPRESSION PDF (cachée, peuplée par JS) -->
+<div id="brief-print-area"></div>
 
 <!-- DETAIL DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
@@ -805,9 +841,79 @@ function renderDrawer(b) {
 
   G('drawer-body').innerHTML=html;
   G('drawer-foot').innerHTML=`
-    <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Changer le statut ✎</button>
-    ${b.mailSubject?`<span style="font-size:11px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
+    <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Statut ✎</button>
+    <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
+    ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
   `;
+}
+
+
+/* ── Impression PDF ───────────────────────────────────────── */
+function printBrief(briefId) {
+  const b = allBriefs.find(x => x.briefId === briefId);
+  if(!b) return;
+
+  const fmtD = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s} };
+  const row = (label, val) => val && val !== '—'
+    ? `<div class="p-section"><div class="p-label">${label}</div><div class="p-val">${val}</div></div>` : '';
+  const muted = (label, val) => val && val !== '—'
+    ? `<div class="p-section"><div class="p-label">${label}</div><div class="p-val muted">${val}</div></div>` : '';
+
+  const st = getStatut(b.briefId);
+  const stLabel = STATUS_LABELS[st] || st;
+  const prioBadge = b.priorite === 'urgent'    ? '<span class="p-badge urgent">⚑ Urgent</span>'
+                  : b.priorite === 'prioritaire' ? '<span class="p-badge prio">↑ Prioritaire</span>'
+                  : '<span class="p-badge">Normal</span>';
+
+  let sections = '';
+  sections += row('Demandeur', `${b.demandeur || '—'} — ${b.departement || '—'}`);
+  if(b.contexte) sections += `<div class="p-section"><div class="p-label">Contexte</div><div class="p-val">${b.contexte.replace(/\n/g,'<br>')}</div></div>`;
+  if(b.genreCampagne) sections += muted('Genre de campagne', b.genreCampagne);
+
+  // Contextuel selon type
+  if(b.typeDemande === 'Campagne Marketing' && b.supports)
+    sections += `<div class="p-section"><div class="p-label">Supports à produire</div><div class="p-val">${b.supports}${b.totalDeclinaisons && b.totalDeclinaisons !== '0' ? '<br><strong>'+b.totalDeclinaisons+' déclinaisons visuelles</strong>' : ''}</div></div>`;
+  if(b.typeDemande === 'Packaging' && b.packagingProduits)
+    sections += row('Produits packaging', b.packagingProduits);
+  if(b.typeDemande === 'Vitrophanie / Travaux' && b.restaurant)
+    sections += row('Restaurant / adresse', b.restaurant);
+
+  // Deadlines
+  const hasD = [b.dateLancement, b.dateValidation, b.dateRetourSimul].some(d => d && d !== '—');
+  if(hasD) sections += `<div class="p-section"><div class="p-label">Deadlines</div><div class="p-val">
+    ${b.dateLancement && b.dateLancement !== '—' ? 'Lancement : <strong>'+fmtD(b.dateLancement)+'</strong><br>' : ''}
+    ${b.dateValidation && b.dateValidation !== '—' ? 'Validation infos : '+fmtD(b.dateValidation)+'<br>' : ''}
+    ${b.dateRetourSimul && b.dateRetourSimul !== '—' ? 'Retour simulation : '+fmtD(b.dateRetourSimul) : ''}
+  </div></div>`;
+
+  // Réserves
+  if(b.reserves) sections += `<div class="p-section"><div class="p-label">Infos à confirmer / réserves</div><div class="p-val p-reserves">${b.reserves.replace(/\n/g,'<br>')}</div></div>`;
+
+  // Statut + soumission
+  sections += muted('Statut', stLabel);
+  if(b.submittedAt) {
+    const d = new Date(b.submittedAt);
+    sections += muted('Soumis le', d.toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'}) + ' à ' + d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'}));
+  }
+
+  const html = `<div class="p-page">
+    <div class="p-header">
+      <div class="p-brand">Black &amp; White Burger · Studio Graphique</div>
+      <div class="p-id">${b.briefId}</div>
+      <div class="p-type">${b.typeDemande || '—'}</div>
+      <div class="p-badges">${prioBadge}<span class="p-badge">${stLabel}</span></div>
+    </div>
+    ${sections}
+    <div class="p-footer">
+      <span>Généré le ${new Date().toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'})}</span>
+      <span>${b.mailSubject || ''}</span>
+    </div>
+  </div>`;
+
+  G('brief-print-area').innerHTML = html;
+  window.print();
+  // Nettoyer après impression (délai pour laisser le dialogue s'ouvrir)
+  setTimeout(() => { G('brief-print-area').innerHTML = ''; }, 2000);
 }
 
 /* ── Toggle UI ────────────────────────────────────────────── */
