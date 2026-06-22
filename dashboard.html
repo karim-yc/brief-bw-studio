@@ -251,6 +251,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   .p-footer{margin-top:18pt;padding-top:10pt;border-top:1pt solid #eee;font-size:8pt;color:#aaa;display:flex;justify-content:space-between}
   @page{size:A4 portrait;margin:0}
 }
+
+/* ── Tooltips dashboard ───────────────────────────────────── */
+.tt{position:relative;display:inline-flex;align-items:center;margin-left:4px;vertical-align:middle}
+.tt-icon{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;background:rgba(0,0,0,.06);border:1px solid var(--border);border-radius:50%;font-size:8px;font-weight:700;font-style:normal;color:var(--text-tertiary);cursor:pointer;line-height:1;transition:background .15s,color .15s;user-select:none;flex-shrink:0}
+.tt-icon:hover,.tt.tt-open .tt-icon{background:var(--black);color:#fff;border-color:var(--black)}
+.tt-bubble{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--black);color:#fff;font-size:11px;font-weight:400;line-height:1.5;padding:7px 11px;border-radius:7px;width:max-content;max-width:min(260px,calc(100vw - 24px));white-space:normal;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;z-index:300;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.tt-bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--black)}
+.tt-bubble.tt-right{left:0;transform:none}.tt-bubble.tt-right::after{left:9px;transform:none}
+.tt-bubble.tt-left{left:auto;right:0;transform:none}.tt-bubble.tt-left::after{left:auto;right:9px;transform:none}
+@media(hover:hover){.tt:hover .tt-bubble{opacity:1;visibility:visible}}
+.tt.tt-open .tt-bubble{opacity:1;visibility:visible}
+/* Sur fond noir (filtres, header urgences) */
+.dark-bg .tt-icon{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.6)}
+.dark-bg .tt-icon:hover,.dark-bg .tt.tt-open .tt-icon{background:rgba(255,255,255,.9);color:var(--black);border-color:rgba(255,255,255,.9)}
 </style>
 </head>
 <body>
@@ -281,11 +295,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div class="filters-row">
     <div class="search-input">
       <i class="ti ti-search"></i>
-      <input type="text" id="search-input" placeholder="Rechercher ID, demandeur…" oninput="applyFilters()">
+      <input type="text" id="search-input" placeholder="Rechercher ID, demandeur…" oninput="applyFilters()"><span class="tt" style="position:absolute;right:8px;top:50%;transform:translateY(-50%)" data-tt="Recherche par ID, demandeur, département, contexte ou mot-clé."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble tt-left">Recherche par ID, demandeur, département, contexte ou mot-clé.</span></span>
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Période</span>
+      <span class="filter-label">Période <span class="tt" data-tt="Filtre basé sur la date de soumission du brief, pas sur la date de lancement."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Filtre basé sur la date de soumission du brief, pas sur la date de lancement.</span></span></span>
       <button class="filter-chip active" data-days="0" onclick="setDayFilter(this)">Tout</button>
       <button class="filter-chip" data-days="7" onclick="setDayFilter(this)">7j</button>
       <button class="filter-chip" data-days="30" onclick="setDayFilter(this)">30j</button>
@@ -303,7 +317,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Priorité</span>
+      <span class="filter-label">Priorité <span class="tt" data-tt="Normal = délai classique. Prioritaire = à traiter avant d'autres. Urgent = délai court ou contrainte forte."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Normal = délai classique. Prioritaire = à traiter avant d'autres. Urgent = délai court ou contrainte forte.</span></span></span>
       <button class="filter-chip active" data-prio="" onclick="setPrioFilter(this)">Toutes</button>
       <button class="filter-chip fc-urgent" data-prio="urgent" onclick="setPrioFilter(this)">Urgent</button>
       <button class="filter-chip fc-prio" data-prio="prioritaire" onclick="setPrioFilter(this)">Prioritaire</button>
@@ -311,7 +325,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Statut</span>
+      <span class="filter-label">Statut <span class="tt" data-tt="Soumis = reçu. En cours = production. Validé = accepté. Livré = fichiers transmis."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Soumis = reçu. En cours = production. Validé = accepté. Livré = fichiers transmis.</span></span></span>
       <button class="filter-chip active" data-statut="" onclick="setStatutFilter(this)">Tous</button>
       <button class="filter-chip" data-statut="soumis" onclick="setStatutFilter(this)">Soumis</button>
       <button class="filter-chip" data-statut="encours" onclick="setStatutFilter(this)">En cours</button>
@@ -614,6 +628,12 @@ function ctxDetail(b) {
 }
 
 /* ── Render KPIs ──────────────────────────────────────────── */
+/* ── Tooltip helper ───────────────────────────────────────── */
+function tt(text) {
+  const s = text.replace(/'/g,"&#39;").replace(/"/g,"&quot;");
+  return `<span class="tt" data-tt="${s}"><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">${text}</span></span>`;
+}
+
 function renderKPIs(data) {
   const total = allBriefs.length; // sur tous, pas filtrés
   const urgent = data.filter(b=>b.priorite==='urgent').length;
@@ -623,15 +643,15 @@ function renderKPIs(data) {
   const vitro = data.filter(b=>b.typeDemande==='Vitrophanie / Travaux').length;
 
   G('kpi-grid').innerHTML = [
-    {val:total,    lbl:'Total briefs',  color:''},
-    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':''},
-    {val:aTraiter, lbl:'À traiter',     color:''},
-    {val:campagnes,lbl:'Campagnes',     color:''},
-    {val:packaging,lbl:'Packaging',     color:''},
-    {val:vitro,    lbl:'Vitrophanie',   color:''},
+    {val:total,    lbl:'Total briefs',  color:'', tip:'Nombre total de briefs visibles selon les filtres actifs.'},
+    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':'', tip:'Briefs marqués comme urgents lors de la soumission.'},
+    {val:aTraiter, lbl:'À traiter',     color:'', tip:'Briefs non terminés — soumis ou en cours de production.'},
+    {val:campagnes,lbl:'Campagnes',     color:'', tip:'Nombre de briefs Campagne Marketing dans les filtres actifs.'},
+    {val:packaging,lbl:'Packaging',     color:'', tip:'Nombre de briefs Packaging dans les filtres actifs.'},
+    {val:vitro,    lbl:'Vitrophanie',   color:'', tip:'Nombre de briefs Vitrophanie / Travaux dans les filtres actifs.'},
   ].map(k=>`<div class="kpi-card">
     <div class="kpi-val ${k.color}">${k.val}</div>
-    <div class="kpi-lbl">${k.lbl}</div>
+    <div class="kpi-lbl">${k.lbl}${tt(k.tip)}</div>
   </div>`).join('');
 }
 
@@ -829,7 +849,7 @@ function renderDrawer(b) {
 
   // Réserves
   if(b.reserves) html+=`<div class="drawer-section">
-    <div class="drawer-label" style="color:#b45309">ℹ Infos à confirmer / réserves</div>
+    <div class="drawer-label" style="color:#b45309">ℹ Infos à confirmer / réserves <span class="tt" data-tt="Informations encore incertaines ou points à vérifier avant exécution."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble tt-left">Informations encore incertaines ou points à vérifier avant exécution.</span></span></div>
     <div class="drawer-val" style="background:#fef3c7;padding:10px 12px;border-radius:6px;color:#92400e">${b.reserves.replace(/\n/g,'<br>')}</div>
   </div>`;
 
@@ -928,6 +948,29 @@ function toggleStats() {
 }
 // Fermer drawer avec Escape
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeDrawer();closeStatusModal();} });
+
+// ── Tooltips — tap mobile ─────────────────────────────────
+document.addEventListener('click', e => {
+  const icon = e.target.closest('.tt-icon');
+  if (icon) {
+    e.stopPropagation();
+    const tt_el = icon.closest('.tt');
+    const isOpen = tt_el.classList.contains('tt-open');
+    document.querySelectorAll('.tt.tt-open').forEach(t => t.classList.remove('tt-open'));
+    if (!isOpen) {
+      tt_el.classList.add('tt-open');
+      const bubble = tt_el.querySelector('.tt-bubble');
+      if (bubble) {
+        bubble.classList.remove('tt-right','tt-left');
+        const rect = bubble.getBoundingClientRect();
+        if (rect.right > window.innerWidth - 8) bubble.classList.add('tt-left');
+        else if (rect.left < 8) bubble.classList.add('tt-right');
+      }
+    }
+  } else if (!e.target.closest('.tt')) {
+    document.querySelectorAll('.tt.tt-open').forEach(t => t.classList.remove('tt-open'));
+  }
+});
 
 // Init
 loadData();
