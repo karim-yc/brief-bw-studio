@@ -129,6 +129,14 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 .section-title{font-family:'Anton',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#777;margin:18px 0 10px;padding-left:2px}
+
+/* ── Badges type V2 ─────────────────────────────────────────── */
+.badge-type { font-size:9px; padding:3px 7px; border-radius:10px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase; }
+.badge-type-campagne   { background:#e8f0fe; color:#1a56db; }
+.badge-type-packaging  { background:#fdf3e7; color:#b45309; }
+.badge-type-vitrophanie{ background:#f0fdf4; color:#166534; }
+.badge-type-autre      { background:#f3f4f6; color:#6b7280; }
+.td-detail { font-size:10px; color:#888; margin-top:3px; }
 </style>
 </head>
 <body>
@@ -279,26 +287,40 @@ body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding
 
 <script>
 const G = id => document.getElementById(id);
-const HIST_KEY = 'bw_brief_history';
-const SHEET_ID = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
-const STATUS_KEY = 'bw_brief_statuts';
-const STATUS_LABELS = {soumis:'Soumis',encours:'En cours',simulation:'Simulation envoyée',valide:'Validé',livre:'Livré'};
-const STATUS_CSS = {soumis:'st-soumis',encours:'st-encours',simulation:'st-simulation',valide:'st-valide',livre:'st-livre'};
 
+// ── V2 : clés et constantes ────────────────────────────────────
+const HIST_KEY   = 'bw_brief_v2_history';   // V2 localStorage
+const SHEET_ID   = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
+const STATUS_KEY = 'bw_brief_statuts';
+
+const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation envoyée', valide:'Validé', livre:'Livré' };
+const STATUS_CSS    = { soumis:'st-soumis', encours:'st-encours', simulation:'st-simulation', valide:'st-valide', livre:'st-livre' };
+
+// Mapping IDs supports → labels lisibles (pour normaliser le localStorage V2)
+const SUPPORT_LABELS = {
+  post:'Post carré', story:'Story / Reel 9:16', affiche:'Affiche / Flyer',
+  menuboard:'Menu board', borne:'Borne digitale', plv:'PLV print',
+  newsletter:'Newsletter', banniere:'Bannière web', video:'Vidéo / Reel',
+  'autre-support':'Autre support'
+};
+const TYPE_LABELS = {
+  campagne:'Campagne Marketing', packaging:'Packaging',
+  vitrophanie:'Vitrophanie / Travaux', autre:'Autre demande'
+};
+const GENRE_LABELS = {
+  produit:'Produit avec prix', image:'Image & Brand', promo:'Promo & Offre'
+};
+
+// ── Statuts (modal) ───────────────────────────────────────────
 function getStatuts() { try{return JSON.parse(localStorage.getItem(STATUS_KEY)||'{}')}catch(e){return{}} }
-function setStatut(briefId, status) {
-  const s = getStatuts(); s[briefId] = status;
-  localStorage.setItem(STATUS_KEY, JSON.stringify(s));
-}
-function getStatut(briefId) { return getStatuts()[briefId] || 'soumis'; }
+function setStatut(id, st) { const s=getStatuts(); s[id]=st; localStorage.setItem(STATUS_KEY, JSON.stringify(s)); }
+function getStatut(id) { return getStatuts()[id] || 'soumis'; }
 
 let _statusTarget = null;
 function openStatusModal(briefId, currentStatus) {
   _statusTarget = briefId;
   G('status-modal-title').textContent = 'Statut — ' + briefId;
-  document.querySelectorAll('.status-opt').forEach(o => {
-    o.classList.toggle('selected', o.dataset.status === currentStatus);
-  });
+  document.querySelectorAll('.status-opt').forEach(o => o.classList.toggle('selected', o.dataset.status === currentStatus));
   G('status-modal').classList.add('open');
 }
 function closeStatusModal() { G('status-modal').classList.remove('open'); _statusTarget = null; }
@@ -308,166 +330,198 @@ function selectStatus(opt) {
   closeStatusModal();
   renderDashboard(filteredBriefs);
 }
-
 function statusPill(briefId) {
   const s = getStatut(briefId);
-  const label = STATUS_LABELS[s] || s;
-  const css = STATUS_CSS[s] || 'st-soumis';
-  return `<span class="status-pill ${css}" onclick="event.stopPropagation();openStatusModal('${briefId}','${s}')" title="Cliquer pour changer">${label} ✎</span>`;
+  return `<span class="status-pill ${STATUS_CSS[s]||'st-soumis'}" onclick="event.stopPropagation();openStatusModal('${briefId}','${s}')" title="Cliquer pour changer">${STATUS_LABELS[s]||s} ✎</span>`;
 }
-const API_KEY = ''; // Public read — no API key needed for published sheet
-let allBriefs = [];
-let filteredBriefs = [];
-let currentDays = 0;
-let currentView = 'all';
-let charts = {};
 
+let allBriefs = [], filteredBriefs = [], currentDays = 0, currentView = 'all', charts = {};
+
+// ── Normalisation : localStorage V2 → format dashboard ───────
+// Le localStorage V2 stocke State.data brut (champs courts : dept, ref, description…)
+// Le Sheet CSV stocke les colonnes V2 (noms longs : departement, demandeur, contexte…)
+// On normalise le local pour avoir le même objet partout.
+function normalizeLocalV2(b) {
+  const supportsStr = (b.supportsSelected || [])
+    .map(id => SUPPORT_LABELS[id] || id).join(', ');
+  const produits = (b.packagingProducts || [])
+    .map(p => p.nom).filter(Boolean).join(', ');
+  const totalDecli = Object.values(b.volumes || {})
+    .reduce((a, v) => a + (parseInt(v) || 0), 0);
+  return {
+    briefId:          b.briefId || '',
+    submittedAt:      b.submittedAt || '',
+    typeDemande:      TYPE_LABELS[b.typeDemande] || b.typeDemande || '',
+    departement:      b.dept || '',
+    demandeur:        b.ref || '',
+    priorite:         b.priorite || '',
+    raisonUrgence:    b.raisonUrgence || '',
+    dateLancement:    b.dateLancement || '',
+    dateValidation:   b.dateValidation || '',
+    dateRetourSimul:  b.dateRetourSimul || '',
+    contexte:         b.description || '',
+    reserves:         b.reserves || '',
+    statut:           'soumis',
+    genreCampagne:    GENRE_LABELS[b.genreCampagne] || b.genreCampagne || '',
+    restaurant:       b.restaurant || b.adresse || '',
+    totalDeclinaisons: String(totalDecli),
+    supports:         supportsStr,
+    packagingProduits: produits,
+    nbBloquants:      '0',
+    mailSubject:      b.mailSubject || ''
+  };
+}
+
+// ── Lecture localStorage V2 ────────────────────────────────────
 function getLocalHistory() {
-  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
-  catch(e) { return []; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+    return raw.map(normalizeLocalV2);
+  } catch(e) { return []; }
 }
 
+// ── Sync state ─────────────────────────────────────────────────
 function setSyncState(state, msg) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  if(dot) { dot.className = 'sync-dot' + (state==='loading'?' loading':''); }
+  const dot = G('sync-dot'), lbl = G('sync-label');
+  if(dot) dot.className = 'sync-dot' + (state==='loading'?' loading':'');
   if(lbl) lbl.textContent = msg;
 }
 
+// ── Chargement des données ─────────────────────────────────────
 async function loadData() {
   setSyncState('loading', 'Chargement...');
-
-  // Load from localStorage first (instant)
   const local = getLocalHistory();
 
-  // Try to load from Google Sheets via published CSV
   let sheetData = [];
   try {
-    // Try export URL first
-    const url1 = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique`;
-    let resp = await fetch(url1);
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique`;
+    let resp = await fetch(url);
     if(!resp.ok) {
-      // Fallback to gviz
       const url2 = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique`;
       resp = await fetch(url2);
     }
-    if(resp.ok) {
-      const csv = await resp.text();
-      sheetData = parseCSV(csv);
-    }
+    if(resp.ok) sheetData = parseCSV(await resp.text());
   } catch(e) {
-    console.warn('Sheet unavailable, using local data', e);
+    console.warn('Sheet inaccessible — fallback local', e);
   }
 
-  // Merge: sheet data + local, deduplicate by briefId
+  // Merge : Sheet prioritaire, local en fallback (dédup par briefId)
   const merged = [...sheetData];
   const sheetIds = new Set(sheetData.map(b => b.briefId));
   local.forEach(b => { if(b.briefId && !sheetIds.has(b.briefId)) merged.push(b); });
+
   allBriefs = merged.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
-  const src = sheetData.length > 0 ? `Google Sheets (${sheetData.length}) + cache local (${local.length - (merged.length - sheetData.length)})` : `cache local uniquement (${local.length})`;
+
   if(allBriefs.length > 0) {
+    const src = sheetData.length > 0
+      ? `Google Sheets (${sheetData.length})${local.length ? ' + local (' + local.length + ')' : ''}`
+      : `cache local uniquement (${local.length})`;
     setSyncState('ok', `${allBriefs.length} brief${allBriefs.length>1?'s':''} · ${src} · ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}`);
   } else {
-    setSyncState('ok', 'Aucun brief — soumettez votre premier brief depuis le formulaire');
+    setSyncState('ok', 'Aucun brief — soumettez votre premier brief depuis le formulaire V2');
   }
 
   applyFilters();
 }
 
+// ── Parsing CSV V2 ─────────────────────────────────────────────
+// Les colonnes sont nommées par leurs headers — le parsing est générique.
+// Pour "supports" et "packagingProduits" : chaînes lisibles séparées par ", "
 function parseCSV(csv) {
   const lines = csv.split('\n').filter(l => l.trim());
   if(lines.length < 2) return [];
-  const headers = parseCSVLine(lines[0]);
+  const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g,'').trim());
   return lines.slice(1).map(line => {
     const vals = parseCSVLine(line);
     const obj = {};
-    headers.forEach((h,i) => { obj[h.replace(/"/g,'')] = (vals[i]||'').replace(/^"|"$/g,''); });
-    // Parse arrays stored as comma-separated strings
-    if(obj.types) obj.types = obj.types.split(',').map(s=>s.trim()).filter(Boolean);
-    if(obj.supports) obj.supports = obj.supports.split(',').map(s=>s.trim()).filter(Boolean);
-    if(obj.fichiers) obj.fichiers = obj.fichiers.split(',').map(s=>s.trim()).filter(Boolean);
+    headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
     return obj;
-  }).filter(b => b.briefId || b.dept);
+  }).filter(b => b.briefId);
 }
 
 function parseCSVLine(line) {
-  const result = [];
-  let current = '';
-  let inQuotes = false;
+  const result = []; let cur = '', inQ = false;
   for(let i = 0; i < line.length; i++) {
-    if(line[i] === '"') { inQuotes = !inQuotes; }
-    else if(line[i] === ',' && !inQuotes) { result.push(current); current = ''; }
-    else { current += line[i]; }
+    if(line[i]==='"') { inQ = !inQ; }
+    else if(line[i]===',' && !inQ) { result.push(cur); cur=''; }
+    else cur += line[i];
   }
-  result.push(current);
+  result.push(cur);
   return result;
 }
 
+// ── Filtres ────────────────────────────────────────────────────
 function setFilter(btn) {
   document.querySelectorAll('[data-days]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentDays = parseInt(btn.dataset.days);
   applyFilters();
 }
-
 function setView(btn) {
   document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentView = btn.dataset.view;
   applyFilters();
 }
-
 function applyFilters() {
   let data = [...allBriefs];
-  // Filter by date
   if(currentDays > 0) {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - currentDays);
-    data = data.filter(b => {
-      if(!b.submittedAt) return true;
-      return new Date(b.submittedAt) >= cutoff;
-    });
-  }
-  // Filter latest versions only
-  if(currentView === 'latest') {
-    data = data.filter(b => b.isLatest !== 'false' && b.isLatest !== false);
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - currentDays);
+    data = data.filter(b => !b.submittedAt || new Date(b.submittedAt) >= cutoff);
   }
   filteredBriefs = data;
   renderDashboard(data);
 }
 
+// ── Helpers formatage ──────────────────────────────────────────
+const fmtDate = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return d+'/'+m+'/'+y}catch(e){return s} };
+const fmtDateTime = iso => {
+  if(!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' + d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+};
+const prioBadge = p => {
+  if(p==='urgent') return '<span class="badge badge-urgent">URGENT</span>';
+  if(p==='prioritaire') return '<span class="badge badge-prioritaire">Prioritaire</span>';
+  return '<span class="badge badge-normal">Normal</span>';
+};
+const typeBadge = t => {
+  const map = {'Campagne Marketing':'campagne','Packaging':'packaging','Vitrophanie / Travaux':'vitrophanie','Autre demande':'autre'};
+  const cls = map[t] || 'autre';
+  return `<span class="badge badge-type badge-type-${cls}">${t||'—'}</span>`;
+};
+
+// ── Render today bar ───────────────────────────────────────────
 function renderTodayBar(data) {
-  const today = new Date();
-  today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
   const actions = [];
   data.forEach(b => {
     const st = getStatut(b.briefId);
-    if(st === 'livre') return; // skip delivered
-    const launch = b.launch ? new Date(b.launch) : null;
-    const valinfo = b.valinfo ? new Date(b.valinfo) : null;
-    const daysToLaunch = launch ? Math.round((launch - today)/(1000*60*60*24)) : null;
-    const daysToVal = valinfo ? Math.round((valinfo - today)/(1000*60*60*24)) : null;
+    if(st === 'livre') return;
+    const launch  = b.dateLancement ? new Date(b.dateLancement) : null;
+    const valDate = b.dateValidation ? new Date(b.dateValidation) : null;
+    const daysToLaunch = launch  ? Math.round((launch  - today)/(864e5)) : null;
+    const daysToVal    = valDate ? Math.round((valDate - today)/(864e5)) : null;
     let urgency = null, urgencyClass = 'yellow', reason = '';
-    if(b.priorite === 'urgent' && st === 'soumis') { urgency = 3; urgencyClass = 'red'; reason = '⚑ URGENT — en attente de prise en charge'; }
-    else if(daysToVal !== null && daysToVal <= 1 && st === 'soumis') { urgency = 2; urgencyClass = 'red'; reason = '⚠ Validation infos ' + (daysToVal < 0 ? 'dépassée' : daysToVal === 0 ? 'aujourd\u2019hui' : 'demain'); }
-    else if(daysToLaunch !== null && daysToLaunch <= 3 && st !== 'livre') { urgency = 2; urgencyClass = 'orange'; reason = '📅 Lancement dans ' + daysToLaunch + ' jour' + (daysToLaunch > 1 ? 's' : ''); }
-    else if(st === 'soumis' && b.submittedAt) {
-      const submitted = new Date(b.submittedAt);
-      const hoursSince = Math.round((Date.now() - submitted) / (1000*60*60));
-      if(hoursSince >= 48) { urgency = 1; urgencyClass = 'yellow'; reason = '⏰ Pas de réponse depuis ' + Math.round(hoursSince/24) + 'j'; }
+    if(b.priorite==='urgent' && st==='soumis')            { urgency=3; urgencyClass='red';    reason='⚑ URGENT — en attente de prise en charge'; }
+    else if(daysToVal!==null && daysToVal<=1 && st==='soumis') { urgency=2; urgencyClass='red'; reason='⚠ Validation infos '+(daysToVal<0?'dépassée':daysToVal===0?"aujourd'hui":'demain'); }
+    else if(daysToLaunch!==null && daysToLaunch<=3)       { urgency=2; urgencyClass='orange'; reason='📅 Lancement dans '+daysToLaunch+' jour'+(daysToLaunch>1?'s':''); }
+    else if(st==='soumis' && b.submittedAt) {
+      const hrs = Math.round((Date.now()-new Date(b.submittedAt))/(3600e3));
+      if(hrs>=48) { urgency=1; urgencyClass='yellow'; reason='⏰ Pas de réponse depuis '+Math.round(hrs/24)+'j'; }
     }
-    if(urgency !== null) actions.push({...b, urgency, urgencyClass, reason, st});
+    if(urgency!==null) actions.push({...b, urgency, urgencyClass, reason, st});
   });
   actions.sort((a,b) => b.urgency - a.urgency);
-  const el = G('today-list'); const cnt = G('today-count');
-  if(cnt) cnt.textContent = actions.length + (actions.length > 0 ? ' action'+(actions.length>1?'s':'') : ' — tout est à jour');
+  const el=G('today-list'), cnt=G('today-count');
+  if(cnt) cnt.textContent = actions.length + (actions.length>0?' action'+(actions.length>1?'s':''):' — tout est à jour');
   if(!el) return;
-  if(!actions.length) { el.innerHTML = '<div class="today-empty">✅ Tout est à jour — aucun brief n’attend une action urgente</div>'; return; }
+  if(!actions.length) { el.innerHTML='<div class="today-empty">✅ Tout est à jour — aucun brief n\'attend une action urgente</div>'; return; }
   el.innerHTML = actions.slice(0,8).map(a => `
     <div class="action-item">
       <div class="action-urgency ${a.urgencyClass}"></div>
       <div class="action-body">
-        <div class="action-title">${a.dept||'—'} · ${a.desc ? a.desc.slice(0,60)+(a.desc.length>60?'…':'') : a.vNom||'Brief sans titre'}</div>
+        <div class="action-title">${a.departement||'—'} · ${(a.contexte||a.typeDemande||'Brief sans titre').slice(0,60)}</div>
         <div class="action-meta">
           <span>${a.briefId||'—'}</span>
           <span>${a.reason}</span>
@@ -478,6 +532,170 @@ function renderTodayBar(data) {
     </div>`).join('');
 }
 
+// ── Render KPIs ────────────────────────────────────────────────
+function renderKPIs(data) {
+  const total   = data.length;
+  const urgent  = data.filter(b => b.priorite==='urgent').length;
+  const depts   = new Set(data.map(b => b.departement).filter(Boolean)).size;
+  const withDecli = data.filter(b => parseInt(b.totalDeclinaisons)>0);
+  const avgDecli  = withDecli.length
+    ? Math.round(withDecli.reduce((s,b) => s+(parseInt(b.totalDeclinaisons)||0),0)/withDecli.length)
+    : 0;
+
+  G('kpi-grid').innerHTML = [
+    {val:total,    lbl:'Briefs soumis',       icon:'ti-file-description', color:'#111'},
+    {val:depts,    lbl:'Départements actifs',  icon:'ti-building',         color:'#111'},
+    {val:urgent,   lbl:'Priorité urgente',     icon:'ti-alert-triangle',   color:urgent>0?'#cc0000':'#111'},
+    {val:avgDecli||'—', lbl:'Déclinaisons moy.', icon:'ti-copy',          color:'#111'},
+  ].map(k => `<div class="card"><div class="kpi">
+    <div class="kpi-val" style="color:${k.color}">${k.val}</div>
+    <div class="kpi-lbl">${k.lbl}</div>
+  </div></div>`).join('');
+}
+
+// ── Render listes (bar charts) ─────────────────────────────────
+function renderList(containerId, data, keyFn) {
+  const counts = {};
+  data.forEach(b => {
+    const keys = [].concat(keyFn(b)).filter(Boolean);
+    keys.forEach(k => { counts[k]=(counts[k]||0)+1; });
+  });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0]?.[1]||1;
+  const el = G(containerId);
+  if(!el) return;
+  if(!sorted.length) { el.innerHTML='<div style="color:#bbb;font-size:12px;padding:8px 0">Aucune donnée</div>'; return; }
+  el.innerHTML = sorted.slice(0,8).map(([k,v],i) => `
+    <div class="list-item">
+      <span class="list-rank">${i+1}</span>
+      <span class="list-label">${k}</span>
+      <div class="list-bar-wrap"><div class="list-bar" style="width:${Math.round(v/max*100)}%"></div></div>
+      <span class="list-count">${v}</span>
+      <span class="list-pct">${Math.round(v/data.length*100)}%</span>
+    </div>`).join('');
+}
+
+function renderDeptList(data)  { renderList('dept-list',    data, b => b.departement); }
+function renderTypesList(data) { renderList('types-list',   data, b => b.typeDemande); }
+function renderSupportsList(data) {
+  // supports = chaîne "Post carré, Story / Reel 9:16, …" → split
+  renderList('supports-list', data, b => (b.supports||'').split(',').map(s=>s.trim()).filter(Boolean));
+}
+
+// ── Render champs utiles manquants ────────────────────────────
+// Remplace l'ancien "champs vides V1" par une analyse V2 pertinente
+function renderEmptyFields(data) {
+  const el = G('empty-fields-list');
+  if(!el) return;
+  if(!data.length) { el.innerHTML='<div style="color:#bbb;font-size:12px;padding:8px 0">Aucune donnée</div>'; return; }
+  const fields = [
+    {key:'contexte',          label:'Description / contexte'},
+    {key:'dateLancement',     label:'Date de lancement'},
+    {key:'dateValidation',    label:'Date validation infos'},
+    {key:'supports',          label:'Supports (campagne)'},
+    {key:'reserves',          label:'Réserves / infos à confirmer'},
+    {key:'restaurant',        label:'Restaurant / adresse'},
+    {key:'genreCampagne',     label:'Genre de campagne'},
+    {key:'raisonUrgence',     label:'Raison urgence'},
+  ];
+  const max = data.length;
+  const sorted = fields
+    .map(f => ({ label:f.label, empty: data.filter(b => !b[f.key]||b[f.key]==='0'||b[f.key]==='').length }))
+    .sort((a,b)=>b.empty-a.empty);
+  el.innerHTML = sorted.map((f,i) => `
+    <div class="list-item">
+      <span class="list-rank">${i+1}</span>
+      <span class="list-label">${f.label}</span>
+      <div class="list-bar-wrap"><div class="list-bar" style="width:${Math.round(f.empty/max*100)}%;background:${f.empty/max>0.5?'#cc0000':'#e07b00'}"></div></div>
+      <span class="list-count">${f.empty}</span>
+      <span class="list-pct">${Math.round(f.empty/max*100)}%</span>
+    </div>`).join('');
+}
+
+// ── Render graphiques ──────────────────────────────────────────
+function renderActivityChart(data) {
+  const ctx = G('chart-activity');
+  if(!ctx) return;
+  if(charts.activity) { charts.activity.destroy(); charts.activity=null; }
+  const labels=[], counts=[];
+  for(let i=29;i>=0;i--) {
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    labels.push(i===0?'Auj.':i===1?'Hier':d.toLocaleDateString('fr-BE',{day:'numeric',month:'short'}));
+    counts.push(data.filter(b=>b.submittedAt&&b.submittedAt.slice(0,10)===key).length);
+  }
+  charts.activity = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{data:counts,backgroundColor:'#111',borderRadius:3,borderSkipped:false}] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} brief${c.parsed.y>1?'s':''}`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:9},color:'#bbb',maxRotation:0,maxTicksLimit:8}},
+        y:{grid:{color:'#f5f5f5'},ticks:{font:{size:10},color:'#bbb',stepSize:1},beginAtZero:true}
+      }
+    }
+  });
+}
+
+function renderPrioChart(data) {
+  const ctx = G('chart-prio');
+  if(!ctx) return;
+  if(charts.prio) { charts.prio.destroy(); charts.prio=null; }
+  if(!data.length) return;
+  const normal   = data.filter(b=>!b.priorite||b.priorite==='normal').length;
+  const prio     = data.filter(b=>b.priorite==='prioritaire').length;
+  const urgent   = data.filter(b=>b.priorite==='urgent').length;
+  charts.prio = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels:['Normal','Prioritaire','Urgent'], datasets:[{data:[normal,prio,urgent],backgroundColor:['#e0e0e0','#e07b00','#cc0000'],borderWidth:0,hoverOffset:4}] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'68%',
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11,family:'Roboto'},padding:12,boxWidth:12,color:'#555'}},
+        tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} brief${c.parsed>1?'s':''}`}}
+      }
+    }
+  });
+}
+
+// ── Render tableau récent ──────────────────────────────────────
+function renderRecentTable(data) {
+  const tbody = G('recent-tbody');
+  if(!tbody) return;
+  const recent = [...data].sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0)).slice(0,15);
+  if(!recent.length) {
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#bbb;padding:24px;font-size:13px">Aucun brief à afficher</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = recent.map(b => {
+    // Contexte court
+    const ctx = (b.contexte||'').slice(0,65) + ((b.contexte||'').length>65?'…':'') || '—';
+
+    // Détail contextuel selon le type
+    let detail = '';
+    if(b.typeDemande==='Campagne Marketing' && b.supports) {
+      detail = `<div class="td-detail">🎯 ${b.supports.slice(0,60)}${b.supports.length>60?'…':''}${b.totalDeclinaisons&&b.totalDeclinaisons!=='0'?' · '+b.totalDeclinaisons+' décli.':''}</div>`;
+    } else if(b.typeDemande==='Packaging' && b.packagingProduits) {
+      detail = `<div class="td-detail">📦 ${b.packagingProduits.slice(0,60)}</div>`;
+    } else if(b.typeDemande==='Vitrophanie / Travaux' && b.restaurant) {
+      detail = `<div class="td-detail">📍 ${b.restaurant}</div>`;
+    }
+
+    return `<tr>
+      <td class="td-id">${b.briefId||'—'}</td>
+      <td class="td-dept">${b.departement||'—'}<br><span style="font-weight:400;color:#aaa;font-size:10px">${b.demandeur||''}</span></td>
+      <td class="td-desc" title="${(b.contexte||'').replace(/"/g,'&quot;')}">${ctx}${detail}</td>
+      <td>${typeBadge(b.typeDemande)}</td>
+      <td>${prioBadge(b.priorite)}</td>
+      <td>${statusPill(b.briefId)}</td>
+      <td class="td-date">${fmtDate(b.dateLancement)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Render complet ─────────────────────────────────────────────
 function renderDashboard(data) {
   renderTodayBar(data);
   renderKPIs(data);
@@ -490,177 +708,9 @@ function renderDashboard(data) {
   renderRecentTable(data);
 }
 
-function renderKPIs(data) {
-  const total = data.length;
-  const urgent = data.filter(b => b.priorite === 'urgent').length;
-  const avgDecli = data.filter(b => parseInt(b.nbDecli) > 0).length > 0
-    ? Math.round(data.reduce((s,b) => s + (parseInt(b.nbDecli)||0), 0) / data.filter(b => parseInt(b.nbDecli) > 0).length)
-    : 0;
-  const depts = new Set(data.map(b => b.dept).filter(Boolean)).size;
-
-  const kpis = [
-    {val: total, lbl: 'Briefs soumis', icon: 'ti-file-description', color: '#111'},
-    {val: depts, lbl: 'Départements actifs', icon: 'ti-building', color: '#111'},
-    {val: urgent, lbl: 'Priorité urgente', icon: 'ti-alert-triangle', color: urgent>0?'#cc0000':'#111'},
-    {val: avgDecli || '—', lbl: 'Déclinaisons moy.', icon: 'ti-copy', color: '#111'},
-  ];
-
-  document.getElementById('kpi-grid').innerHTML = kpis.map(k => `
-    <div class="card">
-      <div class="kpi">
-        <div class="kpi-val" style="color:${k.color}">${k.val}</div>
-        <div class="kpi-lbl">${k.lbl}</div>
-      </div>
-    </div>`).join('');
-}
-
-function renderList(containerId, data, keyFn, label) {
-  const counts = {};
-  data.forEach(b => {
-    const keys = Array.isArray(keyFn(b)) ? keyFn(b) : [keyFn(b)];
-    keys.filter(Boolean).forEach(k => { counts[k] = (counts[k]||0) + 1; });
-  });
-  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-  const max = sorted[0]?.[1] || 1;
-  const el = document.getElementById(containerId);
-  if(!el) return;
-  if(!sorted.length) { el.innerHTML = '<div style="color:#bbb;font-size:12px;padding:8px 0">Aucune donnée</div>'; return; }
-  el.innerHTML = sorted.slice(0,8).map(([k,v],i) => `
-    <div class="list-item">
-      <span class="list-rank">${i+1}</span>
-      <span class="list-label">${k}</span>
-      <div class="list-bar-wrap"><div class="list-bar" style="width:${Math.round(v/max*100)}%"></div></div>
-      <span class="list-count">${v}</span>
-      <span class="list-pct">${Math.round(v/data.length*100)}%</span>
-    </div>`).join('');
-}
-
-function renderDeptList(data) { renderList('dept-list', data, b => b.dept, 'Département'); }
-function renderTypesList(data) { renderList('types-list', data, b => b.types||[], 'Type'); }
-function renderSupportsList(data) { renderList('supports-list', data, b => b.supports||[], 'Support'); }
-
-function renderEmptyFields(data) {
-  if(!data.length) { document.getElementById('empty-fields-list').innerHTML = '<div style="color:#bbb;font-size:12px;padding:8px 0">Aucune donnée</div>'; return; }
-  const fields = [
-    {key: 'vTexte', label: 'Texte exact'},
-    {key: 'vPrix', label: 'Prix'},
-    {key: 'vNom', label: 'Nom produit'},
-    {key: 'vDates', label: 'Dates / période'},
-    {key: 'vMentions', label: 'Mentions obligatoires'},
-    {key: 'drive', label: 'Lien Drive'},
-    {key: 'formats', label: 'Formats / dimensions'},
-    {key: 'nbDecli', label: 'Nb déclinaisons'},
-  ];
-  const max = data.length;
-  const sorted = fields.map(f => ({
-    label: f.label,
-    empty: data.filter(b => !b[f.key] || b[f.key] === '' || b[f.key] === '0').length
-  })).sort((a,b) => b.empty - a.empty);
-  document.getElementById('empty-fields-list').innerHTML = sorted.map((f,i) => `
-    <div class="list-item">
-      <span class="list-rank">${i+1}</span>
-      <span class="list-label">${f.label}</span>
-      <div class="list-bar-wrap"><div class="list-bar" style="width:${Math.round(f.empty/max*100)}%;background:${f.empty/max>0.5?'#cc0000':'#e07b00'}"></div></div>
-      <span class="list-count">${f.empty}</span>
-      <span class="list-pct">${Math.round(f.empty/max*100)}%</span>
-    </div>`).join('');
-}
-
-function renderActivityChart(data) {
-  const ctx = document.getElementById('chart-activity');
-  if(!ctx) return;
-  if(charts.activity) { charts.activity.destroy(); charts.activity = null; }
-
-  // Build daily counts for last 30 days
-  const days = 30;
-  const labels = [];
-  const counts = [];
-  for(let i = days-1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0,10);
-    labels.push(i === 0 ? 'Auj.' : i === 1 ? 'Hier' : d.toLocaleDateString('fr-BE',{day:'numeric',month:'short'}));
-    counts.push(data.filter(b => b.submittedAt && b.submittedAt.slice(0,10) === key).length);
-  }
-
-  charts.activity = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data: counts,
-        backgroundColor: '#111',
-        borderRadius: 3,
-        borderSkipped: false,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} brief${ctx.parsed.y>1?'s':''}`}}},
-      scales: {
-        x:{grid:{display:false},ticks:{font:{size:9},color:'#bbb',maxRotation:0,maxTicksLimit:8}},
-        y:{grid:{color:'#f5f5f5'},ticks:{font:{size:10},color:'#bbb',stepSize:1},beginAtZero:true}
-      }
-    }
-  });
-}
-
-function renderPrioChart(data) {
-  const ctx = document.getElementById('chart-prio');
-  if(!ctx) return;
-  if(charts.prio) { charts.prio.destroy(); charts.prio = null; }
-  const normal = data.filter(b => !b.priorite || b.priorite === 'normal').length;
-  const prio = data.filter(b => b.priorite === 'prioritaire').length;
-  const urgent = data.filter(b => b.priorite === 'urgent').length;
-  if(!data.length) return;
-  charts.prio = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Normal','Prioritaire','Urgent'],
-      datasets: [{data:[normal,prio,urgent],backgroundColor:['#e0e0e0','#e07b00','#cc0000'],borderWidth:0,hoverOffset:4}]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      cutout:'68%',
-      plugins:{
-        legend:{position:'bottom',labels:{font:{size:11,family:'Roboto'},padding:12,boxWidth:12,color:'#555'}},
-        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} brief${ctx.parsed>1?'s':''}`}}
-      }
-    }
-  });
-}
-
-function renderRecentTable(data) {
-  const tbody = document.getElementById('recent-tbody');
-  if(!tbody) return;
-  const recent = [...data].sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0)).slice(0,15);
-  if(!recent.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#bbb;padding:24px;font-size:13px">Aucun brief à afficher</td></tr>';
-    return;
-  }
-  const fmtDt = iso => {
-    if(!iso) return '—';
-    const d = new Date(iso);
-    return d.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' + d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
-  };
-  const fmtDate = s => { if(!s)return'—'; try{const[y,m,d]=s.split('-');return d+'/'+m+'/'+y}catch(e){return s} };
-  const prioBadge = p => p==='urgent'?'<span class="badge badge-urgent">URGENT</span>':p==='prioritaire'?'<span class="badge badge-prioritaire">Prioritaire</span>':'<span class="badge badge-normal">Normal</span>';
-  tbody.innerHTML = recent.map(b => `
-    <tr>
-      <td class="td-id">${b.briefId||'—'}</td>
-      <td class="td-dept">${b.dept||'—'}</td>
-      <td class="td-desc" title="${b.desc||''}">${b.desc||b.vNom||'—'}</td>
-      <td>${prioBadge(b.priorite)}</td>
-      <td>${statusPill(b.briefId)}</td>
-      <td class="td-date">${fmtDate(b.launch)}</td>
-      <td class="td-date">${fmtDt(b.submittedAt)}</td>
-    </tr>`).join('');
-}
-
 // Init
 loadData();
-// Auto-refresh every 5 minutes
-setInterval(loadData, 5 * 60 * 1000);
+setInterval(loadData, 5*60*1000);
 </script>
 </body>
 </html>
