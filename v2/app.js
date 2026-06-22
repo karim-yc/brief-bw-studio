@@ -742,28 +742,43 @@
     }, 2000);
   }
 
-  // ── Tooltips — tap mobile ───────────────────────────────────
-  // Sur desktop le CSS :hover suffit. Sur mobile, on toggle la classe tt-open.
+  // ── Tooltips — tap mobile + flip automatique ────────────────
+  function positionTooltip(tt_el) {
+    const bubble = tt_el.querySelector('.tt-bubble');
+    if (!bubble) return;
+    tt_el.classList.remove('tt-above');
+    bubble.classList.remove('tt-right');
+    // Mesurer temporairement pour détecter le débordement
+    bubble.style.cssText = 'visibility:hidden;opacity:0;display:block';
+    const r = bubble.getBoundingClientRect();
+    bubble.style.cssText = '';
+    // Flip vertical : pas assez de place en bas → passer au-dessus
+    if (r.bottom > window.innerHeight - 12) tt_el.classList.add('tt-above');
+    // Flip horizontal : déborde à droite → ancrer à droite
+    if (r.right > window.innerWidth - 12) bubble.classList.add('tt-right');
+  }
+
   document.addEventListener('click', e => {
     const icon = e.target.closest('.tt-icon');
     if (icon) {
       e.stopPropagation();
-      const tt = icon.closest('.tt');
-      const isOpen = tt.classList.contains('tt-open');
-      // Fermer tous les autres tooltips ouverts
-      document.querySelectorAll('.tt.tt-open').forEach(t => t.classList.remove('tt-open'));
+      const tt_el = icon.closest('.tt');
+      const isOpen = tt_el.classList.contains('tt-open');
+      document.querySelectorAll('.tt.tt-open').forEach(t => {
+        t.classList.remove('tt-open', 'tt-above');
+        const b = t.querySelector('.tt-bubble');
+        if (b) b.classList.remove('tt-right');
+      });
       if (!isOpen) {
-        tt.classList.add('tt-open');
-        // Vérifier si la bulle déborde à droite — si oui, aligner à gauche
-        const bubble = tt.querySelector('.tt-bubble');
-        if (bubble) {
-          bubble.classList.remove('tt-right');
-          const rect = bubble.getBoundingClientRect();
-          if (rect.right > window.innerWidth - 8) bubble.classList.add('tt-right');
-        }
+        positionTooltip(tt_el);
+        tt_el.classList.add('tt-open');
       }
     } else if (!e.target.closest('.tt')) {
-      document.querySelectorAll('.tt.tt-open').forEach(t => t.classList.remove('tt-open'));
+      document.querySelectorAll('.tt.tt-open').forEach(t => {
+        t.classList.remove('tt-open', 'tt-above');
+        const b = t.querySelector('.tt-bubble');
+        if (b) b.classList.remove('tt-right');
+      });
     }
   });
 
