@@ -462,6 +462,7 @@ ${Recap.toHtml(r)}
     const note = document.getElementById('sb-submit-note');
     if (note) {
       if (ready) { note.textContent = 'Toutes les infos requises sont prêtes'; note.classList.remove('is-blocking'); }
+      else if (issues.blocking.length === 0) { note.textContent = 'Cochez la confirmation en section 5 pour soumettre'; note.classList.add('is-blocking'); }
       else { note.textContent = `${issues.blocking.length} champ${issues.blocking.length > 1 ? 's' : ''} bloquant${issues.blocking.length > 1 ? 's' : ''} à compléter`; note.classList.add('is-blocking'); }
     }
     const mobileIssues = document.getElementById('mobile-submit-issues');
