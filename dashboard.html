@@ -3,710 +3,825 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Studio Graphique B&W</title>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Dashboard — Studio B&W</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
+/* ── Reset & base ─────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
-html{background:#f0f0f0;min-height:100%}
-body{font-family:'Roboto',sans-serif;background:#f0f0f0;min-height:100vh;padding:20px 14px 48px}
-.app{max-width:960px;margin:0 auto}
+:root{
+  --black:#111;--white:#fff;
+  --bg:#f4f4f6;--surface:#fff;
+  --border:#e8e8ec;--border-light:#f0f0f4;
+  --text:#1a1a1a;--text-secondary:#5a5a6a;--text-tertiary:#9898a8;
+  --urgent:#dc2626;--urgent-bg:#fef2f2;--urgent-border:#fecaca;
+  --prio:#ea580c;--prio-bg:#fff7ed;--prio-border:#fed7aa;
+  --normal-bg:#f5f5f7;--normal-text:#666;
+  --campagne:#1d4ed8;--campagne-bg:#eff6ff;
+  --packaging:#b45309;--packaging-bg:#fef3c7;
+  --vitro:#166534;--vitro-bg:#f0fdf4;
+  --autre:#6b7280;--autre-bg:#f9fafb;
+  --status-soumis:#1e40af;--status-soumis-bg:#eff6ff;--status-soumis-border:#bfdbfe;
+  --status-encours:#9a3412;--status-encours-bg:#fff7ed;--status-encours-border:#fed7aa;
+  --status-simul:#7e22ce;--status-simul-bg:#fdf4ff;--status-simul-border:#e9d5ff;
+  --status-valide:#166534;--status-valide-bg:#f0fdf4;--status-valide-border:#bbf7d0;
+  --r:10px;--r-sm:6px;--r-pill:50px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+}
+html{background:var(--bg);min-height:100%}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
 
-.hdr{background:#111;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:0}
-.hdr-left .title{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;text-transform:uppercase}
-.hdr-left .sub{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:3px}
-.hdr-right{display:flex;align-items:center;gap:12px}
-.hdr-logo{font-family:'Anton',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-align:right;text-transform:uppercase;line-height:1.7}
-.back-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;background:rgba(255,255,255,0.1);border:none;border-radius:20px;color:rgba(255,255,255,0.7);font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;font-family:'Roboto',sans-serif;text-decoration:none;transition:all .15s}
-.back-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
+/* ── Header ───────────────────────────────────────────────────── */
+.hdr{background:var(--black);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100}
+.hdr-brand{display:flex;align-items:baseline;gap:10px}
+.hdr-title{font-family:'Anton',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;text-transform:uppercase}
+.hdr-sub{font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,.35);text-transform:uppercase}
+.hdr-actions{display:flex;align-items:center;gap:8px}
+.hdr-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,255,255,.1);border:none;border-radius:var(--r-pill);color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.4px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;transition:background .15s;white-space:nowrap}
+.hdr-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.hdr-btn i{font-size:13px}
 
-.sync-bar{background:#1e1e1e;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.sync-info{font-size:11px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:8px}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:#1a6b2a;flex-shrink:0}
-.sync-dot.loading{background:#e07b00;animation:pulse-dot 1s infinite}
-.sync-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:16px;color:rgba(255,255,255,0.6);font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;font-family:'Roboto',sans-serif;transition:all .15s}
-.sync-btn:hover{background:rgba(255,255,255,0.15);color:#fff}
-.sync-btn i{font-size:13px}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
+/* ── Sync bar ─────────────────────────────────────────────────── */
+.sync-bar{background:#1a1a2e;padding:8px 24px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sync-info{font-size:11px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:7px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;transition:background .3s}
+.sync-dot.loading{background:#f59e0b;animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.sync-refresh{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;padding:2px 6px;border-radius:4px;font-size:11px;display:flex;align-items:center;gap:4px;transition:color .15s;font-family:'Inter',sans-serif}
+.sync-refresh:hover{color:rgba(255,255,255,.8)}
 
-.filters{background:#fff;padding:12px 24px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#aaa}
-.filter-btn{padding:5px 12px;border:1.5px solid #e0e0e0;border-radius:14px;font-size:11px;font-weight:700;font-family:'Roboto',sans-serif;color:#777;background:#fff;cursor:pointer;transition:all .15s}
-.filter-btn:hover{border-color:#111;color:#111}
-.filter-btn.active{background:#111;border-color:#111;color:#fff}
-.filter-sep{width:1px;height:18px;background:#e8e8e8;flex-shrink:0}
+/* ── Filters ──────────────────────────────────────────────────── */
+.filters-wrap{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;flex-direction:column;gap:8px}
+.filters-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.search-input{flex:1;min-width:180px;max-width:260px;position:relative}
+.search-input input{width:100%;padding:6px 10px 6px 32px;border:1.5px solid var(--border);border-radius:var(--r-pill);font-size:12px;font-family:'Inter',sans-serif;color:var(--text);background:#fafafa;outline:none;transition:border-color .15s}
+.search-input input:focus{border-color:var(--black);background:#fff}
+.search-input i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:13px;pointer-events:none}
+.filter-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);white-space:nowrap}
+.filter-chip{padding:4px 10px;border:1.5px solid var(--border);border-radius:var(--r-pill);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;color:var(--text-secondary);background:var(--surface);cursor:pointer;transition:all .15s;white-space:nowrap}
+.filter-chip:hover{border-color:var(--black);color:var(--black)}
+.filter-chip.active{background:var(--black);border-color:var(--black);color:#fff}
+.filter-chip.fc-urgent.active{background:var(--urgent);border-color:var(--urgent)}
+.filter-chip.fc-prio.active{background:var(--prio);border-color:var(--prio)}
+.filter-chip.fc-campagne.active{background:var(--campagne);border-color:var(--campagne)}
+.filter-chip.fc-packaging.active{background:var(--packaging);border-color:var(--packaging)}
+.filter-chip.fc-vitro.active{background:var(--vitro);border-color:var(--vitro)}
+.filter-sep{width:1px;height:16px;background:var(--border);flex-shrink:0}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
-.grid-wide{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:12px}
+/* ── Layout principal ─────────────────────────────────────────── */
+.main{max-width:960px;margin:0 auto;padding:20px 16px 60px}
 
-.card{background:#fff;border-radius:8px;overflow:hidden}
-.card-head{padding:14px 18px 10px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
-.card-title{font-family:'Anton',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#aaa}
-.card-icon{width:28px;height:28px;border-radius:6px;background:#f5f5f5;display:flex;align-items:center;justify-content:center}
-.card-icon i{font-size:14px;color:#777}
-.card-body{padding:14px 18px}
+/* ── KPIs ─────────────────────────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:420px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:14px 12px;text-align:center;cursor:default;transition:box-shadow .15s}
+.kpi-card:hover{box-shadow:var(--shadow)}
+.kpi-val{font-family:'Anton',sans-serif;font-size:28px;line-height:1;color:var(--black);margin-bottom:4px}
+.kpi-val.red{color:var(--urgent)}
+.kpi-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-tertiary);line-height:1.3}
 
-.kpi{text-align:center;padding:18px 14px}
-.kpi-val{font-family:'Anton',sans-serif;font-size:36px;color:#111;line-height:1}
-.kpi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#bbb;margin-top:6px}
-.kpi-delta{font-size:11px;font-weight:700;margin-top:4px}
-.delta-up{color:#1a6b2a}.delta-down{color:#cc0000}.delta-neutral{color:#bbb}
-
-.chart-wrap{padding:14px 18px;height:220px;position:relative}
-.chart-wrap canvas{max-height:192px}
-
-.list-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5}
-.list-item:last-child{border-bottom:none}
-.list-rank{font-family:'Anton',sans-serif;font-size:11px;color:#ccc;min-width:18px}
-.list-label{font-size:13px;color:#333;flex:1}
-.list-bar-wrap{flex:1;max-width:120px}
-.list-bar{height:6px;background:#111;border-radius:3px;transition:width .4s}
-.list-count{font-size:12px;font-weight:700;color:#111;min-width:24px;text-align:right}
-.list-pct{font-size:10px;color:#bbb;min-width:32px;text-align:right}
-
-.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:0.3px}
-.badge-urgent{background:#fff0f0;color:#cc0000}
-.badge-prioritaire{background:#fff8e1;color:#856404}
-.badge-normal{background:#f5f5f5;color:#888}
-
-.empty-state{text-align:center;padding:48px 24px;color:#bbb}
-.empty-state i{font-size:40px;display:block;margin-bottom:12px;opacity:0.4}
-.empty-state p{font-size:13px;line-height:1.6}
-.empty-state a{color:#111;font-weight:700;text-decoration:none}
-
-.recent-table{width:100%;border-collapse:collapse;font-size:12px}
-.recent-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#aaa;border-bottom:1px solid #f0f0f0;font-weight:500;white-space:nowrap}
-.recent-table td{padding:9px 10px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
-.recent-table tr:last-child td{border-bottom:none}
-.recent-table tr:hover td{background:#fafafa}
-.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;text-transform:uppercase;letter-spacing:0.3px;cursor:pointer;transition:all .15s;border:1px solid transparent}
-.status-pill:hover{opacity:0.8}
-.st-soumis{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
-.st-encours{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
-.st-simulation{background:#fdf4ff;color:#7e22ce;border-color:#e9d5ff}
-.st-valide{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
-.st-livre{background:#111;color:#fff;border-color:#111}
-.st-urgent{background:#fef2f2;color:#991b1b;border-color:#fecaca}
-
-/* ACTION BAR TODAY */
-.today-bar{background:#fff;border-radius:10px;border:1px solid #e8e8e8;margin-top:14px;overflow:hidden}
-.today-head{padding:12px 20px;background:#111;display:flex;align-items:center;justify-content:space-between}
-.today-head h2{font-size:12px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase}
-.today-count{font-size:11px;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px}
-.today-empty{padding:20px 24px;font-size:13px;color:#aaa;text-align:center}
-.action-item{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid #f5f5f5;transition:background .1s}
+/* ── Actions urgentes ─────────────────────────────────────────── */
+.urgency-bar{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.urgency-head{padding:11px 18px;background:var(--black);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.urgency-head h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.urgency-count{font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.1);padding:2px 8px;border-radius:var(--r-pill)}
+.urgency-body{display:none}
+.urgency-body.open{display:block}
+.urgency-empty{padding:16px 20px;font-size:13px;color:var(--text-tertiary)}
+.action-item{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border-light);transition:background .1s}
 .action-item:last-child{border-bottom:none}
 .action-item:hover{background:#fafafa}
-.action-urgency{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0}
-.action-urgency.red{background:#dc2626}
-.action-urgency.orange{background:#ea580c}
-.action-urgency.yellow{background:#eab308}
+.action-stripe{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0;min-height:32px}
+.stripe-red{background:var(--urgent)}
+.stripe-orange{background:var(--prio)}
+.stripe-yellow{background:#eab308}
 .action-body{flex:1;min-width:0}
-.action-title{font-size:13px;font-weight:600;color:#111;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.action-meta{font-size:11px;color:#888;display:flex;gap:10px;flex-wrap:wrap}
-.action-cta{font-size:11px;font-weight:700;color:#111;background:#f5f5f5;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;white-space:nowrap;transition:background .15s}
-.action-cta:hover{background:#e8e8e8}
+.action-title{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.action-meta{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.action-cta{font-size:11px;font-weight:600;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:5px 10px;cursor:pointer;white-space:nowrap;transition:background .15s;font-family:'Inter',sans-serif}
+.action-cta:hover{background:var(--border)}
 
-/* MODAL STATUT */
-.status-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+/* ── Section titre ────────────────────────────────────────────── */
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px}
+.section-hd h2{font-family:'Anton',sans-serif;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-tertiary)}
+.section-hd span{font-size:12px;color:var(--text-tertiary)}
+
+/* ── Brief cards list ─────────────────────────────────────────── */
+.briefs-list{display:flex;flex-direction:column;gap:8px}
+.brief-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:16px 18px;cursor:pointer;transition:box-shadow .15s,border-color .15s;position:relative}
+.brief-card:hover{box-shadow:var(--shadow);border-color:#ccc}
+.brief-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.brief-id{font-family:'Anton',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--text-tertiary);text-transform:uppercase}
+.brief-badges{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.brief-ctx{font-size:13px;color:var(--text);font-weight:500;line-height:1.4;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.brief-detail{font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.5}
+.brief-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.brief-who{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:5px}
+.brief-who strong{color:var(--text-secondary);font-weight:600}
+.brief-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.brief-date{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.brief-date i{font-size:12px}
+/* Barre priorité à gauche */
+.brief-card.is-urgent{border-left:3px solid var(--urgent)}
+.brief-card.is-prio{border-left:3px solid var(--prio)}
+
+/* ── Badges ───────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);letter-spacing:.3px;white-space:nowrap;text-transform:uppercase}
+.b-urgent{background:var(--urgent-bg);color:var(--urgent);border:1px solid var(--urgent-border)}
+.b-prio{background:var(--prio-bg);color:var(--prio);border:1px solid var(--prio-border)}
+.b-normal{background:var(--normal-bg);color:var(--normal-text);border:1px solid var(--border)}
+.b-campagne{background:var(--campagne-bg);color:var(--campagne)}
+.b-packaging{background:var(--packaging-bg);color:var(--packaging)}
+.b-vitro{background:var(--vitro-bg);color:var(--vitro)}
+.b-autre{background:var(--autre-bg);color:var(--autre)}
+.status-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:var(--r-pill);cursor:pointer;border:1px solid transparent;transition:opacity .15s;text-transform:uppercase;letter-spacing:.3px}
+.status-pill:hover{opacity:.75}
+.st-soumis{background:var(--status-soumis-bg);color:var(--status-soumis);border-color:var(--status-soumis-border)}
+.st-encours{background:var(--status-encours-bg);color:var(--status-encours);border-color:var(--status-encours-border)}
+.st-simulation{background:var(--status-simul-bg);color:var(--status-simul);border-color:var(--status-simul-border)}
+.st-valide{background:var(--status-valide-bg);color:var(--status-valide);border-color:var(--status-valide-border)}
+.st-livre{background:var(--black);color:#fff;border-color:var(--black)}
+
+/* ── Vide ─────────────────────────────────────────────────────── */
+.empty-state{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:48px 24px;text-align:center;color:var(--text-tertiary)}
+.empty-state i{font-size:36px;display:block;margin-bottom:12px;opacity:.35}
+.empty-state p{font-size:13px;line-height:1.6}
+.empty-state a{color:var(--black);font-weight:700;text-decoration:none}
+
+/* ── Stats section (secondaire) ───────────────────────────────── */
+.stats-section{margin-top:20px}
+.stats-toggle{display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer;user-select:none;color:var(--text-tertiary);font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:none;background:none;font-family:'Inter',sans-serif}
+.stats-toggle i{font-size:14px;transition:transform .2s}
+.stats-toggle.open i.chevron{transform:rotate(180deg)}
+.stats-grid{display:none;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:8px}
+.stats-grid.open{display:grid}
+.stat-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+.stat-head{padding:12px 16px 10px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
+.stat-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-tertiary)}
+.stat-body{padding:12px 16px}
+.list-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)}
+.list-row:last-child{border-bottom:none}
+.list-rank{font-family:'Anton',sans-serif;font-size:10px;color:#ccc;min-width:14px}
+.list-lbl{font-size:12px;color:var(--text-secondary);flex:1}
+.list-bar-wrap{flex:1;max-width:100px}
+.list-bar{height:5px;background:var(--black);border-radius:3px;transition:width .4s}
+.list-cnt{font-size:12px;font-weight:700;color:var(--text);min-width:20px;text-align:right}
+.list-pct{font-size:10px;color:var(--text-tertiary);min-width:28px;text-align:right}
+.chart-wrap{padding:14px 16px;height:200px}
+
+/* ── Detail drawer ────────────────────────────────────────────── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:var(--surface);z-index:201;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.drawer.open{transform:translateX(0)}
+.drawer-head{background:var(--black);padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0}
+.drawer-id{font-family:'Anton',sans-serif;font-size:13px;letter-spacing:1.5px;color:rgba(255,255,255,.55);margin-bottom:4px;text-transform:uppercase}
+.drawer-type{font-size:13px;color:#fff;font-weight:500}
+.drawer-close{width:30px;height:30px;background:rgba(255,255,255,.1);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.drawer-close:hover{background:rgba(255,255,255,.25)}
+.drawer-body{flex:1;overflow-y:auto;padding:20px}
+.drawer-section{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border-light)}
+.drawer-section:last-child{border-bottom:none;margin-bottom:0}
+.drawer-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);margin-bottom:6px}
+.drawer-val{font-size:13px;color:var(--text);line-height:1.6}
+.drawer-val.muted{color:var(--text-secondary)}
+.drawer-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.drawer-foot{padding:14px 20px;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0;display:flex;gap:8px;flex-wrap:wrap}
+.drawer-foot .status-pill{font-size:11px;padding:5px 12px}
+
+/* ── Status modal ─────────────────────────────────────────────── */
+.status-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
 .status-modal.open{display:flex}
-.status-modal-box{background:#fff;border-radius:10px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
-.status-modal-head{background:#111;padding:16px 20px;display:flex;align-items:center;gap:10px}
-.status-modal-head h3{font-size:13px;font-weight:700;color:#fff;flex:1}
-.status-modal-close{width:28px;height:28px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center}
-.status-options{padding:16px;display:flex;flex-direction:column;gap:8px}
-.status-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid #e8e8e8;border-radius:8px;cursor:pointer;transition:all .15s;font-size:13px;font-weight:500}
-.status-opt:hover{border-color:#111;background:#f9f9f9}
-.status-opt.selected{border-color:#111;background:#111;color:#fff}
-.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.td-id{font-family:'Anton',sans-serif;font-size:10px;color:#aaa;letter-spacing:1px}
-.td-dept{font-weight:500;color:#111}
-.td-desc{color:#777;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.td-date{color:#bbb;white-space:nowrap}
+.status-modal-box{background:#fff;border-radius:var(--r);width:100%;max-width:340px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.status-modal-head{background:var(--black);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.status-modal-head h3{font-size:13px;font-weight:700;color:#fff}
+.status-modal-close{width:26px;height:26px;background:rgba(255,255,255,.1);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center}
+.status-options{padding:14px;display:flex;flex-direction:column;gap:6px}
+.status-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:all .15s;font-size:13px;font-weight:500;font-family:'Inter',sans-serif}
+.status-opt:hover{border-color:var(--black);background:#f9f9f9}
+.status-opt.selected{border-color:var(--black);background:var(--black);color:#fff}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-.loading-skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:20px;margin:6px 0}
+/* ── Loading skeleton ─────────────────────────────────────────── */
+.skeleton{background:linear-gradient(90deg,#f0f0f4 25%,#e4e4ea 50%,#f0f0f4 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-.section-title{font-family:'Anton',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#777;margin:18px 0 10px;padding-left:2px}
-
-/* ── Badges type V2 ─────────────────────────────────────────── */
-.badge-type { font-size:9px; padding:3px 7px; border-radius:10px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase; }
-.badge-type-campagne   { background:#e8f0fe; color:#1a56db; }
-.badge-type-packaging  { background:#fdf3e7; color:#b45309; }
-.badge-type-vitrophanie{ background:#f0fdf4; color:#166534; }
-.badge-type-autre      { background:#f3f4f6; color:#6b7280; }
-.td-detail { font-size:10px; color:#888; margin-top:3px; }
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media(max-width:600px){
+  .hdr-sub{display:none}
+  .main{padding:14px 12px 60px}
+  .kpi-card{padding:12px 8px}
+  .kpi-val{font-size:24px}
+  .brief-card{padding:14px}
+  .stats-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
-<div class="app">
-  <div class="hdr">
-    <div class="hdr-left">
-      <div class="title">Dashboard</div>
-      <div class="sub">Studio Graphique — Analytics briefs</div>
-    </div>
-    <div class="hdr-right">
-      <a href="index.html" class="back-btn"><i class="ti ti-arrow-left" style="font-size:13px"></i> Formulaire</a>
-      <div class="hdr-logo">Black &amp; White<br>Burger</div>
-    </div>
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <span class="hdr-title">Dashboard</span>
+    <span class="hdr-sub">Studio B&W</span>
   </div>
+  <div class="hdr-actions">
+    <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
+    <a href="v2/index.html" class="hdr-btn"><i class="ti ti-plus"></i><span class="hdr-btn-lbl"> Nouveau brief</span></a>
+  </div>
+</header>
 
-  <div class="sync-bar">
-    <div class="sync-info">
-      <span class="sync-dot" id="sync-dot"></span>
-      <span id="sync-label">Chargement des données...</span>
-    </div>
-    <button class="sync-btn" onclick="loadData()">
-      <i class="ti ti-refresh"></i> Actualiser
-    </button>
+<!-- SYNC BAR -->
+<div class="sync-bar">
+  <div class="sync-info">
+    <span class="sync-dot" id="sync-dot"></span>
+    <span id="sync-label">Chargement...</span>
   </div>
-
-  <div style="background:#fff;padding:10px 24px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;gap:8px;flex-wrap:wrap" id="filters-bar">
-    <span class="filter-label">Période :</span>
-    <button class="filter-btn" data-days="7" onclick="setFilter(this)">7 jours</button>
-    <button class="filter-btn" data-days="30" onclick="setFilter(this)">30 jours</button>
-    <button class="filter-btn" data-days="90" onclick="setFilter(this)">3 mois</button>
-    <button class="filter-btn active" data-days="0" onclick="setFilter(this)">Tout</button>
-    <span class="filter-sep"></span>
-    <span class="filter-label">Voir :</span>
-    <button class="filter-btn active" data-view="all" onclick="setView(this)">Tous</button>
-    <button class="filter-btn" data-view="latest" onclick="setView(this)">Dernières versions</button>
-  </div>
-
-  <div id="main-content">
-    <!-- KPIs -->
-    <div class="section-title">À traiter maintenant</div>
-<div class="today-bar" id="today-bar">
-  <div class="today-head">
-    <h2>🎯 Briefs qui nécessitent une action</h2>
-    <span class="today-count" id="today-count">—</span>
-  </div>
-  <div id="today-list"><div class="today-empty">Chargement...</div></div>
+  <button class="sync-refresh" onclick="loadData()"><i class="ti ti-refresh"></i> Sync</button>
 </div>
 
-<div class="section-title">Vue d'ensemble</div>
-    <div class="grid" id="kpi-grid">
-      <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
-      <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
-      <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
-      <div class="card"><div class="kpi"><div class="loading-skeleton" style="width:60px;margin:0 auto 8px"></div><div class="loading-skeleton" style="width:100px;margin:0 auto"></div></div></div>
+<!-- FILTERS -->
+<div class="filters-wrap">
+  <div class="filters-row">
+    <div class="search-input">
+      <i class="ti ti-search"></i>
+      <input type="text" id="search-input" placeholder="Rechercher ID, demandeur…" oninput="applyFilters()">
     </div>
-
-    <div class="grid-wide">
-      <!-- Briefs par département -->
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Briefs par département</span>
-          <div class="card-icon"><i class="ti ti-building"></i></div>
-        </div>
-        <div class="card-body" id="dept-list"></div>
-      </div>
-
-      <!-- Activité hebdomadaire -->
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Activité dans le temps</span>
-          <div class="card-icon"><i class="ti ti-chart-line"></i></div>
-        </div>
-        <div class="chart-wrap"><canvas id="chart-activity"></canvas></div>
-      </div>
+    <span class="filter-sep"></span>
+    <div class="filter-group">
+      <span class="filter-label">Période</span>
+      <button class="filter-chip active" data-days="0" onclick="setDayFilter(this)">Tout</button>
+      <button class="filter-chip" data-days="7" onclick="setDayFilter(this)">7j</button>
+      <button class="filter-chip" data-days="30" onclick="setDayFilter(this)">30j</button>
+      <button class="filter-chip" data-days="90" onclick="setDayFilter(this)">3m</button>
     </div>
-
-    <div class="grid-wide">
-      <!-- Types de demandes -->
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Types de demandes</span>
-          <div class="card-icon"><i class="ti ti-tag"></i></div>
-        </div>
-        <div class="card-body" id="types-list"></div>
-      </div>
-
-      <!-- Supports les plus demandés -->
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Supports les plus demandés</span>
-          <div class="card-icon"><i class="ti ti-devices"></i></div>
-        </div>
-        <div class="card-body" id="supports-list"></div>
-      </div>
+  </div>
+  <div class="filters-row">
+    <div class="filter-group">
+      <span class="filter-label">Type</span>
+      <button class="filter-chip active" data-type="" onclick="setTypeFilter(this)">Tous</button>
+      <button class="filter-chip fc-campagne" data-type="Campagne Marketing" onclick="setTypeFilter(this)">Campagne</button>
+      <button class="filter-chip fc-packaging" data-type="Packaging" onclick="setTypeFilter(this)">Packaging</button>
+      <button class="filter-chip fc-vitro" data-type="Vitrophanie / Travaux" onclick="setTypeFilter(this)">Vitrophanie</button>
+      <button class="filter-chip" data-type="Autre demande" onclick="setTypeFilter(this)">Autre</button>
     </div>
+    <span class="filter-sep"></span>
+    <div class="filter-group">
+      <span class="filter-label">Priorité</span>
+      <button class="filter-chip active" data-prio="" onclick="setPrioFilter(this)">Toutes</button>
+      <button class="filter-chip fc-urgent" data-prio="urgent" onclick="setPrioFilter(this)">Urgent</button>
+      <button class="filter-chip fc-prio" data-prio="prioritaire" onclick="setPrioFilter(this)">Prioritaire</button>
+      <button class="filter-chip" data-prio="normal" onclick="setPrioFilter(this)">Normal</button>
+    </div>
+    <span class="filter-sep"></span>
+    <div class="filter-group">
+      <span class="filter-label">Statut</span>
+      <button class="filter-chip active" data-statut="" onclick="setStatutFilter(this)">Tous</button>
+      <button class="filter-chip" data-statut="soumis" onclick="setStatutFilter(this)">Soumis</button>
+      <button class="filter-chip" data-statut="encours" onclick="setStatutFilter(this)">En cours</button>
+      <button class="filter-chip" data-statut="valide" onclick="setStatutFilter(this)">Validé</button>
+      <button class="filter-chip" data-statut="livre" onclick="setStatutFilter(this)">Livré</button>
+    </div>
+  </div>
+</div>
 
-    <div class="grid-wide">
-      <!-- Taux de complétion -->
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Champs souvent vides</span>
-          <div class="card-icon"><i class="ti ti-alert-circle"></i></div>
-        </div>
-        <div class="card-body" id="empty-fields-list"></div>
+<!-- MAIN -->
+<main class="main">
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
+  </div>
+
+  <!-- ACTIONS URGENTES -->
+  <div class="urgency-bar">
+    <div class="urgency-head" onclick="toggleUrgency()">
+      <h2><i class="ti ti-alert-triangle" style="font-size:13px;color:#f59e0b"></i> Actions requises</h2>
+      <span class="urgency-count" id="urgency-count">—</span>
+    </div>
+    <div class="urgency-body open" id="urgency-body">
+      <div class="urgency-empty">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- BRIEFS LIST -->
+  <div class="section-hd">
+    <h2>Briefs</h2>
+    <span id="briefs-count"></span>
+  </div>
+  <div id="briefs-list" class="briefs-list"></div>
+
+  <!-- STATS (secondaire, collapsible) -->
+  <div class="stats-section">
+    <button class="stats-toggle" id="stats-toggle" onclick="toggleStats()">
+      <i class="ti ti-chevron-down chevron"></i>
+      Statistiques & analyses
+    </button>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-head"><span class="stat-title">Départements</span></div>
+        <div class="stat-body" id="dept-list"></div>
       </div>
-
-      <!-- Répartition priorités -->
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">Répartition des priorités</span>
-          <div class="card-icon"><i class="ti ti-gauge"></i></div>
-        </div>
+      <div class="stat-card">
+        <div class="stat-head"><span class="stat-title">Types de demandes</span></div>
+        <div class="stat-body" id="types-list"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-head"><span class="stat-title">Supports demandés</span></div>
+        <div class="stat-body" id="supports-list"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-head"><span class="stat-title">Répartition priorités</span></div>
         <div class="chart-wrap"><canvas id="chart-prio"></canvas></div>
       </div>
-    </div>
-
-    <!-- Briefs récents -->
-    <div class="section-title">Briefs récents</div>
-    <div class="card">
-      <div class="card-body" style="padding:0">
-        <div style="overflow-x:auto">
-          <table class="recent-table" id="recent-table">
-            <thead><tr><th>ID</th><th>Département</th><th>Description</th><th>Priorité</th><th>Statut</th><th>Lancement</th><th>Soumis le</th></tr></thead>
-            <tbody id="recent-tbody"></tbody>
-          </table>
-        </div>
+      <div class="stat-card" style="grid-column:1/-1">
+        <div class="stat-head"><span class="stat-title">Activité — 30 derniers jours</span></div>
+        <div class="chart-wrap" style="height:180px"><canvas id="chart-activity"></canvas></div>
       </div>
     </div>
   </div>
+
+</main>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="brief-drawer">
+  <div class="drawer-head">
+    <div>
+      <div class="drawer-id" id="d-id"></div>
+      <div class="drawer-type" id="d-type"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-foot" id="drawer-foot"></div>
 </div>
 
+<!-- STATUS MODAL -->
 <div class="status-modal" id="status-modal" onclick="if(event.target===this)closeStatusModal()">
   <div class="status-modal-box">
     <div class="status-modal-head">
       <h3 id="status-modal-title">Changer le statut</h3>
       <button class="status-modal-close" onclick="closeStatusModal()">×</button>
     </div>
-    <div class="status-options" id="status-options">
-      <div class="status-opt" data-status="soumis" onclick="selectStatus(this)"><span class="status-dot" style="background:#3b82f6"></span>Soumis — en attente</div>
-      <div class="status-opt" data-status="encours" onclick="selectStatus(this)"><span class="status-dot" style="background:#ea580c"></span>En cours de production</div>
-      <div class="status-opt" data-status="simulation" onclick="selectStatus(this)"><span class="status-dot" style="background:#7e22ce"></span>Simulation envoyée</div>
-      <div class="status-opt" data-status="valide" onclick="selectStatus(this)"><span class="status-dot" style="background:#16a34a"></span>Validé par le client</div>
-      <div class="status-opt" data-status="livre" onclick="selectStatus(this)"><span class="status-dot" style="background:#111"></span>Livré ✓</div>
+    <div class="status-options">
+      <div class="status-opt" data-status="soumis"     onclick="selectStatus(this)"><span class="status-dot" style="background:#3b82f6"></span>Soumis — en attente</div>
+      <div class="status-opt" data-status="encours"    onclick="selectStatus(this)"><span class="status-dot" style="background:#ea580c"></span>En cours de production</div>
+      <div class="status-opt" data-status="simulation" onclick="selectStatus(this)"><span class="status-dot" style="background:#9333ea"></span>Simulation envoyée</div>
+      <div class="status-opt" data-status="valide"     onclick="selectStatus(this)"><span class="status-dot" style="background:#16a34a"></span>Validé</div>
+      <div class="status-opt" data-status="livre"      onclick="selectStatus(this)"><span class="status-dot" style="background:#111"></span>Livré ✓</div>
     </div>
   </div>
 </div>
 
 <script>
+/* ════════════════════════════════════════════════════════════
+   DASHBOARD V2 — Studio B&W
+   Source : Google Sheets CSV (principal) + bw_brief_v2_history (fallback)
+   ════════════════════════════════════════════════════════════ */
+
 const G = id => document.getElementById(id);
 
-// ── V2 : clés et constantes ────────────────────────────────────
-const HIST_KEY   = 'bw_brief_v2_history';   // V2 localStorage
+const HIST_KEY   = 'bw_brief_v2_history';
 const SHEET_ID   = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
 const STATUS_KEY = 'bw_brief_statuts';
 
 const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation envoyée', valide:'Validé', livre:'Livré' };
 const STATUS_CSS    = { soumis:'st-soumis', encours:'st-encours', simulation:'st-simulation', valide:'st-valide', livre:'st-livre' };
 
-// Mapping IDs supports → labels lisibles (pour normaliser le localStorage V2)
 const SUPPORT_LABELS = {
   post:'Post carré', story:'Story / Reel 9:16', affiche:'Affiche / Flyer',
   menuboard:'Menu board', borne:'Borne digitale', plv:'PLV print',
-  newsletter:'Newsletter', banniere:'Bannière web', video:'Vidéo / Reel',
-  'autre-support':'Autre support'
+  newsletter:'Newsletter', banniere:'Bannière web', video:'Vidéo / Reel', 'autre-support':'Autre support'
 };
-const TYPE_LABELS = {
-  campagne:'Campagne Marketing', packaging:'Packaging',
-  vitrophanie:'Vitrophanie / Travaux', autre:'Autre demande'
-};
-const GENRE_LABELS = {
-  produit:'Produit avec prix', image:'Image & Brand', promo:'Promo & Offre'
-};
+const TYPE_LABELS  = { campagne:'Campagne Marketing', packaging:'Packaging', vitrophanie:'Vitrophanie / Travaux', autre:'Autre demande' };
+const GENRE_LABELS = { produit:'Produit avec prix', image:'Image & Brand', promo:'Promo & Offre' };
 
-// ── Statuts (modal) ───────────────────────────────────────────
+/* ── Statuts ──────────────────────────────────────────────── */
 function getStatuts() { try{return JSON.parse(localStorage.getItem(STATUS_KEY)||'{}')}catch(e){return{}} }
-function setStatut(id, st) { const s=getStatuts(); s[id]=st; localStorage.setItem(STATUS_KEY, JSON.stringify(s)); }
+function setStatut(id, st) { const s=getStatuts(); s[id]=st; localStorage.setItem(STATUS_KEY,JSON.stringify(s)); }
 function getStatut(id) { return getStatuts()[id] || 'soumis'; }
 
 let _statusTarget = null;
-function openStatusModal(briefId, currentStatus) {
+function openStatusModal(briefId, e) {
+  if(e) e.stopPropagation();
   _statusTarget = briefId;
-  G('status-modal-title').textContent = 'Statut — ' + briefId;
-  document.querySelectorAll('.status-opt').forEach(o => o.classList.toggle('selected', o.dataset.status === currentStatus));
+  G('status-modal-title').textContent = briefId;
+  const cur = getStatut(briefId);
+  document.querySelectorAll('.status-opt').forEach(o => o.classList.toggle('selected', o.dataset.status===cur));
   G('status-modal').classList.add('open');
 }
-function closeStatusModal() { G('status-modal').classList.remove('open'); _statusTarget = null; }
+function closeStatusModal() { G('status-modal').classList.remove('open'); _statusTarget=null; }
 function selectStatus(opt) {
   if(!_statusTarget) return;
   setStatut(_statusTarget, opt.dataset.status);
   closeStatusModal();
-  renderDashboard(filteredBriefs);
+  applyFilters();
+  if(_currentDrawerBrief && _currentDrawerBrief.briefId === _statusTarget) renderDrawer(_currentDrawerBrief);
 }
-function statusPill(briefId) {
+function statusPill(briefId, e_stopper) {
   const s = getStatut(briefId);
-  return `<span class="status-pill ${STATUS_CSS[s]||'st-soumis'}" onclick="event.stopPropagation();openStatusModal('${briefId}','${s}')" title="Cliquer pour changer">${STATUS_LABELS[s]||s} ✎</span>`;
+  const onclick = e_stopper ? `openStatusModal('${briefId}',event)` : `openStatusModal('${briefId}')`;
+  return `<span class="status-pill ${STATUS_CSS[s]||'st-soumis'}" onclick="${onclick}" title="Changer le statut">${STATUS_LABELS[s]||s} ✎</span>`;
 }
 
-let allBriefs = [], filteredBriefs = [], currentDays = 0, currentView = 'all', charts = {};
-
-// ── Normalisation : localStorage V2 → format dashboard ───────
-// Le localStorage V2 stocke State.data brut (champs courts : dept, ref, description…)
-// Le Sheet CSV stocke les colonnes V2 (noms longs : departement, demandeur, contexte…)
-// On normalise le local pour avoir le même objet partout.
+/* ── Normalisation localStorage V2 → format unifié ──────── */
 function normalizeLocalV2(b) {
-  const supportsStr = (b.supportsSelected || [])
-    .map(id => SUPPORT_LABELS[id] || id).join(', ');
-  const produits = (b.packagingProducts || [])
-    .map(p => p.nom).filter(Boolean).join(', ');
-  const totalDecli = Object.values(b.volumes || {})
-    .reduce((a, v) => a + (parseInt(v) || 0), 0);
+  const supStr = (b.supportsSelected||[]).map(id=>SUPPORT_LABELS[id]||id).join(', ');
+  const produits = (b.packagingProducts||[]).map(p=>p.nom).filter(Boolean).join(', ');
+  const decli = Object.values(b.volumes||{}).reduce((a,v)=>a+(parseInt(v)||0),0);
   return {
-    briefId:          b.briefId || '',
-    submittedAt:      b.submittedAt || '',
-    typeDemande:      TYPE_LABELS[b.typeDemande] || b.typeDemande || '',
-    departement:      b.dept || '',
-    demandeur:        b.ref || '',
-    priorite:         b.priorite || '',
-    raisonUrgence:    b.raisonUrgence || '',
-    dateLancement:    b.dateLancement || '',
-    dateValidation:   b.dateValidation || '',
-    dateRetourSimul:  b.dateRetourSimul || '',
-    contexte:         b.description || '',
-    reserves:         b.reserves || '',
-    statut:           'soumis',
-    genreCampagne:    GENRE_LABELS[b.genreCampagne] || b.genreCampagne || '',
-    restaurant:       b.restaurant || b.adresse || '',
-    totalDeclinaisons: String(totalDecli),
-    supports:         supportsStr,
-    packagingProduits: produits,
-    nbBloquants:      '0',
-    mailSubject:      b.mailSubject || ''
+    briefId:b.briefId||'', submittedAt:b.submittedAt||'',
+    typeDemande:TYPE_LABELS[b.typeDemande]||b.typeDemande||'',
+    departement:b.dept||'', demandeur:b.ref||'',
+    priorite:b.priorite||'', raisonUrgence:b.raisonUrgence||'',
+    dateLancement:b.dateLancement||'', dateValidation:b.dateValidation||'', dateRetourSimul:b.dateRetourSimul||'',
+    contexte:b.description||'', reserves:b.reserves||'', statut:'soumis',
+    genreCampagne:GENRE_LABELS[b.genreCampagne]||b.genreCampagne||'',
+    restaurant:b.restaurant||b.adresse||'',
+    totalDeclinaisons:String(decli), supports:supStr, packagingProduits:produits,
+    nbBloquants:'0', mailSubject:b.mailSubject||''
   };
 }
 
-// ── Lecture localStorage V2 ────────────────────────────────────
 function getLocalHistory() {
-  try {
-    const raw = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
-    return raw.map(normalizeLocalV2);
-  } catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem(HIST_KEY)||'[]').map(normalizeLocalV2); }
+  catch(e) { return []; }
 }
 
-// ── Sync state ─────────────────────────────────────────────────
+/* ── Sync state ───────────────────────────────────────────── */
 function setSyncState(state, msg) {
-  const dot = G('sync-dot'), lbl = G('sync-label');
-  if(dot) dot.className = 'sync-dot' + (state==='loading'?' loading':'');
-  if(lbl) lbl.textContent = msg;
+  const dot=G('sync-dot'), lbl=G('sync-label');
+  if(dot) dot.className='sync-dot'+(state==='loading'?' loading':'');
+  if(lbl) lbl.textContent=msg;
 }
 
-// ── Chargement des données ─────────────────────────────────────
-async function loadData() {
-  setSyncState('loading', 'Chargement...');
-  const local = getLocalHistory();
+/* ── Chargement données ───────────────────────────────────── */
+let allBriefs=[], filteredBriefs=[], charts={};
+let fDays=0, fType='', fPrio='', fStatut='', fSearch='';
 
+async function loadData() {
+  setSyncState('loading','Synchronisation...');
+  const local = getLocalHistory();
   let sheetData = [];
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique`;
-    let resp = await fetch(url);
-    if(!resp.ok) {
-      const url2 = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique`;
-      resp = await fetch(url2);
-    }
+    let resp = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique`);
+    if(!resp.ok) resp = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique`);
     if(resp.ok) sheetData = parseCSV(await resp.text());
-  } catch(e) {
-    console.warn('Sheet inaccessible — fallback local', e);
-  }
+  } catch(e) { console.warn('Sheet inaccessible',e); }
 
-  // Merge : Sheet prioritaire, local en fallback (dédup par briefId)
   const merged = [...sheetData];
-  const sheetIds = new Set(sheetData.map(b => b.briefId));
-  local.forEach(b => { if(b.briefId && !sheetIds.has(b.briefId)) merged.push(b); });
+  const sheetIds = new Set(sheetData.map(b=>b.briefId));
+  local.forEach(b=>{ if(b.briefId && !sheetIds.has(b.briefId)) merged.push(b); });
+  allBriefs = merged.sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0));
 
-  allBriefs = merged.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
-
-  if(allBriefs.length > 0) {
-    const src = sheetData.length > 0
-      ? `Google Sheets (${sheetData.length})${local.length ? ' + local (' + local.length + ')' : ''}`
-      : `cache local uniquement (${local.length})`;
-    setSyncState('ok', `${allBriefs.length} brief${allBriefs.length>1?'s':''} · ${src} · ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}`);
+  if(allBriefs.length>0) {
+    const src = sheetData.length>0
+      ? `Google Sheets · ${sheetData.length} brief${sheetData.length>1?'s':''}`
+      : `local · ${local.length} brief${local.length>1?'s':''}`;
+    setSyncState('ok',`${allBriefs.length} brief${allBriefs.length>1?'s':''} · ${src} · ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}`);
   } else {
-    setSyncState('ok', 'Aucun brief — soumettez votre premier brief depuis le formulaire V2');
+    setSyncState('ok','Aucun brief — utilisez le formulaire V2 pour soumettre');
   }
-
   applyFilters();
 }
 
-// ── Parsing CSV V2 ─────────────────────────────────────────────
-// Les colonnes sont nommées par leurs headers — le parsing est générique.
-// Pour "supports" et "packagingProduits" : chaînes lisibles séparées par ", "
+/* ── Parsing CSV V2 ───────────────────────────────────────── */
 function parseCSV(csv) {
-  const lines = csv.split('\n').filter(l => l.trim());
-  if(lines.length < 2) return [];
-  const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g,'').trim());
-  return lines.slice(1).map(line => {
-    const vals = parseCSVLine(line);
-    const obj = {};
-    headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
+  const lines = csv.split('\n').filter(l=>l.trim());
+  if(lines.length<2) return [];
+  const headers = parseCSVLine(lines[0]).map(h=>h.replace(/"/g,'').trim());
+  return lines.slice(1).map(line=>{
+    const vals=parseCSVLine(line);
+    const obj={};
+    headers.forEach((h,i)=>{ obj[h]=(vals[i]||'').replace(/^"|"$/g,'').trim(); });
     return obj;
-  }).filter(b => b.briefId);
+  }).filter(b=>b.briefId);
 }
-
 function parseCSVLine(line) {
-  const result = []; let cur = '', inQ = false;
-  for(let i = 0; i < line.length; i++) {
-    if(line[i]==='"') { inQ = !inQ; }
-    else if(line[i]===',' && !inQ) { result.push(cur); cur=''; }
-    else cur += line[i];
+  const res=[]; let cur='', inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;}
+    else if(line[i]===',' && !inQ){res.push(cur);cur='';}
+    else cur+=line[i];
   }
-  result.push(cur);
-  return result;
+  res.push(cur); return res;
 }
 
-// ── Filtres ────────────────────────────────────────────────────
-function setFilter(btn) {
-  document.querySelectorAll('[data-days]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentDays = parseInt(btn.dataset.days);
-  applyFilters();
+/* ── Filtres ──────────────────────────────────────────────── */
+function setDayFilter(btn) {
+  document.querySelectorAll('[data-days]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); fDays=parseInt(btn.dataset.days); applyFilters();
 }
-function setView(btn) {
-  document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentView = btn.dataset.view;
-  applyFilters();
+function setTypeFilter(btn) {
+  document.querySelectorAll('[data-type]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); fType=btn.dataset.type; applyFilters();
+}
+function setPrioFilter(btn) {
+  document.querySelectorAll('[data-prio]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); fPrio=btn.dataset.prio; applyFilters();
+}
+function setStatutFilter(btn) {
+  document.querySelectorAll('[data-statut]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); fStatut=btn.dataset.statut; applyFilters();
 }
 function applyFilters() {
-  let data = [...allBriefs];
-  if(currentDays > 0) {
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - currentDays);
-    data = data.filter(b => !b.submittedAt || new Date(b.submittedAt) >= cutoff);
+  let data=[...allBriefs];
+  if(fDays>0) {
+    const cut=new Date(); cut.setDate(cut.getDate()-fDays);
+    data=data.filter(b=>!b.submittedAt||new Date(b.submittedAt)>=cut);
   }
-  filteredBriefs = data;
+  if(fType) data=data.filter(b=>b.typeDemande===fType);
+  if(fPrio) data=data.filter(b=>b.priorite===fPrio);
+  if(fStatut) data=data.filter(b=>getStatut(b.briefId)===fStatut);
+  if(fSearch.trim()) {
+    const q=fSearch.trim().toLowerCase();
+    data=data.filter(b=>(b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q));
+  }
+  filteredBriefs=data;
   renderDashboard(data);
 }
 
-// ── Helpers formatage ──────────────────────────────────────────
-const fmtDate = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return d+'/'+m+'/'+y}catch(e){return s} };
-const fmtDateTime = iso => {
-  if(!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' + d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
-};
-const prioBadge = p => {
-  if(p==='urgent') return '<span class="badge badge-urgent">URGENT</span>';
-  if(p==='prioritaire') return '<span class="badge badge-prioritaire">Prioritaire</span>';
-  return '<span class="badge badge-normal">Normal</span>';
-};
-const typeBadge = t => {
-  const map = {'Campagne Marketing':'campagne','Packaging':'packaging','Vitrophanie / Travaux':'vitrophanie','Autre demande':'autre'};
-  const cls = map[t] || 'autre';
-  return `<span class="badge badge-type badge-type-${cls}">${t||'—'}</span>`;
-};
+/* ── Recherche ────────────────────────────────────────────── */
+G('search-input').addEventListener('input', e=>{ fSearch=e.target.value; applyFilters(); });
 
-// ── Render today bar ───────────────────────────────────────────
-function renderTodayBar(data) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const actions = [];
-  data.forEach(b => {
-    const st = getStatut(b.briefId);
-    if(st === 'livre') return;
-    const launch  = b.dateLancement ? new Date(b.dateLancement) : null;
+/* ── Helpers ──────────────────────────────────────────────── */
+const fmtDate = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s} };
+
+function prioBadge(p) {
+  if(p==='urgent') return '<span class="badge b-urgent">⚑ Urgent</span>';
+  if(p==='prioritaire') return '<span class="badge b-prio">↑ Prioritaire</span>';
+  return '<span class="badge b-normal">Normal</span>';
+}
+function typeBadge(t) {
+  const map={'Campagne Marketing':'b-campagne','Packaging':'b-packaging','Vitrophanie / Travaux':'b-vitro','Autre demande':'b-autre'};
+  return `<span class="badge ${map[t]||'b-autre'}">${t||'—'}</span>`;
+}
+function ctxDetail(b) {
+  const t=b.typeDemande;
+  if(t==='Campagne Marketing' && b.supports) {
+    const decli = b.totalDeclinaisons&&b.totalDeclinaisons!=='0' ? ` · ${b.totalDeclinaisons} décli.` : '';
+    return `🎯 ${b.supports}${decli}`;
+  }
+  if(t==='Packaging' && b.packagingProduits) return `📦 ${b.packagingProduits}`;
+  if(t==='Vitrophanie / Travaux' && b.restaurant) return `📍 ${b.restaurant}`;
+  return '';
+}
+
+/* ── Render KPIs ──────────────────────────────────────────── */
+function renderKPIs(data) {
+  const total = allBriefs.length; // sur tous, pas filtrés
+  const urgent = data.filter(b=>b.priorite==='urgent').length;
+  const aTraiter = data.filter(b=>{ const st=getStatut(b.briefId); return st!=='livre'&&st!=='valide'; }).length;
+  const campagnes = data.filter(b=>b.typeDemande==='Campagne Marketing').length;
+  const packaging = data.filter(b=>b.typeDemande==='Packaging').length;
+  const vitro = data.filter(b=>b.typeDemande==='Vitrophanie / Travaux').length;
+
+  G('kpi-grid').innerHTML = [
+    {val:total,    lbl:'Total briefs',  color:''},
+    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':''},
+    {val:aTraiter, lbl:'À traiter',     color:''},
+    {val:campagnes,lbl:'Campagnes',     color:''},
+    {val:packaging,lbl:'Packaging',     color:''},
+    {val:vitro,    lbl:'Vitrophanie',   color:''},
+  ].map(k=>`<div class="kpi-card">
+    <div class="kpi-val ${k.color}">${k.val}</div>
+    <div class="kpi-lbl">${k.lbl}</div>
+  </div>`).join('');
+}
+
+/* ── Render actions urgentes ──────────────────────────────── */
+function renderUrgency(data) {
+  const today=new Date(); today.setHours(0,0,0,0);
+  const actions=[];
+  data.forEach(b=>{
+    const st=getStatut(b.briefId);
+    if(st==='livre') return;
+    const launch  = b.dateLancement  ? new Date(b.dateLancement)  : null;
     const valDate = b.dateValidation ? new Date(b.dateValidation) : null;
-    const daysToLaunch = launch  ? Math.round((launch  - today)/(864e5)) : null;
-    const daysToVal    = valDate ? Math.round((valDate - today)/(864e5)) : null;
-    let urgency = null, urgencyClass = 'yellow', reason = '';
-    if(b.priorite==='urgent' && st==='soumis')            { urgency=3; urgencyClass='red';    reason='⚑ URGENT — en attente de prise en charge'; }
-    else if(daysToVal!==null && daysToVal<=1 && st==='soumis') { urgency=2; urgencyClass='red'; reason='⚠ Validation infos '+(daysToVal<0?'dépassée':daysToVal===0?"aujourd'hui":'demain'); }
-    else if(daysToLaunch!==null && daysToLaunch<=3)       { urgency=2; urgencyClass='orange'; reason='📅 Lancement dans '+daysToLaunch+' jour'+(daysToLaunch>1?'s':''); }
-    else if(st==='soumis' && b.submittedAt) {
-      const hrs = Math.round((Date.now()-new Date(b.submittedAt))/(3600e3));
-      if(hrs>=48) { urgency=1; urgencyClass='yellow'; reason='⏰ Pas de réponse depuis '+Math.round(hrs/24)+'j'; }
-    }
-    if(urgency!==null) actions.push({...b, urgency, urgencyClass, reason, st});
+    const d2l = launch  ? Math.round((launch -today)/864e5) : null;
+    const d2v = valDate ? Math.round((valDate-today)/864e5) : null;
+    let urgency=null, stripe='yellow', reason='';
+    if(b.priorite==='urgent'&&st==='soumis')          {urgency=3;stripe='red';   reason='⚑ Urgent — en attente de prise en charge';}
+    else if(d2v!==null&&d2v<=1&&st==='soumis')        {urgency=2;stripe='red';   reason='⚠ Validation infos '+(d2v<0?'dépassée':d2v===0?"aujourd'hui":'demain');}
+    else if(d2l!==null&&d2l<=3&&d2l>=0)               {urgency=2;stripe='orange';reason='📅 Lancement dans '+d2l+' jour'+(d2l>1?'s':'');}
+    else if(st==='soumis'&&b.submittedAt){const hrs=Math.round((Date.now()-new Date(b.submittedAt))/3600e3);if(hrs>=48){urgency=1;stripe='yellow';reason='⏰ Pas de prise en charge depuis '+Math.round(hrs/24)+'j';}}
+    if(urgency!==null) actions.push({...b,urgency,stripe,reason,st});
   });
-  actions.sort((a,b) => b.urgency - a.urgency);
-  const el=G('today-list'), cnt=G('today-count');
-  if(cnt) cnt.textContent = actions.length + (actions.length>0?' action'+(actions.length>1?'s':''):' — tout est à jour');
+  actions.sort((a,b)=>b.urgency-a.urgency);
+  const cnt=G('urgency-count');
+  if(cnt) cnt.textContent=actions.length||'✓ Aucune';
+  const el=G('urgency-body');
   if(!el) return;
-  if(!actions.length) { el.innerHTML='<div class="today-empty">✅ Tout est à jour — aucun brief n\'attend une action urgente</div>'; return; }
-  el.innerHTML = actions.slice(0,8).map(a => `
-    <div class="action-item">
-      <div class="action-urgency ${a.urgencyClass}"></div>
+  if(!actions.length){el.innerHTML='<div class="urgency-empty">✅ Tout est à jour — aucun brief n\'attend une action urgente</div>';return;}
+  el.innerHTML=actions.slice(0,8).map(a=>`
+    <div class="action-item" onclick="openDrawer('${a.briefId}')">
+      <div class="action-stripe stripe-${a.stripe}"></div>
       <div class="action-body">
-        <div class="action-title">${a.departement||'—'} · ${(a.contexte||a.typeDemande||'Brief sans titre').slice(0,60)}</div>
-        <div class="action-meta">
-          <span>${a.briefId||'—'}</span>
-          <span>${a.reason}</span>
-          ${statusPill(a.briefId)}
-        </div>
+        <div class="action-title">${a.departement||'—'} · ${(a.contexte||a.typeDemande||'Brief').slice(0,55)}${(a.contexte||'').length>55?'…':''}</div>
+        <div class="action-meta"><span>${a.briefId}</span><span>${a.reason}</span>${statusPill(a.briefId,true)}</div>
       </div>
-      <button class="action-cta" onclick="openStatusModal('${a.briefId}','${a.st}')">Statut ✎</button>
+      <button class="action-cta" onclick="openStatusModal('${a.briefId}',event)">Statut ✎</button>
     </div>`).join('');
 }
 
-// ── Render KPIs ────────────────────────────────────────────────
-function renderKPIs(data) {
-  const total   = data.length;
-  const urgent  = data.filter(b => b.priorite==='urgent').length;
-  const depts   = new Set(data.map(b => b.departement).filter(Boolean)).size;
-  const withDecli = data.filter(b => parseInt(b.totalDeclinaisons)>0);
-  const avgDecli  = withDecli.length
-    ? Math.round(withDecli.reduce((s,b) => s+(parseInt(b.totalDeclinaisons)||0),0)/withDecli.length)
-    : 0;
-
-  G('kpi-grid').innerHTML = [
-    {val:total,    lbl:'Briefs soumis',       icon:'ti-file-description', color:'#111'},
-    {val:depts,    lbl:'Départements actifs',  icon:'ti-building',         color:'#111'},
-    {val:urgent,   lbl:'Priorité urgente',     icon:'ti-alert-triangle',   color:urgent>0?'#cc0000':'#111'},
-    {val:avgDecli||'—', lbl:'Déclinaisons moy.', icon:'ti-copy',          color:'#111'},
-  ].map(k => `<div class="card"><div class="kpi">
-    <div class="kpi-val" style="color:${k.color}">${k.val}</div>
-    <div class="kpi-lbl">${k.lbl}</div>
-  </div></div>`).join('');
+/* ── Render briefs cards ──────────────────────────────────── */
+function renderBriefs(data) {
+  const el=G('briefs-list'), cnt=G('briefs-count');
+  if(cnt) cnt.textContent=data.length+' brief'+(data.length>1?'s':'');
+  if(!data.length) {
+    el.innerHTML=`<div class="empty-state"><i class="ti ti-file-off"></i><p>Aucun brief ne correspond aux filtres.<br>Ou <a href="v2/index.html">créez un nouveau brief →</a></p></div>`;
+    return;
+  }
+  el.innerHTML=data.map(b=>{
+    const st=getStatut(b.briefId);
+    const detail=ctxDetail(b);
+    const borderCls=b.priorite==='urgent'?'is-urgent':b.priorite==='prioritaire'?'is-prio':'';
+    return `<div class="brief-card ${borderCls}" onclick="openDrawer('${b.briefId}')">
+      <div class="brief-card-top">
+        <span class="brief-id">${b.briefId||'—'}</span>
+        <div class="brief-badges">${typeBadge(b.typeDemande)}${prioBadge(b.priorite)}</div>
+      </div>
+      <div class="brief-ctx">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
+      ${detail?`<div class="brief-detail">${detail}</div>`:''}
+      <div class="brief-foot">
+        <div class="brief-who"><strong>${b.demandeur||'—'}</strong> · ${b.departement||'—'}</div>
+        <div class="brief-right">
+          ${statusPill(b.briefId,true)}
+          ${b.dateLancement&&b.dateLancement!=='—'?`<span class="brief-date"><i class="ti ti-calendar"></i>${fmtDate(b.dateLancement)}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// ── Render listes (bar charts) ─────────────────────────────────
-function renderList(containerId, data, keyFn) {
-  const counts = {};
-  data.forEach(b => {
-    const keys = [].concat(keyFn(b)).filter(Boolean);
-    keys.forEach(k => { counts[k]=(counts[k]||0)+1; });
-  });
-  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  const max = sorted[0]?.[1]||1;
-  const el = G(containerId);
-  if(!el) return;
-  if(!sorted.length) { el.innerHTML='<div style="color:#bbb;font-size:12px;padding:8px 0">Aucune donnée</div>'; return; }
-  el.innerHTML = sorted.slice(0,8).map(([k,v],i) => `
-    <div class="list-item">
+/* ── Render stats ─────────────────────────────────────────── */
+function renderList(id, data, keyFn) {
+  const counts={};
+  data.forEach(b=>[].concat(keyFn(b)).filter(Boolean).forEach(k=>{counts[k]=(counts[k]||0)+1;}));
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const max=sorted[0]?.[1]||1;
+  const el=G(id); if(!el) return;
+  if(!sorted.length){el.innerHTML='<div style="color:var(--text-tertiary);font-size:12px;padding:6px 0">Aucune donnée</div>';return;}
+  el.innerHTML=sorted.slice(0,8).map(([k,v],i)=>`
+    <div class="list-row">
       <span class="list-rank">${i+1}</span>
-      <span class="list-label">${k}</span>
+      <span class="list-lbl">${k}</span>
       <div class="list-bar-wrap"><div class="list-bar" style="width:${Math.round(v/max*100)}%"></div></div>
-      <span class="list-count">${v}</span>
+      <span class="list-cnt">${v}</span>
       <span class="list-pct">${Math.round(v/data.length*100)}%</span>
     </div>`).join('');
 }
-
-function renderDeptList(data)  { renderList('dept-list',    data, b => b.departement); }
-function renderTypesList(data) { renderList('types-list',   data, b => b.typeDemande); }
-function renderSupportsList(data) {
-  // supports = chaîne "Post carré, Story / Reel 9:16, …" → split
-  renderList('supports-list', data, b => (b.supports||'').split(',').map(s=>s.trim()).filter(Boolean));
+function renderStats(data) {
+  renderList('dept-list',     data, b=>b.departement);
+  renderList('types-list',    data, b=>b.typeDemande);
+  renderList('supports-list', data, b=>(b.supports||'').split(',').map(s=>s.trim()).filter(Boolean));
+  renderActivityChart(data);
+  renderPrioChart(data);
 }
 
-// ── Render champs utiles manquants ────────────────────────────
-// Remplace l'ancien "champs vides V1" par une analyse V2 pertinente
-function renderEmptyFields(data) {
-  const el = G('empty-fields-list');
-  if(!el) return;
-  if(!data.length) { el.innerHTML='<div style="color:#bbb;font-size:12px;padding:8px 0">Aucune donnée</div>'; return; }
-  const fields = [
-    {key:'contexte',          label:'Description / contexte'},
-    {key:'dateLancement',     label:'Date de lancement'},
-    {key:'dateValidation',    label:'Date validation infos'},
-    {key:'supports',          label:'Supports (campagne)'},
-    {key:'reserves',          label:'Réserves / infos à confirmer'},
-    {key:'restaurant',        label:'Restaurant / adresse'},
-    {key:'genreCampagne',     label:'Genre de campagne'},
-    {key:'raisonUrgence',     label:'Raison urgence'},
-  ];
-  const max = data.length;
-  const sorted = fields
-    .map(f => ({ label:f.label, empty: data.filter(b => !b[f.key]||b[f.key]==='0'||b[f.key]==='').length }))
-    .sort((a,b)=>b.empty-a.empty);
-  el.innerHTML = sorted.map((f,i) => `
-    <div class="list-item">
-      <span class="list-rank">${i+1}</span>
-      <span class="list-label">${f.label}</span>
-      <div class="list-bar-wrap"><div class="list-bar" style="width:${Math.round(f.empty/max*100)}%;background:${f.empty/max>0.5?'#cc0000':'#e07b00'}"></div></div>
-      <span class="list-count">${f.empty}</span>
-      <span class="list-pct">${Math.round(f.empty/max*100)}%</span>
-    </div>`).join('');
-}
-
-// ── Render graphiques ──────────────────────────────────────────
 function renderActivityChart(data) {
-  const ctx = G('chart-activity');
-  if(!ctx) return;
-  if(charts.activity) { charts.activity.destroy(); charts.activity=null; }
-  const labels=[], counts=[];
-  for(let i=29;i>=0;i--) {
-    const d=new Date(); d.setDate(d.getDate()-i);
+  const ctx=G('chart-activity'); if(!ctx) return;
+  if(charts.activity){charts.activity.destroy();charts.activity=null;}
+  const labels=[],counts=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
     const key=d.toISOString().slice(0,10);
     labels.push(i===0?'Auj.':i===1?'Hier':d.toLocaleDateString('fr-BE',{day:'numeric',month:'short'}));
     counts.push(data.filter(b=>b.submittedAt&&b.submittedAt.slice(0,10)===key).length);
   }
-  charts.activity = new Chart(ctx, {
-    type:'bar',
-    data:{ labels, datasets:[{data:counts,backgroundColor:'#111',borderRadius:3,borderSkipped:false}] },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} brief${c.parsed.y>1?'s':''}`}}},
-      scales:{
-        x:{grid:{display:false},ticks:{font:{size:9},color:'#bbb',maxRotation:0,maxTicksLimit:8}},
-        y:{grid:{color:'#f5f5f5'},ticks:{font:{size:10},color:'#bbb',stepSize:1},beginAtZero:true}
-      }
-    }
-  });
+  charts.activity=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:counts,backgroundColor:'#1a1a1a',borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} brief${c.parsed.y>1?'s':''}`}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'#aaa',maxRotation:0,maxTicksLimit:8}},y:{grid:{color:'#f0f0f4'},ticks:{font:{size:10},color:'#aaa',stepSize:1},beginAtZero:true}}}});
 }
-
 function renderPrioChart(data) {
-  const ctx = G('chart-prio');
-  if(!ctx) return;
-  if(charts.prio) { charts.prio.destroy(); charts.prio=null; }
+  const ctx=G('chart-prio'); if(!ctx) return;
+  if(charts.prio){charts.prio.destroy();charts.prio=null;}
   if(!data.length) return;
-  const normal   = data.filter(b=>!b.priorite||b.priorite==='normal').length;
-  const prio     = data.filter(b=>b.priorite==='prioritaire').length;
-  const urgent   = data.filter(b=>b.priorite==='urgent').length;
-  charts.prio = new Chart(ctx, {
-    type:'doughnut',
-    data:{ labels:['Normal','Prioritaire','Urgent'], datasets:[{data:[normal,prio,urgent],backgroundColor:['#e0e0e0','#e07b00','#cc0000'],borderWidth:0,hoverOffset:4}] },
-    options:{
-      responsive:true, maintainAspectRatio:false, cutout:'68%',
-      plugins:{
-        legend:{position:'bottom',labels:{font:{size:11,family:'Roboto'},padding:12,boxWidth:12,color:'#555'}},
-        tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} brief${c.parsed>1?'s':''}`}}
-      }
-    }
-  });
+  const n=data.filter(b=>!b.priorite||b.priorite==='normal').length;
+  const p=data.filter(b=>b.priorite==='prioritaire').length;
+  const u=data.filter(b=>b.priorite==='urgent').length;
+  charts.prio=new Chart(ctx,{type:'doughnut',data:{labels:['Normal','Prioritaire','Urgent'],datasets:[{data:[n,p,u],backgroundColor:['#e5e7eb','#ea580c','#dc2626'],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{size:11,family:'Inter'},padding:10,boxWidth:10,color:'#555'}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed}`}}}}});
 }
 
-// ── Render tableau récent ──────────────────────────────────────
-function renderRecentTable(data) {
-  const tbody = G('recent-tbody');
-  if(!tbody) return;
-  const recent = [...data].sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0)).slice(0,15);
-  if(!recent.length) {
-    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#bbb;padding:24px;font-size:13px">Aucun brief à afficher</td></tr>';
-    return;
+/* ── Render complet ───────────────────────────────────────── */
+function renderDashboard(data) {
+  renderKPIs(data);
+  renderUrgency(data);
+  renderBriefs(data);
+  renderStats(data);
+}
+
+/* ── Drawer détail ────────────────────────────────────────── */
+let _currentDrawerBrief = null;
+function openDrawer(briefId) {
+  const b = allBriefs.find(x=>x.briefId===briefId);
+  if(!b) return;
+  _currentDrawerBrief = b;
+  renderDrawer(b);
+  G('brief-drawer').classList.add('open');
+  G('drawer-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer() {
+  G('brief-drawer').classList.remove('open');
+  G('drawer-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function renderDrawer(b) {
+  G('d-id').textContent=b.briefId;
+  G('d-type').textContent=b.typeDemande||'—';
+
+  const row=(label,val)=>val&&val!=='—'?`<div class="drawer-section"><div class="drawer-label">${label}</div><div class="drawer-val">${val}</div></div>`:'';
+  const muted=(label,val)=>val&&val!=='—'?`<div class="drawer-section"><div class="drawer-label">${label}</div><div class="drawer-val muted">${val}</div></div>`:'';
+
+  let html='';
+
+  // Demandeur
+  html+=`<div class="drawer-section">
+    <div class="drawer-label">Demandeur</div>
+    <div class="drawer-val">${b.demandeur||'—'} <span style="color:var(--text-tertiary)">— ${b.departement||'—'}</span></div>
+  </div>`;
+
+  // Priorité + statut
+  html+=`<div class="drawer-section">
+    <div class="drawer-label">Priorité & statut</div>
+    <div class="drawer-badges">${prioBadge(b.priorite)}${statusPill(b.briefId,true)}</div>
+    ${b.raisonUrgence?`<div class="drawer-val muted" style="margin-top:4px">${b.raisonUrgence}</div>`:''}
+  </div>`;
+
+  // Contexte
+  if(b.contexte) html+=`<div class="drawer-section"><div class="drawer-label">Contexte</div><div class="drawer-val">${b.contexte.replace(/\n/g,'<br>')}</div></div>`;
+
+  // Genre campagne
+  if(b.genreCampagne) html+=muted('Genre','Campagne '+b.genreCampagne.toLowerCase());
+
+  // Contexte spécifique type
+  if(b.typeDemande==='Campagne Marketing' && b.supports) {
+    html+=`<div class="drawer-section">
+      <div class="drawer-label">Supports à produire</div>
+      <div class="drawer-val">${b.supports}${b.totalDeclinaisons&&b.totalDeclinaisons!=='0'?`<br><strong>${b.totalDeclinaisons} déclinaisons visuelles</strong>`:''}</div>
+    </div>`;
+  }
+  if(b.typeDemande==='Packaging' && b.packagingProduits) {
+    html+=`<div class="drawer-section"><div class="drawer-label">Produits packaging</div><div class="drawer-val">${b.packagingProduits}</div></div>`;
+  }
+  if((b.typeDemande==='Vitrophanie / Travaux') && b.restaurant) {
+    html+=`<div class="drawer-section"><div class="drawer-label">Restaurant / adresse</div><div class="drawer-val">${b.restaurant}</div></div>`;
   }
 
-  tbody.innerHTML = recent.map(b => {
-    // Contexte court
-    const ctx = (b.contexte||'').slice(0,65) + ((b.contexte||'').length>65?'…':'') || '—';
+  // Deadlines
+  const hasDeadlines = [b.dateLancement,b.dateValidation,b.dateRetourSimul].some(d=>d&&d!=='—');
+  if(hasDeadlines) html+=`<div class="drawer-section">
+    <div class="drawer-label">Deadlines</div>
+    <div class="drawer-val">
+      ${b.dateLancement&&b.dateLancement!=='—'?`Lancement : <strong>${fmtDate(b.dateLancement)}</strong><br>`:''}
+      ${b.dateValidation&&b.dateValidation!=='—'?`Validation infos : ${fmtDate(b.dateValidation)}<br>`:''}
+      ${b.dateRetourSimul&&b.dateRetourSimul!=='—'?`Retour simulation : ${fmtDate(b.dateRetourSimul)}`:''}
+    </div>
+  </div>`;
 
-    // Détail contextuel selon le type
-    let detail = '';
-    if(b.typeDemande==='Campagne Marketing' && b.supports) {
-      detail = `<div class="td-detail">🎯 ${b.supports.slice(0,60)}${b.supports.length>60?'…':''}${b.totalDeclinaisons&&b.totalDeclinaisons!=='0'?' · '+b.totalDeclinaisons+' décli.':''}</div>`;
-    } else if(b.typeDemande==='Packaging' && b.packagingProduits) {
-      detail = `<div class="td-detail">📦 ${b.packagingProduits.slice(0,60)}</div>`;
-    } else if(b.typeDemande==='Vitrophanie / Travaux' && b.restaurant) {
-      detail = `<div class="td-detail">📍 ${b.restaurant}</div>`;
-    }
+  // Réserves
+  if(b.reserves) html+=`<div class="drawer-section">
+    <div class="drawer-label" style="color:#b45309">ℹ Infos à confirmer / réserves</div>
+    <div class="drawer-val" style="background:#fef3c7;padding:10px 12px;border-radius:6px;color:#92400e">${b.reserves.replace(/\n/g,'<br>')}</div>
+  </div>`;
 
-    return `<tr>
-      <td class="td-id">${b.briefId||'—'}</td>
-      <td class="td-dept">${b.departement||'—'}<br><span style="font-weight:400;color:#aaa;font-size:10px">${b.demandeur||''}</span></td>
-      <td class="td-desc" title="${(b.contexte||'').replace(/"/g,'&quot;')}">${ctx}${detail}</td>
-      <td>${typeBadge(b.typeDemande)}</td>
-      <td>${prioBadge(b.priorite)}</td>
-      <td>${statusPill(b.briefId)}</td>
-      <td class="td-date">${fmtDate(b.dateLancement)}</td>
-    </tr>`;
-  }).join('');
+  // Soumis le
+  if(b.submittedAt) {
+    const d=new Date(b.submittedAt);
+    html+=muted('Soumis le',d.toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'})+' à '+d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'}));
+  }
+
+  G('drawer-body').innerHTML=html;
+  G('drawer-foot').innerHTML=`
+    <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Changer le statut ✎</button>
+    ${b.mailSubject?`<span style="font-size:11px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
+  `;
 }
 
-// ── Render complet ─────────────────────────────────────────────
-function renderDashboard(data) {
-  renderTodayBar(data);
-  renderKPIs(data);
-  renderDeptList(data);
-  renderTypesList(data);
-  renderSupportsList(data);
-  renderEmptyFields(data);
-  renderActivityChart(data);
-  renderPrioChart(data);
-  renderRecentTable(data);
+/* ── Toggle UI ────────────────────────────────────────────── */
+function toggleUrgency() {
+  const body=G('urgency-body');
+  body.classList.toggle('open');
 }
+function toggleStats() {
+  const grid=G('stats-grid'), btn=G('stats-toggle');
+  grid.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+// Fermer drawer avec Escape
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeDrawer();closeStatusModal();} });
 
 // Init
 loadData();
