@@ -254,10 +254,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 /* ── Tooltips dashboard ───────────────────────────────────── */
 .tt{position:relative;display:inline-flex;align-items:center;margin-left:4px;vertical-align:middle}
-.tt-icon{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;background:rgba(0,0,0,.06);border:1px solid var(--border);border-radius:50%;font-size:8px;font-weight:700;font-style:normal;color:var(--text-tertiary);cursor:pointer;line-height:1;transition:background .15s,color .15s;user-select:none;flex-shrink:0}
-.tt-icon:hover,.tt.tt-open .tt-icon{background:var(--black);color:#fff;border-color:var(--black)}
-.tt-bubble{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--black);color:#fff;font-size:11px;font-weight:400;line-height:1.5;padding:7px 11px;border-radius:7px;width:max-content;max-width:min(260px,calc(100vw - 24px));white-space:normal;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;z-index:300;box-shadow:0 4px 14px rgba(0,0,0,.18)}
-.tt-bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--black)}
+.tt-icon{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:#e8e8ec;border:1px solid #d0d0d8;border-radius:50%;font-size:8px;font-weight:700;font-style:normal;color:#888;cursor:pointer;line-height:1;transition:background .12s,color .12s,border-color .12s;user-select:none;flex-shrink:0}
+.tt-icon:hover,.tt.tt-open .tt-icon{background:#1D1D1F;color:#fff;border-color:#1D1D1F}
+.tt-bubble{position:absolute;bottom:calc(100% + 8px);left:0;background:#1D1D1F;color:#F5F5F7;font-size:12px;font-weight:400;line-height:1.45;padding:9px 13px;border-radius:8px;max-width:min(240px,calc(100vw - 40px));white-space:normal;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;z-index:500;box-shadow:0 2px 8px rgba(0,0,0,.28)}
+.tt-bubble::after{content:'';position:absolute;top:100%;left:10px;border:5px solid transparent;border-top-color:#1D1D1F}
 .tt-bubble.tt-right{left:0;transform:none}.tt-bubble.tt-right::after{left:9px;transform:none}
 .tt-bubble.tt-left{left:auto;right:0;transform:none}.tt-bubble.tt-left::after{left:auto;right:9px;transform:none}
 @media(hover:hover){.tt:hover .tt-bubble{opacity:1;visibility:visible}}

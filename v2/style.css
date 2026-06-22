@@ -910,72 +910,54 @@ select:focus { border-bottom-color: var(--text); }
 .tt-icon {
   display: inline-flex; align-items: center; justify-content: center;
   width: 15px; height: 15px;
-  background: var(--bg-soft, #f0f0f5);
-  border: 1px solid var(--border);
+  background: #e8e8ec;
+  border: 1px solid #d0d0d8;
   border-radius: 50%;
   font-size: 9px; font-weight: 700; font-style: normal;
-  color: var(--text-tertiary, #999);
-  cursor: pointer;
-  line-height: 1;
-  transition: background var(--t-fast), color var(--t-fast);
-  user-select: none;
-  flex-shrink: 0;
+  color: #888;
+  cursor: pointer; line-height: 1; flex-shrink: 0; user-select: none;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 .tt-icon:hover,
 .tt.tt-open .tt-icon {
-  background: var(--black);
+  background: #1D1D1F;
   color: #fff;
-  border-color: var(--black);
+  border-color: #1D1D1F;
 }
 .tt-bubble {
   position: absolute;
   bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--black);
-  color: #fff;
-  font-size: 11.5px;
+  left: 0;
+  background: #1D1D1F;
+  color: #F5F5F7;
+  font-size: 12.5px;
   font-weight: 400;
-  line-height: 1.5;
-  padding: 8px 12px;
+  line-height: 1.45;
+  padding: 9px 13px;
   border-radius: 8px;
-  width: max-content;
-  max-width: min(280px, calc(100vw - 32px));
+  max-width: min(240px, calc(100vw - 40px));
   white-space: normal;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.15s, visibility 0.15s;
-  z-index: 200;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-  /* Flèche */
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  z-index: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.28);
 }
 .tt-bubble::after {
   content: '';
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 10px;
   border: 5px solid transparent;
-  border-top-color: var(--black);
+  border-top-color: #1D1D1F;
 }
-/* Desktop : hover */
 @media (hover: hover) {
   .tt:hover .tt-bubble { opacity: 1; visibility: visible; }
 }
-/* Mobile + desktop : classe toggle */
 .tt.tt-open .tt-bubble { opacity: 1; visibility: visible; }
-
-/* Repositionner si la bulle déborde à gauche */
-.tt-bubble.tt-right {
-  left: 0;
-  transform: none;
-}
-.tt-bubble.tt-right::after {
-  left: 10px;
-  transform: none;
-}
+.tt-bubble.tt-right { left: auto; right: 0; }
+.tt-bubble.tt-right::after { left: auto; right: 10px; }
 
 @media print {
   /* Mode 1 : impression récap formulaire (comportement existant, inchangé) */
