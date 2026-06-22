@@ -544,6 +544,7 @@
     document.getElementById('dr-close').addEventListener('click', closeHistoryDrawer);
     document.getElementById('dr-overlay').addEventListener('click', closeHistoryDrawer);
     document.getElementById('brief-detail-close').addEventListener('click', closeBriefDetail);
+    document.getElementById('brief-detail-pdf').addEventListener('click', printBriefV2);
     document.getElementById('brief-detail-overlay').addEventListener('click', e => {
       if (e.target.id === 'brief-detail-overlay') closeBriefDetail();
     });
@@ -647,6 +648,8 @@
     });
   }
 
+  let _currentDetailBrief = null; // stocke {brief, r} pour le PDF
+
   function openBriefDetail(briefId) {
     const hist = State.getHistory();
     const brief = hist.find(b => b.briefId === briefId);
@@ -659,6 +662,8 @@
     const r = Recap.build();
     State.data = savedData; // restaure le brouillon en cours sans l'écraser
 
+    _currentDetailBrief = { brief, r }; // mémorisé pour le PDF
+
     document.getElementById('brief-detail-title').textContent = `Brief ${r.briefId}`;
     document.getElementById('brief-detail-sub').textContent = `${r.demandeur} — ${r.departement} · ${new Date(brief.submittedAt).toLocaleDateString('fr-BE')}`;
     document.getElementById('brief-detail-content').innerHTML = Recap.toHtml(r);
@@ -668,7 +673,73 @@
 
   function closeBriefDetail() {
     document.getElementById('brief-detail-overlay').classList.remove('open');
+    _currentDetailBrief = null;
     unlockScroll();
+  }
+
+  function printBriefV2() {
+    if (!_currentDetailBrief) return;
+    const { brief, r } = _currentDetailBrief;
+
+    const fmtD = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s}};
+    const row = (label, val) => val && val!=='—' ? `<div class="bp-section"><div class="bp-label">${label}</div><div class="bp-val">${val}</div></div>` : '';
+
+    const prioBadge = r.priorite==='urgent'      ? '<span class="bp-badge urgent">⚑ Urgent</span>'
+                    : r.priorite==='prioritaire'  ? '<span class="bp-badge prio">↑ Prioritaire</span>'
+                    : '<span class="bp-badge">Normal</span>';
+
+    let sections = '';
+    sections += row('Demandeur', `${r.demandeur||'—'} — ${r.departement||'—'}`);
+
+    if (r.contexte) sections += `<div class="bp-section"><div class="bp-label">Contexte</div><div class="bp-val">${r.contexte.replace(/\n/g,'<br>')}</div></div>`;
+    if (r.genreCampagne) sections += row('Genre de campagne', r.genreCampagne);
+
+    // Contextuel selon type
+    const supports = (r.supports||[]).map(s=>s.label||s).join(', ');
+    if (r.typeDemande==='campagne' && supports)
+      sections += `<div class="bp-section"><div class="bp-label">Supports à produire</div><div class="bp-val">${supports}${r.totalVolume&&r.totalVolume>0?'<br><strong>'+r.totalVolume+' déclinaisons visuelles</strong>':''}</div></div>`;
+    if (r.typeDemande==='packaging' && r.packagingProducts?.length)
+      sections += row('Produits packaging', r.packagingProducts.map(p=>p.nom).filter(Boolean).join(', '));
+    if (r.typeDemande==='vitrophanie' && r.restaurant)
+      sections += row('Restaurant / adresse', r.restaurant);
+
+    // Deadlines
+    const hasD = [r.dateLancement, r.dateValidation, r.dateRetourSimul].some(d=>d&&d!=='—');
+    if (hasD) sections += `<div class="bp-section"><div class="bp-label">Deadlines</div><div class="bp-val">
+      ${r.dateLancement&&r.dateLancement!=='—'?'Lancement : <strong>'+fmtD(r.dateLancement)+'</strong><br>':''}
+      ${r.dateValidation&&r.dateValidation!=='—'?'Validation infos : '+fmtD(r.dateValidation)+'<br>':''}
+      ${r.dateRetourSimul&&r.dateRetourSimul!=='—'?'Retour simulation : '+fmtD(r.dateRetourSimul):''}
+    </div></div>`;
+
+    if (r.reserves) sections += `<div class="bp-section"><div class="bp-label">Infos à confirmer / réserves</div><div class="bp-val bp-reserves">${r.reserves.replace(/\n/g,'<br>')}</div></div>`;
+    if (r.blocking?.length) sections += row('Points manquants', r.blocking.map(b=>b.label||b.field?.label||b).join(', '));
+
+    if (brief.submittedAt) {
+      const d = new Date(brief.submittedAt);
+      sections += `<div class="bp-section"><div class="bp-label">Soumis le</div><div class="bp-val muted">${d.toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'})} à ${d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
+    }
+
+    const html = `<div class="bp-page">
+      <div class="bp-header">
+        <div class="bp-brand">Black &amp; White Burger · Studio Graphique</div>
+        <div class="bp-id">${r.briefId||'—'}</div>
+        <div class="bp-type">${r.typeDemande==='campagne'?'Campagne Marketing':r.typeDemande==='packaging'?'Packaging':r.typeDemande==='vitrophanie'?'Vitrophanie / Travaux':'Autre demande'}</div>
+        <div class="bp-badges">${prioBadge}</div>
+      </div>
+      ${sections}
+      <div class="bp-footer">
+        <span>Généré le ${new Date().toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'})}</span>
+        <span>${brief.briefId||''}</span>
+      </div>
+    </div>`;
+
+    document.getElementById('brief-print-area-v2').innerHTML = html;
+    document.body.classList.add('print-brief');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('print-brief');
+      document.getElementById('brief-print-area-v2').innerHTML = '';
+    }, 2000);
   }
 
   document.addEventListener('DOMContentLoaded', init);
