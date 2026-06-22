@@ -532,12 +532,90 @@
   }
 
   /* ════════════════════════════════════════════════════════════
-     HISTORIQUE — drawer fonctionnel
+     HISTORIQUE — drawer avec sync Google Sheets
      ════════════════════════════════════════════════════════════ */
+  const SHEET_ID_V2 = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
   const STATUS_LABELS = {
     soumis: 'Soumis', encours: 'En cours', simulation: 'Simulation envoyée',
     valide: 'Validé', livre: 'Livré'
   };
+
+  // Liste fusionnée Sheet + local — source de vérité pour le drawer
+  let _mergedHistory = [];
+
+  // ── Parsing CSV Sheet ────────────────────────────────────────
+  function parseHistoryCSVLine(line) {
+    const res = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQ = !inQ; }
+      else if (line[i] === ',' && !inQ) { res.push(cur); cur = ''; }
+      else cur += line[i];
+    }
+    res.push(cur);
+    return res;
+  }
+
+  function parseSheetHistory(csv) {
+    const lines = csv.split('\n').filter(l => l.trim());
+    if (lines.length < 2) return [];
+    const headers = parseHistoryCSVLine(lines[0]).map(h => h.replace(/"/g, '').trim());
+    return lines.slice(1).map(line => {
+      const vals = parseHistoryCSVLine(line);
+      const obj = { _source: 'sheet' };
+      headers.forEach((h, i) => { obj[h] = (vals[i] || '').replace(/^"|"$/g, '').trim(); });
+      return obj;
+    }).filter(b => b.briefId);
+  }
+
+  // ── Chargement Sheet + merge avec local ──────────────────────
+  async function loadMergedHistory() {
+    const local = State.getHistory().map(b => ({ ...b, _source: 'local' }));
+    let sheet = [];
+    try {
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/export?format=csv&sheet=Historique`;
+      const resp = await fetch(url);
+      if (resp.ok) sheet = parseSheetHistory(await resp.text());
+    } catch (e) { /* Sheet inaccessible — on continue avec local */ }
+
+    // Merge : local prioritaire (plus de données), Sheet complète les manquants
+    const localIds = new Set(local.map(b => b.briefId));
+    const merged = [
+      ...local,
+      ...sheet.filter(b => !localIds.has(b.briefId))
+    ];
+    // Trier par date décroissante
+    merged.sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
+    _mergedHistory = merged;
+    return merged;
+  }
+
+  // ── Normalisation affichage (unifie local + sheet) ───────────
+  function briefDisplayData(b) {
+    if (b._source === 'sheet') {
+      // Type : convertir label lisible en typeId pour la classe CSS
+      const typeMap = {
+        'Campagne Marketing': 'campagne', 'Packaging': 'packaging',
+        'Vitrophanie / Travaux': 'vitrophanie', 'Autre demande': 'autre'
+      };
+      return {
+        typeLabel: b.typeDemande || 'Demande',
+        typeClass: 'type-' + (typeMap[b.typeDemande] || 'autre'),
+        who: b.demandeur || '—',
+        dept: b.departement || '—',
+        desc: (b.contexte || '').slice(0, 70),
+        priorite: b.priorite
+      };
+    }
+    const typeInfo = CONFIG.typesDemande.find(t => t.id === b.typeDemande);
+    return {
+      typeLabel: typeInfo ? typeInfo.label : (b.typeDemande || 'Demande'),
+      typeClass: 'type-' + (b.typeDemande || 'autre'),
+      who: b.ref || '—',
+      dept: b.dept || '—',
+      desc: (b.description || '').slice(0, 70),
+      priorite: b.priorite
+    };
+  }
 
   function initHistoryDrawer() {
     document.getElementById('btn-history').addEventListener('click', openHistoryDrawer);
@@ -549,16 +627,16 @@
       if (e.target.id === 'brief-detail-overlay') closeBriefDetail();
     });
     document.getElementById('dr-clear-all').addEventListener('click', () => {
-      const hist = State.getHistory();
-      if (!hist.length) return;
-      if (confirm(`Vider tout l'historique (${hist.length} brief${hist.length > 1 ? 's' : ''}) ? Cette action est irréversible.`)) {
+      const localCount = State.getHistory().length;
+      if (!localCount) return;
+      if (confirm(`Vider l'historique local (${localCount} brief${localCount > 1 ? 's' : ''}) ? Les briefs dans le dashboard restent accessibles.`)) {
         State.clearHistory();
         renderHistoryList();
         document.getElementById('hist-count').textContent = '0';
       }
     });
 
-    // Fermeture au clavier — Échap ferme la couche la plus haute (modale d'abord, puis drawer)
+    // Fermeture au clavier — Échap ferme la couche la plus haute
     document.addEventListener('keydown', e => {
       if (e.key !== 'Escape') return;
       const modalOpen = document.getElementById('brief-detail-overlay').classList.contains('open');
@@ -569,10 +647,18 @@
   }
 
   function openHistoryDrawer() {
-    renderHistoryList();
+    renderHistoryList();  // affiche l'état local immédiatement
     document.getElementById('dr-overlay').classList.add('open');
     document.getElementById('drawer').classList.add('open');
     lockScroll();
+    // Puis charge le Sheet en arrière-plan
+    loadMergedHistory().then(merged => {
+      if (document.getElementById('drawer').classList.contains('open')) {
+        renderHistoryList(merged);
+        // Mettre à jour le compteur avec le total fusionné
+        document.getElementById('hist-count').textContent = merged.length || State.getHistory().length;
+      }
+    });
   }
 
   function closeHistoryDrawer() {
@@ -581,24 +667,29 @@
     unlockScroll();
   }
 
-  // Compteur de verrous scroll : la modale peut s'ouvrir par-dessus le drawer,
-  // il ne faut débloquer le scroll que quand TOUTES les couches sont fermées.
   let scrollLockCount = 0;
-  function lockScroll() {
-    scrollLockCount++;
-    document.body.style.overflow = 'hidden';
-  }
+  function lockScroll() { scrollLockCount++; document.body.style.overflow = 'hidden'; }
   function unlockScroll() {
     scrollLockCount = Math.max(0, scrollLockCount - 1);
     if (scrollLockCount === 0) document.body.style.overflow = '';
   }
 
-  function renderHistoryList() {
-    const hist = State.getHistory();
+  function renderHistoryList(merged) {
+    // Si pas encore de merged, afficher local + spinner
+    const hist = merged || State.getHistory().map(b => ({ ...b, _source: 'local' }));
+    const isLoading = !merged;
+
     const body = document.getElementById('dr-body');
     const footer = document.getElementById('dr-footer');
+    const syncStatus = document.getElementById('dr-sync-status');
 
-    if (!hist.length) {
+    if (syncStatus) {
+      syncStatus.textContent = isLoading
+        ? "Chargement de l'historique…"
+        : `${hist.length} brief${hist.length > 1 ? 's' : ''} · synchronisé avec Google Sheets`;
+    }
+
+    if (!hist.length && !isLoading) {
       body.innerHTML = `
         <div class="dr-empty">
           <svg viewBox="0 0 24 24" fill="none"><path d="M10 5v5l3.5 2M17 10a7 7 0 1 1-2.05-4.95" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -609,21 +700,22 @@
     }
     footer.hidden = false;
 
-    body.innerHTML = hist.map(b => {
-      const typeInfo = CONFIG.typesDemande.find(t => t.id === b.typeDemande);
-      const typeLabel = typeInfo ? typeInfo.label : (b.typeDemande || 'Demande');
-      const typeClass = 'type-' + (b.typeDemande || 'autre');
+    body.innerHTML = (isLoading ? '<div class="dr-loading">Chargement depuis Google Sheets…</div>' : '') + hist.map(b => {
+      const d = briefDisplayData(b);
       const status = State.getBriefStatus(b.briefId);
       const date = b.submittedAt ? new Date(b.submittedAt).toLocaleDateString('fr-BE', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+      const sourceTag = b._source === 'sheet'
+        ? '<span class="hist-source-tag">Sheet</span>'
+        : `<button class="hist-del-btn" data-del-brief="${b.briefId}" title="Supprimer ce brief local" aria-label="Supprimer">${Icons.trash}</button>`;
       return `
         <div class="hist-item" data-open-brief="${b.briefId}">
           <div class="hist-item-head">
             <span class="hist-id">${b.briefId}</span>
-            <span class="hist-badge ${typeClass}">${typeLabel}</span>
-            <button class="hist-del-btn" data-del-brief="${b.briefId}" title="Supprimer ce brief" aria-label="Supprimer">${Icons.trash}</button>
+            <span class="hist-badge ${d.typeClass}">${d.typeLabel}</span>
+            ${sourceTag}
           </div>
-          <div class="hist-title">${b.ref || 'Sans nom'} — ${b.dept || '—'}</div>
-          <div class="hist-desc">${(b.description || '').slice(0, 70) || 'Sans description'}</div>
+          <div class="hist-title">${d.who} — ${d.dept}</div>
+          <div class="hist-desc">${d.desc || 'Sans description'}</div>
           <div class="hist-meta">
             <span class="hist-date">${date}</span>
             <span class="hist-status">${STATUS_LABELS[status] || status}</span>
@@ -635,9 +727,10 @@
       el.addEventListener('click', e => {
         e.stopPropagation();
         const id = el.dataset.delBrief;
-        if (confirm(`Supprimer définitivement le brief ${id} ?`)) {
+        if (confirm(`Supprimer le brief ${id} de l'historique local ?
+Il restera accessible dans le dashboard.`)) {
           State.deleteFromHistory(id);
-          renderHistoryList();
+          loadMergedHistory().then(m => renderHistoryList(m));
           document.getElementById('hist-count').textContent = State.getHistory().length;
         }
       });
@@ -651,22 +744,52 @@
   let _currentDetailBrief = null; // stocke {brief, r} pour le PDF
 
   function openBriefDetail(briefId) {
-    const hist = State.getHistory();
-    const brief = hist.find(b => b.briefId === briefId);
+    // Chercher dans le merged (Sheet + local), pas seulement local
+    const brief = _mergedHistory.find(b => b.briefId === briefId)
+                  || State.getHistory().find(b => b.briefId === briefId);
     if (!brief) return;
 
-    // Construit le récap à partir des données archivées de CE brief précis
-    // (pas State.data courant, qui peut être un autre brouillon en cours)
-    const savedData = State.data;
-    State.data = { ...savedData, ...brief };
-    const r = Recap.build();
-    State.data = savedData; // restaure le brouillon en cours sans l'écraser
+    let contentHtml, r = null;
 
-    _currentDetailBrief = { brief, r }; // mémorisé pour le PDF
+    if (brief._source === 'local' || brief._source === 'both') {
+      // Brief local complet → Recap.build() comme avant
+      const savedData = State.data;
+      State.data = { ...savedData, ...brief };
+      r = Recap.build();
+      State.data = savedData;
+      contentHtml = Recap.toHtml(r);
+    } else {
+      // Brief Sheet uniquement → affichage basé sur les colonnes Sheet
+      r = null;
+      const fmtD = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s}};
+      const row = (label, val) => val && val !== '—' && val !== ''
+        ? `<div class="recap-block"><div class="recap-block-title">${label}</div><div>${val}</div></div>` : '';
+      contentHtml = `<div class="recap-doc">
+        ${row('Demandeur', `${brief.demandeur || '—'} — ${brief.departement || '—'}`)}
+        ${row('Type', brief.typeDemande)}
+        ${row('Priorité', brief.priorite ? brief.priorite.charAt(0).toUpperCase() + brief.priorite.slice(1) : '—')}
+        ${brief.raisonUrgence ? row('Raison urgence', brief.raisonUrgence) : ''}
+        ${row('Contexte', brief.contexte)}
+        ${brief.genreCampagne ? row('Genre', brief.genreCampagne) : ''}
+        ${brief.supports ? row('Supports', brief.supports) : ''}
+        ${brief.packagingProduits ? row('Produits packaging', brief.packagingProduits) : ''}
+        ${brief.restaurant ? row('Restaurant / adresse', brief.restaurant) : ''}
+        ${brief.dateLancement && brief.dateLancement !== '—' ? row('Date de lancement', fmtD(brief.dateLancement)) : ''}
+        ${brief.dateValidation && brief.dateValidation !== '—' ? row('Validation infos', fmtD(brief.dateValidation)) : ''}
+        ${brief.dateRetourSimul && brief.dateRetourSimul !== '—' ? row('Retour simulation', fmtD(brief.dateRetourSimul)) : ''}
+        ${brief.reserves ? row('Réserves', brief.reserves) : ''}
+        ${row('Statut', brief.statut || '—')}
+      </div>`;
+    }
 
-    document.getElementById('brief-detail-title').textContent = `Brief ${r.briefId}`;
-    document.getElementById('brief-detail-sub').textContent = `${r.demandeur} — ${r.departement} · ${new Date(brief.submittedAt).toLocaleDateString('fr-BE')}`;
-    document.getElementById('brief-detail-content').innerHTML = Recap.toHtml(r);
+    _currentDetailBrief = { brief, r };
+
+    document.getElementById('brief-detail-title').textContent = `Brief ${brief.briefId}`;
+    const who = brief._source === 'local' ? brief.ref : brief.demandeur;
+    const dept = brief._source === 'local' ? brief.dept : brief.departement;
+    const dateStr = brief.submittedAt ? new Date(brief.submittedAt).toLocaleDateString('fr-BE') : '—';
+    document.getElementById('brief-detail-sub').textContent = `${who || '—'} — ${dept || '—'} · ${dateStr}`;
+    document.getElementById('brief-detail-content').innerHTML = contentHtml;
     document.getElementById('brief-detail-overlay').classList.add('open');
     lockScroll();
   }
