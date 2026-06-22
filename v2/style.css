@@ -119,9 +119,7 @@ svg { display: block; }
 }
 .hdr-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
 .hdr-btn svg { width: 14px; height: 14px; }
-.hdr-btn-disabled { cursor: default; opacity: 0.45; }
-.hdr-btn-disabled:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
-.hdr-soon {
+
   font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
   background: rgba(255,255,255,0.12); padding: 1px 5px; border-radius: 6px;
   margin-left: 2px;
@@ -699,7 +697,7 @@ select:focus { border-bottom-color: var(--text); }
   .hdr-actions { gap: 4px; }
   .hdr-btn { padding: 6px 9px; font-size: 11px; }
   .hdr-btn svg { width: 12px; height: 12px; }
-  .hdr-soon { display: none; } /* "Bientôt" superflu sur très petit écran, le badge suffit visuellement */
+   /* "Bientôt" superflu sur très petit écran, le badge suffit visuellement */
   .hdr-badge { font-size: 9px; padding: 1px 5px; }
 
   /* Tableau format/déclinaisons/livrable par support : trop dense en grille
