@@ -742,6 +742,31 @@
     }, 2000);
   }
 
+  // ── Tooltips — tap mobile ───────────────────────────────────
+  // Sur desktop le CSS :hover suffit. Sur mobile, on toggle la classe tt-open.
+  document.addEventListener('click', e => {
+    const icon = e.target.closest('.tt-icon');
+    if (icon) {
+      e.stopPropagation();
+      const tt = icon.closest('.tt');
+      const isOpen = tt.classList.contains('tt-open');
+      // Fermer tous les autres tooltips ouverts
+      document.querySelectorAll('.tt.tt-open').forEach(t => t.classList.remove('tt-open'));
+      if (!isOpen) {
+        tt.classList.add('tt-open');
+        // Vérifier si la bulle déborde à droite — si oui, aligner à gauche
+        const bubble = tt.querySelector('.tt-bubble');
+        if (bubble) {
+          bubble.classList.remove('tt-right');
+          const rect = bubble.getBoundingClientRect();
+          if (rect.right > window.innerWidth - 8) bubble.classList.add('tt-right');
+        }
+      }
+    } else if (!e.target.closest('.tt')) {
+      document.querySelectorAll('.tt.tt-open').forEach(t => t.classList.remove('tt-open'));
+    }
+  });
+
   document.addEventListener('DOMContentLoaded', init);
 
 })();

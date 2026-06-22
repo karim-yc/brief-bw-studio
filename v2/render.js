@@ -18,6 +18,12 @@ const Render = {
   /* ════════════════════════════════════════════════════════════
      FIELD RENDERER — un champ générique selon son type
      ════════════════════════════════════════════════════════════ */
+  /* ── Tooltip "i" d'aide contextuelle ───────────────────── */
+  tooltip(text) {
+    const safe = text.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+    return `<span class="tt" data-tt="${safe}"><span class="tt-icon" tabindex="0" role="button" aria-label="Aide : ${safe}">i</span><span class="tt-bubble">${text}</span></span>`;
+  },
+
   field(f) {
     const val = State.data[f.id] ?? '';
     const isBlocking = f.gravity === 'blocking' && !State.isFieldFilled(f);
@@ -55,7 +61,7 @@ const Render = {
     return `
       <div class="${cls.join(' ')}" data-field-wrap="${f.id}">
         <div class="field-label-row">
-          <label class="field-label">${f.label}${f.gravity === 'blocking' ? '<span class="req">*</span>' : ''}</label>
+          <label class="field-label">${f.label}${f.gravity === 'blocking' ? '<span class="req">*</span>' : ''}${f.tooltip ? this.tooltip(f.tooltip) : ''}</label>
         </div>
         ${inputHtml}
       </div>`;
@@ -232,7 +238,7 @@ const Render = {
       </div>
       ${selected.length ? `
       <div class="field" style="margin-top:18px">
-        <label class="field-label">Format, déclinaisons et livrable par support</label>
+        <label class="field-label">Format, déclinaisons et livrable par support${this.tooltip('Déclinaisons = nombre de variantes graphiques (≠ quantité d\'impression). Livrable = format final attendu : PNG, PDF print, PDF web, BAT, source…')}</label>
         <div class="pack-table">
           <div class="pack-row pack-row-head pack-row-supports">
             <span>Support</span><span>Format</span><span>Déclis</span><span>Livrable</span>
@@ -309,7 +315,7 @@ const Render = {
             </div>
             ${this.field(CONFIG.champsEtape4Deadlines[2])}
             <div class="field" style="margin-top:4px">
-              <label class="field-label">Priorité<span class="req">*</span></label>
+              <label class="field-label">Priorité<span class="req">*</span>${this.tooltip('Normal = délai raisonnable · Prioritaire = à traiter avant d\'autres · Urgent = délai très court, à justifier')}</label>
               <div class="pill-group">${priorityPills}</div>
             </div>
             <div class="cond-block ${State.data.priorite === 'urgent' ? 'visible' : 'hidden'}">
@@ -341,7 +347,7 @@ const Render = {
 ${Recap.toHtml(r)}
             </div>
             <div class="reserves-wrap">
-              <label class="field-label" for="field-reserves">Informations à confirmer / réserves <span class="field-label-optional">(facultatif)</span></label>
+              <label class="field-label" for="field-reserves">Informations à confirmer / réserves <span class="field-label-optional">(facultatif)</span>${this.tooltip('Informations encore incertaines : prix à confirmer, date provisoire, texte non validé, gabarit en attente, mesure à vérifier…')}</label>
               <p class="field-hint">Prix encore à confirmer, date provisoire, texte non validé, gabarit en attente, mesure à vérifier…</p>
               <textarea id="field-reserves" data-field="reserves" placeholder="Indiquez ici toute information encore incertaine ou à valider avant l'exécution." rows="3">${Render.esc(State.data.reserves || '')}</textarea>
             </div>

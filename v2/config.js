@@ -130,7 +130,7 @@ const CONFIG = {
       { id: 'texteExact', label: 'Texte exact validé', type: 'textarea', gravity: 'blocking',
         placeholder: 'Texte final à reproduire sur le visuel, mot pour mot.',
         showIf: d => d.genreCampagne === 'produit' || d.genreCampagne === 'promo' },
-      { id: 'mentions', label: 'Mentions légales', type: 'text', gravity: 'blocking',
+      { id: 'mentions', label: 'Mentions légales', type: 'text', gravity: 'blocking', tooltip: 'Conditions obligatoires à afficher : dates, limites, disponibilité, prix, exclusions, restaurant concerné…',
         placeholder: 'Ex : *Offre valable jusqu\'au 30/06/2026. Voir conditions en restaurant.',
         showIf: d => d.genreCampagne === 'promo' },
       { id: 'shooting', label: 'Shooting nécessaire', type: 'pills', gravity: 'recommended',
@@ -158,7 +158,7 @@ const CONFIG = {
         showIf: d => d.phasePackaging === 'patron' },
       { id: 'fournisseur', label: 'Fournisseur', type: 'text', gravity: 'optional',
         placeholder: 'Ex : Imprimerie Dupont' },
-      { id: 'gabaritDispo', label: 'Gabarit ou BAT disponible', type: 'pills', gravity: 'blocking',
+      { id: 'gabaritDispo', label: 'Gabarit ou BAT disponible', type: 'pills', gravity: 'blocking', tooltip: 'Fichier technique fournisseur ou modèle validé nécessaire pour produire au bon format.',
         options: [
           { id: 'oui', label: 'Oui, disponible' },
           { id: 'non', label: 'Non, à fournir' }
@@ -179,7 +179,7 @@ const CONFIG = {
           { id: 'oui', label: 'Oui, disponibles' },
           { id: 'non', label: 'Non, à prendre' }
         ] },
-      { id: 'planVectoriel', label: 'Plan vectoriel disponible', type: 'pills', gravity: 'recommended',
+      { id: 'planVectoriel', label: 'Plan vectoriel disponible', type: 'pills', gravity: 'recommended', tooltip: 'Plan propre exploitable en PDF, AI, EPS ou fichier vectoriel avec les mesures correctes.',
         options: [
           { id: 'oui', label: 'Oui, disponible' },
           { id: 'non', label: 'Non, à fournir' }
@@ -206,8 +206,8 @@ const CONFIG = {
      Toujours la même, indépendamment du type */
   champsEtape4Deadlines: [
     { id: 'dateLancement', label: 'Date de lancement', type: 'date', gravity: 'blocking' },
-    { id: 'dateValidation', label: 'Date de validation des infos', type: 'date', gravity: 'blocking' },
-    { id: 'dateRetourSimul', label: 'Date de retour simulation', type: 'date', gravity: 'recommended' }
+    { id: 'dateValidation', label: 'Date de validation des infos', type: 'date', gravity: 'blocking', tooltip: 'Date limite à laquelle toutes les informations doivent être fournies et exploitables. Ce n\'est pas forcément la date de livraison du visuel.' },
+    { id: 'dateRetourSimul', label: 'Date de retour simulation', type: 'date', gravity: 'recommended', tooltip: 'Date souhaitée pour recevoir une première proposition graphique ou simulation.' }
   ],
 
   /* ── Labels des badges de statut ────────────────────────────── */
