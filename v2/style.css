@@ -836,13 +836,14 @@ select:focus { border-bottom-color: var(--text); }
   background: var(--bg); border-radius: 16px; width: 100%; max-width: 320px;
   overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
 }
+.modal-actions { display: flex; border-top: 1px solid var(--border); padding: 12px 16px; gap: 8px; justify-content: flex-end; }
 .modal-cancel {
-  flex: 1; padding: 14px; border: none; background: transparent;
-  font-size: 14px; color: var(--text-secondary); cursor: pointer;
+  padding: 9px 18px; border: 1.5px solid var(--border); border-radius: 50px;
+  background: transparent; font-size: 13px; font-weight: 600;
+  color: var(--text-secondary); cursor: pointer;
   font-family: inherit; transition: background var(--t-fast);
 }
 .modal-cancel:hover { background: var(--bg-soft); }
-.modal-actions { display: flex; border-top: 1px solid var(--border); }
 
 /* ════════════════════════════════════════════════════════════
    RÉCAPITULATIF — blocs espacés, lisibles, sans mur de texte
