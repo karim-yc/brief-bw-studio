@@ -579,7 +579,7 @@
     // 1. Make API — source primaire avec credentials OAuth
     console.log('[BW Hist] → Make API:', MAKE_API_V2);
     try {
-      const resp = await fetch(MAKE_API_V2, {cache: 'no-store'});
+      const resp = await fetch(MAKE_API_V2 + '?t=' + Date.now());
       console.log('[BW Hist] Make API status:', resp.status);
       if (resp.ok) {
         const text = await resp.text();
@@ -613,7 +613,7 @@
       for (const url of csvUrls) {
         console.log('[BW Hist] → CSV fallback:', url.split('?')[0]);
         try {
-          const r = await fetch(url, {cache: 'no-store'});
+          const r = await fetch(url);
           if (!r.ok) continue;
           const text = await r.text();
           if (text.trim().startsWith('<')) { sheetStatus = 'html'; continue; }

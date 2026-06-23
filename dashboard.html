@@ -552,7 +552,7 @@ async function fetchBriefs() {
   // 1. Make API — lit le Sheet avec OAuth, toujours disponible
   console.log('[BW] → Make API:', MAKE_API);
   try {
-    const r = await fetch(MAKE_API, {cache: 'no-store'});
+    const r = await fetch(MAKE_API + '?t=' + Date.now());
     console.log('[BW] Make API status:', r.status);
     if (r.ok) {
       const text = await r.text();
@@ -573,7 +573,7 @@ async function fetchBriefs() {
   for (const url of csvUrls) {
     console.log('[BW] → CSV fallback:', url.split('?')[0]);
     try {
-      const r = await fetch(url, {cache: 'no-store'});
+      const r = await fetch(url);
       if (!r.ok) continue;
       const text = await r.text();
       if (isHTML(text)) { console.warn('[BW] CSV → HTML login, skip'); continue; }
