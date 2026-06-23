@@ -640,7 +640,6 @@
       }
     }
 
-    } // fin if sheet.length === 0 (Make fallback)
     _lastSheetStatus = sheetStatus;
     console.log('[BW Hist] Statut final:', sheetStatus, '| Sheet:', sheet.length, '| Local:', local.length);
 
