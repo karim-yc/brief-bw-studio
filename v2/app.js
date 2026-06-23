@@ -577,6 +577,7 @@
     const cb = `?nocache=${Date.now()}`;
 
     // 1. Make API — source primaire avec credentials OAuth
+    console.log('[BW Hist] ===== loadMergedHistory build 7524a39 =====');
     console.log('[BW Hist] → Make API:', MAKE_API_V2);
     try {
       const resp = await fetch(MAKE_API_V2 + '?t=' + Date.now());
