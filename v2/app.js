@@ -535,7 +535,8 @@
      HISTORIQUE — drawer avec sync Google Sheets
      ════════════════════════════════════════════════════════════ */
   const SHEET_ID_V2 = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
-  const MAKE_API_V2 = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b'; // Source principale
+  const MAKE_API_V2      = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b';
+  const APPS_SCRIPT_V2   = ''; // ← Coller ici l'URL Apps Script après déploiement
   const STATUS_LABELS = {
     soumis: 'Soumis', encours: 'En cours', simulation: 'Simulation envoyée',
     valide: 'Validé', livre: 'Livré'
@@ -639,6 +640,7 @@
       }
     }
 
+    } // fin if sheet.length === 0 (Make fallback)
     _lastSheetStatus = sheetStatus;
     console.log('[BW Hist] Statut final:', sheetStatus, '| Sheet:', sheet.length, '| Local:', local.length);
 

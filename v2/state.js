@@ -37,11 +37,13 @@ const State = {
 
   /* ── Génération ID brief ──────────────────────────────────── */
   genBriefId() {
-    const year = new Date().getFullYear();
-    // Timestamp (5 derniers chiffres) + 3 chiffres aléatoires → collision impossible
-    const ts   = String(Date.now()).slice(-5);
-    const rand = String(Math.floor(100 + Math.random() * 900));
-    return `BW-${year}-${ts}${rand}`;
+    // Format : BW-YYYYMMDD-HHMMSS-XXXX — totalement unique, lisible, traçable
+    const now  = new Date();
+    const pad  = n => String(n).padStart(2,'0');
+    const date = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
+    const time = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    const rand = String(Math.floor(1000 + Math.random() * 9000));
+    return `BW-${date}-${time}-${rand}`;
   },
 
   /* ── Sauvegarde locale (debounced depuis app.js) ───────────── */

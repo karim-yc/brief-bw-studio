@@ -467,7 +467,8 @@ const G = id => document.getElementById(id);
 
 const HIST_KEY   = 'bw_brief_v2_history';
 const SHEET_ID   = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
-const MAKE_API   = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b'; // Source principale — Make lit le Sheet avec credentials
+const MAKE_API        = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b';
+const APPS_SCRIPT_URL = ''; // ← Coller ici l'URL Apps Script après déploiement
 const STATUS_KEY = 'bw_brief_statuts';
 
 const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation envoyée', valide:'Validé', livre:'Livré' };
@@ -602,67 +603,69 @@ function parseSheetJSON(text) {
 function isHTML(text) { return text.trim().startsWith('<'); }
 
 async function fetchBriefs() {
-  const D = (id, val, cls) => { const e=G('dbg-'+id); if(e){e.textContent=val; if(cls)e.setAttribute('data-cls',cls);} };
-  const showDebug = () => { const p=G('bw-debug'); if(p)p.classList.add('visible'); };
-  G('dbg-build') && (G('dbg-build').textContent = 'build c407a95');
-  console.log('[BW] ===== fetchBriefs build 7524a39 =====');
+  const D = (id, val) => { const e=G('dbg-'+id); if(e) e.textContent=String(val); };
+  const showDbg = () => { const p=G('bw-debug'); if(p) p.classList.add('visible'); };
+  D('build', 'build fc2b54c');
+  console.log('[BW] ===== fetchBriefs build fc2b54c =====');
 
-  // ── 1. Make API ──────────────────────────────────────────────
-  const MAKE_URL = MAKE_API + '?t=' + Date.now();
-  D('source', 'Make API');
-  console.log('[BW] 1. Make API →', MAKE_URL);
-  try {
-    const r = await fetch(MAKE_URL, {method:'POST',headers:{'Content-Type':'text/plain'},body:'get_briefs'});
-    const text = await r.text();
-    D('status', r.status + (r.ok?' OK':' KO'));
-    console.log('[BW] Make status:', r.status, '| length:', text.length, '| début:', JSON.stringify(text.slice(0,100)));
-    D('raw', text.slice(0, 600));
-
-    if (text.trim() === 'Accepted') {
-      console.warn('[BW] Make retourne "Accepted" — webhook non synchrone, pas de données directes');
-      D('type', '"Accepted" — Make async (non synchrone)'); showDebug();
-    } else if (text.trim().startsWith('<')) {
-      console.warn('[BW] Make → HTML'); D('type', 'HTML / erreur'); showDebug();
-    } else if (r.ok && text.trim().length > 0) {
-      D('type', 'JSON/texte ' + text.length + ' chars');
-      const data = parseSheetJSON(text);
-      D('rows', 'reçu ' + text.length + ' chars');
-      D('parsed', data.length + ' brief(s)');
-      console.log('[BW] parsés:', data.length, '— IDs:', data.map(b=>b.briefId));
-      if (data.length === 0) showDebug();
-      if (data.length > 0) return { data, status: 'make-api' };
-    } else {
-      D('type', 'vide / KO'); showDebug();
-    }
-  } catch(e) {
-    console.error('[BW] Make erreur réseau:', e.message);
-    D('status', 'RÉSEAU: ' + e.message); showDebug();
-  }
-
-  // ── 2. CSV fallbacks ─────────────────────────────────────────
-  const csvUrls = [
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=0&single=true&output=csv&t=${Date.now()}`,
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique&t=${Date.now()}`,
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique&t=${Date.now()}`,
-  ];
-  for (const url of csvUrls) {
-    const tag = url.includes('/pub') ? 'CSV/pub' : url.includes('/export') ? 'CSV/export' : 'CSV/gviz';
-    D('source', tag); console.log('[BW]', tag, '→', url.slice(0,65));
+  async function tryURL(label, url, opts) {
+    D('source', label);
+    console.log('[BW]', label, '→', url.slice(0,70));
     try {
-      const r = await fetch(url);
-      if (!r.ok) { console.log('[BW]', tag, r.status, 'skip'); continue; }
+      const r = await fetch(url, opts || {});
       const text = await r.text();
-      if (text.trim().startsWith('<')) { console.warn('[BW]', tag, '→ HTML'); continue; }
-      const data = parseCSV(text);
-      D('parsed', data.length + ' briefs');
-      console.log('[BW]', tag, 'OK —', data.length, 'briefs');
-      if (data.length > 0) return { data, status: 'csv' };
-    } catch(e) { console.warn('[BW]', tag, 'error:', e.message); }
+      D('status', r.status + (r.ok?' OK':' KO'));
+      console.log('[BW]', label, r.status, 'len:', text.length, 'début:', JSON.stringify(text.slice(0,80)));
+      D('raw', text.slice(0, 400));
+      if (!r.ok || !text.trim() || text.trim() === 'Accepted' || text.trim().startsWith('<')) return null;
+      return text;
+    } catch(e) {
+      D('status', 'ERREUR: '+e.message); console.warn('[BW]', label, e.message); return null;
+    }
   }
 
-  console.error('[BW] ❌ Toutes sources distantes inaccessibles');
-  D('type', 'AUCUNE SOURCE DISTANTE ACCESSIBLE'); showDebug();
-  return { data: [], status: 'error' };
+  // ── Source 1 : Apps Script Web App (CORS natif Google, lit Sheet avec droits propriétaire)
+  if (APPS_SCRIPT_URL) {
+    const text = await tryURL('Apps Script', APPS_SCRIPT_URL + '?t=' + Date.now());
+    if (text) {
+      try {
+        const d = JSON.parse(text);
+        const data = (d.briefs && Array.isArray(d.briefs)) ? d.briefs.filter(b=>b.briefId) : parseSheetJSON(text);
+        D('rows', data.length+' lignes'); D('parsed', data.length+' briefs');
+        if (data.length > 0) return {data, status:'apps-script'};
+        console.warn('[BW] Apps Script → 0 brief'); showDbg();
+      } catch(e) { console.warn('[BW] Apps Script parse:', e.message); showDbg(); }
+    } else showDbg();
+  }
+
+  // ── Source 2 : Make webhook (POST text/plain = simple request, pas de preflight)
+  const mText = await tryURL('Make API', MAKE_API, {method:'POST',headers:{'Content-Type':'text/plain'},body:'get_briefs'});
+  if (mText) {
+    try {
+      const data = parseSheetJSON(mText);
+      D('rows', data.length+' lignes'); D('parsed', data.length+' briefs');
+      if (data.length > 0) return {data, status:'make-api'};
+      console.warn('[BW] Make → 0 brief'); showDbg();
+    } catch(e) { console.warn('[BW] Make parse:', e.message); showDbg(); }
+  } else showDbg();
+
+  // ── Source 3 : CSV Google Sheets (fonctionne si Sheet partagé "Tout le monde")
+  for (const [tag, url] of [
+    ['CSV/pub',    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=0&single=true&output=csv&t=${Date.now()}`],
+    ['CSV/export', `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique&t=${Date.now()}`],
+    ['CSV/gviz',   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique&t=${Date.now()}`],
+  ]) {
+    const text = await tryURL(tag, url);
+    if (text) {
+      const data = parseCSV(text);
+      D('rows', data.length+' lignes'); D('parsed', data.length+' briefs');
+      if (data.length > 0) return {data, status:'csv'};
+    }
+  }
+
+  D('type', '⚠ AUCUNE SOURCE ACCESSIBLE — configurez Apps Script ou partagez le Sheet');
+  showDbg(); console.error('[BW] ❌ Toutes sources échouées');
+  return {data:[], status:'error'};
 }
 
 async function loadData() {
