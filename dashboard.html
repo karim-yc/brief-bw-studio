@@ -604,7 +604,7 @@ function isHTML(text) { return text.trim().startsWith('<'); }
 async function fetchBriefs() {
   const D = (id, val, cls) => { const e=G('dbg-'+id); if(e){e.textContent=val; if(cls)e.setAttribute('data-cls',cls);} };
   const showDebug = () => { const p=G('bw-debug'); if(p)p.classList.add('visible'); };
-  G('dbg-build') && (G('dbg-build').textContent = 'build 7524a39');
+  G('dbg-build') && (G('dbg-build').textContent = 'build c407a95');
   console.log('[BW] ===== fetchBriefs build 7524a39 =====');
 
   // ── 1. Make API ──────────────────────────────────────────────
@@ -612,7 +612,7 @@ async function fetchBriefs() {
   D('source', 'Make API');
   console.log('[BW] 1. Make API →', MAKE_URL);
   try {
-    const r = await fetch(MAKE_URL);
+    const r = await fetch(MAKE_URL, {method:'POST',headers:{'Content-Type':'text/plain'},body:'get_briefs'});
     const text = await r.text();
     D('status', r.status + (r.ok?' OK':' KO'));
     console.log('[BW] Make status:', r.status, '| length:', text.length, '| début:', JSON.stringify(text.slice(0,100)));
@@ -852,7 +852,7 @@ function renderBriefs(data) {
     const st=getStatut(b.briefId);
     const detail=ctxDetail(b);
     const borderCls=b.priorite==='urgent'?'is-urgent':b.priorite==='prioritaire'?'is-prio':'';
-    return `<div class="brief-card ${borderCls}" onclick="openDrawer('${b.briefId}')">
+    return `<div class="brief-card ${borderCls}" onclick="openDrawer('${b.briefId}', ${_i})">
       <div class="brief-card-top">
         <span class="brief-id">${b.briefId||'—'}</span>
         <div class="brief-badges">${typeBadge(b.typeDemande)}${prioBadge(b.priorite)}</div>
@@ -930,8 +930,8 @@ function renderDashboard(data) {
 
 /* ── Drawer détail ────────────────────────────────────────── */
 let _currentDrawerBrief = null;
-function openDrawer(briefId) {
-  const b = allBriefs.find(x=>x.briefId===briefId);
+function openDrawer(briefId, idx) {
+  const b = (idx !== undefined && allBriefs[idx]) ? allBriefs[idx] : allBriefs.find(x=>x.briefId===briefId);
   if(!b) return;
   _currentDrawerBrief = b;
   renderDrawer(b);

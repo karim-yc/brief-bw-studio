@@ -580,7 +580,7 @@
     console.log('[BW Hist] ===== loadMergedHistory build 7524a39 =====');
     console.log('[BW Hist] → Make API:', MAKE_API_V2);
     try {
-      const resp = await fetch(MAKE_API_V2 + '?t=' + Date.now());
+      const resp = await fetch(MAKE_API_V2, {method:'POST',headers:{'Content-Type':'text/plain'},body:'get_briefs'});
       console.log('[BW Hist] Make API status:', resp.status);
       if (resp.ok) {
         const text = await resp.text();
