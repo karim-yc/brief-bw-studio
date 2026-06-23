@@ -542,6 +542,7 @@
 
   // Liste fusionnée Sheet + local — source de vérité pour le drawer
   let _mergedHistory = [];
+  let _lastSheetStatus = null; // 'ok'|'empty'|'html'|'network'
 
   // ── Parsing CSV Sheet ────────────────────────────────────────
   function parseHistoryCSVLine(line) {
@@ -570,12 +571,34 @@
   // ── Chargement Sheet + merge avec local ──────────────────────
   async function loadMergedHistory() {
     const local = State.getHistory().map(b => ({ ...b, _source: 'local' }));
-    let sheet = [];
-    try {
-      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/export?format=csv&sheet=Historique`;
-      const resp = await fetch(url);
-      if (resp.ok) sheet = parseSheetHistory(await resp.text());
-    } catch (e) { /* Sheet inaccessible — on continue avec local */ }
+    let sheet = [], sheetStatus = 'network';
+
+    const cb = `?t=${Date.now()}`; // cache-buster
+    const sheetUrls = [
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/export?format=csv&sheet=Historique${cb}`,
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/gviz/tq?tqx=out:csv&sheet=Historique${cb}`,
+    ];
+    for (const url of sheetUrls) {
+      console.log('[BW Hist] fetch →', url);
+      try {
+        const resp = await fetch(url);
+        console.log('[BW Hist] status →', resp.status);
+        if (!resp.ok) continue;
+        const text = await resp.text();
+        if (text.trim().startsWith('<') || text.includes('<!DOCTYPE')) {
+          console.warn('[BW Hist] Réponse HTML — Sheet non publié publiquement.');
+          sheetStatus = 'html'; break;
+        }
+        sheet = parseSheetHistory(text);
+        console.log('[BW Hist] Briefs parsés:', sheet.length, '—', sheet.map(r=>r.briefId));
+        sheetStatus = sheet.length > 0 ? 'ok' : 'empty';
+        break;
+      } catch (e) {
+        console.warn('[BW Hist] Erreur fetch:', e.message);
+      }
+    }
+    _lastSheetStatus = sheetStatus;
+    console.log('[BW Hist] Statut Sheet:', sheetStatus, '| Local:', local.length);
 
     // Merge : local prioritaire (plus de données), Sheet complète les manquants
     const localIds = new Set(local.map(b => b.briefId));
@@ -684,9 +707,17 @@
     const syncStatus = document.getElementById('dr-sync-status');
 
     if (syncStatus) {
-      syncStatus.textContent = isLoading
-        ? "Chargement de l'historique…"
-        : `${hist.length} brief${hist.length > 1 ? 's' : ''} · synchronisé avec Google Sheets`;
+      if (isLoading) {
+        syncStatus.textContent = "Chargement depuis Google Sheets…";
+      } else if (!_lastSheetStatus || _lastSheetStatus === 'ok' || _lastSheetStatus === 'empty') {
+        syncStatus.textContent = hist.length
+          ? `${hist.length} brief${hist.length > 1 ? 's' : ''} · synchronisé avec Google Sheets`
+          : "Aucun brief dans Google Sheets";
+      } else if (_lastSheetStatus === 'html') {
+        syncStatus.textContent = '⚠ Sheet non publié — briefs locaux uniquement';
+      } else {
+        syncStatus.textContent = '⚠ Google Sheets inaccessible — briefs locaux uniquement';
+      }
     }
 
     if (!hist.length && !isLoading) {
