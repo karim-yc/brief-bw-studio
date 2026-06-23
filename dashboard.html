@@ -527,19 +527,51 @@ let fDays=0, fType='', fPrio='', fStatut='', fSearch='';
    ─────────────────────────────────────────────────────────── */
 
 function parseSheetJSON(text) {
-  // Parse la réponse Make (JSON Sheets API : {values: [[headers], [row], ...]})
+  // Parse la réponse Make — gère plusieurs formats possibles :
+  // Format A : {values: [["h1","h2",...], ["v1","v2",...], ...]}  (Google Sheets API standard)
+  // Format B : {values: {"0": {"0":"h1","1":"h2"}, "1": {"0":"v1","1":"v2"}}}  (Make sérialise les tableaux en objets)
+  // Format C : [["h1","h2",...], ["v1","v2",...]]  (tableau direct)
+  function toArray(v) {
+    if (Array.isArray(v)) return v;
+    if (v && typeof v === 'object') {
+      // Objet avec clés numériques → tableau ordonné
+      const keys = Object.keys(v).filter(k => !isNaN(k)).sort((a, b) => Number(a) - Number(b));
+      if (keys.length > 0) return keys.map(k => v[k]);
+    }
+    return null;
+  }
+
   try {
     const d = JSON.parse(text);
-    const rows = d.values || d; // accepte tableau direct ou objet {values:[]}
-    if (!Array.isArray(rows) || rows.length < 2) return [];
-    const headers = rows[0];
-    return rows.slice(1).map(row => {
+    console.log('[BW] Make réponse brute type:', typeof d, Array.isArray(d) ? 'array' : 'object',
+      'clés:', typeof d === 'object' && !Array.isArray(d) ? Object.keys(d).slice(0,5).join(',') : '—');
+
+    // Récupérer le tableau rows
+    let rawRows = d.values !== undefined ? d.values : d;
+    const rows = toArray(rawRows);
+
+    if (!rows || rows.length < 2) {
+      console.warn('[BW] parseSheetJSON : rows vide ou 1 seule ligne, raw values:', JSON.stringify(rawRows).slice(0, 200));
+      return [];
+    }
+
+    // Header row
+    const headerArr = toArray(rows[0]);
+    if (!headerArr) { console.warn('[BW] parseSheetJSON : header illisible'); return []; }
+    console.log('[BW] Headers détectés:', headerArr.slice(0, 5).join(', '), '...');
+
+    // Lignes de données
+    const result = rows.slice(1).map(row => {
+      const rowArr = toArray(row) || [];
       const obj = {};
-      headers.forEach((h, i) => { obj[h] = (row[i] || '').toString().trim(); });
+      headerArr.forEach((h, i) => { obj[h] = (rowArr[i] !== undefined ? String(rowArr[i]) : '').trim(); });
       return obj;
     }).filter(b => b.briefId);
+
+    console.log('[BW] parseSheetJSON OK —', result.length, 'briefs, IDs:', result.map(b => b.briefId));
+    return result;
   } catch(e) {
-    console.warn('[BW] parseSheetJSON erreur:', e.message);
+    console.error('[BW] parseSheetJSON ERREUR:', e.message, '| Début réponse:', text.slice(0, 200));
     return [];
   }
 }

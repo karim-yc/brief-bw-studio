@@ -587,18 +587,33 @@
           // Make retourne le JSON Sheets API : {values: [[headers], [row1], ...]}
           try {
             const apiData = JSON.parse(text);
-            const rows = apiData.values || apiData;
-            if (Array.isArray(rows) && rows.length >= 2) {
-              const headers = rows[0];
+            // Make peut sérialiser les tableaux imbriqués comme des objets {0:...,1:...}
+            function toArr(v) {
+              if (Array.isArray(v)) return v;
+              if (v && typeof v === 'object') {
+                const ks = Object.keys(v).filter(k=>!isNaN(k)).sort((a,b)=>+a-+b);
+                if (ks.length) return ks.map(k=>v[k]);
+              }
+              return null;
+            }
+            console.log('[BW Hist] Make réponse clés top-level:', Object.keys(apiData).slice(0,6).join(','));
+            const rawRows = apiData.values !== undefined ? apiData.values : apiData;
+            const rows = toArr(rawRows);
+            if (rows && rows.length >= 2) {
+              const headers = toArr(rows[0]) || [];
+              console.log('[BW Hist] Headers:', headers.slice(0,5).join(','));
               sheet = rows.slice(1).map(row => {
+                const rowArr = toArr(row) || [];
                 const obj = { _source: 'sheet' };
-                headers.forEach((h, i) => { obj[h] = (row[i] || '').toString().trim(); });
+                headers.forEach((h, i) => { obj[h] = (rowArr[i] !== undefined ? String(rowArr[i]) : '').trim(); });
                 return obj;
               }).filter(b => b.briefId);
               sheetStatus = sheet.length > 0 ? 'ok' : 'empty';
               console.log('[BW Hist] Make API OK —', sheet.length, 'briefs, IDs:', sheet.map(r=>r.briefId));
+            } else {
+              console.warn('[BW Hist] rows vide ou invalide:', JSON.stringify(rawRows).slice(0,150));
             }
-          } catch(parseErr) { console.warn('[BW Hist] Parse erreur:', parseErr.message); }
+          } catch(parseErr) { console.error('[BW Hist] Parse erreur:', parseErr.message, text.slice(0,200)); }
         } else { console.warn('[BW Hist] Make API → réponse HTML ou vide'); sheetStatus = 'html'; }
       }
     } catch(e) { console.warn('[BW Hist] Make API error:', e.message); }
