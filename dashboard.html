@@ -525,9 +525,13 @@ let fDays=0, fType='', fPrio='', fStatut='', fSearch='';
    d'erreur : 'ok' | 'html' | 'empty' | 'network'
    ─────────────────────────────────────────────────────────── */
 async function fetchSheetCSV() {
-  const cb = `?t=${Date.now()}`; // cache-buster
+  const cb = `&t=${Date.now()}`; // cache-buster
   const urls = [
+    // 1. URL /pub — la plus fiable (Fichier > Publier sur le web > CSV)
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=0&single=true&output=csv${cb}`,
+    // 2. Fallback /export (fonctionne si "Tout le monde peut voir")
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique${cb}`,
+    // 3. Fallback gviz
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique${cb}`,
   ];
   for (const url of urls) {

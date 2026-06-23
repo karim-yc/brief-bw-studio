@@ -573,9 +573,13 @@
     const local = State.getHistory().map(b => ({ ...b, _source: 'local' }));
     let sheet = [], sheetStatus = 'network';
 
-    const cb = `?t=${Date.now()}`; // cache-buster
+    const cb = `&t=${Date.now()}`; // cache-buster
     const sheetUrls = [
+      // 1. URL /pub — la plus fiable (Fichier > Publier sur le web > CSV)
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/pub?gid=0&single=true&output=csv${cb}`,
+      // 2. Fallback /export
       `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/export?format=csv&sheet=Historique${cb}`,
+      // 3. Fallback gviz
       `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/gviz/tq?tqx=out:csv&sheet=Historique${cb}`,
     ];
     for (const url of sheetUrls) {
