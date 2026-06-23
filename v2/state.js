@@ -38,8 +38,10 @@ const State = {
   /* ── Génération ID brief ──────────────────────────────────── */
   genBriefId() {
     const year = new Date().getFullYear();
-    const rand = Math.floor(1000 + Math.random() * 9000);
-    return `BW-${year}-${rand}`;
+    // Timestamp (5 derniers chiffres) + 3 chiffres aléatoires → collision impossible
+    const ts   = String(Date.now()).slice(-5);
+    const rand = String(Math.floor(100 + Math.random() * 900));
+    return `BW-${year}-${ts}${rand}`;
   },
 
   /* ── Sauvegarde locale (debounced depuis app.js) ───────────── */

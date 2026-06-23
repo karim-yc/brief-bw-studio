@@ -535,6 +535,7 @@
      HISTORIQUE — drawer avec sync Google Sheets
      ════════════════════════════════════════════════════════════ */
   const SHEET_ID_V2 = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
+  const MAKE_API_V2 = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b'; // Source principale
   const STATUS_LABELS = {
     soumis: 'Soumis', encours: 'En cours', simulation: 'Simulation envoyée',
     valide: 'Validé', livre: 'Livré'
@@ -573,36 +574,57 @@
     const local = State.getHistory().map(b => ({ ...b, _source: 'local' }));
     let sheet = [], sheetStatus = 'network';
 
-    const cb = `&t=${Date.now()}`; // cache-buster
-    const sheetUrls = [
-      // 1. URL /pub — la plus fiable (Fichier > Publier sur le web > CSV)
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/pub?gid=0&single=true&output=csv${cb}`,
-      // 2. Fallback /export
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/export?format=csv&sheet=Historique${cb}`,
-      // 3. Fallback gviz
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/gviz/tq?tqx=out:csv&sheet=Historique${cb}`,
-    ];
-    for (const url of sheetUrls) {
-      console.log('[BW Hist] fetch →', url);
-      try {
-        const resp = await fetch(url);
-        console.log('[BW Hist] status →', resp.status);
-        if (!resp.ok) continue;
+    const cb = `?nocache=${Date.now()}`;
+
+    // 1. Make API — source primaire avec credentials OAuth
+    console.log('[BW Hist] → Make API:', MAKE_API_V2);
+    try {
+      const resp = await fetch(MAKE_API_V2, {cache: 'no-store'});
+      console.log('[BW Hist] Make API status:', resp.status);
+      if (resp.ok) {
         const text = await resp.text();
-        if (text.trim().startsWith('<') || text.includes('<!DOCTYPE')) {
-          console.warn('[BW Hist] Réponse HTML — Sheet non publié publiquement.');
-          sheetStatus = 'html'; break;
-        }
-        sheet = parseSheetHistory(text);
-        console.log('[BW Hist] Briefs parsés:', sheet.length, '—', sheet.map(r=>r.briefId));
-        sheetStatus = sheet.length > 0 ? 'ok' : 'empty';
-        break;
-      } catch (e) {
-        console.warn('[BW Hist] Erreur fetch:', e.message);
+        if (!text.trim().startsWith('<') && text.trim().length > 10) {
+          // Make retourne le JSON Sheets API : {values: [[headers], [row1], ...]}
+          try {
+            const apiData = JSON.parse(text);
+            const rows = apiData.values || apiData;
+            if (Array.isArray(rows) && rows.length >= 2) {
+              const headers = rows[0];
+              sheet = rows.slice(1).map(row => {
+                const obj = { _source: 'sheet' };
+                headers.forEach((h, i) => { obj[h] = (row[i] || '').toString().trim(); });
+                return obj;
+              }).filter(b => b.briefId);
+              sheetStatus = sheet.length > 0 ? 'ok' : 'empty';
+              console.log('[BW Hist] Make API OK —', sheet.length, 'briefs, IDs:', sheet.map(r=>r.briefId));
+            }
+          } catch(parseErr) { console.warn('[BW Hist] Parse erreur:', parseErr.message); }
+        } else { console.warn('[BW Hist] Make API → réponse HTML ou vide'); sheetStatus = 'html'; }
+      }
+    } catch(e) { console.warn('[BW Hist] Make API error:', e.message); }
+
+    // 2. Fallback CSV si Make API n'a rien retourné
+    if (sheet.length === 0 && sheetStatus !== 'html') {
+      const csvUrls = [
+        `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/pub?gid=0&single=true&output=csv${cb}`,
+        `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/export?format=csv&sheet=Historique${cb}`,
+        `https://docs.google.com/spreadsheets/d/${SHEET_ID_V2}/gviz/tq?tqx=out:csv&sheet=Historique${cb}`,
+      ];
+      for (const url of csvUrls) {
+        console.log('[BW Hist] → CSV fallback:', url.split('?')[0]);
+        try {
+          const r = await fetch(url, {cache: 'no-store'});
+          if (!r.ok) continue;
+          const text = await r.text();
+          if (text.trim().startsWith('<')) { sheetStatus = 'html'; continue; }
+          sheet = parseSheetHistory(text);
+          if (sheet.length > 0) { sheetStatus = 'ok'; break; }
+        } catch(e) { console.warn('[BW Hist] CSV error:', e.message); }
       }
     }
+
     _lastSheetStatus = sheetStatus;
-    console.log('[BW Hist] Statut Sheet:', sheetStatus, '| Local:', local.length);
+    console.log('[BW Hist] Statut final:', sheetStatus, '| Sheet:', sheet.length, '| Local:', local.length);
 
     // Merge : local prioritaire (plus de données), Sheet complète les manquants
     const localIds = new Set(local.map(b => b.briefId));

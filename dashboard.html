@@ -444,6 +444,7 @@ const G = id => document.getElementById(id);
 
 const HIST_KEY   = 'bw_brief_v2_history';
 const SHEET_ID   = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
+const MAKE_API   = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b'; // Source principale — Make lit le Sheet avec credentials
 const STATUS_KEY = 'bw_brief_statuts';
 
 const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation envoyée', valide:'Validé', livre:'Livré' };
@@ -520,69 +521,100 @@ function setSyncState(state, msg) {
 let allBriefs=[], filteredBriefs=[], charts={};
 let fDays=0, fType='', fPrio='', fStatut='', fSearch='';
 
-/* ── Fetch CSV robuste ────────────────────────────────────────
-   Retourne les briefs parsés depuis le Sheet, ou [] avec un code
-   d'erreur : 'ok' | 'html' | 'empty' | 'network'
+/* ── Fetch briefs robuste ─────────────────────────────────────
+   Ordre : Make API (source primaire, credentials) → /pub CSV
+   → /export CSV → /gviz CSV → local seulement
    ─────────────────────────────────────────────────────────── */
-async function fetchSheetCSV() {
-  const cb = `&t=${Date.now()}`; // cache-buster
-  const urls = [
-    // 1. URL /pub — la plus fiable (Fichier > Publier sur le web > CSV)
+
+function parseSheetJSON(text) {
+  // Parse la réponse Make (JSON Sheets API : {values: [[headers], [row], ...]})
+  try {
+    const d = JSON.parse(text);
+    const rows = d.values || d; // accepte tableau direct ou objet {values:[]}
+    if (!Array.isArray(rows) || rows.length < 2) return [];
+    const headers = rows[0];
+    return rows.slice(1).map(row => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = (row[i] || '').toString().trim(); });
+      return obj;
+    }).filter(b => b.briefId);
+  } catch(e) {
+    console.warn('[BW] parseSheetJSON erreur:', e.message);
+    return [];
+  }
+}
+
+function isHTML(text) { return text.trim().startsWith('<'); }
+
+async function fetchBriefs() {
+  const cb = `?nocache=${Date.now()}`;
+
+  // 1. Make API — lit le Sheet avec OAuth, toujours disponible
+  console.log('[BW] → Make API:', MAKE_API);
+  try {
+    const r = await fetch(MAKE_API, {cache: 'no-store'});
+    console.log('[BW] Make API status:', r.status);
+    if (r.ok) {
+      const text = await r.text();
+      if (!isHTML(text) && text.trim().length > 10) {
+        const data = parseSheetJSON(text);
+        console.log('[BW] Make API OK —', data.length, 'briefs, IDs:', data.map(b=>b.briefId));
+        if (data.length >= 0) return { data, status: 'make-api' };
+      } else { console.warn('[BW] Make API réponse HTML ou vide'); }
+    }
+  } catch(e) { console.warn('[BW] Make API error:', e.message); }
+
+  // 2. /pub CSV (si Sheet publié manuellement)
+  const csvUrls = [
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=0&single=true&output=csv${cb}`,
-    // 2. Fallback /export (fonctionne si "Tout le monde peut voir")
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=Historique${cb}`,
-    // 3. Fallback gviz
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Historique${cb}`,
   ];
-  for (const url of urls) {
-    console.log('[BW Sheet] fetch →', url);
+  for (const url of csvUrls) {
+    console.log('[BW] → CSV fallback:', url.split('?')[0]);
     try {
-      const resp = await fetch(url);
-      console.log('[BW Sheet] status →', resp.status, resp.ok ? 'OK' : 'KO');
-      if (!resp.ok) continue;
-      const text = await resp.text();
-      // Détecter une page HTML de login (Google redirige vers login en 200)
-      if (text.trim().startsWith('<') || text.includes('<!DOCTYPE')) {
-        console.warn('[BW Sheet] Réponse HTML reçue — Sheet non publié ou non partagé publiquement.');
-        return { data: [], status: 'html' };
-      }
-      const rows = parseCSV(text);
-      console.log('[BW Sheet] Headers:', text.split('\n')[0]);
-      console.log('[BW Sheet] Lignes parsées:', rows.length, '— briefIds:', rows.map(r=>r.briefId).filter(Boolean));
-      return { data: rows, status: rows.length > 0 ? 'ok' : 'empty' };
-    } catch(e) {
-      console.warn('[BW Sheet] Erreur fetch:', e.message);
-    }
+      const r = await fetch(url, {cache: 'no-store'});
+      if (!r.ok) continue;
+      const text = await r.text();
+      if (isHTML(text)) { console.warn('[BW] CSV → HTML login, skip'); continue; }
+      const data = parseCSV(text);
+      console.log('[BW] CSV OK —', data.length, 'briefs');
+      if (data.length > 0) return { data, status: 'csv' };
+    } catch(e) { console.warn('[BW] CSV error:', e.message); }
   }
-  return { data: [], status: 'network' };
+
+  return { data: [], status: 'error' };
 }
 
 async function loadData() {
-  setSyncState('loading','Synchronisation…');
+  setSyncState('loading', 'Chargement des briefs…');
   const local = getLocalHistory();
 
-  const { data: sheetData, status: sheetStatus } = await fetchSheetCSV();
+  const { data: remoteData, status } = await fetchBriefs();
 
-  // Merge : Sheet prioritaire, local complète les briefIds absents du Sheet
-  const merged = [...sheetData];
-  const sheetIds = new Set(sheetData.map(b=>b.briefId));
-  local.forEach(b=>{ if(b.briefId && !sheetIds.has(b.briefId)) merged.push(b); });
-  allBriefs = merged.sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0));
+  // Merge : remote prioritaire + local pour les briefs non encore dans la source
+  const remoteIds = new Set(remoteData.map(b => b.briefId));
+  const merged = [
+    ...remoteData,
+    ...local.filter(b => b.briefId && !remoteIds.has(b.briefId))
+  ].sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
 
-  if (sheetStatus === 'html') {
-    setSyncState('error', '⚠ Google Sheets inaccessible — le fichier doit être publié (Fichier > Partager > Publier)');
-  } else if (sheetStatus === 'network') {
-    setSyncState('error', `⚠ Impossible de joindre Google Sheets${local.length ? ` — ${local.length} brief${local.length>1?'s':''} local${local.length>1?'aux':''}` : ''}`);
-  } else if (allBriefs.length > 0) {
-    const src = sheetData.length > 0
-      ? `Google Sheets · ${sheetData.length} brief${sheetData.length>1?'s':''}`
-      : `local · ${local.length} brief${local.length>1?'s':''}`;
-    setSyncState('ok', `${allBriefs.length} brief${allBriefs.length>1?'s':''} · ${src} · ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}`);
+  allBriefs = merged;
+
+  if (status === 'make-api') {
+    const src = `Google Sheets via API Make · ${remoteData.length} brief${remoteData.length > 1 ? 's' : ''}`;
+    setSyncState('ok', `${merged.length} brief${merged.length > 1 ? 's' : ''} · ${src} · ${new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'})}`);
+  } else if (status === 'csv') {
+    setSyncState('ok', `${merged.length} brief${merged.length > 1 ? 's' : ''} · Google Sheets CSV · ${new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'})}`);
+  } else if (merged.length > 0) {
+    setSyncState('ok', `${merged.length} brief${merged.length > 1 ? 's' : ''} · source locale uniquement (Sheet inaccessible)`);
   } else {
-    setSyncState('ok', 'Aucun brief — utilisez le formulaire V2 pour soumettre');
+    setSyncState('error', '⚠ Source distante inaccessible — aucun brief local. Vérifier la connexion ou soumettre un nouveau brief.');
   }
+
   applyFilters();
 }
+
 
 /* ── Parsing CSV V2 ───────────────────────────────────────── */
 function parseCSV(csv) {
