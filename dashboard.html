@@ -467,8 +467,9 @@ const G = id => document.getElementById(id);
 
 const HIST_KEY   = 'bw_brief_v2_history';
 const SHEET_ID   = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
-const MAKE_API        = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b';
-const APPS_SCRIPT_URL = ''; // ← Coller ici l'URL Apps Script après déploiement
+const GITHUB_API      = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/briefs.json'; // Source primaire — JSON statique GitHub Pages (CORS natif)
+const MAKE_API        = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b'; // Fallback Make
+const APPS_SCRIPT_URL = ''; // Fallback Apps Script (si configuré)
 const STATUS_KEY = 'bw_brief_statuts';
 
 const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation envoyée', valide:'Validé', livre:'Livré' };
@@ -605,8 +606,8 @@ function isHTML(text) { return text.trim().startsWith('<'); }
 async function fetchBriefs() {
   const D = (id, val) => { const e=G('dbg-'+id); if(e) e.textContent=String(val); };
   const showDbg = () => { const p=G('bw-debug'); if(p) p.classList.add('visible'); };
-  D('build', 'build fc2b54c');
-  console.log('[BW] ===== fetchBriefs build fc2b54c =====');
+  D('build', 'build github-static-api');
+  console.log('[BW] ===== fetchBriefs build github-static-api =====');
 
   async function tryURL(label, url, opts) {
     D('source', label);
@@ -624,7 +625,24 @@ async function fetchBriefs() {
     }
   }
 
-  // ── Source 1 : Apps Script Web App (CORS natif Google, lit Sheet avec droits propriétaire)
+  // ── Source 1 : GitHub JSON statique (CORS natif GitHub, mis à jour par Make à chaque soumission)
+  {
+    const ghText = await tryURL('GitHub JSON', GITHUB_API + '?t=' + Date.now());
+    if (ghText) {
+      try {
+        const d = JSON.parse(ghText);
+        const data = (d.briefs && Array.isArray(d.briefs)) ? d.briefs.filter(b=>b.briefId) : [];
+        D('rows', data.length+' lignes'); D('parsed', data.length+' briefs');
+        if (data.length > 0) {
+          console.log('[BW] GitHub JSON OK —', data.length, 'briefs');
+          return {data, status:'github'};
+        }
+        console.warn('[BW] GitHub JSON → 0 brief'); showDbg();
+      } catch(e) { console.warn('[BW] GitHub JSON parse:', e.message); showDbg(); }
+    } else showDbg();
+  }
+
+  // ── Source 2 : Apps Script Web App (CORS natif Google, lit Sheet avec droits propriétaire)
   if (APPS_SCRIPT_URL) {
     const text = await tryURL('Apps Script', APPS_SCRIPT_URL + '?t=' + Date.now());
     if (text) {
@@ -638,7 +656,7 @@ async function fetchBriefs() {
     } else showDbg();
   }
 
-  // ── Source 2 : Make webhook (POST text/plain = simple request, pas de preflight)
+  // ── Source 3 : Make webhook (POST text/plain = simple request, pas de preflight)
   const mText = await tryURL('Make API', MAKE_API, {method:'POST',headers:{'Content-Type':'text/plain'},body:'get_briefs'});
   if (mText) {
     try {

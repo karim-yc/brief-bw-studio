@@ -535,8 +535,9 @@
      HISTORIQUE — drawer avec sync Google Sheets
      ════════════════════════════════════════════════════════════ */
   const SHEET_ID_V2 = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
+  const GITHUB_API_V2    = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/briefs.json'; // Source primaire — JSON statique GitHub (CORS natif)
   const MAKE_API_V2      = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b';
-  const APPS_SCRIPT_V2   = ''; // ← Coller ici l'URL Apps Script après déploiement
+  const APPS_SCRIPT_V2   = ''; // Fallback Apps Script
   const STATUS_LABELS = {
     soumis: 'Soumis', encours: 'En cours', simulation: 'Simulation envoyée',
     valide: 'Validé', livre: 'Livré'
