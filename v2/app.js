@@ -578,9 +578,27 @@
 
     const cb = `?nocache=${Date.now()}`;
 
-    // 1. Make API — source primaire avec credentials OAuth
-    console.log('[BW Hist] ===== loadMergedHistory build 7524a39 =====');
-    console.log('[BW Hist] → Make API:', MAKE_API_V2);
+    // 1. GitHub JSON statique — source primaire (CORS natif, 0 dépendance externe)
+    console.log('[BW Hist] ===== loadMergedHistory — GitHub JSON source 1 =====');
+    try {
+      const r = await fetch(GITHUB_API_V2 + '?t=' + Date.now());
+      if (r.ok) {
+        const text = await r.text();
+        if (text.trim().length > 10 && !text.trim().startsWith('<')) {
+          const d = JSON.parse(text);
+          const raw = d.briefs || (Array.isArray(d) ? d : []);
+          if (raw.length > 0) {
+            sheet = raw.filter(b => b.briefId).map(b => ({...b, _source:'sheet'}));
+            sheetStatus = 'ok';
+            console.log('[BW Hist] GitHub OK —', sheet.length, 'briefs');
+          }
+        }
+      }
+    } catch(e) { console.warn('[BW Hist] GitHub erreur:', e.message); }
+
+    // 2. Make API — fallback
+    if (sheet.length === 0) {
+    console.log('[BW Hist] → Make API (fallback):', MAKE_API_V2);
     try {
       const resp = await fetch(MAKE_API_V2, {method:'POST',headers:{'Content-Type':'text/plain'},body:'get_briefs'});
       console.log('[BW Hist] Make API status:', resp.status);
@@ -640,6 +658,7 @@
         } catch(e) { console.warn('[BW Hist] CSV error:', e.message); }
       }
     }
+    } // fin if (sheet.length === 0) — bloc Make+CSV fallback
 
     _lastSheetStatus = sheetStatus;
     console.log('[BW Hist] Statut final:', sheetStatus, '| Sheet:', sheet.length, '| Local:', local.length);
@@ -758,7 +777,7 @@
           ? `${hist.length} brief${hist.length > 1 ? 's' : ''} · synchronisé avec Google Sheets`
           : "Aucun brief dans Google Sheets";
       } else if (_lastSheetStatus === 'html') {
-        syncStatus.textContent = '⚠ Source GitHub inaccessible — seuls les briefs locaux sont visibles';
+        syncStatus.textContent = '⚠ Source GitHub inaccessible — briefs locaux uniquement';
       } else {
         syncStatus.textContent = '⚠ GitHub inaccessible — vérifier connexion réseau';
       }

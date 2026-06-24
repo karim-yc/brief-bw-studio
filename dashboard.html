@@ -701,15 +701,20 @@ async function loadData() {
 
   allBriefs = merged;
 
-  if (status === 'make-api') {
-    const src = `Google Sheets via API Make · ${remoteData.length} brief${remoteData.length > 1 ? 's' : ''}`;
-    setSyncState('ok', `${merged.length} brief${merged.length > 1 ? 's' : ''} · ${src} · ${new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'})}`);
+  const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
+  const n = merged.length, s = n > 1 ? 's' : '';
+  if (status === 'github') {
+    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub · ${t}`);
+  } else if (status === 'apps-script') {
+    setSyncState('ok', `${n} brief${s} · Apps Script · ${t}`);
+  } else if (status === 'make-api') {
+    setSyncState('ok', `${n} brief${s} · Make API · ${t}`);
   } else if (status === 'csv') {
-    setSyncState('ok', `${merged.length} brief${merged.length > 1 ? 's' : ''} · Google Sheets CSV · ${new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'})}`);
-  } else if (merged.length > 0) {
-    setSyncState('ok', `${merged.length} brief${merged.length > 1 ? 's' : ''} · source locale uniquement (Sheet inaccessible)`);
+    setSyncState('ok', `${n} brief${s} · Google Sheets CSV · ${t}`);
+  } else if (n > 0) {
+    setSyncState('ok', `${n} brief${s} · cache local uniquement · ${t}`);
   } else {
-    setSyncState('error', '⚠ Source distante inaccessible — aucun brief local. Vérifier la connexion ou soumettre un nouveau brief.');
+    setSyncState('error', '⚠ Aucune source distante accessible et aucun brief local.');
   }
 
   applyFilters();
