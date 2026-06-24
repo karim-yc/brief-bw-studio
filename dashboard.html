@@ -1000,7 +1000,7 @@ function renderPriorities(data) {
   const listEl = G('pd-list');
   if (listEl) {
     if (!listItems.length) {
-      listEl.innerHTML = '<div class="pd-empty">✅ Aucun brief en attente d'action</div>';
+      listEl.innerHTML = '<div class="pd-empty">✅ Aucun brief en attente d\'action</div>';
     } else {
       listEl.innerHTML = listItems.map((b, i) => {
         const who   = b.demandeur || b.departement || '—';
