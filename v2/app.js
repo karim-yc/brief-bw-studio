@@ -528,6 +528,13 @@
 
     initHistoryDrawer();
 
+    // Mettre à jour le badge compteur avec le total distant (GitHub JSON)
+    // sans ouvrir le drawer — fetch silencieux en arrière-plan
+    loadMergedHistory().then(merged => {
+      const badge = document.getElementById('hist-count');
+      if (badge && merged.length > 0) badge.textContent = merged.length;
+    }).catch(() => {});
+
     window.scrollTo(0, 0);
   }
 
