@@ -1128,7 +1128,10 @@ function renderPrioChart(data) {
 /* ── Render complet ───────────────────────────────────────── */
 function renderDashboard(data) {
   renderKPIs(data);
-  renderPriorities(data);
+  try { renderPriorities(data); } catch(e) {
+    console.error("[BW] renderPriorities:", e);
+    const el=G("pd-list"); if(el) el.innerHTML="<div class="pd-empty">⚠ Module priorités indisponible</div>";
+  }
   renderBriefs(data);
   renderStats(data);
 }
