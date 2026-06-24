@@ -277,6 +277,59 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 #bw-debug .dbg-err{color:#f87171}
 #bw-debug .dbg-warn{color:#fbbf24}
 #bw-debug summary{cursor:pointer;color:#94a3b8;font-size:10px;padding:2px 0}
+
+/* ════════ PRIORITÉS DU JOUR ════════════════════════════════ */
+.pd-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.pd-header{padding:10px 16px;background:var(--black);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pd-header h2{font-size:10.5px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;margin:0}
+.pd-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pd-pill{font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;white-space:nowrap}
+.pd-pill.p-retard{background:#dc2626;color:#fff}
+.pd-pill.p-today{background:#ea580c;color:#fff}
+.pd-pill.p-week{background:#d97706;color:#fff}
+.pd-pill.p-ok{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}
+.pd-body{display:grid;grid-template-columns:1fr 200px;gap:0}
+@media(max-width:640px){.pd-body{grid-template-columns:1fr}}
+.pd-list{padding:8px 0;border-right:1px solid var(--border)}
+@media(max-width:640px){.pd-list{border-right:none;border-bottom:1px solid var(--border)}}
+.pd-list-hd{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-tertiary);padding:4px 16px 6px}
+.pd-item{display:flex;align-items:flex-start;gap:10px;padding:7px 16px;cursor:pointer;border-bottom:1px solid var(--border-light);transition:background .12s}
+.pd-item:last-child{border-bottom:none}
+.pd-item:hover{background:var(--hover)}
+.pd-stripe{width:3px;flex-shrink:0;border-radius:2px;min-height:36px;align-self:stretch}
+.pd-stripe.s-retard{background:#dc2626}
+.pd-stripe.s-today{background:#ea580c}
+.pd-stripe.s-week{background:#d97706}
+.pd-stripe.s-urgent{background:#dc2626}
+.pd-stripe.s-prio{background:#6366f1}
+.pd-stripe.s-later,.pd-stripe.s-nodate{background:var(--border)}
+.pd-item-body{flex:1;min-width:0}
+.pd-item-top{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pd-item-title{font-size:12px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.pd-item-meta{font-size:10.5px;color:var(--text-tertiary);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.pd-badge{font-size:9.5px;font-weight:700;letter-spacing:.3px;padding:1.5px 7px;border-radius:20px;white-space:nowrap}
+.pd-badge.b-retard{background:#fee2e2;color:#b91c1c}
+.pd-badge.b-today{background:#ffedd5;color:#c2410c}
+.pd-badge.b-week{background:#fef3c7;color:#92400e}
+.pd-badge.b-urgent{background:#fee2e2;color:#b91c1c}
+.pd-badge.b-clarify{background:#fff7ed;color:#c2410c}
+.pd-badge.b-prio{background:#ede9fe;color:#5b21b6}
+.pd-badge.b-nodate{background:var(--bg);color:var(--text-tertiary);border:1px solid var(--border)}
+.pd-date{font-size:10.5px;color:var(--text-secondary)}
+.pd-empty{padding:16px;font-size:12px;color:var(--text-tertiary);text-align:center}
+.pd-bars{padding:10px 16px}
+.pd-bars-hd{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:8px}
+.pd-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.pd-bar-lbl{font-size:10px;color:var(--text-secondary);width:72px;flex-shrink:0;text-align:right}
+.pd-bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.pd-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.pd-bar-fill.f-retard{background:#dc2626}
+.pd-bar-fill.f-today{background:#ea580c}
+.pd-bar-fill.f-week{background:#d97706}
+.pd-bar-fill.f-prio{background:#6366f1}
+.pd-bar-fill.f-later{background:#9ca3af}
+.pd-bar-fill.f-nodate{background:#d1d5db}
+.pd-bar-n{font-size:10px;color:var(--text-tertiary);min-width:14px;text-align:right}
 </style>
 </head>
 <body>
@@ -372,14 +425,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
   </div>
 
-  <!-- ACTIONS URGENTES -->
-  <div class="urgency-bar">
-    <div class="urgency-head" onclick="toggleUrgency()">
-      <h2><i class="ti ti-alert-triangle" style="font-size:13px;color:#f59e0b"></i> Actions requises</h2>
-      <span class="urgency-count" id="urgency-count">—</span>
+  <!-- PRIORITÉS DU JOUR -->
+  <div class="pd-section" id="pd-section">
+    <div class="pd-header">
+      <h2>Priorités du jour</h2>
+      <div class="pd-pills" id="pd-pills"></div>
     </div>
-    <div class="urgency-body open" id="urgency-body">
-      <div class="urgency-empty">Chargement...</div>
+    <div class="pd-body">
+      <div>
+        <div class="pd-list-hd">À traiter maintenant</div>
+        <div id="pd-list"></div>
+      </div>
+      <div class="pd-bars">
+        <div class="pd-bars-hd">Répartition</div>
+        <div id="pd-bars"></div>
+      </div>
     </div>
   </div>
 
@@ -832,38 +892,157 @@ function renderKPIs(data) {
 }
 
 /* ── Render actions urgentes ──────────────────────────────── */
-function renderUrgency(data) {
-  const today=new Date(); today.setHours(0,0,0,0);
-  const actions=[];
-  data.forEach(b=>{
-    const st=getStatut(b.briefId);
-    if(st==='livre') return;
-    const launch  = b.dateLancement  ? new Date(b.dateLancement)  : null;
-    const valDate = b.dateValidation ? new Date(b.dateValidation) : null;
-    const d2l = launch  ? Math.round((launch -today)/864e5) : null;
-    const d2v = valDate ? Math.round((valDate-today)/864e5) : null;
-    let urgency=null, stripe='yellow', reason='';
-    if(b.priorite==='urgent'&&st==='soumis')          {urgency=3;stripe='red';   reason='⚑ Urgent — en attente de prise en charge';}
-    else if(d2v!==null&&d2v<=1&&st==='soumis')        {urgency=2;stripe='red';   reason='⚠ Validation infos '+(d2v<0?'dépassée':d2v===0?"aujourd'hui":'demain');}
-    else if(d2l!==null&&d2l<=3&&d2l>=0)               {urgency=2;stripe='orange';reason='📅 Lancement dans '+d2l+' jour'+(d2l>1?'s':'');}
-    else if(st==='soumis'&&b.submittedAt){const hrs=Math.round((Date.now()-new Date(b.submittedAt))/3600e3);if(hrs>=48){urgency=1;stripe='yellow';reason='⏰ Pas de prise en charge depuis '+Math.round(hrs/24)+'j';}}
-    if(urgency!==null) actions.push({...b,urgency,stripe,reason,st});
-  });
-  actions.sort((a,b)=>b.urgency-a.urgency);
-  const cnt=G('urgency-count');
-  if(cnt) cnt.textContent=actions.length||'✓ Aucune';
-  const el=G('urgency-body');
-  if(!el) return;
-  if(!actions.length){el.innerHTML='<div class="urgency-empty">✅ Tout est à jour — aucun brief n\'attend une action urgente</div>';return;}
-  el.innerHTML=actions.slice(0,8).map(a=>`
-    <div class="action-item" onclick="openDrawer('${a.briefId}')">
-      <div class="action-stripe stripe-${a.stripe}"></div>
-      <div class="action-body">
-        <div class="action-title">${a.departement||'—'} · ${(a.contexte||a.typeDemande||'Brief').slice(0,55)}${(a.contexte||'').length>55?'…':''}</div>
-        <div class="action-meta"><span>${a.briefId}</span><span>${a.reason}</span>${statusPill(a.briefId,true)}</div>
-      </div>
-      <button class="action-cta" onclick="openStatusModal('${a.briefId}',event)">Statut ✎</button>
-    </div>`).join('');
+/* ── Priorités du jour ────────────────────────────────────── */
+function categorizeBrief(b) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const st = getStatut(b.briefId);
+  if (st === 'livre' || st === 'valide') return null;
+
+  const toDay = s => {
+    if (!s || s === '—') return null;
+    try { const d = new Date(s); d.setHours(0,0,0,0); return d; } catch(e) { return null; }
+  };
+  const diff = d => d ? Math.round((d - today) / 86400000) : null;
+
+  const dSim    = toDay(b.dateRetourSimul);
+  const dLaunch = toDay(b.dateLancement);
+  const dVal    = toDay(b.dateValidation);
+
+  // Earliest upcoming or past deadline
+  const allDiffs = [diff(dSim), diff(dLaunch), diff(dVal)].filter(d => d !== null);
+  const earliest = allDiffs.length ? Math.min(...allDiffs) : null;
+
+  const isUrgent  = b.priorite === 'urgent';
+  const isPrio    = b.priorite === 'prioritaire';
+  const hasResrv  = (b.reserves || '').trim().length > 0;
+
+  // Main deadline to display (prefer sim, then launch)
+  const mainDate = dSim || dLaunch || dVal;
+  const mainDiff = diff(mainDate);
+
+  let cat, score, stripe;
+  if (earliest !== null && earliest < 0) {
+    cat = 'retard'; score = 100 + (isUrgent ? 30 : 0) - earliest; stripe = 's-retard';
+  } else if (earliest === 0) {
+    cat = 'today';  score = 80 + (isUrgent ? 30 : 0); stripe = 's-today';
+  } else if (isUrgent && earliest === null) {
+    cat = 'urgent'; score = 65; stripe = 's-urgent';
+  } else if (isUrgent) {
+    cat = 'urgent'; score = 60 + Math.max(0, 10 - (earliest || 10)); stripe = 's-urgent';
+  } else if (earliest !== null && earliest <= 7) {
+    cat = 'week';   score = 40 - (earliest || 0); stripe = 's-week';
+  } else if (isPrio) {
+    cat = 'prio';   score = 20; stripe = 's-prio';
+  } else if (earliest === null) {
+    cat = 'nodate'; score = 5;  stripe = 's-nodate';
+  } else {
+    cat = 'later';  score = 0;  stripe = 's-later';
+  }
+
+  const badge = (() => {
+    if (cat === 'retard') return `<span class="pd-badge b-retard" title="Date dépassée et brief non livré">En retard</span>`;
+    if (cat === 'today')  return `<span class="pd-badge b-today"  title="Deadline aujourd'hui">Aujourd'hui</span>`;
+    if (cat === 'urgent' && isUrgent && hasResrv) return `<span class="pd-badge b-clarify" title="Urgent avec infos à confirmer">Urgent · À clarifier</span>`;
+    if (cat === 'urgent') return `<span class="pd-badge b-urgent" title="Priorité urgente">Urgent</span>`;
+    if (cat === 'week')   return `<span class="pd-badge b-week"   title="Deadline dans 7 jours">Cette semaine</span>`;
+    if (cat === 'prio')   return `<span class="pd-badge b-prio"   title="Prioritaire">Prioritaire</span>`;
+    if (cat === 'nodate') return `<span class="pd-badge b-nodate" title="Aucune date renseignée">Sans date</span>`;
+    return null;
+  })();
+
+  const dateLabel = mainDate ? (() => {
+    const d = diff(mainDate);
+    if (d < 0) return `<span style="color:#b91c1c">↑ ${Math.abs(d)}j retard</span>`;
+    if (d === 0) return `<span style="color:#c2410c">↑ Aujourd'hui</span>`;
+    if (d <= 7)  return `<span style="color:#92400e">↑ J-${d}</span>`;
+    const [y,m,dd] = (b.dateRetourSimul||b.dateLancement||'').split('-');
+    return dd && m ? `${dd}/${m}/${y}` : '';
+  })() : '';
+
+  return { ...b, cat, score, stripe, badge, dateLabel, mainDiff, st };
+}
+
+function renderPriorities(data) {
+  // Use allBriefs for priorities (not filtered), as it's a global view
+  const source = allBriefs.length ? allBriefs : data;
+  const scored = source.map(categorizeBrief).filter(Boolean).sort((a,b) => b.score - a.score);
+
+  const counts = {
+    retard: scored.filter(b => b.cat === 'retard').length,
+    today:  scored.filter(b => b.cat === 'today').length,
+    week:   scored.filter(b => b.cat === 'week').length,
+    urgent: scored.filter(b => b.cat === 'urgent').length,
+    prio:   scored.filter(b => b.cat === 'prio').length,
+    nodate: scored.filter(b => b.cat === 'nodate').length,
+    later:  scored.filter(b => b.cat === 'later').length,
+  };
+  const total = scored.length;
+
+  // Pills
+  const pills = G('pd-pills');
+  if (pills) {
+    if (!total) {
+      pills.innerHTML = '<span class="pd-pill p-ok">✓ Tout à jour</span>';
+    } else {
+      let h = '';
+      if (counts.retard) h += `<span class="pd-pill p-retard">${counts.retard} En retard</span>`;
+      if (counts.today)  h += `<span class="pd-pill p-today">${counts.today} Aujourd'hui</span>`;
+      if (counts.week)   h += `<span class="pd-pill p-week">${counts.week} Cette semaine</span>`;
+      if (counts.urgent) h += `<span class="pd-pill p-ok">${counts.urgent} Urgents</span>`;
+      if (!h)            h  = `<span class="pd-pill p-ok">${total} brief${total>1?'s':''} · rien d'urgent</span>`;
+      pills.innerHTML = h;
+    }
+  }
+
+  // Liste "À traiter maintenant" (top 5, exclure later/nodate sauf si rien d'autre)
+  const actionable = scored.filter(b => b.cat !== 'later' && b.cat !== 'nodate');
+  const listItems  = (actionable.length ? actionable : scored).slice(0, 5);
+  const listEl = G('pd-list');
+  if (listEl) {
+    if (!listItems.length) {
+      listEl.innerHTML = '<div class="pd-empty">✅ Aucun brief en attente d'action</div>';
+    } else {
+      listEl.innerHTML = listItems.map((b, i) => {
+        const who   = b.demandeur || b.departement || '—';
+        const ctx   = (b.contexte || b.typeDemande || 'Brief').slice(0, 50);
+        const tBadge = `<span class="badge ${({'Campagne Marketing':'b-campagne','Packaging':'b-packaging','Vitrophanie / Travaux':'b-vitro'}[b.typeDemande])||'b-autre'}" style="font-size:9px">${(b.typeDemande||'—').split('/')[0].trim()}</span>`;
+        return `<div class="pd-item" onclick="openDrawer('${b.briefId}', ${allBriefs.indexOf(b)})">
+          <div class="pd-stripe ${b.stripe}"></div>
+          <div class="pd-item-body">
+            <div class="pd-item-top">${b.badge||''}${tBadge}</div>
+            <div class="pd-item-title">${who} · ${ctx}${ctx.length>=50?'…':''}</div>
+            <div class="pd-item-meta">
+              <span>${b.briefId}</span>
+              ${b.dateLabel ? `<span>${b.dateLabel}</span>` : ''}
+              ${statusPill(b.briefId, true)}
+            </div>
+          </div>
+          <button class="action-cta" onclick="openStatusModal('${b.briefId}',event)" style="font-size:9.5px;padding:4px 8px">Statut ✎</button>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Barres de distribution
+  const barsEl = G('pd-bars');
+  if (barsEl) {
+    const max = Math.max(counts.retard, counts.today, counts.week, counts.prio+counts.urgent, counts.later, counts.nodate, 1);
+    const bar = (lbl, n, cls, tip) => {
+      const pct = Math.round(n / max * 100);
+      return `<div class="pd-bar-row">
+        <span class="pd-bar-lbl" title="${tip||''}">${lbl}</span>
+        <div class="pd-bar-track" title="${tip||''}"><div class="pd-bar-fill ${cls}" style="width:${n?pct:0}%"></div></div>
+        <span class="pd-bar-n">${n||0}</span>
+      </div>`;
+    };
+    barsEl.innerHTML =
+      bar('En retard',    counts.retard,  'f-retard', 'Date dépassée, brief non livré') +
+      bar("Aujourd'hui",  counts.today,   'f-today',  "Deadline aujourd'hui") +
+      bar('7 jours',      counts.week,    'f-week',   'Lancement ou retour simulation dans 7 jours') +
+      bar('Urgent/Prio',  counts.urgent+counts.prio, 'f-prio', 'Priorité déclarée urgente ou prioritaire') +
+      bar('Plus tard',    counts.later,   'f-later',  'Aucune deadline proche') +
+      bar('Sans date',    counts.nodate,  'f-nodate', 'Aucune date renseignée');
+  }
 }
 
 /* ── Render briefs cards ──────────────────────────────────── */
@@ -949,7 +1128,7 @@ function renderPrioChart(data) {
 /* ── Render complet ───────────────────────────────────────── */
 function renderDashboard(data) {
   renderKPIs(data);
-  renderUrgency(data);
+  renderPriorities(data);
   renderBriefs(data);
   renderStats(data);
 }
@@ -1113,10 +1292,6 @@ function printBrief(briefId) {
 }
 
 /* ── Toggle UI ────────────────────────────────────────────── */
-function toggleUrgency() {
-  const body=G('urgency-body');
-  body.classList.toggle('open');
-}
 function toggleStats() {
   const grid=G('stats-grid'), btn=G('stats-toggle');
   grid.classList.toggle('open');
