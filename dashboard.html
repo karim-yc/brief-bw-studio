@@ -330,6 +330,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .pd-bar-fill.f-later{background:#9ca3af}
 .pd-bar-fill.f-nodate{background:#d1d5db}
 .pd-bar-n{font-size:10px;color:var(--text-tertiary);min-width:14px;text-align:right}
+
+/* ── Badge marque ──────────────────────────────────────────── */
+.badge-marque{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:.3px;padding:2px 7px;border-radius:20px;background:var(--black);color:#fff;white-space:nowrap}
+.badge-marque.m-bnw{background:#111;color:#fff}
+.badge-marque.m-marquise{background:#a84f2a;color:#fff}
+.badge-marque.m-koffee{background:#3b1a08;color:#e8d5c4}
+.badge-marque.m-multi{background:#4338ca;color:#fff}
+.badge-marque.m-autre,.badge-marque.m-unknown{background:var(--bg);color:var(--text-tertiary);border:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -440,6 +448,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <div class="pd-bars-hd">Répartition</div>
         <div id="pd-bars"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- FILTRE MARQUE -->
+  <div class="filter-bar" id="filter-marque-bar" style="margin-bottom:8px">
+    <span class="filter-label">Marque <span class="tt" data-tt="Filtre par marque concernée par le brief."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Filtre par marque concernée par le brief.</span></span></span>
+    <div class="filter-pills" id="filter-marque">
+      <button class="filter-btn active" data-marque="">Toutes</button>
+      <button class="filter-btn" data-marque="bnw">B&W Burger</button>
+      <button class="filter-btn" data-marque="marquise">Maison Marquise</button>
+      <button class="filter-btn" data-marque="koffee">Black Koffee</button>
+      <button class="filter-btn" data-marque="multi">Multi-marques</button>
+      <button class="filter-btn" data-marque="autre">Autre</button>
     </div>
   </div>
 
@@ -604,7 +625,9 @@ function setSyncState(state, msg) {
 
 /* ── Chargement données ───────────────────────────────────── */
 let allBriefs=[], filteredBriefs=[], charts={};
-let fDays=0, fType='', fPrio='', fStatut='', fSearch='';
+let fDays=0, fType='', fPrio='', fStatut='', fSearch='', fMarque='';
+const MARQUES_LIST = [{id:'bnw',label:'Black & White Burger'},{id:'marquise',label:'Maison Marquise'},{id:'koffee',label:'Black Koffee'},{id:'multi',label:'Multi-marques'},{id:'autre',label:'Autre'}];
+const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',koffee:'m-koffee',multi:'m-multi',autre:'m-autre'};
 
 /* ── Fetch briefs robuste ─────────────────────────────────────
    Ordre : Make API (source primaire, credentials) → /pub CSV
@@ -829,6 +852,7 @@ function applyFilters() {
   if(fType) data=data.filter(b=>b.typeDemande===fType);
   if(fPrio) data=data.filter(b=>b.priorite===fPrio);
   if(fStatut) data=data.filter(b=>getStatut(b.briefId)===fStatut);
+  if(fMarque) data=data.filter(b=>(b.marque||'')===fMarque);
   if(fSearch.trim()) {
     const q=fSearch.trim().toLowerCase();
     data=data.filter(b=>(b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q));
@@ -839,9 +863,28 @@ function applyFilters() {
 
 /* ── Recherche ────────────────────────────────────────────── */
 G('search-input').addEventListener('input', e=>{ fSearch=e.target.value; applyFilters(); });
+document.getElementById('filter-marque')?.querySelectorAll('[data-marque]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.getElementById('filter-marque').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); fMarque=btn.dataset.marque; applyFilters();
+  });
+});
 
 /* ── Helpers ──────────────────────────────────────────────── */
 const fmtDate = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s} };
+
+function marqueBadge(m) {
+  if (!m) return '<span class="badge-marque m-unknown">—</span>';
+  const info = MARQUES_LIST.find(x => x.id === m);
+  const cls  = MARQUE_CLASS[m] || 'm-autre';
+  const lbl  = info ? info.label : m;
+  return `<span class="badge-marque ${cls}">${lbl}</span>`;
+}
+function marqueLabel(m) {
+  if (!m) return '—';
+  const info = MARQUES_LIST.find(x => x.id === m);
+  return info ? info.label : m;
+}
 
 function prioBadge(p) {
   if(p==='urgent') return '<span class="badge b-urgent">⚑ Urgent</span>';
@@ -1057,10 +1100,11 @@ function renderBriefs(data) {
     const st=getStatut(b.briefId);
     const detail=ctxDetail(b);
     const borderCls=b.priorite==='urgent'?'is-urgent':b.priorite==='prioritaire'?'is-prio':'';
+    const mBadge=marqueBadge(b.marque);
     return `<div class="brief-card ${borderCls}" onclick="openDrawer('${b.briefId}', ${_i})">
       <div class="brief-card-top">
         <span class="brief-id">${b.briefId||'—'}</span>
-        <div class="brief-badges">${typeBadge(b.typeDemande)}${prioBadge(b.priorite)}</div>
+        <div class="brief-badges">${typeBadge(b.typeDemande)}${mBadge}${prioBadge(b.priorite)}</div>
       </div>
       <div class="brief-ctx">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
       ${detail?`<div class="brief-detail">${detail}</div>`:''}
@@ -1166,6 +1210,9 @@ function renderDrawer(b) {
     <div class="drawer-label">Demandeur</div>
     <div class="drawer-val">${b.demandeur||'—'} <span style="color:var(--text-tertiary)">— ${b.departement||'—'}</span></div>
   </div>`;
+
+  // Marque
+  html+=`<div class="drawer-section"><div class="drawer-label">Marque</div><div class="drawer-val">${b.marque ? marqueBadge(b.marque) : '<span style=\'color:var(--text-tertiary)\'>Non renseignée</span>'}</div></div>`;
 
   // Priorité + statut
   html+=`<div class="drawer-section">

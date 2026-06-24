@@ -62,6 +62,11 @@ const Recap = {
       briefId: d.briefId || '(généré à la soumission)',
       submittedAt: d.submittedAt || null,
 
+      marque: (() => {
+        const m = CONFIG.marques.find(x => x.id === d.marque);
+        return m ? m.label : (d.marque || '');
+      })(),
+
       demandeur: d.ref || '—',
       departement: d.dept || '—',
       restaurant: d.restaurant || '',
@@ -129,6 +134,7 @@ const Recap = {
     let html = `<div class="recap-block recap-block-header">
       <div class="recap-brief-id">BRIEF ${r.briefId}</div>
       <div class="recap-submitter">Soumis par ${r.demandeur} — ${r.departement}${r.restaurant ? ' · ' + r.restaurant : ''}</div>
+      ${r.marque ? '<div class="recap-marque" style="font-size:11px;color:var(--text-tertiary);margin-top:2px">Marque : ' + r.marque + '</div>' : ''}
     </div>`;
 
     html += block('Contexte', r.contexte);
@@ -160,6 +166,7 @@ const Recap = {
     const lines = [];
     lines.push(`BRIEF ${r.briefId}`);
     lines.push(`Soumis par : ${r.demandeur} — ${r.departement}${r.restaurant ? ' · ' + r.restaurant : ''}`);
+    if (r.marque) lines.push(`Marque : ${r.marque}`);
     lines.push('');
     lines.push('CONTEXTE');
     lines.push(r.contexte);
@@ -251,6 +258,7 @@ const Recap = {
   <tr><td style="background:${c.accent};padding:18px 22px">
     <div style="font-family:Arial Black,Arial,sans-serif;color:#fff;font-size:16px;letter-spacing:0.5px">BRIEF ${r.briefId}</div>
     <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:4px">Soumis par ${r.demandeur} — ${r.departement}${r.restaurant ? ' · ' + r.restaurant : ''}</div>
+    ${r.marque ? '<div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:2px">Marque : ' + r.marque + '</div>' : ''}
   </td></tr>
   ${rows}
 </table>

@@ -10,6 +10,7 @@ const State = {
   /* ── Données brutes du formulaire ─────────────────────────── */
   data: {
     dept: '', ref: '', restaurant: '', deptAutrePrecision: '',
+    marque: '',
     typeDemande: '', description: '',
     genreCampagne: '', phasePackaging: '', typeVitrophanie: '',
     // Champs dynamiques étape 3 — remplis par clé selon config

@@ -7,6 +7,14 @@
 const CONFIG = {
 
   /* ── Départements ──────────────────────────────────────────── */
+  marques: [
+    { id: 'bnw',        label: 'Black & White Burger' },
+    { id: 'marquise',   label: 'Maison Marquise'       },
+    { id: 'koffee',     label: 'Black Koffee'          },
+    { id: 'multi',      label: 'Multi-marques'         },
+    { id: 'autre',      label: 'Autre'                 },
+  ],
+
   departements: [
     'Marketing', 'IT', 'Finances', 'Achats',
     'Travaux', 'Direction', 'Restaurant / Franchisé', 'Autre'
@@ -95,6 +103,7 @@ const CONFIG = {
 
   // ── ÉTAPE 1 — Qui demande ──────────────────────────────────
   champsEtape1: [
+    { id: 'marque', label: 'Marque concernée', type: 'pills', gravity: 'blocking', options: 'marques' },
     { id: 'dept', label: 'Département', type: 'select', gravity: 'blocking', options: 'departements' },
     { id: 'ref', label: 'Prénom et nom', type: 'text', gravity: 'blocking', placeholder: 'Ex : Sophie Martin' },
     {

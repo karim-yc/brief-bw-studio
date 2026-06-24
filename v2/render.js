@@ -49,8 +49,9 @@ const Render = {
       ).join('');
       inputHtml = `<select data-field="${f.id}"><option value="">— Sélectionner —</option>${opts}</select>`;
     } else if (f.type === 'pills') {
+      const pillOpts = Array.isArray(f.options) ? f.options : (CONFIG[f.options] || []);
       inputHtml = `<div class="pill-group" data-field-group="${f.id}">` +
-        f.options.map(o => `<button type="button" class="pill ${val === o.id ? 'active' : ''}" data-field="${f.id}" data-value="${o.id}">${o.label}</button>`).join('') +
+        pillOpts.map(o => `<button type="button" class="pill ${val === o.id ? 'active' : ''}" data-field="${f.id}" data-value="${o.id}">${o.label}</button>`).join('') +
         `</div>`;
     } else if (f.type === 'date') {
       inputHtml = `<input type="date" data-field="${f.id}" value="${this.esc(val)}">`;
