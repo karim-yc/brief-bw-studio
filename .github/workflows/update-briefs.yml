@@ -1,10 +1,8 @@
 name: Update briefs.json
 
 on:
-  # Déclenché par Make après chaque soumission de brief
   repository_dispatch:
     types: [update-briefs]
-  # Aussi disponible en déclenchement manuel
   workflow_dispatch:
 
 jobs:
@@ -16,68 +14,56 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch briefs from Make API
-        run: |
-          # Make API lit le Sheet avec ses credentials OAuth, pas de CORS côté serveur
-          RESPONSE=$(curl -s --max-time 30 -X POST \
-            -H "Content-Type: text/plain" \
-            -d "get_briefs" \
-            "https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b" 2>&1)
-          echo "$RESPONSE" > /tmp/make_response.json
-          echo "Réponse Make (début):"
-          echo "$RESPONSE" | head -c 300
-
-      - name: Parse and write briefs.json
+      - name: Append new brief or rebuild
         run: |
           python3 << 'PYEOF'
-          import json, sys
+          import json, os
           from datetime import datetime
 
-          with open('/tmp/make_response.json') as f:
-              raw = f.read().strip()
+          # Charger le fichier existant
+          with open('api/briefs.json', 'r', encoding='utf-8') as f:
+              payload = json.load(f)
+          briefs = payload.get('briefs', [])
 
-          briefs = []
-          source = 'unknown'
+          # Récupérer le payload du dispatch Make (si disponible)
+          client_payload = json.loads(os.environ.get('CLIENT_PAYLOAD', '{}'))
 
-          if raw and raw != 'Accepted' and not raw.startswith('<'):
-              try:
-                  data = json.loads(raw)
-
-                  # Format A : Google Sheets API → {values: [[headers],[rows...]]}
-                  if 'values' in data and isinstance(data.get('values'), list):
-                      rows = data['values']
-                      if len(rows) >= 2:
-                          hdrs = [str(h) for h in rows[0]]
-                          for row in rows[1:]:
-                              obj = {hdrs[i]: str(row[i]) if i < len(row) else '' for i in range(len(hdrs))}
-                              if obj.get('briefId','').strip():
-                                  briefs.append(obj)
-                          source = 'make-sheets-api'
-
-                  # Format B : Apps Script → {briefs: [...]}
-                  elif 'briefs' in data:
-                      briefs = [b for b in data['briefs'] if b.get('briefId')]
-                      source = 'apps-script'
-
-              except json.JSONDecodeError as e:
-                  print(f"JSON parse error: {e}")
+          if client_payload.get('briefId'):
+              brief_id = client_payload['briefId']
+              submitted_at = client_payload.get('submittedAt', '')
+              
+              # Vérifier si ce brief existe déjà (dedup briefId+submittedAt)
+              exists = any(
+                  b.get('briefId') == brief_id and b.get('submittedAt') == submitted_at
+                  for b in briefs
+              )
+              
+              if not exists:
+                  briefs.append(client_payload)
+                  print(f"✅ Nouveau brief ajouté : {brief_id}")
+              else:
+                  print(f"⏭ Brief {brief_id} déjà présent, skip")
           else:
-              print(f"Réponse Make inutilisable: {repr(raw[:100])}")
+              print("ℹ Dispatch sans payload — fichier conservé tel quel")
 
-          if briefs:
-              payload = {
-                  "ok": True,
-                  "count": len(briefs),
-                  "updatedAt": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
-                  "source": source,
-                  "briefs": briefs
-              }
-              with open('api/briefs.json', 'w', encoding='utf-8') as f:
-                  json.dump(payload, f, ensure_ascii=False, indent=2)
-              print(f"✅ briefs.json mis à jour — {len(briefs)} briefs depuis {source}")
-          else:
-              print("⚠ Aucun brief reçu de Make — fichier existant conservé")
+          # Trier par date décroissante
+          briefs.sort(key=lambda b: b.get('submittedAt', ''), reverse=True)
+
+          payload = {
+              "ok": True,
+              "count": len(briefs),
+              "updatedAt": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+              "source": "github-action",
+              "briefs": briefs
+          }
+
+          with open('api/briefs.json', 'w', encoding='utf-8') as f:
+              json.dump(payload, f, ensure_ascii=False, indent=2)
+
+          print(f"📋 briefs.json : {len(briefs)} briefs")
           PYEOF
+        env:
+          CLIENT_PAYLOAD: ${{ toJson(github.event.client_payload) }}
 
       - name: Commit and push
         run: |
@@ -85,8 +71,8 @@ jobs:
           git config user.name "BW Brief Bot"
           git add api/briefs.json
           if git diff --cached --quiet; then
-            echo "Pas de changement à committer"
+            echo "Pas de changement"
           else
-            git commit -m "auto: update briefs.json [skip ci]"
+            git commit -m "auto: add brief [skip ci]"
             git push
           fi
