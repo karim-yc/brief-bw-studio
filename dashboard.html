@@ -287,7 +287,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .pd-pill.p-retard{background:#dc2626;color:#fff}
 .pd-pill.p-today{background:#ea580c;color:#fff}
 .pd-pill.p-week{background:#d97706;color:#fff}
-.pd-pill.p-ok{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}
+.pd-pill.p-ok{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}.pd-pill.p-urgent{background:#dc2626;color:#fff}.pd-pill.p-calm{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
 .pd-body{display:grid;grid-template-columns:1fr 200px;gap:0}
 @media(max-width:640px){.pd-body{grid-template-columns:1fr}}
 .pd-list{padding:8px 0;border-right:1px solid var(--border)}
@@ -433,7 +433,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
     <div class="pd-body">
       <div>
-        <div class="pd-list-hd">À traiter maintenant</div>
+        <div class="pd-list-hd">À traiter en priorité</div>
         <div id="pd-list"></div>
       </div>
       <div class="pd-bars">
@@ -988,8 +988,8 @@ function renderPriorities(data) {
       if (counts.retard) h += `<span class="pd-pill p-retard">${counts.retard} En retard</span>`;
       if (counts.today)  h += `<span class="pd-pill p-today">${counts.today} Aujourd'hui</span>`;
       if (counts.week)   h += `<span class="pd-pill p-week">${counts.week} Cette semaine</span>`;
-      if (counts.urgent) h += `<span class="pd-pill p-ok">${counts.urgent} Urgents</span>`;
-      if (!h)            h  = `<span class="pd-pill p-ok">${total} brief${total>1?'s':''} · rien d'urgent</span>`;
+      if (counts.urgent) h += `<span class="pd-pill p-urgent">${counts.urgent} Urgent${counts.urgent>1?"s":""}</span>`;
+      if (!h)            h  = `<span class="pd-pill p-calm">${total} brief${total>1?'s':''} · rien d'urgent</span>`;
       pills.innerHTML = h;
     }
   }
@@ -1053,7 +1053,7 @@ function renderBriefs(data) {
     el.innerHTML=`<div class="empty-state"><i class="ti ti-file-off"></i><p>Aucun brief ne correspond aux filtres.<br>Ou <a href="v2/index.html">créez un nouveau brief →</a></p></div>`;
     return;
   }
-  el.innerHTML=data.map(b=>{
+  el.innerHTML=data.map((b,_i)=>{
     const st=getStatut(b.briefId);
     const detail=ctxDetail(b);
     const borderCls=b.priorite==='urgent'?'is-urgent':b.priorite==='prioritaire'?'is-prio':'';
