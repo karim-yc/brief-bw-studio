@@ -794,7 +794,7 @@
     }
     footer.hidden = false;
 
-    body.innerHTML = (isLoading ? '<div class="dr-loading">Chargement de l'historique…</div>' : '') + hist.map(b => {
+    body.innerHTML = (isLoading ? '<div class="dr-loading">Chargement de l\'historique\u2026</div>' : '') + hist.map(b => {
       const d = briefDisplayData(b);
       const status = State.getBriefStatus(b.briefId);
       const date = b.submittedAt ? new Date(b.submittedAt).toLocaleDateString('fr-BE', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
