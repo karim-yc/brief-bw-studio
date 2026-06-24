@@ -860,7 +860,6 @@ function setMarqueFilter(btn) {
   document.querySelectorAll('[data-marque]').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active'); fMarque=btn.dataset.marque; applyFilters();
 }
-});
 
 /* ── Helpers ──────────────────────────────────────────────── */
 const fmtDate = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s} };
