@@ -120,6 +120,7 @@ const Render = {
         </div>
         <div class="card-body ${open ? 'open' : ''}" id="card-body-1">
           <div class="card-body-inner">
+            ${this.field(fields.find(f => f.id === 'marque'))}
             <div class="field-row">
               ${this.field(fields.find(f => f.id === 'dept'))}
               ${this.field(fields.find(f => f.id === 'ref'))}

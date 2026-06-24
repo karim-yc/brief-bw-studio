@@ -178,7 +178,7 @@ const State = {
       case 'quoi':
         fields = CONFIG.champsEtape2.slice();
         // typeDemande est aussi requis
-        if (!this.data.typeDemande) return { status: 'empty', blocking: 1, total: fields.length + 1 };
+        if (!this.data.typeDemande) return { status: 'empty', blocking: 1, total: fields.length + 1, filled: 0 };
         // Pour Campagne Marketing, "au moins un support" fait partie de cette section
         if (this.data.typeDemande === 'campagne') fields = fields.concat(this.getSupportsFields());
         break;
@@ -188,9 +188,9 @@ const State = {
         fields = this.getChampsEtape3();
         break;
       case 'supports': fields = this.getDeadlinesFields(); break;
-      default: return { status: 'empty', blocking: 0, total: 0 };
+      default: return { status: 'empty', blocking: 0, total: 0, filled: 0 };
     }
-    if (!fields.length) return { status: 'complete', blocking: 0, total: 0 };
+    if (!fields.length) return { status: 'complete', blocking: 0, total: 0, filled: 0 };
 
     const { blocking, recommended, complete } = this.computeFieldsStatus(fields);
     const total = fields.length;
