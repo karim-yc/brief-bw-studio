@@ -335,8 +335,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .badge-marque{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:.3px;padding:2px 7px;border-radius:20px;background:var(--black);color:#fff;white-space:nowrap}
 .badge-marque.m-bnw{background:#111;color:#fff}
 .badge-marque.m-marquise{background:#a84f2a;color:#fff}
-.badge-marque.m-koffee{background:#3b1a08;color:#e8d5c4}
-.badge-marque.m-multi{background:#4338ca;color:#fff}
 .badge-marque.m-autre,.badge-marque.m-unknown{background:var(--bg);color:var(--text-tertiary);border:1px solid var(--border)}
 </style>
 </head>
@@ -458,8 +456,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <button class="filter-btn active" data-marque="">Toutes</button>
       <button class="filter-btn" data-marque="bnw">B&W Burger</button>
       <button class="filter-btn" data-marque="marquise">Maison Marquise</button>
-      <button class="filter-btn" data-marque="koffee">Black Koffee</button>
-      <button class="filter-btn" data-marque="multi">Multi-marques</button>
       <button class="filter-btn" data-marque="autre">Autre</button>
     </div>
   </div>
@@ -626,8 +622,8 @@ function setSyncState(state, msg) {
 /* ── Chargement données ───────────────────────────────────── */
 let allBriefs=[], filteredBriefs=[], charts={};
 let fDays=0, fType='', fPrio='', fStatut='', fSearch='', fMarque='';
-const MARQUES_LIST = [{id:'bnw',label:'Black & White Burger'},{id:'marquise',label:'Maison Marquise'},{id:'koffee',label:'Black Koffee'},{id:'multi',label:'Multi-marques'},{id:'autre',label:'Autre'}];
-const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',koffee:'m-koffee',multi:'m-multi',autre:'m-autre'};
+const MARQUES_LIST = [{id:'bnw',label:'Black & White Burger'},{id:'marquise',label:'Maison Marquise'},{id:'autre',label:'Autre'}];
+const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',autre:'m-autre'};
 
 /* ── Fetch briefs robuste ─────────────────────────────────────
    Ordre : Make API (source primaire, credentials) → /pub CSV

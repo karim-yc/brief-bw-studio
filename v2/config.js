@@ -8,11 +8,9 @@ const CONFIG = {
 
   /* ── Départements ──────────────────────────────────────────── */
   marques: [
-    { id: 'bnw',        label: 'Black & White Burger' },
-    { id: 'marquise',   label: 'Maison Marquise'       },
-    { id: 'koffee',     label: 'Black Koffee'          },
-    { id: 'multi',      label: 'Multi-marques'         },
-    { id: 'autre',      label: 'Autre'                 },
+    { id: 'bnw',      label: 'Black & White Burger' },
+    { id: 'marquise', label: 'Maison Marquise'       },
+    { id: 'autre',    label: 'Autre'                 },
   ],
 
   departements: [
