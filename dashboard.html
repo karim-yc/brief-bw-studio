@@ -681,7 +681,7 @@ async function fetchBriefs() {
     }
   }
 
-  D('type', '⚠ AUCUNE SOURCE ACCESSIBLE — configurez Apps Script ou partagez le Sheet');
+  D('type', '⚠ AUCUNE SOURCE — le fichier GitHub JSON est peut-être vide ou le réseau est indisponible');
   showDbg(); console.error('[BW] ❌ Toutes sources échouées');
   return {data:[], status:'error'};
 }

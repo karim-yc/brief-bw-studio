@@ -758,9 +758,9 @@
           ? `${hist.length} brief${hist.length > 1 ? 's' : ''} · synchronisé avec Google Sheets`
           : "Aucun brief dans Google Sheets";
       } else if (_lastSheetStatus === 'html') {
-        syncStatus.textContent = '⚠ Sheet non publié — briefs locaux uniquement';
+        syncStatus.textContent = '⚠ Source GitHub inaccessible — seuls les briefs locaux sont visibles';
       } else {
-        syncStatus.textContent = '⚠ Google Sheets inaccessible — briefs locaux uniquement';
+        syncStatus.textContent = '⚠ GitHub inaccessible — vérifier connexion réseau';
       }
     }
 
