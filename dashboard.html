@@ -460,7 +460,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <script>
 /* ════════════════════════════════════════════════════════════
    DASHBOARD V2 — Studio B&W
-   Source : Google Sheets CSV (principal) + bw_brief_v2_history (fallback)
+   Source : api/briefs.json GitHub (principal) + cache local (fallback)
    ════════════════════════════════════════════════════════════ */
 
 const G = id => document.getElementById(id);
@@ -704,17 +704,17 @@ async function loadData() {
   const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   const n = merged.length, s = n > 1 ? 's' : '';
   if (status === 'github') {
-    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub · ${t}`);
+    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub JSON · ${t}`);
   } else if (status === 'apps-script') {
-    setSyncState('ok', `${n} brief${s} · Apps Script · ${t}`);
+    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub JSON · ${t}`);
   } else if (status === 'make-api') {
-    setSyncState('ok', `${n} brief${s} · Make API · ${t}`);
+    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub JSON · ${t}`);
   } else if (status === 'csv') {
-    setSyncState('ok', `${n} brief${s} · Google Sheets CSV · ${t}`);
+    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub JSON · ${t}`);
   } else if (n > 0) {
-    setSyncState('ok', `${n} brief${s} · cache local uniquement · ${t}`);
+    setSyncState('ok', `${n} brief${s} · source distante inaccessible — affichage local · ${t}`);
   } else {
-    setSyncState('error', '⚠ Aucune source distante accessible et aucun brief local.');
+    setSyncState('error', '⚠ Source distante inaccessible et aucun brief local.');
   }
 
   applyFilters();

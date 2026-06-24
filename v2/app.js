@@ -532,7 +532,7 @@
   }
 
   /* ════════════════════════════════════════════════════════════
-     HISTORIQUE — drawer avec sync Google Sheets
+     HISTORIQUE — drawer avec sync GitHub JSON
      ════════════════════════════════════════════════════════════ */
   const SHEET_ID_V2 = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
   const GITHUB_API_V2    = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/briefs.json'; // Source primaire — JSON statique GitHub (CORS natif)
@@ -771,15 +771,15 @@
 
     if (syncStatus) {
       if (isLoading) {
-        syncStatus.textContent = "Chargement depuis Google Sheets…";
+        syncStatus.textContent = "Chargement de l'historique…";
       } else if (!_lastSheetStatus || _lastSheetStatus === 'ok' || _lastSheetStatus === 'empty') {
         syncStatus.textContent = hist.length
-          ? `${hist.length} brief${hist.length > 1 ? 's' : ''} · synchronisé avec Google Sheets`
-          : "Aucun brief dans Google Sheets";
+          ? `${hist.length} brief${hist.length > 1 ? 's' : ''} · synchronisé via GitHub JSON`
+          : "Aucun brief disponible";
       } else if (_lastSheetStatus === 'html') {
-        syncStatus.textContent = '⚠ Source GitHub inaccessible — briefs locaux uniquement';
+        syncStatus.textContent = '⚠ Source distante inaccessible — affichage local uniquement';
       } else {
-        syncStatus.textContent = '⚠ GitHub inaccessible — vérifier connexion réseau';
+        syncStatus.textContent = '⚠ Source distante inaccessible — vérifier la connexion';
       }
     }
 
@@ -794,7 +794,7 @@
     }
     footer.hidden = false;
 
-    body.innerHTML = (isLoading ? '<div class="dr-loading">Chargement depuis Google Sheets…</div>' : '') + hist.map(b => {
+    body.innerHTML = (isLoading ? '<div class="dr-loading">Chargement de l'historique…</div>' : '') + hist.map(b => {
       const d = briefDisplayData(b);
       const status = State.getBriefStatus(b.briefId);
       const date = b.submittedAt ? new Date(b.submittedAt).toLocaleDateString('fr-BE', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
