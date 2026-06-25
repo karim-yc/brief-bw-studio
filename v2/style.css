@@ -1111,3 +1111,18 @@ select:focus { border-bottom-color: var(--text); }
   margin-top: 8px;
 }
 .supports-alert.visible { display: block; }
+
+/* ── Pristine : pas de rouge avant la première interaction ── */
+.form-pristine .field.is-blocking input,
+.form-pristine .field.is-blocking textarea,
+.form-pristine .field.is-blocking select { border-bottom-color: var(--border); }
+.form-pristine .field.is-blocking { border-left-color: transparent; }
+.form-pristine .sb-issue-head.blocking { color: var(--text-tertiary); }
+.form-pristine .sb-issue-item.blocking-item { background: none; color: var(--text-secondary); }
+.form-pristine .sb-submit-note.is-blocking { color: var(--text-tertiary); }
+
+/* ── Select-card mobile : hauteur auto, sous-titre lisible ── */
+@media (max-width: 600px) {
+  .select-card { padding: 10px 8px; min-height: 0; height: auto; }
+  .select-card-sub { font-size: 9.5px; margin-top: 3px; }
+}

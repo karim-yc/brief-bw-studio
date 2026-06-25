@@ -121,6 +121,10 @@
     State.data[id] = e.target.value;
     scheduleSave();
 
+    // Retirer l'état pristine au premier contact (les erreurs ne s'affichent qu'après interaction)
+    const appMain = document.getElementById('app-main');
+    if (appMain) appMain.classList.remove('form-pristine');
+
     // Compteur de caractères pour textarea avec data-min-length
     if (e.target.tagName === 'TEXTAREA' && e.target.dataset.minLength) {
       const minL = parseInt(e.target.dataset.minLength, 10);

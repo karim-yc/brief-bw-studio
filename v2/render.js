@@ -44,7 +44,7 @@ const Render = {
     if (f.type === 'textarea') {
       const minL = f.minLength || 0;
       const helpHtml = f.help ? `<div class="field-help">${f.help}</div>` : '';
-      const minNote = minL ? `<div class="field-minlength" id="minl-${f.id}"><span class="minl-cur">0</span>/${minL} car. min</div>` : '';
+      const minNote = minL ? `<div class="field-minlength" id="minl-${f.id}"><span class="minl-cur">0</span>/${minL} caractères minimum</div>` : '';
       inputHtml = `${helpHtml}<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
     } else if (f.type === 'select') {
       const opts = (CONFIG[f.options] || []).map(o =>

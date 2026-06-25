@@ -122,7 +122,7 @@ const CONFIG = {
 
   // ── ÉTAPE 2 — Que faut-il créer ────────────────────────────
   champsEtape2: [
-    { id: 'description', label: 'Description courte du projet', type: 'textarea', gravity: 'blocking',
+    { id: 'description', label: 'Contexte du projet', type: 'textarea', gravity: 'blocking',
       help: 'Expliquez l\'objectif de la demande : que faut-il créer, pour qui, où ce sera diffusé, et quel est le but ?',
       minLength: 100,
       placeholder: 'Ex : Campagne lancement du B&W Smash Burger sur Instagram, du 1er au 30 juin. Objectif : notoriété et drive-to-store en restaurant.' }
