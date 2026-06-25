@@ -121,6 +121,17 @@
     State.data[id] = e.target.value;
     scheduleSave();
 
+    // Compteur de caractères pour textarea avec data-min-length
+    if (e.target.tagName === 'TEXTAREA' && e.target.dataset.minLength) {
+      const minL = parseInt(e.target.dataset.minLength, 10);
+      const cur  = (e.target.value || '').trim().length;
+      const counter = document.getElementById('minl-' + id);
+      if (counter) {
+        counter.querySelector('.minl-cur').textContent = cur;
+        counter.className = 'field-minlength' + (cur >= minL ? ' ok' : '');
+      }
+    }
+
     // Si le champ impacte l'affichage conditionnel → re-render complet
     const reactiveFields = ['dept', 'typeDemande', 'genreCampagne', 'phasePackaging', 'typeVitrophanie', 'priorite'];
     if (reactiveFields.includes(id)) {
@@ -218,10 +229,15 @@
       const idx = State.data.supportsSelected.indexOf(sid);
       if (idx >= 0) {
         State.data.supportsSelected.splice(idx, 1);
+        const alertEl2 = document.getElementById('supports-alert');
+        if (alertEl2) alertEl2.classList.toggle('visible', State.data.supportsSelected.length > 3);
         delete State.data.formats[sid];
         delete State.data.volumes[sid];
       } else {
         State.data.supportsSelected.push(sid);
+        // Alerte non-bloquante si > 3 supports sélectionnés
+        const alertEl = document.getElementById('supports-alert');
+        if (alertEl) alertEl.classList.toggle('visible', State.data.supportsSelected.length > 3);
       }
       scheduleSave();
       renderAll();

@@ -42,7 +42,10 @@ const Render = {
 
     let inputHtml = '';
     if (f.type === 'textarea') {
-      inputHtml = `<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}">${this.esc(val)}</textarea>`;
+      const minL = f.minLength || 0;
+      const helpHtml = f.help ? `<div class="field-help">${f.help}</div>` : '';
+      const minNote = minL ? `<div class="field-minlength" id="minl-${f.id}"><span class="minl-cur">0</span>/${minL} car. min</div>` : '';
+      inputHtml = `${helpHtml}<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
     } else if (f.type === 'select') {
       const opts = (CONFIG[f.options] || []).map(o =>
         `<option value="${this.esc(o)}" ${val === o ? 'selected' : ''}>${this.esc(o)}</option>`
@@ -143,6 +146,7 @@ const Render = {
       <button type="button" class="select-card ${type === t.id ? 'active' : ''}" data-type-select="${t.id}">
         ${Icons[t.icon]}
         <span class="select-card-label">${t.label}</span>
+        ${t.sub ? `<span class="select-card-sub">${t.sub}</span>` : ''}
       </button>`).join('');
 
     let subContent = '';

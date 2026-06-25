@@ -145,6 +145,7 @@ const State = {
     const val = this.data[field.id];
     if (field.type === 'pills') return !!val;
     if (Array.isArray(val)) return val.length > 0;
+    if (field.minLength) return typeof val === 'string' && val.trim().length >= field.minLength;
     return val !== undefined && val !== null && String(val).trim() !== '';
   },
 

@@ -24,21 +24,25 @@ const CONFIG = {
     {
       id: 'campagne',
       label: 'Campagne Marketing',
+      sub:   'Promouvoir un produit, une offre, une ouverture ou un événement.',
       icon: 'campagne'
     },
     {
       id: 'packaging',
       label: 'Packaging',
+      sub:   'Créer ou modifier un emballage, une boîte ou un support produit.',
       icon: 'packaging'
     },
     {
       id: 'vitrophanie',
       label: 'Vitrophanie / Travaux',
+      sub:   'Habiller une vitrine, une façade, un mur ou un restaurant.',
       icon: 'vitrophanie'
     },
     {
       id: 'autre',
       label: 'Autre demande',
+      sub:   'Toute autre demande créative.',
       icon: 'autre'
     }
   ],
@@ -119,7 +123,9 @@ const CONFIG = {
   // ── ÉTAPE 2 — Que faut-il créer ────────────────────────────
   champsEtape2: [
     { id: 'description', label: 'Description courte du projet', type: 'textarea', gravity: 'blocking',
-      placeholder: 'Ex : Campagne launch du B&W Smash Burger sur Instagram, du 1er au 30 juin. Objectif : notoriété et drive-to-store.' }
+      help: 'Expliquez l\'objectif de la demande : que faut-il créer, pour qui, où ce sera diffusé, et quel est le but ?',
+      minLength: 100,
+      placeholder: 'Ex : Campagne lancement du B&W Smash Burger sur Instagram, du 1er au 30 juin. Objectif : notoriété et drive-to-store en restaurant.' }
   ],
 
   // ── ÉTAPE 3 — Infos indispensables, PAR TYPE ───────────────
@@ -212,9 +218,9 @@ const CONFIG = {
   /* ── ÉTAPE 4 — Deadlines & priorité ──────────────────────────
      Toujours la même, indépendamment du type */
   champsEtape4Deadlines: [
-    { id: 'dateLancement', label: 'Date de lancement', type: 'date', gravity: 'blocking' },
-    { id: 'dateValidation', label: 'Date de validation des infos', type: 'date', gravity: 'blocking', tooltip: 'Date limite à laquelle toutes les informations doivent être fournies et exploitables. Ce n\'est pas forcément la date de livraison du visuel.' },
-    { id: 'dateRetourSimul', label: 'Date de retour simulation', type: 'date', gravity: 'recommended', tooltip: 'Date souhaitée pour recevoir une première proposition graphique ou simulation.' }
+    { id: 'dateLancement', label: 'Date prévue de diffusion / pose', type: 'date', gravity: 'blocking', tooltip: 'Date à laquelle le visuel doit être prêt pour être diffusé, affiché ou posé.' },
+    { id: 'dateValidation', label: 'Date limite pour fournir les infos validées', type: 'date', gravity: 'blocking', tooltip: 'Date limite à laquelle tous les textes, prix, visuels et mentions doivent être validés et transmis au studio.' },
+    { id: 'dateRetourSimul', label: 'Date souhaitée pour le premier aperçu visuel', type: 'date', gravity: 'recommended', tooltip: 'Date à laquelle vous souhaitez voir une première proposition graphique. Ce n\'est pas la version finale.' }
   ],
 
   /* ── Labels des badges de statut ────────────────────────────── */
