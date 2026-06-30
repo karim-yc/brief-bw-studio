@@ -355,7 +355,7 @@
   }
 
   async function sendWebhook(data) {
-    const WEBHOOK_URL = 'https://hook.eu1.make.com/al4tsvj9hl47f6ptge1jlk4plb961pui';
+    const WEBHOOK_URL = 'https://hook.eu1.make.com/v3nyc7z5x81gk5609ayay78rwuu75krk';
     const recap = Recap.build();
     const payload = {
       ...data,
