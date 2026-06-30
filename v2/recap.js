@@ -137,6 +137,7 @@ const Recap = {
       ${r.marque ? '<div class="recap-marque" style="font-size:11px;color:var(--text-tertiary);margin-top:2px">Marque : ' + r.marque + '</div>' : ''}
     </div>`;
 
+    if (r.restaurant) html += block('Restaurant concerné', r.restaurant);
     html += block('Contexte', r.contexte);
     html += block('Type de demande',
       `${r.typeDemande}${r.genreCampagne ? ' — ' + r.genreCampagne : ''}${r.phasePackaging ? ' — ' + r.phasePackaging : ''}${r.typeVitrophanie ? ' — ' + r.typeVitrophanie : ''}<br>Priorité : ${r.priorite}${r.raisonUrgence ? ' — ' + r.raisonUrgence : ''}`);
@@ -168,6 +169,7 @@ const Recap = {
     lines.push(`Soumis par : ${r.demandeur} — ${r.departement}${r.restaurant ? ' · ' + r.restaurant : ''}`);
     if (r.marque) lines.push(`Marque : ${r.marque}`);
     lines.push('');
+    if (r.restaurant) { lines.push('RESTAURANT CONCERNÉ'); lines.push(r.restaurant); lines.push(''); }
     lines.push('CONTEXTE');
     lines.push(r.contexte);
     lines.push('');
@@ -240,6 +242,7 @@ const Recap = {
     const showSupports = r.typeDemandeId === 'campagne';
 
     let rows = '';
+    if (r.restaurant) rows += block('Restaurant concerné', r.restaurant);
     rows += block('Contexte', r.contexte);
     rows += block('Type de demande',
       `${r.typeDemande}${r.genreCampagne ? ' — ' + r.genreCampagne : ''}${r.phasePackaging ? ' — ' + r.phasePackaging : ''}${r.typeVitrophanie ? ' — ' + r.typeVitrophanie : ''}<br>Priorité : ${r.priorite}${r.raisonUrgence ? ' — ' + r.raisonUrgence : ''}`);
