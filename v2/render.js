@@ -56,6 +56,18 @@ const Render = {
       inputHtml = `<div class="pill-group" data-field-group="${f.id}">` +
         pillOpts.map(o => `<button type="button" class="pill ${val === o.id ? 'active' : ''}" data-field="${f.id}" data-value="${o.id}">${o.label}</button>`).join('') +
         `</div>`;
+    } else if (f.type === 'pills-text') {
+      const opts = Array.isArray(f.options) ? f.options : (CONFIG[f.options] || []);
+      const predefined = opts.filter(o => o !== 'Autre');
+      const isAutre = val === 'Autre' || (val !== '' && !predefined.includes(val));
+      const textVal = (isAutre && val !== 'Autre') ? val : '';
+      inputHtml = `<div class="pill-group" data-field-group="${f.id}">` +
+        predefined.map(o =>
+          `<button type="button" class="pill ${val === o ? 'active' : ''}" data-field="${f.id}" data-value="${this.esc(o)}">${this.esc(o)}</button>`
+        ).join('') +
+        `<button type="button" class="pill ${isAutre ? 'active' : ''}" data-field="${f.id}" data-value="Autre">Autre</button>` +
+        `</div>` +
+        `<input type="text" data-field="${f.id}" placeholder="Précisez la matière / support…" value="${this.esc(textVal)}"${isAutre ? '' : ' style="display:none"'}>`;
     } else if (f.type === 'date') {
       inputHtml = `<input type="date" data-field="${f.id}" value="${this.esc(val)}">`;
     } else {

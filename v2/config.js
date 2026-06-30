@@ -18,6 +18,26 @@ const CONFIG = {
     'Travaux', 'Direction', 'Restaurant / Franchisé', 'Autre'
   ],
 
+  matiereVitroOptions: [
+    'Vinyle micro-perforé',
+    'Vinyle blanc',
+    'Vinyle transparent',
+    'Adhésif dépoli',
+    'Bâche',
+    'Panneau rigide',
+    'Autre'
+  ],
+
+  matierePackOptions: [
+    'Carton kraft',
+    'Carton blanc',
+    'Carton ingraissable',
+    'Papier ingraissable',
+    'Papier texturé',
+    'Sticker / étiquette',
+    'Autre'
+  ],
+
   restaurants: [
     'Black & White Anspach',
     'Black & White Carré de Soie',
@@ -179,8 +199,8 @@ const CONFIG = {
       { id: 'formatPack', label: 'Format / dimensions', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : 12 × 12 × 6 cm',
         showIf: d => d.phasePackaging !== 'retour' },
-      { id: 'matierePack', label: 'Matière / support', type: 'text', gravity: 'recommended',
-        placeholder: 'Ex : Carton kraft 350g',
+      { id: 'matierePack', label: 'Matière / support', type: 'pills-text', gravity: 'recommended',
+        options: 'matierePackOptions',
         showIf: d => d.phasePackaging === 'patron' },
       { id: 'fournisseur', label: 'Fournisseur', type: 'text', gravity: 'optional',
         placeholder: 'Ex : Imprimerie Dupont' },
@@ -213,8 +233,8 @@ const CONFIG = {
         showIf: d => d.typeVitrophanie === 'permanente' },
       { id: 'contraintesPose', label: 'Contraintes de pose', type: 'text', gravity: 'optional',
         placeholder: 'Ex : Accès uniquement le matin avant 9h' },
-      { id: 'matiereVitro', label: 'Matière / support', type: 'text', gravity: 'recommended',
-        placeholder: 'Ex : Vinyle micro-perforé',
+      { id: 'matiereVitro', label: 'Matière / support', type: 'pills-text', gravity: 'recommended',
+        options: 'matiereVitroOptions',
         showIf: d => d.typeVitrophanie === 'permanente' },
       { id: 'driveV', label: 'Lien Drive / fichiers', type: 'text', gravity: 'recommended',
         placeholder: 'https://drive.google.com/...' }
