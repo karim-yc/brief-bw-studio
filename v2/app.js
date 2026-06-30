@@ -590,7 +590,7 @@
       const r = Recap.build();
       const subject = encodeURIComponent(`Brief ${r.briefId} — ${r.typeDemande}${r.raisonUrgence ? ' [URGENT]' : ''}`);
       const body = encodeURIComponent(Recap.toPlainText(r));
-      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+      window.open(`https://mail.google.com/mail/?view=cm&su=${subject}&body=${body}`, '_blank');
     });
 
     initHistoryDrawer();
