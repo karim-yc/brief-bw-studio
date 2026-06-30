@@ -18,6 +18,19 @@ const CONFIG = {
     'Travaux', 'Direction', 'Restaurant / Franchisé', 'Autre'
   ],
 
+  restaurants: [
+    'Black & White Anspach',
+    'Black & White Carré de Soie',
+    'Black & White Châtelet',
+    'Black & White Docs',
+    'Black & White Lyon',
+    'Black & White Marseille',
+    'Black & White Bordeaux',
+    'Black & White Strasbourg',
+    'Black & White Albi',
+    'Autre'
+  ],
+
   /* ── Types de demande (étape 2) ───────────────────────────────
      Chaque type pilote l'affichage de l'étape 3 (infos indispensables) */
   typesDemande: [
@@ -109,8 +122,8 @@ const CONFIG = {
     { id: 'dept', label: 'Département', type: 'select', gravity: 'blocking', options: 'departements' },
     { id: 'ref', label: 'Prénom et nom', type: 'text', gravity: 'blocking', placeholder: 'Ex : Sophie Martin' },
     {
-      id: 'restaurant', label: 'Restaurant concerné', type: 'text', gravity: 'blocking',
-      placeholder: 'Ex : B&W Châtelet, Bruxelles',
+      id: 'restaurant', label: 'Restaurant concerné', type: 'select', gravity: 'blocking',
+      options: 'restaurants',
       showIf: d => d.dept === 'Restaurant / Franchisé'
     },
     {
