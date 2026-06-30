@@ -322,25 +322,40 @@
   /* ════════════════════════════════════════════════════════════
      SOUMISSION
      ════════════════════════════════════════════════════════════ */
-  function submitBrief() {
+  async function submitBrief() {
     if (!State.isReadyToSubmit()) {
       showToast('Complétez les champs bloquants avant de soumettre');
       return;
     }
+
     State.data.briefId = State.data.briefId || State.genBriefId();
     State.data.submittedAt = new Date().toISOString();
-    State.saveToHistory();
-    sendWebhook(State.data);
-    showToast(`Brief ${State.data.briefId} soumis avec succès`);
-    localStorage.removeItem(STORAGE_KEY);
-    setTimeout(() => location.reload(), 1600);
+
+    const submitBtns = [
+      document.getElementById('btn-submit'),
+      document.getElementById('btn-submit-mobile')
+    ];
+    const originalLabels = submitBtns.map(b => b ? b.textContent : '');
+    submitBtns.forEach(b => { if (b) { b.disabled = true; b.textContent = 'Envoi en cours…'; } });
+    showToast('Envoi en cours…');
+
+    try {
+      await sendWebhook(State.data);
+      State.saveToHistory();
+      showToast(`Brief ${State.data.briefId} soumis avec succès ✓`);
+      localStorage.removeItem(STORAGE_KEY);
+      setTimeout(() => location.reload(), 1600);
+    } catch (err) {
+      console.error('[BW Submit] Échec envoi:', err.message);
+      submitBtns.forEach((b, i) => {
+        if (b) { b.disabled = false; b.textContent = originalLabels[i]; }
+      });
+      showToast('Échec d\'envoi — brouillon conservé. Vérifiez votre connexion et réessayez.');
+    }
   }
 
-  function sendWebhook(data) {
+  async function sendWebhook(data) {
     const WEBHOOK_URL = 'https://hook.eu1.make.com/un4wy721ere5mxdujxor3ovihzrlbl1v';
-    // Source de vérité unique : on envoie les données brutes ET le récap
-    // structuré + le texte du mail déjà formaté, pour que Make n'ait
-    // qu'à transmettre tel quel sans reconstruire sa propre logique.
     const recap = Recap.build();
     const payload = {
       ...data,
@@ -349,11 +364,32 @@
       mailBody: Recap.toPlainText(recap),
       mailHtml: Recap.toMailHtml(recap)
     };
-    fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(err => console.warn('Webhook non joignable', err));
+
+    console.log('[BW Webhook] Envoi →', WEBHOOK_URL);
+    console.log('[BW Webhook] briefId:', payload.briefId, '| type:', payload.typeDemande, '| priorité:', payload.priorite);
+    console.log('[BW Webhook] Payload complet:', JSON.stringify(payload).slice(0, 300) + '…');
+
+    let response;
+    try {
+      response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (networkErr) {
+      console.error('[BW Webhook] Erreur réseau:', networkErr.message);
+      throw new Error('Réseau inaccessible — Make non joint');
+    }
+
+    const responseText = await response.text().catch(() => '');
+    console.log('[BW Webhook] HTTP', response.status, response.statusText, '| Corps:', responseText.slice(0, 100));
+
+    if (!response.ok) {
+      console.error('[BW Webhook] Réponse HTTP non-OK:', response.status, responseText.slice(0, 200));
+      throw new Error(`Make a refusé le webhook (HTTP ${response.status})`);
+    }
+
+    console.log('[BW Webhook] ✓ Reçu par Make — traitement en cours côté scénario');
   }
 
   function showToast(msg) {
@@ -426,7 +462,7 @@
     btn.classList.toggle('ready', ok);
   }
 
-  function submitRapide() {
+  async function submitRapide() {
     const dept = document.getElementById('r-dept').value;
     const ref = document.getElementById('r-ref').value.trim();
     const desc = document.getElementById('r-desc').value.trim();
@@ -448,11 +484,22 @@
     State.data.briefId = State.genBriefId();
     State.data.submittedAt = new Date().toISOString();
 
-    State.saveToHistory();
-    sendWebhook(State.data);
-    showToast(`Brief ${State.data.briefId} soumis avec succès`);
-    localStorage.removeItem(STORAGE_KEY);
-    setTimeout(() => location.reload(), 1600);
+    const rBtn = document.getElementById('r-submit');
+    const rBtnLabel = rBtn ? rBtn.textContent : '';
+    if (rBtn) { rBtn.disabled = true; rBtn.textContent = 'Envoi en cours…'; }
+    showToast('Envoi en cours…');
+
+    try {
+      await sendWebhook(State.data);
+      State.saveToHistory();
+      showToast(`Brief ${State.data.briefId} soumis avec succès ✓`);
+      localStorage.removeItem(STORAGE_KEY);
+      setTimeout(() => location.reload(), 1600);
+    } catch (err) {
+      console.error('[BW Submit Rapide] Échec envoi:', err.message);
+      if (rBtn) { rBtn.disabled = false; rBtn.textContent = rBtnLabel; }
+      showToast('Échec d\'envoi — brouillon conservé. Vérifiez votre connexion et réessayez.');
+    }
   }
 
   function switchToFullFromRapide() {
