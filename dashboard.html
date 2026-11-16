@@ -520,36 +520,150 @@ body { overflow-x: hidden; max-width: 100vw; }
   /* Boutons dans la liste priorités */
   .action-cta   { display: none; }          /* masqué sur très petit écran, tap sur la carte suffit */
 }
+
+/* ══════════════════════════════════════════════════════════════
+   APP SHELL — Sidebar + Main (refonte DA)
+   ══════════════════════════════════════════════════════════════ */
+.app-shell{display:flex;min-height:100vh}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+.sidebar{width:220px;background:rgba(20,17,60,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow:hidden}
+.sidebar-logo-wrap{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.sidebar-logo-icon{width:36px;height:36px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:14px;color:#3730A3;flex-shrink:0}
+.sidebar-logo-name{font-size:14px;font-weight:700;color:#fff;line-height:1.2}
+.sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.45);line-height:1}
+.sidebar-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.snav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.58);font-size:13px;font-weight:500;transition:all .15s;text-decoration:none;margin-bottom:1px;user-select:none}
+.snav-item:hover{background:rgba(255,255,255,.09);color:#fff}
+.snav-item.active{background:rgba(255,255,255,.16);color:#fff}
+.snav-item i{font-size:16px;flex-shrink:0}
+.snav-sep{height:1px;background:rgba(255,255,255,.07);margin:8px 4px}
+.sidebar-bottom{flex-shrink:0}
+.sidebar-sync-row{padding:10px 14px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:7px}
+.sidebar-sync-row .sync-dot{flex-shrink:0}
+.sidebar-sync-row .sync-lbl{font-size:11px;color:rgba(255,255,255,.45);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-sync-row .sync-btn{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:3px;border-radius:4px;font-size:13px;transition:color .15s}
+.sidebar-sync-row .sync-btn:hover{color:rgba(255,255,255,.8)}
+
+/* ── Main content ───────────────────────────────────────────── */
+.main-content{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+.page-header{padding:22px 28px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;flex-shrink:0}
+.page-greeting{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.2}
+.page-sub{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px}
+.page-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.page-body{background:var(--bg);border-radius:20px 20px 0 0;margin-top:18px;flex:1;padding:24px 28px 72px;min-width:0}
+
+/* ── KPI 3-cartes ───────────────────────────────────────────── */
+.kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:900px){.kpi-grid-3{grid-template-columns:repeat(3,1fr)}}
+.kpi-card-lg{background:#fff;border-radius:16px;border:1px solid var(--border);padding:22px 20px;box-shadow:var(--shadow-card);cursor:default;transition:transform .2s,box-shadow .2s}
+.kpi-card-lg:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,70,229,.14)}
+.kpi-card-lg.kpi-clickable{cursor:pointer}
+.kpi-card-lg .kpi-val{font-size:42px;font-weight:800;line-height:1;letter-spacing:-2px;color:var(--text);margin-bottom:6px}
+.kpi-card-lg .kpi-val.red{color:var(--urgent)}
+.kpi-card-lg .kpi-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary)}
+
+/* ── Tabs filtre ────────────────────────────────────────────── */
+.page-tabs{display:flex;align-items:center;gap:2px;background:#eff0f4;border-radius:10px;padding:3px;width:fit-content;margin-bottom:16px}
+.page-tab{padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-secondary);border:none;background:none;font-family:'Inter',sans-serif;transition:all .15s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.page-tab:hover{color:var(--text)}
+.page-tab.active{background:#fff;color:var(--indigo);box-shadow:0 1px 4px rgba(0,0,0,.09)}
+.tab-badge{font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px;background:var(--border);color:var(--text-secondary);transition:all .15s}
+.page-tab.active .tab-badge{background:var(--indigo-bg);color:var(--indigo)}
+
+/* ── Table briefs ───────────────────────────────────────────── */
+.briefs-table-wrap{background:#fff;border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow-card)}
+.briefs-table{width:100%;border-collapse:collapse}
+.briefs-table thead th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);padding:11px 16px;border-bottom:1px solid var(--border);text-align:left;background:#fafafa;white-space:nowrap}
+.briefs-table tbody tr{border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .12s}
+.briefs-table tbody tr:last-child{border-bottom:none}
+.briefs-table tbody tr:hover{background:#f7f8ff}
+.briefs-table td{padding:12px 16px;vertical-align:middle}
+.bt-demande-wrap{min-width:180px;max-width:320px}
+.bt-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px}
+.bt-id-row{display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap}
+.bt-subid{font-size:10px;color:var(--text-tertiary);font-weight:500}
+.bt-date{font-size:12px;color:var(--text-secondary);white-space:nowrap}
+.bt-date.late{color:var(--urgent);font-weight:600}
+.bt-date.soon{color:#d97706;font-weight:600}
+.bt-assignee{display:flex;align-items:center;gap:8px;min-width:100px}
+.bt-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.bt-name{font-size:12px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+
+/* ── Responsive sidebar ─────────────────────────────────────── */
+@media(max-width:900px){
+  .sidebar{width:64px}
+  .sidebar-logo-name,.sidebar-logo-sub,.snav-item span,.sidebar-sync-row .sync-lbl{display:none}
+  .sidebar-logo-wrap{padding:14px 12px;justify-content:center}
+  .snav-item{justify-content:center;padding:10px}
+  .snav-item i{font-size:18px}
+  .main-content{margin-left:64px}
+  .page-header{padding:16px 16px 0}
+  .page-body{padding:16px 16px 60px}
+}
+@media(max-width:600px){
+  .sidebar{display:none}
+  .main-content{margin-left:0}
+  .page-header{padding:12px 12px 0}
+  .page-body{padding:12px 12px 48px;border-radius:12px 12px 0 0;margin-top:12px}
+  .kpi-grid-3{grid-template-columns:repeat(3,1fr);gap:8px}
+  .kpi-card-lg .kpi-val{font-size:28px}
+  .briefs-table thead{display:none}
+  .briefs-table td{display:block;padding:6px 12px}
+  .briefs-table td:first-child{padding-top:12px}
+  .briefs-table td:last-child{padding-bottom:12px}
+}
 </style>
 </head>
 <body>
+<div class="app-shell">
 
-<!-- HEADER -->
-<header class="hdr">
-  <div class="hdr-brand">
-    <div class="hdr-logo">BW</div>
+<!-- ═══ SIDEBAR ══════════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo-wrap">
+    <div class="sidebar-logo-icon">BW</div>
     <div>
-      <div class="hdr-title">Studio Créatif</div>
-      <div class="hdr-sub">Multi-marques · Dashboard</div>
+      <div class="sidebar-logo-name">Studio Créatif</div>
+      <div class="sidebar-logo-sub">Multi-marques</div>
     </div>
   </div>
-  <div class="hdr-actions">
-    <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
-    <a href="v2/index.html" class="hdr-btn hdr-btn-primary"><i class="ti ti-plus"></i><span class="hdr-btn-lbl"> Nouvelle demande</span></a>
+  <div class="sidebar-nav">
+    <a class="snav-item active" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
+    <a class="snav-item" href="v2/index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
+    <div class="snav-sep"></div>
+    <div class="snav-item" onclick="setViewMode('list');document.querySelector('.snav-item.cal-nav-item')?.classList.remove('active');this.classList.add('active')"><i class="ti ti-list"></i><span>Demandes</span></div>
+    <div class="snav-item cal-nav-item" onclick="setViewMode('calendar');document.querySelectorAll('.snav-item').forEach(e=>e.classList.remove('active'));this.classList.add('active')"><i class="ti ti-calendar-month"></i><span>Calendrier</span></div>
+    <div class="snav-item" onclick="document.getElementById('stats-toggle').click()"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
   </div>
-</header>
+  <div class="sidebar-bottom">
+    <div class="sidebar-sync-row">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span class="sync-lbl" id="sync-label">Chargement...</span>
+      <button class="sync-btn" onclick="loadData()" title="Actualiser"><i class="ti ti-refresh"></i></button>
+    </div>
+  </div>
+</nav>
 
-<!-- SYNC BAR -->
-<div class="sync-bar">
-  <div class="sync-info">
-    <span class="sync-dot" id="sync-dot"></span>
-    <span id="sync-label">Chargement...</span>
+<!-- ═══ MAIN CONTENT ════════════════════════════════════════= -->
+<div class="main-content">
+
+  <!-- En-tête page -->
+  <div class="page-header">
+    <div>
+      <div class="page-greeting">Bienvenue, Studio</div>
+      <div class="page-sub" id="page-date-range">Dashboard · Briefs actifs</div>
+    </div>
+    <div class="page-actions">
+      <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
+      <a href="v2/index.html" class="hdr-btn hdr-btn-primary"><i class="ti ti-plus"></i><span class="hdr-btn-lbl"> Nouvelle demande</span></a>
+    </div>
   </div>
-  <button class="sync-refresh" onclick="loadData()"><i class="ti ti-refresh"></i> Sync</button>
-</div>
+
+  <!-- Corps de page -->
+  <div class="page-body">
 
 <!-- DEBUG PANEL (visible si problème) -->
-<div id="bw-debug">
+<div id="bw-debug" style="margin-bottom:12px;border-radius:var(--r)">
   <div class="dbg-row"><span class="dbg-lbl">Build</span><span class="dbg-val" id="dbg-build">—</span></div>
   <div class="dbg-row"><span class="dbg-lbl">Source testée</span><span class="dbg-val" id="dbg-source">—</span></div>
   <div class="dbg-row"><span class="dbg-lbl">HTTP status</span><span class="dbg-val" id="dbg-status">—</span></div>
@@ -560,8 +674,8 @@ body { overflow-x: hidden; max-width: 100vw; }
   <details><summary>Extrait réponse brute</summary><div class="dbg-val" id="dbg-raw" style="white-space:pre-wrap;max-height:120px;overflow-y:auto;margin-top:4px;background:#0f0f1a;padding:6px;border-radius:4px"></div></details>
   <div class="dbg-row"><span class="dbg-err" id="dbg-error"></span></div>
 </div>
-<!-- FILTERS -->
-<div class="filters-wrap">
+<!-- FILTERS (compact bar dans page-body) -->
+<div class="filters-wrap" style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:10px 16px;margin-bottom:16px;box-shadow:var(--shadow-card)">
   <div class="filters-row">
     <div class="search-input">
       <i class="ti ti-search"></i>
@@ -569,62 +683,43 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Période <span class="tt" data-tt="Filtre basé sur la date de soumission du brief, pas sur la date de lancement."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Filtre basé sur la date de soumission du brief, pas sur la date de lancement.</span></span></span>
+      <span class="filter-label">Période</span>
       <button class="filter-chip active" data-days="0" onclick="setDayFilter(this)">Tout</button>
       <button class="filter-chip" data-days="7" onclick="setDayFilter(this)">7j</button>
       <button class="filter-chip" data-days="30" onclick="setDayFilter(this)">30j</button>
       <button class="filter-chip" data-days="90" onclick="setDayFilter(this)">3m</button>
     </div>
-  </div>
-  <div class="filters-row">
+    <span class="filter-sep"></span>
     <div class="filter-group">
       <span class="filter-label">Type</span>
       <button class="filter-chip active" data-type="" onclick="setTypeFilter(this)">Tous</button>
       <button class="filter-chip fc-campagne" data-type="Campagne Marketing" onclick="setTypeFilter(this)">Campagne</button>
       <button class="filter-chip fc-packaging" data-type="Packaging" onclick="setTypeFilter(this)">Packaging</button>
-      <button class="filter-chip fc-vitro" data-type="Vitrophanie / Travaux" onclick="setTypeFilter(this)">Vitrophanie</button>
+      <button class="filter-chip fc-vitro" data-type="Vitrophanie / Travaux" onclick="setTypeFilter(this)">Vitro</button>
       <button class="filter-chip" data-type="Autre demande" onclick="setTypeFilter(this)">Autre</button>
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Priorité <span class="tt" data-tt="Normal = délai classique. Prioritaire = à traiter avant d'autres. Urgent = délai court ou contrainte forte."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Normal = délai classique. Prioritaire = à traiter avant d'autres. Urgent = délai court ou contrainte forte.</span></span></span>
+      <span class="filter-label">Priorité</span>
       <button class="filter-chip active" data-prio="" onclick="setPrioFilter(this)">Toutes</button>
       <button class="filter-chip fc-urgent" data-prio="urgent" onclick="setPrioFilter(this)">Urgent</button>
       <button class="filter-chip fc-prio" data-prio="prioritaire" onclick="setPrioFilter(this)">Prioritaire</button>
-      <button class="filter-chip" data-prio="normal" onclick="setPrioFilter(this)">Normal</button>
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Statut <span class="tt" data-tt="Soumis = reçu, en attente. En cours = production. Simulation = aperçu envoyé. Validé = approuvé. Livré = fichiers transmis."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Soumis = reçu, en attente. En cours = production. Simulation = aperçu envoyé. Validé = approuvé. Livré = fichiers transmis.</span></span></span>
-      <button class="filter-chip active" data-statut="" onclick="setStatutFilter(this)">Tous</button>
-      <button class="filter-chip" data-statut="soumis" onclick="setStatutFilter(this)">Soumis</button>
-      <button class="filter-chip" data-statut="encours" onclick="setStatutFilter(this)">En cours</button>
-      <button class="filter-chip" data-statut="simulation" onclick="setStatutFilter(this)">Simulation</button>
-      <button class="filter-chip" data-statut="valide" onclick="setStatutFilter(this)">Validé</button>
-      <button class="filter-chip" data-statut="livre" onclick="setStatutFilter(this)">Livré</button>
-    </div>
-    <span class="filter-sep"></span>
-    <div class="filter-group">
-      <span class="filter-label">Marque <span class="tt" data-tt="Filtre par marque concernée par le brief."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Filtre par marque concernée par le brief.</span></span></span>
+      <span class="filter-label">Marque</span>
       <button class="filter-chip active" data-marque="" onclick="setMarqueFilter(this)">Toutes</button>
-      <button class="filter-chip" data-marque="bnw" onclick="setMarqueFilter(this)">B&W Burger</button>
-      <button class="filter-chip" data-marque="marquise" onclick="setMarqueFilter(this)">Maison Marquise</button>
-      <button class="filter-chip" data-marque="autre" onclick="setMarqueFilter(this)">Autre</button>
+      <button class="filter-chip" data-marque="bnw" onclick="setMarqueFilter(this)">B&W</button>
+      <button class="filter-chip" data-marque="marquise" onclick="setMarqueFilter(this)">Marquise</button>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<main class="main">
-
-  <!-- KPIs -->
-  <div class="kpi-grid" id="kpi-grid">
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
+  <!-- KPIs (3 grandes cartes) -->
+  <div class="kpi-grid kpi-grid-3" id="kpi-grid">
+    <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
+    <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
+    <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
   </div>
 
   <!-- CHARGE STUDIO (Pépite 7) -->
@@ -648,12 +743,19 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
   </div>
 
-  <!-- BRIEFS LIST -->
-  <div class="section-hd">
-    <div style="display:flex;align-items:center;gap:8px"><h2>Briefs</h2><span id="briefs-count" style="font-family:'Inter',sans-serif;font-weight:400;font-size:12px;color:var(--text-tertiary)"></span></div>
-    <div class="view-toggle">
-      <button class="view-btn active" id="btn-list" onclick="setViewMode('list')" title="Vue liste"><i class="ti ti-list"></i></button>
-      <button class="view-btn" id="btn-cal"  onclick="setViewMode('calendar')" title="Vue calendrier"><i class="ti ti-calendar-month"></i></button>
+  <!-- TABS + BRIEFS TABLE -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div class="page-tabs" id="page-tabs">
+      <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">Ouvrir <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
+      <button class="page-tab" data-tab="complete" onclick="setTabFilter(this,'complete')">Complété <span class="tab-badge" id="tab-cnt-complete">—</span></button>
+      <button class="page-tab" data-tab="tous" onclick="setTabFilter(this,'tous')">Tous <span class="tab-badge" id="tab-cnt-tous">—</span></button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="briefs-count" style="font-size:12px;color:var(--text-tertiary)"></span>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-list" onclick="setViewMode('list')" title="Vue liste"><i class="ti ti-list"></i></button>
+        <button class="view-btn" id="btn-cal"  onclick="setViewMode('calendar')" title="Vue calendrier"><i class="ti ti-calendar-month"></i></button>
+      </div>
     </div>
   </div>
   <div id="briefs-list" class="briefs-list"></div>
@@ -689,7 +791,9 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
   </div>
 
-</main>
+  </div><!-- .page-body -->
+</div><!-- .main-content -->
+</div><!-- .app-shell -->
 
 
 <!-- ZONE IMPRESSION PDF (cachée, peuplée par JS) -->
@@ -1064,6 +1168,12 @@ function applyFilters() {
     const q=fSearch.trim().toLowerCase();
     data=data.filter(b=>(b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q));
   }
+  // Tab filter (Ouvrir / Complété / Tous)
+  if(tabFilter==='ouvert') {
+    data=data.filter(b=>{ const s=getStatut(b.briefId); return s!=='livre'&&s!=='valide'; });
+  } else if(tabFilter==='complete') {
+    data=data.filter(b=>{ const s=getStatut(b.briefId); return s==='livre'||s==='valide'; });
+  }
   filteredBriefs=data;
   renderDashboard(data);
 }
@@ -1117,6 +1227,14 @@ function toggleReserve(briefId, idx, total) {
   }
   // Refresh brief cards to update badge
   renderBriefs(filteredBriefs);
+}
+
+/* ── Tab filter (Ouvrir / Complété / Tous) ───────────────── */
+let tabFilter = 'ouvert';
+function setTabFilter(btn, tab) {
+  tabFilter = tab;
+  document.querySelectorAll('.page-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  applyFilters();
 }
 
 /* ── Recherche ────────────────────────────────────────────── */
@@ -1176,24 +1294,28 @@ function tt(text) {
 }
 
 function renderKPIs(data) {
-  const total = allBriefs.length; // sur tous, pas filtrés
+  const total = allBriefs.length;
   const urgent = data.filter(b=>b.priorite==='urgent').length;
   const enRetard = allBriefs.filter(b=>categorizeBrief(b)?.cat==='retard').length;
-  const campagnes = data.filter(b=>b.typeDemande==='Campagne Marketing').length;
-  const packaging = data.filter(b=>b.typeDemande==='Packaging').length;
-  const vitro = data.filter(b=>b.typeDemande==='Vitrophanie / Travaux').length;
 
   G('kpi-grid').innerHTML = [
-    {val:total,    lbl:'Total briefs',  color:'', tip:'Nombre total de briefs visibles selon les filtres actifs.'},
-    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':'', tip:'Briefs marqués comme urgents lors de la soumission.'},
-    {val:enRetard, lbl:'En retard',     color:enRetard>0?'red':'', tip:'Briefs dont la deadline est dépassée et non encore livrés.', onclick:'toggleRetardFilter()'},
-    {val:campagnes,lbl:'Campagnes',     color:'', tip:'Nombre de briefs Campagne Marketing dans les filtres actifs.'},
-    {val:packaging,lbl:'Packaging',     color:'', tip:'Nombre de briefs Packaging dans les filtres actifs.'},
-    {val:vitro,    lbl:'Vitrophanie',   color:'', tip:'Nombre de briefs Vitrophanie / Travaux dans les filtres actifs.'},
-  ].map(k=>`<div class="kpi-card${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
+    {val:total,    lbl:'Total briefs',  color:'', tip:'Nombre total de briefs.'},
+    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':'', tip:'Briefs marqués comme urgents.'},
+    {val:enRetard, lbl:'En retard',     color:enRetard>0?'red':'', tip:'Deadlines dépassées, non livrés.', onclick:'toggleRetardFilter()'},
+  ].map(k=>`<div class="kpi-card kpi-card-lg${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
     <div class="kpi-val ${k.color}">${k.val}</div>
     <div class="kpi-lbl">${k.lbl}${tt(k.tip)}</div>
   </div>`).join('');
+
+  // Update tab counts
+  const statuts = (() => { try { return JSON.parse(localStorage.getItem('bw_brief_statuts')||'{}'); } catch(e){ return {}; } })();
+  const isComplete = b => { const s=(statuts[b.briefId]||'').toLowerCase(); return s==='livre'||s==='valide'; };
+  const ouvert = allBriefs.filter(b=>!isComplete(b)).length;
+  const complete = allBriefs.filter(b=>isComplete(b)).length;
+  const tous = allBriefs.length;
+  const tc = G('tab-cnt-ouvert'); if(tc) tc.textContent=ouvert;
+  const tc2 = G('tab-cnt-complete'); if(tc2) tc2.textContent=complete;
+  const tc3 = G('tab-cnt-tous'); if(tc3) tc3.textContent=tous;
 }
 
 /* ── Render actions urgentes ──────────────────────────────── */
@@ -1350,47 +1472,85 @@ function renderPriorities(data) {
   }
 }
 
-/* ── Render briefs cards ──────────────────────────────────── */
+/* ── Avatar helper ───────────────────────────────────────── */
+function avatarColor(str) {
+  const palette=['#6366F1','#8B5CF6','#EC4899','#EF4444','#F59E0B','#10B981','#3B82F6','#14B8A6'];
+  let h=0; for(let i=0;i<(str||'').length;i++) h=(h*31+str.charCodeAt(i))&0xffff;
+  return palette[h%palette.length];
+}
+function avatarInitials(name) {
+  if(!name) return '?';
+  const parts=(name||'').trim().split(/\s+/);
+  if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+  return (name||'?')[0].toUpperCase();
+}
+
+/* ── Render briefs table ─────────────────────────────────── */
 function renderBriefs(data) {
-  const el=G('briefs-list'), cnt=G('briefs-count'); const dbgR=G('dbg-rendered'); if(dbgR) dbgR.textContent=data.length+' briefs après filtres';
+  const el=G('briefs-list'), cnt=G('briefs-count');
+  const dbgR=G('dbg-rendered'); if(dbgR) dbgR.textContent=data.length+' briefs après filtres';
   if(cnt) cnt.textContent=data.length+' brief'+(data.length>1?'s':'');
   el.style.display = viewMode === 'list' ? '' : 'none';
   if(!data.length) {
     el.innerHTML=`<div class="empty-state"><i class="ti ti-file-off"></i><p>Aucun brief ne correspond aux filtres.<br>Ou <a href="v2/index.html">créez un nouveau brief →</a></p></div>`;
     return;
   }
-  el.innerHTML=data.map((b,_i)=>{
-    const st=getStatut(b.briefId);
-    const detail=ctxDetail(b);
+  const rows = data.map((b,_i)=>{
     const cat=categorizeBrief(b);
-    const deadlineCls=cat?.cat==='retard'?'is-retard':cat?.cat==='today'?'is-today':'';
-    const borderCls=b.priorite==='urgent'?'is-urgent':b.priorite==='prioritaire'?'is-prio':'';
-    const mBadge=marqueBadge(b.marque);
-    const deadlineBadge=cat?.badge||'';
+    // Date column
+    let dateCls='bt-date', dateStr='—';
+    if(b.dateLancement && b.dateLancement!=='—') {
+      dateStr=fmtDate(b.dateLancement);
+      if(cat?.cat==='retard') dateCls='bt-date late';
+      else if(cat?.cat==='today'||cat?.cat==='week') dateCls='bt-date soon';
+    }
+    // Assignee avatar
+    const demandeur = b.demandeur || b.departement || '—';
+    const initials = avatarInitials(demandeur);
+    const color = avatarColor(demandeur);
+    // Deadline label
+    const deadlineLabel = cat?.dateLabel ? cat.dateLabel : (b.dateLancement&&b.dateLancement!=='—'?fmtDate(b.dateLancement):'—');
+    // Reserves badge
     const resBadge=(() => {
       if (!b.reserves) return '';
       const items = b.reserves.split('\n').map(s=>s.trim()).filter(Boolean);
       if (!items.length) return '';
       const open = items.length - getReserves(b.briefId).size;
       if (open <= 0) return '';
-      return `<span class="pd-badge b-clarify" title="${open} infos à confirmer">⚠ ${open} à confirmer</span>`;
+      return `<span class="pd-badge b-clarify" style="margin-left:4px">⚠ ${open}</span>`;
     })();
-    return `<div class="brief-card ${borderCls} ${deadlineCls}" onclick="openDrawer('${b.briefId}', ${_i})">
-      <div class="brief-card-top">
-        <span class="brief-id">${b.briefId||'—'}</span>
-        <div class="brief-badges">${deadlineBadge}${resBadge}${typeBadge(b.typeDemande)}${mBadge}${prioBadge(b.priorite)}</div>
-      </div>
-      <div class="brief-ctx">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
-      ${detail?`<div class="brief-detail">${detail}</div>`:''}
-      <div class="brief-foot">
-        <div class="brief-who"><strong>${b.demandeur||'—'}</strong> · ${b.departement||'—'}</div>
-        <div class="brief-right">
-          ${statusPill(b.briefId,true)}
-          ${cat?.dateLabel?`<span class="brief-date">${cat.dateLabel}</span>`:b.dateLancement&&b.dateLancement!=='—'?`<span class="brief-date"><i class="ti ti-calendar"></i>${fmtDate(b.dateLancement)}</span>`:''}
+    return `<tr onclick="openDrawer('${b.briefId}', ${_i})">
+      <td class="bt-demande-wrap">
+        <div class="bt-title">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
+        <div class="bt-id-row">
+          <span class="bt-subid">${b.briefId||'—'}</span>
+          ${typeBadge(b.typeDemande)}
+          ${marqueBadge(b.marque)}
+          ${resBadge}
         </div>
-      </div>
-    </div>`;
+      </td>
+      <td>${statusPill(b.briefId,true)}${prioBadge(b.priorite)}</td>
+      <td><span class="${dateCls}">${deadlineLabel}</span></td>
+      <td>
+        <div class="bt-assignee">
+          <div class="bt-avatar" style="background:${color}">${initials}</div>
+          <span class="bt-name">${demandeur}</span>
+        </div>
+      </td>
+    </tr>`;
   }).join('');
+
+  el.innerHTML=`<div class="briefs-table-wrap">
+    <table class="briefs-table">
+      <thead><tr>
+        <th>DEMANDE</th>
+        <th>STATUT</th>
+        <th>DATE D'ÉCHÉANCE</th>
+        <th>ATTRIBUÉ</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
 }
 
 /* ── Vue mode toggle ──────────────────────────────────────── */
