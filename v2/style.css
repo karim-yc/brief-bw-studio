@@ -827,6 +827,40 @@ select:focus { border-bottom-color: var(--text); }
 .hist-item:hover .hist-del-btn { opacity: 1; }
 .hist-del-btn:hover { background: var(--danger-bg); color: var(--danger); }
 
+.hist-dup-btn {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: none; background: none; color: var(--text-tertiary);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  opacity: 0; transition: all var(--t-fast); cursor: pointer; padding: 0;
+}
+.hist-dup-btn svg { width: 12px; height: 12px; }
+.hist-item:hover .hist-dup-btn { opacity: 1; }
+.hist-dup-btn:hover { background: var(--accent-bg, #e8f0fe); color: var(--accent, #3b6eff); }
+
+/* Pépite 4 — avertissement contexte court */
+.context-warning {
+  margin-bottom: 10px; border-radius: 10px;
+  background: var(--warn-bg, #fffbea); border: 1px solid var(--warn-border, #f5c518);
+  overflow: hidden;
+}
+.ctx-warn-inner {
+  display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+}
+.ctx-warn-icon { flex-shrink: 0; width: 18px; height: 18px; color: var(--warn-icon, #c8900a); margin-top: 1px; }
+.ctx-warn-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.ctx-warn-body strong { font-size: 13px; color: var(--text-primary); }
+.ctx-warn-body span { font-size: 12px; color: var(--text-secondary); }
+.ctx-warn-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+.ctx-warn-btn-complete, .ctx-warn-btn-submit {
+  font-size: 12px; padding: 5px 10px; border-radius: 6px;
+  border: 1px solid var(--border); cursor: pointer; white-space: nowrap;
+  transition: background var(--t-fast);
+}
+.ctx-warn-btn-complete { background: var(--bg); color: var(--text-secondary); }
+.ctx-warn-btn-complete:hover { background: var(--bg-soft); }
+.ctx-warn-btn-submit { background: var(--text-primary); color: var(--bg); border-color: var(--text-primary); }
+.ctx-warn-btn-submit:hover { opacity: 0.85; }
+
 .dr-footer {
   flex-shrink: 0; padding: 14px 24px;
   border-top: 1px solid var(--border); background: var(--bg);

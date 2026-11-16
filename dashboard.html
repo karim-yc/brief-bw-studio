@@ -723,7 +723,7 @@ function setSyncState(state, msg) {
 
 /* ── Chargement données ───────────────────────────────────── */
 let allBriefs=[], filteredBriefs=[], charts={};
-let fDays=0, fType='', fPrio='', fStatut='', fSearch='', fMarque='';
+let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fMarque=new Set();
 const MARQUES_LIST = [{id:'bnw',label:'Black & White Burger'},{id:'marquise',label:'Maison Marquise'},{id:'autre',label:'Autre'}];
 const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',autre:'m-autre'};
 
@@ -930,16 +930,34 @@ function setDayFilter(btn) {
   btn.classList.add('active'); fDays=parseInt(btn.dataset.days); applyFilters();
 }
 function setTypeFilter(btn) {
-  document.querySelectorAll('[data-type]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); fType=btn.dataset.type; applyFilters();
+  const v=btn.dataset.type;
+  if(v===''){fType.clear();}
+  else{if(fType.has(v))fType.delete(v);else fType.add(v);}
+  document.querySelectorAll('[data-type]').forEach(b=>{
+    const bv=b.dataset.type;
+    b.classList.toggle('active',bv===''?fType.size===0:fType.has(bv));
+  });
+  applyFilters();
 }
 function setPrioFilter(btn) {
-  document.querySelectorAll('[data-prio]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); fPrio=btn.dataset.prio; applyFilters();
+  const v=btn.dataset.prio;
+  if(v===''){fPrio.clear();}
+  else{if(fPrio.has(v))fPrio.delete(v);else fPrio.add(v);}
+  document.querySelectorAll('[data-prio]').forEach(b=>{
+    const bv=b.dataset.prio;
+    b.classList.toggle('active',bv===''?fPrio.size===0:fPrio.has(bv));
+  });
+  applyFilters();
 }
 function setStatutFilter(btn) {
-  document.querySelectorAll('[data-statut]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); fStatut=btn.dataset.statut; applyFilters();
+  const v=btn.dataset.statut;
+  if(v===''){fStatut.clear();}
+  else{if(fStatut.has(v))fStatut.delete(v);else fStatut.add(v);}
+  document.querySelectorAll('[data-statut]').forEach(b=>{
+    const bv=b.dataset.statut;
+    b.classList.toggle('active',bv===''?fStatut.size===0:fStatut.has(bv));
+  });
+  applyFilters();
 }
 function applyFilters() {
   let data=[...allBriefs];
@@ -947,10 +965,10 @@ function applyFilters() {
     const cut=new Date(); cut.setDate(cut.getDate()-fDays);
     data=data.filter(b=>!b.submittedAt||new Date(b.submittedAt)>=cut);
   }
-  if(fType) data=data.filter(b=>b.typeDemande===fType);
-  if(fPrio) data=data.filter(b=>b.priorite===fPrio);
-  if(fStatut) data=data.filter(b=>getStatut(b.briefId)===fStatut);
-  if(fMarque) data=data.filter(b=>(b.marque||'bnw')===fMarque);
+  if(fType.size) data=data.filter(b=>fType.has(b.typeDemande));
+  if(fPrio.size) data=data.filter(b=>fPrio.has(b.priorite));
+  if(fStatut.size) data=data.filter(b=>fStatut.has(getStatut(b.briefId)));
+  if(fMarque.size) data=data.filter(b=>fMarque.has(b.marque||'bnw'));
   if(fSearch.trim()) {
     const q=fSearch.trim().toLowerCase();
     data=data.filter(b=>(b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q));
@@ -962,8 +980,14 @@ function applyFilters() {
 /* ── Recherche ────────────────────────────────────────────── */
 G('search-input').addEventListener('input', e=>{ fSearch=e.target.value; applyFilters(); });
 function setMarqueFilter(btn) {
-  document.querySelectorAll('[data-marque]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); fMarque=btn.dataset.marque; applyFilters();
+  const v=btn.dataset.marque;
+  if(v===''){fMarque.clear();}
+  else{if(fMarque.has(v))fMarque.delete(v);else fMarque.add(v);}
+  document.querySelectorAll('[data-marque]').forEach(b=>{
+    const bv=b.dataset.marque;
+    b.classList.toggle('active',bv===''?fMarque.size===0:fMarque.has(bv));
+  });
+  applyFilters();
 }
 
 /* ── Helpers ──────────────────────────────────────────────── */

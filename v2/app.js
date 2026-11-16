@@ -6,6 +6,7 @@
   'use strict';
 
   let saveTimer = null;
+  let _submitBypass = false;
 
   /* ── Rendu complet ──────────────────────────────────────────── */
   function renderAll() {
@@ -328,6 +329,16 @@
       return;
     }
 
+    // Pépite 4 — assistant préventif : description trop courte
+    if (!_submitBypass) {
+      const descLen = (State.data.description || '').trim().length;
+      if (descLen < 60) {
+        showContextWarning(descLen);
+        return;
+      }
+    }
+    _submitBypass = false;
+
     State.data.briefId = State.data.briefId || State.genBriefId();
     State.data.submittedAt = new Date().toISOString();
 
@@ -390,6 +401,38 @@
     }
 
     console.log('[BW Webhook] ✓ Reçu par Make — traitement en cours côté scénario');
+  }
+
+  function showContextWarning(len) {
+    const existing = document.getElementById('ctx-warn');
+    if (existing) existing.remove();
+    const warn = document.createElement('div');
+    warn.id = 'ctx-warn';
+    warn.className = 'context-warning';
+    warn.innerHTML = `
+      <div class="ctx-warn-inner">
+        <svg class="ctx-warn-icon" viewBox="0 0 20 20" fill="none"><path d="M10 2.5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15zm0 4.5v4m0 2.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div class="ctx-warn-body">
+          <strong>Description courte (${len} car.)</strong>
+          <span>Avez-vous précisé le lieu de diffusion, la cible et l'objectif ?</span>
+        </div>
+        <div class="ctx-warn-actions">
+          <button class="ctx-warn-btn-complete" id="ctx-warn-complete">Compléter d'abord</button>
+          <button class="ctx-warn-btn-submit" id="ctx-warn-submit">Soumettre quand même</button>
+        </div>
+      </div>`;
+    const sb = document.getElementById('btn-submit');
+    sb.parentNode.insertBefore(warn, sb);
+    document.getElementById('ctx-warn-complete').addEventListener('click', () => {
+      warn.remove();
+      const descField = document.querySelector('[data-field="description"]');
+      if (descField) { descField.focus(); descField.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    });
+    document.getElementById('ctx-warn-submit').addEventListener('click', () => {
+      warn.remove();
+      _submitBypass = true;
+      submitBrief();
+    });
   }
 
   function showToast(msg) {
@@ -875,12 +918,14 @@
       const sourceTag = b._source === 'sheet'
         ? '<span class="hist-source-tag">Sheet</span>'
         : `<button class="hist-del-btn" data-del-brief="${b.briefId}" title="Supprimer ce brief local" aria-label="Supprimer">${Icons.trash}</button>`;
+      const dupBtn = `<button class="hist-dup-btn" data-dup-brief="${b.briefId}" title="Dupliquer ce brief" aria-label="Dupliquer"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.4"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>`;
       return `
         <div class="hist-item" data-open-brief="${b.briefId}">
           <div class="hist-item-head">
             <span class="hist-id">${b.briefId}</span>
             <span class="hist-badge ${d.typeClass}">${d.typeLabel}</span>
             ${sourceTag}
+            ${dupBtn}
           </div>
           <div class="hist-title">${d.who} — ${d.dept}</div>
           <div class="hist-desc">${d.desc || 'Sans description'}</div>
@@ -904,9 +949,46 @@ Il restera accessible dans le dashboard.`)) {
       });
     });
 
+    body.querySelectorAll('[data-dup-brief]').forEach(el => {
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        duplicateBrief(el.dataset.dupBrief);
+      });
+    });
+
     body.querySelectorAll('[data-open-brief]').forEach(el => {
       el.addEventListener('click', () => openBriefDetail(el.dataset.openBrief));
     });
+  }
+
+  function duplicateBrief(briefId) {
+    const brief = _mergedHistory.find(b => b.briefId === briefId)
+                  || State.getHistory().find(b => b.briefId === briefId);
+    if (!brief) return;
+    if (brief._source === 'local' || brief._source === 'both') {
+      const copy = { ...brief };
+      delete copy.briefId;
+      delete copy.submittedAt;
+      delete copy.globalConfirmed;
+      delete copy._source;
+      State.data = copy;
+    } else {
+      State.data = {
+        dept: brief.departement || '',
+        ref: brief.demandeur || '',
+        description: brief.contexte || '',
+        priorite: brief.priorite || '',
+        typeDemande: brief.typeDemande || '',
+        marque: brief.marque || ''
+      };
+    }
+    State.data.globalConfirmed = false;
+    scheduleSave();
+    closeHistoryDrawer();
+    State.openSections = { 1: true, 2: true, 3: true, 4: true, 5: false };
+    renderAll();
+    showToast('Brief dupliqué — modifiez et soumettez ✓');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   let _currentDetailBrief = null; // stocke {brief, r} pour le PDF
