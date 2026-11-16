@@ -256,15 +256,26 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 /* ── Detail drawer ────────────────────────────────────────────── */
 .drawer-overlay{position:fixed;inset:0;background:rgba(79,70,229,.2);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
 .drawer-overlay.open{opacity:1;pointer-events:all}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:440px;max-width:100vw;background:#fff;z-index:201;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.12)}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:480px;max-width:100vw;background:#fff;z-index:201;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.12)}
 .drawer.open{transform:translateX(0)}
-.drawer-head{background:linear-gradient(135deg,var(--indigo-dark),var(--indigo));padding:20px 20px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0}
-.drawer-id{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.65);margin-bottom:5px;text-transform:uppercase}
-.drawer-type{font-size:14px;color:#fff;font-weight:600;line-height:1.4}
+.drawer-head{background:linear-gradient(135deg,var(--indigo-dark),var(--indigo));padding:20px 20px 0;display:flex;flex-direction:column;gap:0;flex-shrink:0}
+.drawer-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:14px}
+.drawer-id{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.65);margin-bottom:4px;text-transform:uppercase}
+.drawer-type{font-size:15px;color:#fff;font-weight:600;line-height:1.3}
 .drawer-close{width:32px;height:32px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .drawer-close:hover{background:rgba(255,255,255,.3)}
-.drawer-body{flex:1;overflow-y:auto;padding:20px}
-.drawer-section{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border-light)}
+/* Drawer tabs */
+.drawer-tabs{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.12)}
+.drawer-tab{flex:1;padding:10px 8px;font-size:12px;font-weight:600;color:rgba(255,255,255,.55);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.drawer-tab:hover{color:rgba(255,255,255,.85)}
+.drawer-tab.active{color:#fff;border-bottom-color:#fff}
+.drawer-tab-badge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;background:rgba(255,255,255,.18);color:#fff}
+.drawer-tab.active .drawer-tab-badge{background:rgba(255,255,255,.3)}
+/* Drawer body */
+.drawer-body{flex:1;overflow-y:auto;padding:0}
+.drawer-tab-panel{padding:20px;display:none}
+.drawer-tab-panel.active{display:block}
+.drawer-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border-light)}
 .drawer-section:last-child{border-bottom:none;margin-bottom:0}
 .drawer-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);margin-bottom:6px}
 .drawer-val{font-size:13px;color:var(--text);line-height:1.6}
@@ -272,6 +283,36 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .drawer-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .drawer-foot{padding:14px 20px;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0;display:flex;gap:8px;flex-wrap:wrap}
 .drawer-foot .status-pill{font-size:11px;padding:5px 12px}
+/* Checklist styles */
+.checklist-section{margin-bottom:12px}
+.checklist-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-tertiary);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border-light)}
+.checklist-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--border-light)}
+.checklist-item:last-child{border-bottom:none}
+.checklist-cb{width:18px;height:18px;min-width:18px;border:1.5px solid var(--border);border-radius:4px;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:all .15s;padding:0;margin-top:1px;flex-shrink:0}
+.checklist-cb:hover{border-color:var(--indigo)}
+.checklist-item.cl-done .checklist-cb{background:var(--indigo);border-color:var(--indigo)}
+.checklist-item.cl-done .checklist-txt{color:var(--text-tertiary);text-decoration:line-through;text-decoration-color:var(--border)}
+.checklist-txt{font-size:12.5px;color:var(--text);line-height:1.45;flex:1}
+.checklist-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+.checklist-tag.ct-block{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.checklist-tag.ct-check{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.checklist-progress{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;background:var(--bg);border-radius:8px}
+.checklist-progress-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.checklist-progress-fill{height:100%;background:var(--indigo);border-radius:3px;transition:width .3s}
+.checklist-progress-txt{font-size:11px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
+/* Activity log */
+.activity-log{display:flex;flex-direction:column;gap:0}
+.activity-entry{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light)}
+.activity-entry:last-child{border-bottom:none}
+.activity-dot-col{display:flex;flex-direction:column;align-items:center;gap:0}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;margin-top:4px}
+.activity-dot.dot-status{background:var(--indigo)}
+.activity-dot.dot-create{background:#22c55e}
+.activity-dot.dot-comment{background:#f59e0b}
+.activity-line{flex:1;width:1px;background:var(--border-light);margin-top:2px}
+.activity-body{flex:1;min-width:0}
+.activity-text{font-size:12.5px;color:var(--text);line-height:1.4}
+.activity-time{font-size:10.5px;color:var(--text-tertiary);margin-top:2px}
 
 /* ── Status modal ─────────────────────────────────────────────── */
 .status-modal{position:fixed;inset:0;background:rgba(79,70,229,.2);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
@@ -803,13 +844,24 @@ body { overflow-x: hidden; max-width: 100vw; }
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="brief-drawer">
   <div class="drawer-head">
-    <div>
-      <div class="drawer-id" id="d-id"></div>
-      <div class="drawer-type" id="d-type"></div>
+    <div class="drawer-head-top">
+      <div>
+        <div class="drawer-id" id="d-id"></div>
+        <div class="drawer-type" id="d-type"></div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">×</button>
     </div>
-    <button class="drawer-close" onclick="closeDrawer()">×</button>
+    <div class="drawer-tabs" id="drawer-tabs">
+      <button class="drawer-tab active" data-panel="details" onclick="switchDrawerTab(this,'details')"><i class="ti ti-file-text"></i> Détails</button>
+      <button class="drawer-tab" data-panel="checklist" onclick="switchDrawerTab(this,'checklist')"><i class="ti ti-checklist"></i> Checklist <span class="drawer-tab-badge" id="d-cl-badge">—</span></button>
+      <button class="drawer-tab" data-panel="activity" onclick="switchDrawerTab(this,'activity')"><i class="ti ti-history"></i> Activité</button>
+    </div>
   </div>
-  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-body" id="drawer-body">
+    <div class="drawer-tab-panel active" id="panel-details"></div>
+    <div class="drawer-tab-panel" id="panel-checklist"></div>
+    <div class="drawer-tab-panel" id="panel-activity"></div>
+  </div>
   <div class="drawer-foot" id="drawer-foot"></div>
 </div>
 
@@ -1225,7 +1277,8 @@ function toggleReserve(briefId, idx, total) {
       ? `ℹ Infos à confirmer · ${openCount} ouverte${openCount>1?'s':''}`
       : '✓ Infos à confirmer · Tout résolu';
   }
-  // Refresh brief cards to update badge
+  // Refresh checklist panel + brief cards
+  if (_currentDrawerBrief && _currentDrawerBrief.briefId === briefId) renderChecklistPanel(_currentDrawerBrief);
   renderBriefs(filteredBriefs);
 }
 
@@ -1529,7 +1582,8 @@ function renderBriefs(data) {
           ${resBadge}
         </div>
       </td>
-      <td>${statusPill(b.briefId,true)}${prioBadge(b.priorite)}</td>
+      <td>${prioBadge(b.priorite)}</td>
+      <td>${statusPill(b.briefId,true)}</td>
       <td><span class="${dateCls}">${deadlineLabel}</span></td>
       <td>
         <div class="bt-assignee">
@@ -1544,6 +1598,7 @@ function renderBriefs(data) {
     <table class="briefs-table">
       <thead><tr>
         <th>DEMANDE</th>
+        <th>PRIORITÉ</th>
         <th>STATUT</th>
         <th>DATE D'ÉCHÉANCE</th>
         <th>ATTRIBUÉ</th>
@@ -1765,6 +1820,137 @@ function closeDrawer() {
   G('drawer-overlay').classList.remove('open');
   document.body.style.overflow='';
 }
+/* ── Checklists de production par type ──────────────────────── */
+const CHECKLISTS = {
+  'Campagne Marketing': [
+    { txt: 'Texte exact validé par le demandeur', tag: 'block' },
+    { txt: 'Prix et mentions légales confirmés', tag: 'block' },
+    { txt: 'Visuels / photos produit disponibles', tag: 'check' },
+    { txt: 'Formats & supports définis', tag: 'check' },
+    { txt: 'Lien Drive / références partagé', tag: 'check' },
+    { txt: 'Date de diffusion confirmée', tag: 'block' },
+    { txt: 'Validation finale client avant export', tag: 'block' },
+  ],
+  'Packaging': [
+    { txt: 'Texte exact packaging validé', tag: 'block' },
+    { txt: 'Version du logo confirmée', tag: 'block' },
+    { txt: 'Dimensions / format fournis', tag: 'block' },
+    { txt: 'Gabarit fournisseur disponible', tag: 'check' },
+    { txt: 'Matière / support définie', tag: 'check' },
+    { txt: 'BAT envoyé et validé', tag: 'block' },
+  ],
+  'Vitrophanie / Travaux': [
+    { txt: 'Mesures exactes confirmées', tag: 'block' },
+    { txt: 'Photos de la devanture disponibles', tag: 'block' },
+    { txt: 'Plan vectoriel fourni', tag: 'check' },
+    { txt: 'Contraintes de pose notées', tag: 'check' },
+    { txt: 'Matière / support définie', tag: 'check' },
+    { txt: 'BAT envoyé et validé', tag: 'block' },
+  ],
+  'Autre demande': [
+    { txt: 'Brief détaillé reçu', tag: 'block' },
+    { txt: 'Références ou exemples partagés', tag: 'check' },
+    { txt: 'Format de livraison précisé', tag: 'check' },
+    { txt: 'Validation finale client', tag: 'block' },
+  ],
+};
+
+const CL_KEY = 'bw_checklists_v1';
+function getChecklist(briefId) {
+  try { return JSON.parse(localStorage.getItem(CL_KEY)||'{}')[briefId]||{}; } catch(e){ return {}; }
+}
+function toggleChecklistItem(briefId, idx) {
+  try {
+    const all = JSON.parse(localStorage.getItem(CL_KEY)||'{}');
+    if (!all[briefId]) all[briefId] = {};
+    all[briefId][idx] = !all[briefId][idx];
+    localStorage.setItem(CL_KEY, JSON.stringify(all));
+    renderChecklistPanel(_currentDrawerBrief);
+  } catch(e) {}
+}
+
+function switchDrawerTab(btn, panel) {
+  document.querySelectorAll('.drawer-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.drawer-tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const el = G('panel-'+panel);
+  if (el) el.classList.add('active');
+}
+
+function getActivityLog(b) {
+  const log = [];
+  // Création
+  if (b.submittedAt) {
+    const d = new Date(b.submittedAt);
+    log.push({ type:'create', text:`Brief soumis par <strong>${b.demandeur||'—'}</strong>`, time: d });
+  }
+  // Statuts sauvegardés (simulés depuis localStorage — on affiche le statut courant)
+  const st = getStatut(b.briefId);
+  if (st && st !== 'soumis') {
+    log.push({ type:'status', text:`Statut mis à jour : <strong>${STATUS_LABELS[st]||st}</strong>`, time: null });
+  }
+  // Réserves résolues
+  const resItems = (b.reserves||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  const resolved = getReserves(b.briefId);
+  if (resItems.length) {
+    const openCount = resItems.length - resolved.size;
+    if (resolved.size > 0) {
+      log.push({ type:'comment', text:`${resolved.size} réserve${resolved.size>1?'s':''} marquée${resolved.size>1?'s':''} comme résolue${resolved.size>1?'s':''}`, time: null });
+    }
+    if (openCount > 0) {
+      log.push({ type:'comment', text:`${openCount} info${openCount>1?'s':''} en attente de confirmation`, time: null });
+    }
+  }
+  return log.reverse();
+}
+
+function renderChecklistPanel(b) {
+  const el = G('panel-checklist');
+  if (!el) return;
+  const items = CHECKLISTS[b.typeDemande] || CHECKLISTS['Autre demande'];
+  const state = getChecklist(b.briefId);
+  const done = items.filter((_,i)=>state[i]).length;
+  const total = items.length;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  // Update badge
+  const badge = G('d-cl-badge');
+  if (badge) badge.textContent = `${done}/${total}`;
+
+  el.innerHTML = `
+    <div class="checklist-progress">
+      <div class="checklist-progress-bar"><div class="checklist-progress-fill" style="width:${pct}%"></div></div>
+      <span class="checklist-progress-txt">${done}/${total} fait${done>1?'s':''}</span>
+    </div>
+    <div class="checklist-section">
+      <div class="checklist-title">Checklist — ${b.typeDemande||'Autre demande'}</div>
+      ${items.map((item,i)=>{
+        const isDone = !!state[i];
+        return `<div class="checklist-item${isDone?' cl-done':''}">
+          <button class="checklist-cb" onclick="toggleChecklistItem('${b.briefId}',${i})">${isDone?'<i class="ti ti-check"></i>':''}</button>
+          <span class="checklist-txt">${item.txt}</span>
+          <span class="checklist-tag ${item.tag==='block'?'ct-block':'ct-check'}">${item.tag==='block'?'Bloquant':'À vérif.'}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    ${b.reserves ? (() => {
+      const resItems = b.reserves.split('\n').map(s=>s.trim()).filter(Boolean);
+      if(!resItems.length) return '';
+      const resolved = getReserves(b.briefId);
+      return `<div class="checklist-section">
+        <div class="checklist-title">Infos à confirmer (${resItems.length - resolved.size} ouvertes)</div>
+        ${resItems.map((txt,i)=>{
+          const done2 = resolved.has(i);
+          return `<div class="checklist-item${done2?' cl-done':''}">
+            <button class="checklist-cb" onclick="toggleReserve('${b.briefId}',${i},${resItems.length})">${done2?'<i class="ti ti-check"></i>':''}</button>
+            <span class="checklist-txt">${txt}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    })() : ''}
+  `;
+}
+
 function renderDrawer(b) {
   G('d-id').textContent=b.briefId;
   G('d-type').textContent=b.typeDemande||'—';
@@ -1772,90 +1958,75 @@ function renderDrawer(b) {
   const row=(label,val)=>val&&val!=='—'?`<div class="drawer-section"><div class="drawer-label">${label}</div><div class="drawer-val">${val}</div></div>`:'';
   const muted=(label,val)=>val&&val!=='—'?`<div class="drawer-section"><div class="drawer-label">${label}</div><div class="drawer-val muted">${val}</div></div>`:'';
 
+  /* ── Onglet Détails ── */
   let html='';
-
-  // Demandeur
-  html+=`<div class="drawer-section">
-    <div class="drawer-label">Demandeur</div>
-    <div class="drawer-val">${b.demandeur||'—'} <span style="color:var(--text-tertiary)">— ${b.departement||'—'}</span></div>
-  </div>`;
-
-  // Marque
-  html+=`<div class="drawer-section"><div class="drawer-label">Marque</div><div class="drawer-val">${marqueBadge(b.marque)}</div></div>`;
-
-  // Priorité + statut
   html+=`<div class="drawer-section">
     <div class="drawer-label">Priorité & statut</div>
     <div class="drawer-badges">${prioBadge(b.priorite)}${statusPill(b.briefId,true)}</div>
     ${b.raisonUrgence?`<div class="drawer-val muted" style="margin-top:4px">${b.raisonUrgence}</div>`:''}
   </div>`;
-
-  // Contexte
+  html+=`<div class="drawer-section">
+    <div class="drawer-label">Demandeur</div>
+    <div class="drawer-val">${b.demandeur||'—'} <span style="color:var(--text-tertiary)">— ${b.departement||'—'}</span></div>
+  </div>`;
+  html+=`<div class="drawer-section"><div class="drawer-label">Marque</div><div class="drawer-val">${marqueBadge(b.marque)}</div></div>`;
   if(b.contexte) html+=`<div class="drawer-section"><div class="drawer-label">Contexte</div><div class="drawer-val">${b.contexte.replace(/\n/g,'<br>')}</div></div>`;
-
-  // Genre campagne
   if(b.genreCampagne) html+=muted('Genre','Campagne '+b.genreCampagne.toLowerCase());
-
-  // Contexte spécifique type
   if(b.typeDemande==='Campagne Marketing' && b.supports) {
     html+=`<div class="drawer-section">
       <div class="drawer-label">Supports à produire</div>
       <div class="drawer-val">${b.supports}${b.totalDeclinaisons&&b.totalDeclinaisons!=='0'?`<br><strong>${b.totalDeclinaisons} déclinaisons visuelles</strong>`:''}</div>
     </div>`;
   }
-  if(b.typeDemande==='Packaging' && b.packagingProduits) {
+  if(b.typeDemande==='Packaging' && b.packagingProduits)
     html+=`<div class="drawer-section"><div class="drawer-label">Produits packaging</div><div class="drawer-val">${b.packagingProduits}</div></div>`;
-  }
-  if((b.typeDemande==='Vitrophanie / Travaux') && b.restaurant) {
+  if((b.typeDemande==='Vitrophanie / Travaux') && b.restaurant)
     html+=`<div class="drawer-section"><div class="drawer-label">Restaurant / adresse</div><div class="drawer-val">${b.restaurant}</div></div>`;
-  }
-
-  // Deadlines
   const hasDeadlines = [b.dateLancement,b.dateValidation,b.dateRetourSimul].some(d=>d&&d!=='—');
   if(hasDeadlines) html+=`<div class="drawer-section">
     <div class="drawer-label">Deadlines</div>
     <div class="drawer-val">
-      ${b.dateLancement&&b.dateLancement!=='—'?`Lancement : <strong>${fmtDate(b.dateLancement)}</strong><br>`:''}
-      ${b.dateValidation&&b.dateValidation!=='—'?`Validation infos : ${fmtDate(b.dateValidation)}<br>`:''}
-      ${b.dateRetourSimul&&b.dateRetourSimul!=='—'?`Retour simulation : ${fmtDate(b.dateRetourSimul)}`:''}
+      ${b.dateLancement&&b.dateLancement!=='—'?`🚀 Lancement : <strong>${fmtDate(b.dateLancement)}</strong><br>`:''}
+      ${b.dateValidation&&b.dateValidation!=='—'?`✅ Validation infos : ${fmtDate(b.dateValidation)}<br>`:''}
+      ${b.dateRetourSimul&&b.dateRetourSimul!=='—'?`👁 Retour simulation : ${fmtDate(b.dateRetourSimul)}`:''}
     </div>
   </div>`;
-
-  // Réserves interactives (Pépite 9)
-  if(b.reserves) {
-    const items = b.reserves.split('\n').map(s=>s.trim()).filter(Boolean);
-    if(items.length) {
-      const resolved = getReserves(b.briefId);
-      const checkItems = items.map((txt,i) => {
-        const done = resolved.has(i);
-        return `<div class="res-item ${done?'res-done':''}">
-          <button class="res-check" onclick="toggleReserve('${b.briefId}',${i},${items.length})" aria-label="${done?'Marquer ouvert':'Marquer résolu'}">
-            ${done?'<i class="ti ti-check"></i>':''}
-          </button>
-          <span class="res-txt">${txt}</span>
-        </div>`;
-      }).join('');
-      const openCount = items.length - resolved.size;
-      const headerColor = openCount > 0 ? '#b45309' : '#166534';
-      html+=`<div class="drawer-section">
-        <div class="drawer-label" style="color:${headerColor}">
-          ${openCount>0?'ℹ':'✓'} Infos à confirmer${openCount>0?` · <span style="font-weight:500">${openCount} ouverte${openCount>1?'s':''}</span>`:' · Tout résolu'}
-        </div>
-        <div class="res-list" id="res-list-${b.briefId}">${checkItems}</div>
-      </div>`;
-    }
-  }
-
-  // Soumis le
   if(b.submittedAt) {
     const d=new Date(b.submittedAt);
     html+=muted('Soumis le',d.toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'})+' à '+d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'}));
   }
 
-  G('drawer-body').innerHTML=html;
+  const detailPanel = G('panel-details');
+  if (detailPanel) detailPanel.innerHTML = html;
+
+  /* ── Onglet Checklist ── */
+  renderChecklistPanel(b);
+
+  /* ── Onglet Activité ── */
+  const actPanel = G('panel-activity');
+  if (actPanel) {
+    const log = getActivityLog(b);
+    if (!log.length) {
+      actPanel.innerHTML = '<div style="color:var(--text-tertiary);font-size:13px;padding:8px 0">Aucune activité enregistrée.</div>';
+    } else {
+      actPanel.innerHTML = `<div class="activity-log">${log.map((entry,i) => `
+        <div class="activity-entry">
+          <div class="activity-dot-col">
+            <div class="activity-dot dot-${entry.type}"></div>
+            ${i < log.length-1 ? '<div class="activity-line"></div>' : ''}
+          </div>
+          <div class="activity-body">
+            <div class="activity-text">${entry.text}</div>
+            ${entry.time ? `<div class="activity-time">${entry.time.toLocaleDateString('fr-BE',{day:'2-digit',month:'short',year:'numeric'})} à ${entry.time.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}</div>` : ''}
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }
+  }
+
   G('drawer-foot').innerHTML=`
     <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Statut ✎</button>
-    <button class="btn-pdf" onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text)"><i class="ti ti-copy"></i> Dupliquer</button>
+    <button onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text);font-family:'Inter',sans-serif"><i class="ti ti-copy"></i> Dupliquer</button>
     <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
     ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
   `;
