@@ -33,6 +33,26 @@
       el.addEventListener('change', onFieldInput);
     });
 
+    // Pépite 4 — assistant IA préventif : hint doux au blur si contexte court
+    root.addEventListener('blur', e => {
+      const el = e.target;
+      if (el.dataset.field !== 'description') return;
+      const words = (el.value || '').trim().split(/\s+/).filter(Boolean).length;
+      if (words > 0 && words < 15) {
+        let hint = document.getElementById('ia-hint');
+        if (!hint) {
+          hint = document.createElement('p');
+          hint.id = 'ia-hint';
+          hint.className = 'ia-hint';
+          el.parentNode.appendChild(hint);
+        }
+        hint.textContent = 'Votre contexte est court. Avez-vous précisé le lieu de diffusion et la cible ?';
+      } else {
+        const hint = document.getElementById('ia-hint');
+        if (hint) hint.remove();
+      }
+    }, true);
+
     // Formats / volumes (supports étape 4)
     root.querySelectorAll('input[data-format-field]').forEach(el => {
       el.addEventListener('input', e => {
@@ -591,6 +611,35 @@
      INIT
      ════════════════════════════════════════════════════════════ */
   function init() {
+    // Duplication depuis le dashboard (Pépite 3)
+    if (new URLSearchParams(location.search).get('dupe') === '1') {
+      try {
+        const raw = localStorage.getItem('bw_dupe_brief');
+        if (raw) {
+          const src = JSON.parse(raw);
+          localStorage.removeItem('bw_dupe_brief');
+          State.data = {
+            dept:         src.departement || src.dept || '',
+            ref:          src.demandeur   || src.ref  || '',
+            description:  src.contexte    || src.description || '',
+            priorite:     src.priorite    || '',
+            typeDemande:  src.typeDemande || '',
+            marque:       src.marque      || '',
+            dateLancement:    src.dateLancement    || '',
+            dateValidation:   src.dateValidation   || '',
+            dateRetourSimul:  src.dateRetourSimul  || '',
+          };
+          State.data.globalConfirmed = false;
+          scheduleSave();
+          State.openSections = { 1: true, 2: true, 3: true, 4: true, 5: false };
+          renderAll();
+          showToast('Brief dupliqué — modifiez et soumettez ✓');
+          history.replaceState(null, '', location.pathname);
+          return;
+        }
+      } catch(e) {}
+    }
+
     const restored = State.load();
     if (restored && (State.data.dept || State.data.typeDemande)) {
       document.getElementById('restore-banner').hidden = false;

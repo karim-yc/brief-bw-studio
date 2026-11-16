@@ -79,6 +79,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
 @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:420px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── Charge studio (Pépite 7) ────────────────────────────── */
+.charge-bar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.charge-bar-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);white-space:nowrap}
+.charge-bar-track{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;min-width:60px}
+.charge-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+.charge-bar-fill.c-ok{background:#22c55e}
+.charge-bar-fill.c-mid{background:#f59e0b}
+.charge-bar-fill.c-high{background:#ef4444}
+.charge-bar-count{font-size:11px;font-weight:700;color:var(--text);white-space:nowrap}
+.charge-bar-cap{font-size:10px;color:var(--text-tertiary);cursor:pointer;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
 .kpi-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:14px 12px;text-align:center;cursor:default;transition:box-shadow .15s}
 .kpi-card:hover{box-shadow:var(--shadow)}
 .kpi-card.kpi-clickable{cursor:pointer}
@@ -591,6 +602,9 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
     <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
   </div>
+
+  <!-- CHARGE STUDIO (Pépite 7) -->
+  <div class="charge-bar-wrap" id="charge-wrap"></div>
 
   <!-- PRIORITÉS DU JOUR -->
   <div class="pd-section" id="pd-section">
@@ -1492,8 +1506,56 @@ function renderPrioChart(data) {
 }
 
 /* ── Render complet ───────────────────────────────────────── */
+/* ── Charge studio (Pépite 7) ─────────────────────────────── */
+function renderCharge(data) {
+  const wrap = G('charge-wrap');
+  if (!wrap) return;
+
+  // Semaine courante lun–dim
+  const now = new Date();
+  const dow = (now.getDay() + 6) % 7; // 0=lun
+  const mon = new Date(now); mon.setHours(0,0,0,0); mon.setDate(now.getDate() - dow);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6); sun.setHours(23,59,59,999);
+
+  const statuts = (() => { try { return JSON.parse(localStorage.getItem('bw_brief_statuts')||'{}'); } catch(e){ return {}; } })();
+
+  const count = data.filter(b => {
+    const dl = b.dateLancement;
+    if (!dl) return false;
+    const d = new Date(dl);
+    if (isNaN(d)) return false;
+    const st = (statuts[b.briefId]||'').toLowerCase();
+    return d >= mon && d <= sun && st !== 'livre';
+  }).length;
+
+  const CAP_KEY = 'bw_charge_cap';
+  let cap = parseInt(localStorage.getItem(CAP_KEY)||'8', 10);
+  if (!cap || cap < 1) cap = 8;
+
+  const pct = Math.min(100, Math.round(count / cap * 100));
+  const cls = pct < 70 ? 'c-ok' : pct < 90 ? 'c-mid' : 'c-high';
+
+  wrap.innerHTML = `
+    <span class="charge-bar-label">Charge semaine</span>
+    <div class="charge-bar-track"><div class="charge-bar-fill ${cls}" style="width:${pct}%"></div></div>
+    <span class="charge-bar-count">${count}/${cap}</span>
+    <span class="charge-bar-cap" title="Modifier la capacité" onclick="editChargeCap()">cap. ${cap}</span>`;
+}
+
+function editChargeCap() {
+  const CAP_KEY = 'bw_charge_cap';
+  const cur = parseInt(localStorage.getItem(CAP_KEY)||'8', 10);
+  const val = prompt('Capacité hebdomadaire du studio (nombre de briefs) :', cur);
+  if (val === null) return;
+  const n = parseInt(val, 10);
+  if (!n || n < 1) return;
+  localStorage.setItem(CAP_KEY, String(n));
+  renderCharge(allBriefs);
+}
+
 function renderDashboard(data) {
   renderKPIs(data);
+  renderCharge(data);
   try { renderPriorities(data); } catch(e) {
     console.error("[BW] renderPriorities:", e);
     const el=G("pd-list"); if(el) el.innerHTML='<div class="pd-empty">⚠ Module priorités indisponible</div>';
@@ -1609,11 +1671,22 @@ function renderDrawer(b) {
   G('drawer-body').innerHTML=html;
   G('drawer-foot').innerHTML=`
     <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Statut ✎</button>
+    <button class="btn-pdf" onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text)"><i class="ti ti-copy"></i> Dupliquer</button>
     <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
     ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
   `;
 }
 
+
+/* ── Duplication brief (Pépite 3) ────────────────────────── */
+function dupliquerBrief(briefId) {
+  const b = allBriefs.find(x => x.briefId === briefId);
+  if (!b) return;
+  try {
+    localStorage.setItem('bw_dupe_brief', JSON.stringify(b));
+  } catch(e) {}
+  window.location.href = 'v2/index.html?dupe=1';
+}
 
 /* ── Impression PDF ───────────────────────────────────────── */
 function printBrief(briefId) {
