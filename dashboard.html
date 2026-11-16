@@ -136,6 +136,47 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .brief-card.is-retard{border-left:3px solid #dc2626}
 .brief-card.is-today{border-left:3px solid #ea580c}
 
+/* ── Vue toggle Liste / Calendrier ───────────────────────── */
+.view-toggle{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:2px}
+.view-btn{width:28px;height:26px;border:none;background:none;border-radius:4px;cursor:pointer;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.view-btn:hover{color:var(--black)}
+.view-btn.active{background:var(--black);color:#fff}
+
+/* ── Vue Calendrier ──────────────────────────────────────── */
+.briefs-calendar{display:none}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-title{font-family:'Anton',sans-serif;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text)}
+.cal-btn{width:30px;height:30px;border:1px solid var(--border);background:var(--surface);border-radius:var(--r-sm);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all .15s}
+.cal-btn:hover{border-color:var(--black);color:var(--black)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-hd{font-size:9.5px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:.6px;color:var(--text-tertiary);padding:4px 0}
+.cal-day{min-height:72px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-sm);padding:4px;overflow:hidden;transition:border-color .15s}
+.cal-day.cal-today{border-color:var(--black);border-width:2px}
+.cal-day.cal-other-month{opacity:.35}
+.cal-day-num{font-size:9.5px;font-weight:700;color:var(--text-tertiary);margin-bottom:3px;line-height:1}
+.cal-day.cal-today .cal-day-num{color:var(--black)}
+.cal-brief{font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;transition:opacity .15s}
+.cal-brief:hover{opacity:.75}
+.cal-brief.cb-later{background:#dcfce7;color:#166534}
+.cal-brief.cb-soon{background:#fef3c7;color:#92400e}
+.cal-brief.cb-urgent{background:#fee2e2;color:#991b1b}
+.cal-brief.cb-retard{background:#dc2626;color:#fff}
+.cal-more{font-size:8.5px;color:var(--text-tertiary);padding:1px 2px}
+
+/* ── Réserves interactives (Pépite 9) ───────────────────────── */
+.res-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.res-item{display:flex;align-items:flex-start;gap:8px}
+.res-check{width:18px;height:18px;min-width:18px;border:1.5px solid var(--border);border-radius:4px;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--black);transition:all .15s;padding:0;margin-top:1px}
+.res-check:hover{border-color:var(--black)}
+.res-item.res-done .res-check{background:var(--black);border-color:var(--black);color:#fff}
+.res-txt{font-size:12px;color:var(--text);line-height:1.45;flex:1}
+.res-item.res-done .res-txt{color:var(--text-tertiary);text-decoration:line-through;text-decoration-color:var(--border)}
+@media(max-width:600px){
+  .cal-day{min-height:48px}
+  .cal-brief{display:none}
+  .cal-day-num{font-size:11px;font-weight:700;color:var(--text)}
+}
+
 /* ── Badges ───────────────────────────────────────────────────── */
 .badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);letter-spacing:.3px;white-space:nowrap;text-transform:uppercase}
 .b-urgent{background:var(--urgent-bg);color:var(--urgent);border:1px solid var(--urgent-border)}
@@ -571,10 +612,14 @@ body { overflow-x: hidden; max-width: 100vw; }
 
   <!-- BRIEFS LIST -->
   <div class="section-hd">
-    <h2>Briefs</h2>
-    <span id="briefs-count"></span>
+    <div style="display:flex;align-items:center;gap:8px"><h2>Briefs</h2><span id="briefs-count" style="font-family:'Inter',sans-serif;font-weight:400;font-size:12px;color:var(--text-tertiary)"></span></div>
+    <div class="view-toggle">
+      <button class="view-btn active" id="btn-list" onclick="setViewMode('list')" title="Vue liste"><i class="ti ti-list"></i></button>
+      <button class="view-btn" id="btn-cal"  onclick="setViewMode('calendar')" title="Vue calendrier"><i class="ti ti-calendar-month"></i></button>
+    </div>
   </div>
   <div id="briefs-list" class="briefs-list"></div>
+  <div id="briefs-calendar" class="briefs-calendar" style="display:none"></div>
 
   <!-- STATS (secondaire, collapsible) -->
   <div class="stats-section">
@@ -991,6 +1036,51 @@ function toggleRetardFilter() {
   applyFilters();
 }
 
+/* ── Réserves interactives (Pépite 9) ──────────────────────── */
+const RESERVES_KEY = 'bw_brief_reserves_v1';
+function getReserves(briefId) {
+  try { const d = JSON.parse(localStorage.getItem(RESERVES_KEY)||'{}'); return new Set(d[briefId]||[]); }
+  catch(e) { return new Set(); }
+}
+function saveReserves(briefId, set) {
+  try {
+    const d = JSON.parse(localStorage.getItem(RESERVES_KEY)||'{}');
+    d[briefId] = [...set];
+    localStorage.setItem(RESERVES_KEY, JSON.stringify(d));
+  } catch(e) {}
+}
+function toggleReserve(briefId, idx, total) {
+  const resolved = getReserves(briefId);
+  if (resolved.has(idx)) resolved.delete(idx); else resolved.add(idx);
+  saveReserves(briefId, resolved);
+  // Re-render just the reserve list inline
+  const listEl = document.getElementById('res-list-' + briefId);
+  if (!listEl) return;
+  const b = allBriefs.find(x => x.briefId === briefId);
+  if (!b) return;
+  const items = (b.reserves||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  listEl.innerHTML = items.map((txt,i) => {
+    const done = resolved.has(i);
+    return `<div class="res-item ${done?'res-done':''}">
+      <button class="res-check" onclick="toggleReserve('${briefId}',${i},${items.length})" aria-label="${done?'Marquer ouvert':'Marquer résolu'}">
+        ${done?'<i class="ti ti-check"></i>':''}
+      </button>
+      <span class="res-txt">${txt}</span>
+    </div>`;
+  }).join('');
+  // Update header
+  const headerEl = listEl.previousElementSibling;
+  if (headerEl?.classList.contains('drawer-label')) {
+    const openCount = items.length - resolved.size;
+    headerEl.style.color = openCount > 0 ? '#b45309' : '#166534';
+    headerEl.textContent = openCount > 0
+      ? `ℹ Infos à confirmer · ${openCount} ouverte${openCount>1?'s':''}`
+      : '✓ Infos à confirmer · Tout résolu';
+  }
+  // Refresh brief cards to update badge
+  renderBriefs(filteredBriefs);
+}
+
 /* ── Recherche ────────────────────────────────────────────── */
 G('search-input').addEventListener('input', e=>{ fSearch=e.target.value; applyFilters(); });
 function setMarqueFilter(btn) {
@@ -1226,6 +1316,7 @@ function renderPriorities(data) {
 function renderBriefs(data) {
   const el=G('briefs-list'), cnt=G('briefs-count'); const dbgR=G('dbg-rendered'); if(dbgR) dbgR.textContent=data.length+' briefs après filtres';
   if(cnt) cnt.textContent=data.length+' brief'+(data.length>1?'s':'');
+  el.style.display = viewMode === 'list' ? '' : 'none';
   if(!data.length) {
     el.innerHTML=`<div class="empty-state"><i class="ti ti-file-off"></i><p>Aucun brief ne correspond aux filtres.<br>Ou <a href="v2/index.html">créez un nouveau brief →</a></p></div>`;
     return;
@@ -1238,10 +1329,18 @@ function renderBriefs(data) {
     const borderCls=b.priorite==='urgent'?'is-urgent':b.priorite==='prioritaire'?'is-prio':'';
     const mBadge=marqueBadge(b.marque);
     const deadlineBadge=cat?.badge||'';
+    const resBadge=(() => {
+      if (!b.reserves) return '';
+      const items = b.reserves.split('\n').map(s=>s.trim()).filter(Boolean);
+      if (!items.length) return '';
+      const open = items.length - getReserves(b.briefId).size;
+      if (open <= 0) return '';
+      return `<span class="pd-badge b-clarify" title="${open} infos à confirmer">⚠ ${open} à confirmer</span>`;
+    })();
     return `<div class="brief-card ${borderCls} ${deadlineCls}" onclick="openDrawer('${b.briefId}', ${_i})">
       <div class="brief-card-top">
         <span class="brief-id">${b.briefId||'—'}</span>
-        <div class="brief-badges">${deadlineBadge}${typeBadge(b.typeDemande)}${mBadge}${prioBadge(b.priorite)}</div>
+        <div class="brief-badges">${deadlineBadge}${resBadge}${typeBadge(b.typeDemande)}${mBadge}${prioBadge(b.priorite)}</div>
       </div>
       <div class="brief-ctx">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
       ${detail?`<div class="brief-detail">${detail}</div>`:''}
@@ -1254,6 +1353,92 @@ function renderBriefs(data) {
       </div>
     </div>`;
   }).join('');
+}
+
+/* ── Vue mode toggle ──────────────────────────────────────── */
+let viewMode = 'list';
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-based
+
+function setViewMode(mode) {
+  viewMode = mode;
+  G('briefs-list').style.display    = mode === 'list'     ? '' : 'none';
+  G('briefs-calendar').style.display = mode === 'calendar' ? '' : 'none';
+  G('btn-list').classList.toggle('active', mode === 'list');
+  G('btn-cal').classList.toggle('active',  mode === 'calendar');
+  if (mode === 'calendar') renderCalendar(filteredBriefs);
+}
+
+/* ── Render calendrier ──────────────────────────────────── */
+function renderCalendar(data) {
+  const el = G('briefs-calendar');
+  if (!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Index briefs by dateLancement (YYYY-MM-DD key)
+  const byDay = {};
+  data.forEach(b => {
+    const d = b.dateLancement || b.dateRetourSimul;
+    if (!d || d === '—') return;
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(b);
+  });
+
+  const yr = calYear, mo = calMonth;
+  const firstDay = new Date(yr, mo, 1);
+  const lastDay  = new Date(yr, mo + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7; // lundi=0
+  const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const DAYS   = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+
+  const briefChip = (b) => {
+    const dLaunch = new Date(b.dateLancement || b.dateRetourSimul);
+    dLaunch.setHours(0,0,0,0);
+    const diff = Math.round((dLaunch - today) / 86400000);
+    const cls = diff < 0 ? 'cb-retard' : diff <= 1 ? 'cb-urgent' : diff <= 3 ? 'cb-soon' : 'cb-later';
+    const lbl = (b.demandeur || b.departement || b.briefId || '—').slice(0, 20);
+    return `<div class="cal-brief ${cls}" onclick="event.stopPropagation();openDrawer('${b.briefId}',${allBriefs.indexOf(b)})" title="${b.contexte||b.typeDemande||''}">
+      ${lbl}
+    </div>`;
+  };
+
+  // Build cells
+  let cells = '';
+  // leading empty cells
+  for (let i = 0; i < startDow; i++) cells += `<div class="cal-day cal-other-month"></div>`;
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const key = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = today.getFullYear()===yr && today.getMonth()===mo && today.getDate()===d;
+    const briefs = byDay[key] || [];
+    const chips = briefs.slice(0, 3).map(briefChip).join('');
+    const more  = briefs.length > 3 ? `<div class="cal-more">+${briefs.length-3} autre${briefs.length-3>1?'s':''}</div>` : '';
+    cells += `<div class="cal-day${isToday?' cal-today':''}">
+      <div class="cal-day-num">${d}</div>
+      ${chips}${more}
+    </div>`;
+  }
+  // trailing empty cells
+  const totalCells = startDow + lastDay.getDate();
+  const trailing = totalCells % 7 ? 7 - (totalCells % 7) : 0;
+  for (let i = 0; i < trailing; i++) cells += `<div class="cal-day cal-other-month"></div>`;
+
+  const dayHds = DAYS.map(d => `<div class="cal-day-hd">${d}</div>`).join('');
+
+  el.innerHTML = `
+    <div class="cal-nav">
+      <button class="cal-btn" onclick="calNav(-1)"><i class="ti ti-chevron-left"></i></button>
+      <span class="cal-title">${MONTHS[mo]} ${yr}</span>
+      <button class="cal-btn" onclick="calNav(1)"><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div class="cal-grid">${dayHds}${cells}</div>
+  `;
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0;  calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar(filteredBriefs);
 }
 
 /* ── Render stats ─────────────────────────────────────────── */
@@ -1314,6 +1499,7 @@ function renderDashboard(data) {
     const el=G("pd-list"); if(el) el.innerHTML='<div class="pd-empty">⚠ Module priorités indisponible</div>';
   }
   renderBriefs(data);
+  if (viewMode === 'calendar') renderCalendar(data);
   renderStats(data);
 }
 
@@ -1389,11 +1575,30 @@ function renderDrawer(b) {
     </div>
   </div>`;
 
-  // Réserves
-  if(b.reserves) html+=`<div class="drawer-section">
-    <div class="drawer-label" style="color:#b45309">ℹ Infos à confirmer / réserves <span class="tt" data-tt="Informations encore incertaines ou points à vérifier avant exécution."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble tt-left">Informations encore incertaines ou points à vérifier avant exécution.</span></span></div>
-    <div class="drawer-val" style="background:#fef3c7;padding:10px 12px;border-radius:6px;color:#92400e">${b.reserves.replace(/\n/g,'<br>')}</div>
-  </div>`;
+  // Réserves interactives (Pépite 9)
+  if(b.reserves) {
+    const items = b.reserves.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(items.length) {
+      const resolved = getReserves(b.briefId);
+      const checkItems = items.map((txt,i) => {
+        const done = resolved.has(i);
+        return `<div class="res-item ${done?'res-done':''}">
+          <button class="res-check" onclick="toggleReserve('${b.briefId}',${i},${items.length})" aria-label="${done?'Marquer ouvert':'Marquer résolu'}">
+            ${done?'<i class="ti ti-check"></i>':''}
+          </button>
+          <span class="res-txt">${txt}</span>
+        </div>`;
+      }).join('');
+      const openCount = items.length - resolved.size;
+      const headerColor = openCount > 0 ? '#b45309' : '#166534';
+      html+=`<div class="drawer-section">
+        <div class="drawer-label" style="color:${headerColor}">
+          ${openCount>0?'ℹ':'✓'} Infos à confirmer${openCount>0?` · <span style="font-weight:500">${openCount} ouverte${openCount>1?'s':''}</span>`:' · Tout résolu'}
+        </div>
+        <div class="res-list" id="res-list-${b.briefId}">${checkItems}</div>
+      </div>`;
+    }
+  }
 
   // Soumis le
   if(b.submittedAt) {
