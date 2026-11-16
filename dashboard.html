@@ -301,6 +301,16 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .checklist-progress-fill{height:100%;background:var(--indigo);border-radius:3px;transition:width .3s}
 .checklist-progress-txt{font-size:11px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
 /* Activity log */
+.assignee-avatar{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;cursor:pointer;vertical-align:middle}
+.assignee-empty{width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-tertiary);cursor:pointer;vertical-align:middle}
+.assignee-empty-sm{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--border);font-size:12px;color:var(--text-tertiary);vertical-align:middle}
+.assign-inline-btn{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);padding:4px 6px;border-radius:6px;font-family:inherit}
+.assign-inline-btn:hover{background:var(--surface)}
+.assign-picker{position:absolute;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;padding:4px;display:flex;flex-direction:column;gap:1px}
+.assign-option{display:flex;align-items:center;gap:8px;padding:7px 10px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text);font-family:inherit;width:100%;text-align:left}
+.assign-option:hover{background:var(--bg)}
+.assign-option.active{background:var(--indigo-bg,#eef2ff);color:var(--indigo)}
+.assign-dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
 .activity-log{display:flex;flex-direction:column;gap:0}
 .activity-entry{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light)}
 .activity-entry:last-child{border-bottom:none}
@@ -1557,10 +1567,7 @@ function renderBriefs(data) {
       if(cat?.cat==='retard') dateCls='bt-date late';
       else if(cat?.cat==='today'||cat?.cat==='week') dateCls='bt-date soon';
     }
-    // Assignee avatar
     const demandeur = b.demandeur || b.departement || '—';
-    const initials = avatarInitials(demandeur);
-    const color = avatarColor(demandeur);
     // Deadline label
     const deadlineLabel = cat?.dateLabel ? cat.dateLabel : (b.dateLancement&&b.dateLancement!=='—'?fmtDate(b.dateLancement):'—');
     // Reserves badge
@@ -1586,9 +1593,8 @@ function renderBriefs(data) {
       <td>${statusPill(b.briefId,true)}</td>
       <td><span class="${dateCls}">${deadlineLabel}</span></td>
       <td>
-        <div class="bt-assignee">
-          <div class="bt-avatar" style="background:${color}">${initials}</div>
-          <span class="bt-name">${demandeur}</span>
+        <div class="bt-assignee" style="cursor:pointer" onclick="openAssignPicker('${b.briefId}',event)" title="Attribuer">
+          ${assigneeAvatar(b.briefId)}
         </div>
       </td>
     </tr>`;
@@ -1856,6 +1862,63 @@ const CHECKLISTS = {
 };
 
 const CL_KEY = 'bw_checklists_v1';
+const ASSIGN_KEY = 'bw_brief_assignments_v1';
+const TEAM_MEMBERS = [
+  { id: 'unassigned', name: '—', initials: '—', color: '#6b7280' },
+  { id: 'karim',     name: 'Karim',    initials: 'K',  color: '#6366f1' },
+  { id: 'sarah',     name: 'Sarah',    initials: 'S',  color: '#ec4899' },
+  { id: 'thomas',    name: 'Thomas',   initials: 'T',  color: '#f59e0b' },
+  { id: 'lea',       name: 'Léa',      initials: 'L',  color: '#10b981' },
+  { id: 'autre',     name: 'Autre',    initials: 'A',  color: '#94a3b8' },
+];
+function getAssignment(briefId) {
+  try { return JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}')[briefId]||null; } catch(e){ return null; }
+}
+function setAssignment(briefId, memberId) {
+  try {
+    const all = JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}');
+    if (!memberId || memberId === 'unassigned') { delete all[briefId]; }
+    else { all[briefId] = memberId; }
+    localStorage.setItem(ASSIGN_KEY, JSON.stringify(all));
+    if (_currentDrawerBrief && _currentDrawerBrief.briefId === briefId) renderDrawer(_currentDrawerBrief);
+    renderBriefs(_lastBriefs);
+  } catch(e) {}
+}
+function getMemberById(id) { return TEAM_MEMBERS.find(m=>m.id===id)||null; }
+function assigneeAvatar(briefId, size) {
+  const id = getAssignment(briefId);
+  const m = id ? getMemberById(id) : null;
+  if (!m || m.id==='unassigned') return `<span class="assignee-empty" title="Non attribué" onclick="openAssignPicker('${briefId}',event)">+</span>`;
+  return `<span class="assignee-avatar" style="background:${m.color}" title="${m.name}" onclick="openAssignPicker('${briefId}',event)">${m.initials}</span>`;
+}
+let _assignPickerBriefId = null;
+function openAssignPicker(briefId, e) {
+  e.stopPropagation();
+  _assignPickerBriefId = briefId;
+  let picker = document.getElementById('assign-picker');
+  if (!picker) {
+    picker = document.createElement('div');
+    picker.id = 'assign-picker';
+    picker.className = 'assign-picker';
+    document.body.appendChild(picker);
+  }
+  const current = getAssignment(briefId);
+  picker.innerHTML = TEAM_MEMBERS.map(m =>
+    `<button class="assign-option${current===m.id?' active':''}" onclick="setAssignment('${briefId}','${m.id}');closeAssignPicker()">
+      <span class="assign-dot" style="background:${m.color}">${m.id==='unassigned'?'':m.initials}</span>
+      ${m.name}
+    </button>`
+  ).join('');
+  const rect = e.target.getBoundingClientRect();
+  picker.style.top = (rect.bottom + 6 + window.scrollY) + 'px';
+  picker.style.left = (rect.left + window.scrollX) + 'px';
+  picker.hidden = false;
+  setTimeout(() => document.addEventListener('click', closeAssignPicker, { once: true }), 10);
+}
+function closeAssignPicker() {
+  const p = document.getElementById('assign-picker');
+  if (p) p.hidden = true;
+}
 function getChecklist(briefId) {
   try { return JSON.parse(localStorage.getItem(CL_KEY)||'{}')[briefId]||{}; } catch(e){ return {}; }
 }
@@ -1968,6 +2031,19 @@ function renderDrawer(b) {
   html+=`<div class="drawer-section">
     <div class="drawer-label">Demandeur</div>
     <div class="drawer-val">${b.demandeur||'—'} <span style="color:var(--text-tertiary)">— ${b.departement||'—'}</span></div>
+  </div>`;
+  const assignId = getAssignment(b.briefId);
+  const assignMember = assignId ? getMemberById(assignId) : null;
+  html+=`<div class="drawer-section">
+    <div class="drawer-label">Attribué à</div>
+    <div class="drawer-val">
+      <button class="assign-inline-btn" onclick="openAssignPicker('${b.briefId}',event)" title="Modifier l'attribution">
+        ${assignMember && assignMember.id!=='unassigned'
+          ? `<span class="assignee-avatar" style="background:${assignMember.color}">${assignMember.initials}</span> ${assignMember.name}`
+          : `<span class="assignee-empty-sm">+</span> <span style="color:var(--text-tertiary)">Non attribué</span>`}
+        <span style="color:var(--text-tertiary);font-size:11px;margin-left:4px">✎</span>
+      </button>
+    </div>
   </div>`;
   html+=`<div class="drawer-section"><div class="drawer-label">Marque</div><div class="drawer-val">${marqueBadge(b.marque)}</div></div>`;
   if(b.contexte) html+=`<div class="drawer-section"><div class="drawer-label">Contexte</div><div class="drawer-val">${b.contexte.replace(/\n/g,'<br>')}</div></div>`;
