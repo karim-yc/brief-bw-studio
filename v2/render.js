@@ -64,6 +64,24 @@ const Render = {
       } else {
         inputHtml = `${helpHtml}<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
       }
+    } else if (f.type === 'attachments') {
+      const helpHtml = f.help ? `<div class="field-help">${f.help}</div>` : '';
+      const files = (typeof State !== 'undefined' && State.files) ? State.files : [];
+      const listHtml = files.length ? files.map((file, i) =>
+        `<div class="att-item" data-idx="${i}">
+          <span class="att-icon">${/image/.test(file.type) ? '🖼' : '📄'}</span>
+          <span class="att-name">${this.esc(file.name)}</span>
+          <span class="att-size">${(file.size / 1024).toFixed(0)} Ko</span>
+          <button type="button" class="att-remove" data-att-idx="${i}" title="Supprimer">×</button>
+        </div>`).join('') : '';
+      inputHtml = `${helpHtml}
+        <label class="att-dropzone" id="att-dropzone">
+          <input type="file" id="att-input" multiple accept="image/*,.pdf,.doc,.docx,.pptx,.xlsx,.zip" style="display:none">
+          <span class="att-icon-add">＋</span>
+          <span class="att-label">Glisser des fichiers ici ou <u>parcourir</u></span>
+          <span class="att-hint">Max 3 fichiers · 5 Mo chacun</span>
+        </label>
+        <div class="att-list" id="att-list">${listHtml}</div>`;
     } else if (f.type === 'select') {
       const opts = (CONFIG[f.options] || []).map(o =>
         `<option value="${this.esc(o)}" ${val === o ? 'selected' : ''}>${this.esc(o)}</option>`

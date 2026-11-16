@@ -1193,6 +1193,52 @@ select:focus { border-bottom-color: var(--text); }
 .rte-editor ul, .rte-editor ol { margin: 4px 0 4px 20px; padding: 0; }
 .rte-editor li { margin-bottom: 2px; }
 
+/* ── Pièces jointes ─────────────────────────────────────────── */
+.att-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--r);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  transition: border-color .2s, background .2s;
+}
+.att-dropzone:hover, .att-dropzone.drag-over {
+  border-color: var(--text);
+  background: var(--bg-alt, #f9f9f9);
+}
+.att-icon-add { font-size: 18px; line-height: 1; color: var(--text-tertiary); }
+.att-hint { font-size: 10.5px; color: var(--text-tertiary); margin-left: auto; }
+.att-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.att-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12.5px;
+  background: var(--bg);
+}
+.att-icon { font-size: 15px; }
+.att-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.att-size { color: var(--text-tertiary); font-size: 11px; }
+.att-remove {
+  padding: 1px 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  border-radius: 4px;
+}
+.att-remove:hover { background: var(--danger-bg, #fee2e2); color: var(--danger); }
+.rapide-att-dropzone { padding: 8px 12px; }
+
 /* Rapide form RTE */
 .rapide-rte-wrap {
   display: flex;

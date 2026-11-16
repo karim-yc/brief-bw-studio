@@ -13,6 +13,7 @@
     document.getElementById('sections-root').innerHTML = Render.allSections();
     Render.sidebar();
     bindFieldEvents();
+    bindAttachmentEvents();
   }
 
   /* ── Re-render léger (juste sidebar, pas tout le DOM) ─────────
@@ -202,6 +203,94 @@
   }
 
   /* ════════════════════════════════════════════════════════════
+     PIÈCES JOINTES — gestion fichiers (formulaire complet)
+     ════════════════════════════════════════════════════════════ */
+  if (!State.files) State.files = [];
+
+  function bindAttachmentEvents() {
+    const input = document.getElementById('att-input');
+    const zone  = document.getElementById('att-dropzone');
+    if (!input || !zone) return;
+
+    zone.addEventListener('click', () => input.click());
+    input.addEventListener('change', () => handleFiles(Array.from(input.files)));
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      handleFiles(Array.from(e.dataTransfer.files));
+    });
+  }
+
+  function handleFiles(newFiles) {
+    const MAX = 3, MAX_SIZE = 5 * 1024 * 1024;
+    newFiles.forEach(f => {
+      if (State.files.length >= MAX) { showToast(`Maximum ${MAX} fichiers autorisés.`); return; }
+      if (f.size > MAX_SIZE) { showToast(`${f.name} dépasse 5 Mo.`); return; }
+      if (State.files.some(x => x.name === f.name && x.size === f.size)) return;
+      State.files.push({ name: f.name, type: f.type, size: f.size, _file: f });
+    });
+    renderAll();
+  }
+
+  function removeAttachment(idx) {
+    State.files.splice(idx, 1);
+    renderAll();
+  }
+
+  async function readFilesAsBase64(items) {
+    return Promise.all((items || []).map(item =>
+      new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = () => res({ name: item.name, type: item.type, size: item.size, data: reader.result.split(',')[1] });
+        reader.onerror = rej;
+        reader.readAsDataURL(item._file);
+      })
+    ));
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     PIÈCES JOINTES — formulaire rapide
+     ════════════════════════════════════════════════════════════ */
+  if (!State.rapideFiles) State.rapideFiles = [];
+
+  function bindRapideAttachmentEvents() {
+    const input = document.getElementById('r-att-input');
+    if (!input) return;
+    input.addEventListener('change', () => handleRapideFiles(Array.from(input.files)));
+  }
+
+  function handleRapideFiles(newFiles) {
+    const MAX = 3, MAX_SIZE = 5 * 1024 * 1024;
+    newFiles.forEach(f => {
+      if (State.rapideFiles.length >= MAX) { showToast(`Maximum ${MAX} fichiers autorisés.`); return; }
+      if (f.size > MAX_SIZE) { showToast(`${f.name} dépasse 5 Mo.`); return; }
+      if (State.rapideFiles.some(x => x.name === f.name && x.size === f.size)) return;
+      State.rapideFiles.push({ name: f.name, type: f.type, size: f.size, _file: f });
+    });
+    renderRapideFileList();
+  }
+
+  function removeRapideFile(idx) {
+    State.rapideFiles.splice(idx, 1);
+    renderRapideFileList();
+  }
+
+  function renderRapideFileList() {
+    const list = document.getElementById('r-att-list');
+    if (!list) return;
+    list.innerHTML = State.rapideFiles.map((f, i) =>
+      `<div class="att-item">
+        <span class="att-icon">${/image/.test(f.type) ? '🖼' : '📄'}</span>
+        <span class="att-name">${f.name}</span>
+        <span class="att-size">${(f.size / 1024).toFixed(0)} Ko</span>
+        <button type="button" class="att-remove" data-r-att-idx="${i}" title="Supprimer">×</button>
+      </div>`
+    ).join('');
+  }
+
+  /* ════════════════════════════════════════════════════════════
      CLICS — délégation globale (cartes, pills, toggle sections)
      ════════════════════════════════════════════════════════════ */
   document.addEventListener('click', function (e) {
@@ -290,6 +379,20 @@
       return;
     }
 
+    // Suppression pièce jointe (formulaire complet)
+    const attRemove = e.target.closest('.att-remove[data-att-idx]');
+    if (attRemove) {
+      removeAttachment(parseInt(attRemove.dataset.attIdx, 10));
+      return;
+    }
+
+    // Suppression pièce jointe (formulaire rapide)
+    const rAttRemove = e.target.closest('.att-remove[data-r-att-idx]');
+    if (rAttRemove) {
+      removeRapideFile(parseInt(rAttRemove.dataset.rAttIdx, 10));
+      return;
+    }
+
     // Packaging — ajout ligne (si implémenté plus tard)
     const addRow = e.target.closest('[data-add-row]');
     if (addRow) {
@@ -373,6 +476,7 @@
     try {
       await sendWebhook(State.data);
       State.saveToHistory();
+      State.files = [];
       showToast(`Brief ${State.data.briefId} soumis avec succès ✓`);
       localStorage.removeItem(STORAGE_KEY);
       setTimeout(() => location.reload(), 1600);
@@ -385,12 +489,15 @@
     }
   }
 
-  async function sendWebhook(data) {
+  async function sendWebhook(data, extraFiles) {
     const WEBHOOK_URL = 'https://hook.eu1.make.com/v3nyc7z5x81gk5609ayay78rwuu75krk';
     const recap = Recap.build();
+    const allFiles = [...(State.files || []), ...(State.rapideFiles || []), ...(extraFiles || [])];
+    const fichiers = allFiles.length ? await readFilesAsBase64(allFiles) : [];
     const payload = {
       ...data,
       recap,
+      fichiers,
       mailSubject: `Nouveau brief B&W — ${recap.briefId} — ${recap.typeDemande}${recap.raisonUrgence ? ' [URGENT]' : ' — ' + recap.priorite}`,
       mailBody: Recap.toPlainText(recap),
       mailHtml: Recap.toMailHtml(recap)
@@ -513,6 +620,8 @@
 
     document.getElementById('r-submit').addEventListener('click', submitRapide);
     document.getElementById('r-to-full').addEventListener('click', switchToFullFromRapide);
+
+    bindRapideAttachmentEvents();
   }
 
   function updateRapideSubmit() {
@@ -558,6 +667,7 @@
     try {
       await sendWebhook(State.data);
       State.saveToHistory();
+      State.rapideFiles = [];
       showToast(`Brief ${State.data.briefId} soumis avec succès ✓`);
       localStorage.removeItem(STORAGE_KEY);
       setTimeout(() => location.reload(), 1600);
