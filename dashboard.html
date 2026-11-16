@@ -306,7 +306,8 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .assignee-empty-sm{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--border);font-size:12px;color:var(--text-tertiary);vertical-align:middle}
 .assign-inline-btn{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);padding:4px 6px;border-radius:6px;font-family:inherit}
 .assign-inline-btn:hover{background:var(--surface)}
-.assign-picker{position:absolute;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;padding:4px;display:flex;flex-direction:column;gap:1px}
+.assign-picker{position:absolute;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;padding:4px;flex-direction:column;gap:1px;display:none}
+.assign-picker:not([hidden]){display:flex}
 .assign-option{display:flex;align-items:center;gap:8px;padding:7px 10px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text);font-family:inherit;width:100%;text-align:left}
 .assign-option:hover{background:var(--bg)}
 .assign-option.active{background:var(--indigo-bg,#eef2ff);color:var(--indigo)}

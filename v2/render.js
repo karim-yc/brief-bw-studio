@@ -245,7 +245,7 @@ const Render = {
             </div>
             <div class="cond-block ${type ? 'visible' : 'hidden'}">
               ${subContent}
-              ${this.field(CONFIG.champsEtape2[0])}
+              ${CONFIG.champsEtape2.map(f => this.field(f)).join('')}
             </div>
             <div class="cond-block ${type === 'campagne' ? 'visible' : 'hidden'}">
               ${supportsBlock}
