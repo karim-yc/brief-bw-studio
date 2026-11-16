@@ -508,6 +508,8 @@
     ['r-dept', 'r-ref', 'r-desc', 'r-launch'].forEach(id => {
       document.getElementById(id).addEventListener('input', updateRapideSubmit);
     });
+    const rDescEditor = document.getElementById('r-desc-editor');
+    if (rDescEditor) rDescEditor.addEventListener('input', updateRapideSubmit);
 
     document.getElementById('r-submit').addEventListener('click', submitRapide);
     document.getElementById('r-to-full').addEventListener('click', switchToFullFromRapide);
@@ -516,7 +518,8 @@
   function updateRapideSubmit() {
     const dept = document.getElementById('r-dept').value;
     const ref = document.getElementById('r-ref').value.trim();
-    const desc = document.getElementById('r-desc').value.trim();
+    const descEditor = document.getElementById('r-desc-editor');
+    const desc = descEditor ? (descEditor.innerText || '').trim() : document.getElementById('r-desc').value.trim();
     const launch = document.getElementById('r-launch').value;
     const prio = document.getElementById('r-priorite').dataset.value;
     const ok = dept && ref && desc && launch && prio && rapideSupports.size > 0;
@@ -610,6 +613,77 @@
   /* ════════════════════════════════════════════════════════════
      INIT
      ════════════════════════════════════════════════════════════ */
+  /* ════════════════════════════════════════════════════════════
+     RICH TEXT EDITOR — toolbar + sync contenteditable → textarea
+     ════════════════════════════════════════════════════════════ */
+  function initRTE() {
+    // Toolbar clicks (gras, italique, liste, effacer)
+    document.addEventListener('click', function (e) {
+      const btn = e.target.closest('.rte-btn[data-cmd]');
+      if (!btn) return;
+      e.preventDefault();
+      const cmd = btn.dataset.cmd;
+      const wrap = btn.closest('.rte-wrap, .rapide-rte-wrap');
+      const editor = wrap ? wrap.querySelector('[contenteditable]') : null;
+      if (editor) editor.focus();
+      document.execCommand(cmd, false, null);
+      if (editor) syncRTE(editor);
+    });
+
+    // Sync contenteditable → hidden textarea on input
+    document.addEventListener('input', function (e) {
+      const editor = e.target.closest('[data-field-rte], [data-sync-to]');
+      if (!editor || !editor.isContentEditable) return;
+      syncRTE(editor);
+    });
+
+    // Blur on RTE editor → forward to hidden textarea for hint IA
+    document.addEventListener('blur', function (e) {
+      const editor = e.target.closest('[data-field-rte]');
+      if (!editor) return;
+      const fid = editor.dataset.fieldRte;
+      const ta = document.querySelector(`textarea[data-field="${fid}"]`);
+      if (ta) ta.dispatchEvent(new Event('blur', { bubbles: true }));
+    }, true);
+
+    // Update active state of toolbar buttons on selection change
+    document.addEventListener('selectionchange', function () {
+      const sel = window.getSelection();
+      if (!sel || !sel.anchorNode) return;
+      const editor = sel.anchorNode.parentElement && sel.anchorNode.parentElement.closest('[data-field-rte], [data-sync-to]');
+      if (!editor) return;
+      const wrap = editor.closest('.rte-wrap, .rapide-rte-wrap');
+      if (!wrap) return;
+      wrap.querySelectorAll('.rte-btn[data-cmd]').forEach(btn => {
+        try { btn.classList.toggle('active', document.queryCommandState(btn.dataset.cmd)); } catch(err) {}
+      });
+    });
+  }
+
+  function syncRTE(editor) {
+    // Sync to hidden textarea
+    const syncId = editor.dataset.syncTo;
+    const fieldId = editor.dataset.fieldRte;
+    if (syncId) {
+      const ta = document.getElementById(syncId);
+      if (ta) ta.value = editor.innerText || '';
+    }
+    if (fieldId) {
+      const ta = document.querySelector(`textarea[data-field="${fieldId}"]`);
+      if (ta) {
+        ta.value = editor.innerText || '';
+        // Fire input event so existing app.js listener picks it up
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+      }
+    }
+    // For rapide r-desc: fire input on the hidden textarea
+    if (syncId) {
+      const ta = document.getElementById(syncId);
+      if (ta) ta.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
   function init() {
     // Duplication depuis le dashboard (Pépite 3)
     if (new URLSearchParams(location.search).get('dupe') === '1') {
@@ -650,6 +724,7 @@
     document.getElementById('hist-count').textContent = hist.length;
 
     renderAll();
+    initRTE();
     initRapideMode();
 
     // Tabs

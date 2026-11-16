@@ -1135,6 +1135,77 @@ select:focus { border-bottom-color: var(--text); }
 .field-minlength.ok  { color: #16a34a; }
 .field-minlength.low { color: #dc2626; }
 
+/* ── Rich Text Editor ───────────────────────────────────────── */
+.rte-wrap {
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.rte-wrap:focus-within {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px rgba(0,0,0,.06);
+}
+.field.is-blocking .rte-wrap { border-color: var(--danger-light); }
+.field.is-blocking .rte-wrap:focus-within { border-color: var(--danger); }
+.form-pristine .field.is-blocking .rte-wrap { border-color: var(--border); }
+.rte-toolbar {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-alt, #f9f9f9);
+}
+.rte-btn {
+  padding: 3px 8px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  transition: background .15s, color .15s;
+}
+.rte-btn:hover { background: var(--border); color: var(--text); }
+.rte-btn.active { background: var(--text); color: var(--bg); }
+.rte-sep { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
+.rte-editor {
+  min-height: 110px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  outline: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.rte-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+.rte-editor ul, .rte-editor ol { margin: 4px 0 4px 20px; padding: 0; }
+.rte-editor li { margin-bottom: 2px; }
+
+/* Rapide form RTE */
+.rapide-rte-wrap {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.rapide-rte-wrap:focus-within { border-color: var(--text); }
+.rapide-rte-wrap .rte-toolbar { background: var(--bg-alt, #f9f9f9); }
+.rapide-rte-wrap .rte-editor { min-height: 90px; }
+
 /* ── Alerte supports multiples ──────────────────────────────── */
 .supports-alert {
   display: none;

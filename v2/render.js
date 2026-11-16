@@ -45,7 +45,25 @@ const Render = {
       const minL = f.minLength || 0;
       const helpHtml = f.help ? `<div class="field-help">${f.help}</div>` : '';
       const minNote = minL ? `<div class="field-minlength" id="minl-${f.id}"><span class="minl-cur">0</span>/${minL} caractères minimum</div>` : '';
-      inputHtml = `${helpHtml}<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
+      // Rich text editor pour le champ description (contexte du projet)
+      if (f.id === 'description') {
+        const safeVal = this.esc(val);
+        const htmlVal = val ? val.replace(/\n/g, '<br>') : '';
+        inputHtml = `${helpHtml}
+          <div class="rte-wrap" id="rte-wrap-${f.id}">
+            <div class="rte-toolbar">
+              <button type="button" class="rte-btn" data-cmd="bold" title="Gras (Ctrl+B)"><b>B</b></button>
+              <button type="button" class="rte-btn" data-cmd="italic" title="Italique (Ctrl+I)"><i>I</i></button>
+              <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Liste à puces">≡</button>
+              <span class="rte-sep"></span>
+              <button type="button" class="rte-btn" data-cmd="removeFormat" title="Effacer la mise en forme">✕</button>
+            </div>
+            <div class="rte-editor" id="rte-${f.id}" contenteditable="true" data-placeholder="${f.placeholder || ''}" data-field-rte="${f.id}">${htmlVal}</div>
+            <textarea data-field="${f.id}" data-min-length="${minL}" style="display:none">${safeVal}</textarea>
+          </div>${minNote}`;
+      } else {
+        inputHtml = `${helpHtml}<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
+      }
     } else if (f.type === 'select') {
       const opts = (CONFIG[f.options] || []).map(o =>
         `<option value="${this.esc(o)}" ${val === o ? 'selected' : ''}>${this.esc(o)}</option>`

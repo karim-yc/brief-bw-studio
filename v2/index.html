@@ -133,7 +133,17 @@
 
         <div class="field">
           <label class="field-label">Quelle est la demande ?<span class="req">*</span></label>
-          <textarea id="r-desc" placeholder="Ex : Post Instagram pour le lancement du B&amp;W Smash Burger. Texte : « Le smash qui change tout · 12,90€ ». À publier le 20 juin."></textarea>
+          <div class="rapide-rte-wrap">
+            <div class="rte-toolbar">
+              <button type="button" class="rte-btn" data-cmd="bold" title="Gras"><b>B</b></button>
+              <button type="button" class="rte-btn" data-cmd="italic" title="Italique"><i>I</i></button>
+              <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Liste">≡</button>
+              <span class="rte-sep"></span>
+              <button type="button" class="rte-btn" data-cmd="removeFormat" title="Effacer">✕</button>
+            </div>
+            <div class="rte-editor" id="r-desc-editor" contenteditable="true" data-placeholder="Ex : Post Instagram pour le lancement du B&amp;W Smash Burger. Texte : « Le smash qui change tout · 12,90€ ». À publier le 20 juin." data-sync-to="r-desc"></div>
+            <textarea id="r-desc" style="display:none" placeholder=""></textarea>
+          </div>
         </div>
 
         <div class="field">
