@@ -92,6 +92,11 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .filter-chip.fc-campagne.active{background:var(--campagne);border-color:var(--campagne)}
 .filter-chip.fc-packaging.active{background:var(--packaging);border-color:var(--packaging)}
 .filter-chip.fc-vitro.active{background:var(--vitro);border-color:var(--vitro)}
+.f-select{height:30px;padding:0 28px 0 10px;border:1.5px solid var(--border);border-radius:var(--r-pill);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;color:var(--text-secondary);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E") no-repeat right 9px center;appearance:none;cursor:pointer;transition:border-color .15s;white-space:nowrap}
+.f-select:focus{outline:none;border-color:var(--indigo)}
+.f-select:hover{border-color:var(--indigo)}
+.f-reset{width:28px;height:28px;border:1.5px solid var(--border);border-radius:var(--r-pill);background:#fff;color:var(--text-tertiary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;flex-shrink:0}
+.f-reset:hover{border-color:#ef4444;color:#ef4444;background:#fef2f2}
 .filter-sep{width:1px;height:16px;background:var(--border);flex-shrink:0}
 
 /* ── Layout principal ─────────────────────────────────────────── */
@@ -732,8 +737,8 @@ body { overflow-x: hidden; max-width: 100vw; }
   <!-- Corps de page -->
   <div class="page-body">
 
-<!-- DEBUG PANEL (visible si problème) -->
-<div id="bw-debug" style="margin-bottom:12px;border-radius:var(--r)">
+<!-- DEBUG PANEL (dev only: ?debug=1) -->
+<div id="bw-debug" style="display:none;margin-bottom:12px;border-radius:var(--r)">
   <div class="dbg-row"><span class="dbg-lbl">Build</span><span class="dbg-val" id="dbg-build">—</span></div>
   <div class="dbg-row"><span class="dbg-lbl">Source testée</span><span class="dbg-val" id="dbg-source">—</span></div>
   <div class="dbg-row"><span class="dbg-lbl">HTTP status</span><span class="dbg-val" id="dbg-status">—</span></div>
@@ -746,52 +751,47 @@ body { overflow-x: hidden; max-width: 100vw; }
 </div>
 <!-- FILTERS (compact bar dans page-body) -->
 <div class="filters-wrap" style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:10px 16px;margin-bottom:16px;box-shadow:var(--shadow-card)">
-  <div class="filters-row">
-    <div class="search-input">
+  <div class="filters-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div class="search-input" style="flex:1;min-width:180px">
       <i class="ti ti-search"></i>
-      <input type="text" id="search-input" placeholder="Rechercher ID, demandeur…" oninput="applyFilters()"><span class="tt" style="position:absolute;right:8px;top:50%;transform:translateY(-50%)" data-tt="Recherche par ID, demandeur, département, contexte ou mot-clé."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble tt-left">Recherche par ID, demandeur, département, contexte ou mot-clé.</span></span>
+      <input type="text" id="search-input" placeholder="Rechercher…" oninput="applyFilters()">
     </div>
     <span class="filter-sep"></span>
-    <div class="filter-group">
-      <span class="filter-label">Période</span>
-      <button class="filter-chip active" data-days="0" onclick="setDayFilter(this)">Tout</button>
-      <button class="filter-chip" data-days="7" onclick="setDayFilter(this)">7j</button>
-      <button class="filter-chip" data-days="30" onclick="setDayFilter(this)">30j</button>
-      <button class="filter-chip" data-days="90" onclick="setDayFilter(this)">3m</button>
-    </div>
-    <span class="filter-sep"></span>
-    <div class="filter-group">
-      <span class="filter-label">Type</span>
-      <button class="filter-chip active" data-type="" onclick="setTypeFilter(this)">Tous</button>
-      <button class="filter-chip fc-campagne" data-type="Campagne Marketing" onclick="setTypeFilter(this)">Campagne</button>
-      <button class="filter-chip fc-packaging" data-type="Packaging" onclick="setTypeFilter(this)">Packaging</button>
-      <button class="filter-chip fc-vitro" data-type="Vitrophanie / Travaux" onclick="setTypeFilter(this)">Vitro</button>
-      <button class="filter-chip" data-type="Autre demande" onclick="setTypeFilter(this)">Autre</button>
-    </div>
-    <span class="filter-sep"></span>
-    <div class="filter-group">
-      <span class="filter-label">Priorité</span>
-      <button class="filter-chip active" data-prio="" onclick="setPrioFilter(this)">Toutes</button>
-      <button class="filter-chip fc-urgent" data-prio="urgent" onclick="setPrioFilter(this)">Urgent</button>
-      <button class="filter-chip fc-prio" data-prio="prioritaire" onclick="setPrioFilter(this)">Prioritaire</button>
-    </div>
-    <span class="filter-sep"></span>
-    <div class="filter-group">
-      <span class="filter-label">Marque</span>
-      <button class="filter-chip active" data-marque="" onclick="setMarqueFilter(this)">Toutes</button>
-      <button class="filter-chip" data-marque="bnw" onclick="setMarqueFilter(this)">B&W</button>
-      <button class="filter-chip" data-marque="marquise" onclick="setMarqueFilter(this)">Marquise</button>
-    </div>
-    <span class="filter-sep"></span>
-    <div class="filter-group">
-      <span class="filter-label">Statut</span>
-      <button class="filter-chip active" data-statut="" onclick="setStatutFilter(this)">Tous</button>
-      <button class="filter-chip" data-statut="soumis"     onclick="setStatutFilter(this)">Soumis</button>
-      <button class="filter-chip" data-statut="encours"    onclick="setStatutFilter(this)">En cours</button>
-      <button class="filter-chip" data-statut="simulation" onclick="setStatutFilter(this)">Simulation</button>
-      <button class="filter-chip" data-statut="valide"     onclick="setStatutFilter(this)">Validé</button>
-      <button class="filter-chip" data-statut="livre"      onclick="setStatutFilter(this)">Livré</button>
-    </div>
+    <select class="f-select" id="filter-periode" onchange="onSelPeriode(this.value)">
+      <option value="0">Toutes périodes</option>
+      <option value="7">7 jours</option>
+      <option value="30">30 jours</option>
+      <option value="90">3 mois</option>
+    </select>
+    <select class="f-select" id="filter-type" onchange="onSelType(this.value)">
+      <option value="">Tous types</option>
+      <option value="Campagne Marketing">Campagne</option>
+      <option value="Packaging">Packaging</option>
+      <option value="Vitrophanie / Travaux">Vitro</option>
+      <option value="Autre demande">Autre</option>
+    </select>
+    <select class="f-select" id="filter-prio" onchange="onSelPrio(this.value)">
+      <option value="">Toutes priorités</option>
+      <option value="urgent">Urgent</option>
+      <option value="prioritaire">Prioritaire</option>
+      <option value="normal">Normal</option>
+    </select>
+    <select class="f-select" id="filter-marque" onchange="onSelMarque(this.value)">
+      <option value="">Toutes marques</option>
+      <option value="bnw">B&amp;W</option>
+      <option value="marquise">Marquise</option>
+    </select>
+    <select class="f-select" id="filter-statut" onchange="onSelStatut(this.value)">
+      <option value="">Tous statuts</option>
+      <option value="soumis">Soumis</option>
+      <option value="encours">En cours</option>
+      <option value="simulation">Simulation</option>
+      <option value="valide">Validé</option>
+      <option value="livre">Livré</option>
+    </select>
+    <button class="f-reset" id="btn-reset-filters" onclick="resetFilters()" title="Réinitialiser les filtres" style="display:none">
+      <i class="ti ti-x"></i>
+    </button>
   </div>
 </div>
 
@@ -1212,7 +1212,33 @@ function parseCSVLine(line) {
   res.push(cur); return res;
 }
 
+/* ── Debug panel (dev only) ───────────────────────────────── */
+if(new URLSearchParams(location.search).has('debug')) {
+  document.getElementById('bw-debug').style.display='';
+}
+
 /* ── Filtres ──────────────────────────────────────────────── */
+/* les onchange inline ne voient pas les `let` → fonctions nommées */
+function onSelPeriode(v){fDays=parseInt(v);applyFilters();}
+function onSelType(v){fType=v?new Set([v]):new Set();applyFilters();}
+function onSelPrio(v){fPrio=v?new Set([v]):new Set();applyFilters();}
+function onSelMarque(v){fMarque=v?new Set([v]):new Set();applyFilters();}
+function onSelStatut(v){fStatut=v?new Set([v]):new Set();applyFilters();}
+
+function _syncResetBtn(){
+  const active=fDays>0||fType.size||fPrio.size||fStatut.size||fMarque.size;
+  const btn=document.getElementById('btn-reset-filters');
+  if(btn) btn.style.display=active?'flex':'none';
+}
+function resetFilters(){
+  fDays=0;fType=new Set();fPrio=new Set();fStatut=new Set();fMarque=new Set();fSearch='';
+  ['filter-periode','filter-type','filter-prio','filter-marque','filter-statut'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const si=document.getElementById('search-input'); if(si) si.value='';
+  document.getElementById('btn-reset-filters').style.display='none';
+  applyFilters();
+}
 function setDayFilter(btn) {
   document.querySelectorAll('[data-days]').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active'); fDays=parseInt(btn.dataset.days); applyFilters();
@@ -1269,6 +1295,7 @@ function applyFilters() {
     data=data.filter(b=>{ const s=getStatut(b.briefId); return s==='livre'||s==='valide'; });
   }
   filteredBriefs=data;
+  _syncResetBtn();
   renderDashboard(data);
 }
 

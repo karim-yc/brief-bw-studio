@@ -226,7 +226,19 @@ svg { display: block; }
   z-index: 90;
   flex-shrink: 0;
 }
-.hdr-brand { display: flex; flex-direction: column; gap: 1px; }
+.hdr-brand { display: flex; flex-direction: row; align-items: center; gap: 10px; }
+.hdr-logo-icon {
+  width: 32px; height: 32px;
+  background: var(--indigo);
+  color: #fff;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Anton', sans-serif;
+  font-size: 11px; font-weight: 400;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+.hdr-brand-text { display: flex; flex-direction: column; gap: 1px; }
 .hdr-title {
   font-size: 15px; font-weight: 700;
   color: var(--text);
