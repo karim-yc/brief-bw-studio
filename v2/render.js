@@ -21,7 +21,7 @@ const Render = {
   /* ── Tooltip "i" d'aide contextuelle ───────────────────── */
   tooltip(text) {
     const safe = text.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
-    return `<span class="tt" data-tt="${safe}"><span class="tt-icon" tabindex="0" role="button" aria-label="Aide : ${safe}">i</span><span class="tt-bubble">${text}</span></span>`;
+    return `<span class="tt" data-tt="${safe}"><button type="button" class="tt-icon" aria-label="Aide : ${safe}" aria-expanded="false">i</button><span class="tt-bubble" role="tooltip">${text}</span></span>`;
   },
 
   field(f) {
@@ -110,11 +110,13 @@ const Render = {
       inputHtml = `<input type="text" id="field-${f.id}" data-field="${f.id}" placeholder="${f.placeholder || ''}" value="${this.esc(val)}">`;
     }
 
+    const helpHtmlInline = f.help ? `<div class="field-help">${f.help}</div>` : '';
     return `
       <div class="${cls.join(' ')}" data-field-wrap="${f.id}">
         <div class="field-label-row">
           <label class="field-label" for="field-${f.id}">${f.label}${f.gravity === 'blocking' ? '<span class="req">*</span>' : ''}${f.tooltip ? this.tooltip(f.tooltip) : ''}</label>
         </div>
+        ${helpHtmlInline}
         ${inputHtml}
       </div>`;
   },
@@ -455,7 +457,8 @@ ${Recap.toHtml(r)}
       <span class="wz-step-hint" aria-live="polite">Étape ${step} / 4</span>
     </div>`;
     const right = isLast ? '' : `<button class="btn-wz-next" id="wz-next">Continuer →</button>`;
-    return `<div class="wizard-nav">${left}${right}</div>`;
+    const saveIndicator = `<div class="wz-save-indicator" id="wz-save-indicator" aria-live="polite" aria-atomic="true"><svg viewBox="0 0 16 16" fill="none" width="12" height="12"><path d="M3.5 8.5l2.5 2.5L12.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Brouillon sauvegardé</div>`;
+    return `<div class="wizard-nav">${left}${saveIndicator}${right}</div>`;
   },
 
   wizardStep1() {

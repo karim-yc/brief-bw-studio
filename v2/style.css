@@ -742,6 +742,15 @@ select:focus { border-bottom-color: var(--indigo); }
 .sb-save-state.show { opacity: 1; }
 .sb-save-state svg { width: 13px; height: 13px; }
 
+/* Indicateur sauvegarde dans la barre wizard */
+.wz-save-indicator {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--success);
+  opacity: 0; transition: opacity var(--t-med);
+  flex: 1; justify-content: center;
+}
+.wz-save-indicator.show { opacity: 1; }
+
 /* ════════════════════════════════════════════════════════════
    HIGHLIGHT (clic bloquant → scroll + highlight champ)
    ════════════════════════════════════════════════════════════ */

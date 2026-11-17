@@ -528,11 +528,13 @@
   }
 
   function showSaveState() {
-    const el = document.getElementById('sb-save-state');
-    if (!el) return;
-    el.classList.add('show');
-    clearTimeout(el._hideTimer);
-    el._hideTimer = setTimeout(() => el.classList.remove('show'), 2500);
+    [document.getElementById('sb-save-state'), document.getElementById('wz-save-indicator')]
+      .filter(Boolean)
+      .forEach(el => {
+        el.classList.add('show');
+        clearTimeout(el._hideTimer);
+        el._hideTimer = setTimeout(() => el.classList.remove('show'), 2500);
+      });
   }
 
   /* ════════════════════════════════════════════════════════════

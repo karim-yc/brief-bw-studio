@@ -140,7 +140,7 @@ const CONFIG = {
   champsEtape1: [
     { id: 'marque', label: 'Marque concernée', type: 'pills', gravity: 'blocking', options: 'marques' },
     { id: 'dept', label: 'Département', type: 'select', gravity: 'blocking', options: 'departements' },
-    { id: 'ref', label: 'Prénom et nom', type: 'text', gravity: 'blocking', placeholder: 'Ex : Sophie Martin' },
+    { id: 'ref', label: 'Prénom et nom', type: 'text', gravity: 'blocking', placeholder: 'Ex : Sophie Martin', help: 'Votre prénom et nom, pour que le studio sache à qui s\'adresser.' },
     {
       id: 'restaurant', label: 'Restaurant concerné', type: 'select', gravity: 'blocking',
       options: 'restaurants',
@@ -253,7 +253,7 @@ const CONFIG = {
   /* ── ÉTAPE 4 — Deadlines & priorité ──────────────────────────
      Toujours la même, indépendamment du type */
   champsEtape4Deadlines: [
-    { id: 'dateLancement', label: 'Date prévue de diffusion / pose', type: 'date', gravity: 'blocking', tooltip: 'Date à laquelle le visuel doit être prêt pour être diffusé, affiché ou posé.' },
+    { id: 'dateLancement', label: 'Date prévue de diffusion / pose', type: 'date', gravity: 'blocking', tooltip: 'Date à laquelle le visuel doit être prêt pour être diffusé, affiché ou posé.', help: 'Date à laquelle le visuel doit être disponible — pas la date de remise au studio.' },
     { id: 'dateValidation', label: 'Date limite pour fournir les infos validées', type: 'date', gravity: 'blocking', tooltip: 'Date limite à laquelle tous les textes, prix, visuels et mentions doivent être validés et transmis au studio.' },
     { id: 'dateRetourSimul', label: 'Date souhaitée pour le premier aperçu visuel', type: 'date', gravity: 'recommended', tooltip: 'Date à laquelle vous souhaitez voir une première proposition graphique. Ce n\'est pas la version finale.' }
   ],
