@@ -26,13 +26,13 @@
   --prio:#EA580C;--prio-bg:#FFF7ED;--prio-border:#FED7AA;
   --normal-bg:#F3F4F6;--normal-text:#6B7280;
 
-  --campagne:#1D4ED8;--campagne-bg:#EFF6FF;
-  --packaging:#B45309;--packaging-bg:#FEF3C7;
-  --vitro:#166534;--vitro-bg:#F0FDF4;
+  --campagne:#4F46E5;--campagne-bg:#EEF2FF;
+  --packaging:#4F46E5;--packaging-bg:#EEF2FF;
+  --vitro:#4F46E5;--vitro-bg:#EEF2FF;
   --autre:#6B7280;--autre-bg:#F9FAFB;
 
-  /* Statuts : on adopte les teintes de la référence */
-  --status-soumis:#D97706;--status-soumis-bg:#FFFBEB;--status-soumis-border:#FDE68A;
+  /* Statuts */
+  --status-soumis:#4F46E5;--status-soumis-bg:#EEF2FF;--status-soumis-border:#C7D2FE;
   --status-encours:#2563EB;--status-encours-bg:#EFF6FF;--status-encours-border:#BFDBFE;
   --status-simul:#7C3AED;--status-simul-bg:#F5F3FF;--status-simul-border:#DDD6FE;
   --status-valide:#059669;--status-valide-bg:#ECFDF5;--status-valide-border:#A7F3D0;
@@ -164,7 +164,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 /* Accent priorité à gauche */
 .brief-card.is-urgent{border-left:3px solid var(--urgent)}
 .brief-card.is-prio{border-left:3px solid var(--prio)}
-.brief-card.is-retard{border-left:3px solid #dc2626}
+.brief-card.is-retard{border-left:3px solid #fca5a5}
 .brief-card.is-today{border-left:3px solid #ea580c}
 
 /* ── Vue toggle Liste / Calendrier ───────────────────────── */
@@ -415,10 +415,10 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-header h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase;margin:0}
 .pd-pills{display:flex;gap:6px;flex-wrap:wrap}
 .pd-pill{font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;white-space:nowrap}
-.pd-pill.p-retard{background:#dc2626;color:#fff}
-.pd-pill.p-today{background:#ea580c;color:#fff}
-.pd-pill.p-week{background:#d97706;color:#fff}
-.pd-pill.p-ok{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}.pd-pill.p-urgent{background:#dc2626;color:#fff}.pd-pill.p-calm{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+.pd-pill.p-retard{background:#fee2e2;color:#b91c1c}
+.pd-pill.p-today{background:#ffedd5;color:#9a3412}
+.pd-pill.p-week{background:#fef3c7;color:#92400e}
+.pd-pill.p-ok{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}.pd-pill.p-urgent{background:#fee2e2;color:#b91c1c}.pd-pill.p-calm{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
 .pd-body{display:grid;grid-template-columns:1fr 200px;gap:0}
 @media(max-width:640px){.pd-body{grid-template-columns:1fr}}
 .pd-list{padding:8px 0;border-right:1px solid var(--border)}
@@ -428,9 +428,9 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-item:last-child{border-bottom:none}
 .pd-item:hover{background:var(--hover)}
 .pd-stripe{width:3px;flex-shrink:0;border-radius:2px;min-height:40px;align-self:stretch}
-.pd-stripe.s-retard{background:#dc2626}
-.pd-stripe.s-today{background:#ea580c}
-.pd-stripe.s-week{background:#d97706}
+.pd-stripe.s-retard{background:#fca5a5}
+.pd-stripe.s-today{background:#fdba74}
+.pd-stripe.s-week{background:#fcd34d}
 .pd-stripe.s-urgent{background:#dc2626}
 .pd-stripe.s-prio{background:#6366f1}
 .pd-stripe.s-later,.pd-stripe.s-nodate{background:var(--border)}
@@ -454,9 +454,9 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-bar-lbl{font-size:10px;color:var(--text-secondary);width:72px;flex-shrink:0;text-align:right}
 .pd-bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
 .pd-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
-.pd-bar-fill.f-retard{background:#dc2626}
-.pd-bar-fill.f-today{background:#ea580c}
-.pd-bar-fill.f-week{background:#d97706}
+.pd-bar-fill.f-retard{background:#fca5a5}
+.pd-bar-fill.f-today{background:#fdba74}
+.pd-bar-fill.f-week{background:#fcd34d}
 .pd-bar-fill.f-prio{background:#6366f1}
 .pd-bar-fill.f-later{background:#9ca3af}
 .pd-bar-fill.f-nodate{background:#d1d5db}
@@ -707,7 +707,6 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
     <div class="page-actions">
       <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
-      <a href="v2/index.html" class="hdr-btn hdr-btn-primary"><i class="ti ti-plus"></i><span class="hdr-btn-lbl"> Nouvelle demande</span></a>
     </div>
   </div>
 
@@ -944,7 +943,7 @@ function selectStatus(opt) {
 function statusPill(briefId, e_stopper) {
   const s = getStatut(briefId);
   const onclick = e_stopper ? `openStatusModal('${briefId}',event)` : `openStatusModal('${briefId}')`;
-  return `<span class="status-pill ${STATUS_CSS[s]||'st-soumis'}" onclick="${onclick}" title="Changer le statut">${STATUS_LABELS[s]||s} ✎</span>`;
+  return `<span class="status-pill ${STATUS_CSS[s]||'st-soumis'}" onclick="${onclick}" title="Changer le statut">${STATUS_LABELS[s]||s}</span>`;
 }
 
 /* ── Normalisation localStorage V2 → format unifié ──────── */

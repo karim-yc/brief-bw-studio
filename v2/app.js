@@ -7,19 +7,80 @@
 
   let saveTimer = null;
   let _submitBypass = false;
+  let currentStep = 1;
 
-  /* ── Rendu complet ──────────────────────────────────────────── */
-  function renderAll() {
-    document.getElementById('sections-root').innerHTML = Render.allSections();
+  /* ── Rendu wizard ───────────────────────────────────────────── */
+  function renderWizard() {
+    const progressEl = document.getElementById('wizard-progress');
+    const sectionsRoot = document.getElementById('sections-root');
+    const navEl = document.getElementById('wizard-nav');
+    const appMain = document.getElementById('app-main');
+
+    if (progressEl) progressEl.innerHTML = Render.wizardProgress(currentStep);
+    if (sectionsRoot) sectionsRoot.innerHTML = Render.renderWizardStep(currentStep);
+    if (navEl) navEl.innerHTML = Render.wizardNav(currentStep);
+    if (appMain) appMain.dataset.wizardStep = currentStep;
+
     Render.sidebar();
     bindFieldEvents();
     bindAttachmentEvents();
+
+    // Wire wizard navigation buttons
+    const prevBtn = document.getElementById('wz-prev');
+    const nextBtn = document.getElementById('wz-next');
+    if (prevBtn) prevBtn.addEventListener('click', prevStep);
+    if (nextBtn) nextBtn.addEventListener('click', nextStep);
+
+    // Wire inline submit button (step 4)
+    const wzSubmit = document.getElementById('btn-wz-submit');
+    if (wzSubmit) wzSubmit.addEventListener('click', submitBrief);
+  }
+
+  /* ── Rendu complet ──────────────────────────────────────────── */
+  function renderAll() {
+    renderWizard();
   }
 
   /* ── Re-render léger (juste sidebar, pas tout le DOM) ─────────
      Utilisé pour les inputs texte afin de ne pas perdre le focus */
   function renderSidebarOnly() {
     Render.sidebar();
+    // Mettre à jour le bouton inline submit si on est à l'étape 4
+    if (currentStep === 4) {
+      const wzSubmit = document.getElementById('btn-wz-submit');
+      const wzNote = document.getElementById('wz-submit-note');
+      if (wzSubmit) {
+        const ready = State.isReadyToSubmit();
+        const confirmed = !!State.data.globalConfirmed;
+        wzSubmit.disabled = !(ready && confirmed);
+        wzSubmit.classList.toggle('ready', ready && confirmed);
+        if (wzNote) {
+          wzNote.textContent = !ready ? 'Complétez les champs requis pour soumettre' :
+            !confirmed ? 'Cochez la case de confirmation pour soumettre' :
+            'Brief prêt à envoyer ✓';
+        }
+      }
+    }
+  }
+
+  /* ── Navigation wizard ───────────────────────────────────────── */
+  function goToStep(n) {
+    if (n < 1 || n > 4) return;
+    currentStep = n;
+    renderWizard();
+    // Scroll to top of main content
+    const mainCol = document.getElementById('main-col');
+    if (mainCol) mainCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function nextStep() { goToStep(currentStep + 1); }
+  function prevStep() { goToStep(currentStep - 1); }
+
+  function determineStartStep() {
+    if (!State.data.marque || !State.data.dept || !State.data.typeDemande) return 1;
+    if (!State.data.description) return 2;
+    if (!State.data.dateLancement) return 3;
+    return 4;
   }
 
   /* ════════════════════════════════════════════════════════════
@@ -316,7 +377,6 @@
       }
       scheduleSave();
       renderAll();
-      State.openSections[3] = true;
       return;
     }
 
@@ -358,16 +418,13 @@
       return;
     }
 
-    // Navigation depuis sidebar → ouvrir section
+    // Navigation depuis sidebar → aller à l'étape wizard correspondante
     const gotoSection = e.target.closest('[data-goto-section]');
     if (gotoSection) {
-      const n = gotoSection.dataset.gotoSection;
-      State.openSections[n] = true;
-      renderAll();
-      setTimeout(() => {
-        const card = document.querySelector(`[data-section="${n}"]`);
-        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
+      const n = parseInt(gotoSection.dataset.gotoSection, 10);
+      // Mapping sections → étapes wizard : 1→1, 2→1, 3→2, 4→3, 5→4
+      const stepMap = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 };
+      goToStep(stepMap[n] || 1);
       return;
     }
 
@@ -402,26 +459,29 @@
   });
 
   function scrollToField(fieldId) {
-    // S'assurer que la bonne section est ouverte
+    // Mapper le champ vers l'étape wizard
     let sectionGuess = guessSection(fieldId);
     if (!sectionGuess) {
-      if (fieldId === '__supports') sectionGuess = 2; // supports vivent en section 2 désormais
+      if (fieldId === '__supports') sectionGuess = 4;
       else if (fieldId === 'priorite' || fieldId === 'raisonUrgence' || fieldId.startsWith('date')) sectionGuess = 4;
       else if (fieldId === '__type') sectionGuess = 2;
       else sectionGuess = 1;
     }
-    State.openSections[sectionGuess] = true;
-    renderAll();
+    // Mapping section → étape wizard
+    const stepMap = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 };
+    const targetStep = stepMap[sectionGuess] || 1;
+    if (currentStep !== targetStep) {
+      goToStep(targetStep);
+    }
 
     setTimeout(() => {
-      let target = document.querySelector(`[data-field-wrap="${fieldId}"]`);
-      if (!target) target = document.querySelector(`[data-section="${sectionGuess}"]`);
+      const target = document.querySelector(`[data-field-wrap="${fieldId}"]`);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         target.classList.add('highlight');
         setTimeout(() => target.classList.remove('highlight'), 1500);
       }
-    }, 80);
+    }, 120);
   }
 
   /* ════════════════════════════════════════════════════════════
@@ -688,7 +748,7 @@
     State.data.supportsSelected = [...rapideSupports];
     scheduleSave();
     switchMode('form');
-    State.openSections = { 1: true, 2: true, 3: true, 4: true, 5: false };
+    currentStep = 3; // Aller directement aux deadlines (déjà remplies)
     renderAll();
   }
 
@@ -827,7 +887,7 @@
     const restored = State.load();
     if (restored && (State.data.dept || State.data.typeDemande)) {
       document.getElementById('restore-banner').hidden = false;
-      autoOpenFilledSections();
+      currentStep = determineStartStep();
     }
 
     const hist = State.getHistory();
@@ -842,7 +902,9 @@
       tab.addEventListener('click', () => switchMode(tab.dataset.mode));
     });
 
-    document.getElementById('btn-submit').addEventListener('click', submitBrief);
+    // btn-submit (sidebar) — toujours dans le DOM
+    const sbSubmit = document.getElementById('btn-submit');
+    if (sbSubmit) sbSubmit.addEventListener('click', submitBrief);
     document.getElementById('btn-submit-mobile').addEventListener('click', submitBrief);
 
     document.getElementById('banner-close').addEventListener('click', () => {

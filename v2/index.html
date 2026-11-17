@@ -61,7 +61,7 @@
   </nav>
 
   <!-- ════════ MAIN LAYOUT ════════ -->
-  <main class="layout form-pristine" id="app-main">
+  <main class="layout form-pristine" id="app-main" data-wizard-step="1">
 
     <!-- ─── COLONNE PRINCIPALE ─── -->
     <div class="main-col" id="main-col">
@@ -72,8 +72,14 @@
         <button class="banner-close" id="banner-close" aria-label="Fermer">&times;</button>
       </div>
 
+      <!-- Wizard progress injecté par JS -->
+      <div id="wizard-progress"></div>
+
       <!-- Sections injectées par JS -->
       <div id="sections-root"></div>
+
+      <!-- Wizard navigation injectée par JS -->
+      <div id="wizard-nav"></div>
 
     </div>
 
