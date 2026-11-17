@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistiques — Studio Créatif</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --indigo:#4F46E5;--indigo-dark:#3730A3;--indigo-light:#818CF8;
+  --indigo-bg:#EEF2FF;--indigo-border:#C7D2FE;
+  --white:#fff;--surface:#fff;--border:#E5E7EB;
+  --text:#111827;--text-secondary:#6B7280;--text-tertiary:#9CA3AF;
+  --urgent:#DC2626;--urgent-bg:#FEF2F2;
+  --prio:#EA580C;--prio-bg:#FFF7ED;
+  --success:#059669;--success-bg:#ECFDF5;
+  --r:14px;--r-sm:8px;
+}
+html{background:linear-gradient(135deg,#4338CA 0%,#6366F1 50%,#818CF8 100%);background-attachment:fixed;min-height:100%}
+body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+.app-shell{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:220px;flex-shrink:0;background:rgba(30,27,75,.92);backdrop-filter:blur(16px);display:flex;flex-direction:column;padding:20px 12px;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo-wrap{display:flex;align-items:center;gap:10px;padding:4px 8px 16px}
+.sidebar-logo-icon{width:36px;height:36px;background:var(--indigo);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:13px;color:#fff;letter-spacing:1px;flex-shrink:0}
+.sidebar-logo-name{font-size:13px;font-weight:700;color:#fff;line-height:1.2}
+.sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.6px}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px}
+.snav-sep{height:1px;background:rgba(255,255,255,.1);margin:8px 4px}
+.snav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;color:rgba(255,255,255,.6);font-size:13px;font-weight:500;text-decoration:none;transition:all .15s}
+.snav-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.snav-item.active{background:var(--indigo);color:#fff}
+.snav-item i{font-size:16px;flex-shrink:0}
+
+/* Content */
+.app-content{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* Header */
+.hdr{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.5);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:50;gap:12px}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.hdr-title{font-size:15px;font-weight:700;color:var(--text)}
+.hdr-sub{font-size:12px;color:var(--text-secondary)}
+.hdr-actions{display:flex;align-items:center;gap:8px}
+.hdr-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;transition:all .15s;white-space:nowrap}
+.hdr-btn:hover{border-color:var(--indigo);color:var(--indigo);background:#fff}
+.hdr-btn-primary{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.hdr-btn-primary:hover{background:var(--indigo-dark);border-color:var(--indigo-dark);color:#fff}
+
+/* Main */
+.stats-main{flex:1;padding:24px;display:flex;flex-direction:column;gap:20px}
+
+/* KPI strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.kpi-card{background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:4px}
+.kpi-num{font-size:28px;font-weight:700;color:var(--indigo);line-height:1}
+.kpi-label{font-size:11px;color:var(--text-secondary);font-weight:500}
+.kpi-delta{font-size:10px;font-weight:600;margin-top:2px}
+.kpi-delta.up{color:var(--success)}
+.kpi-delta.warn{color:var(--prio)}
+
+/* Charts grid */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.chart-card{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.chart-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.chart-title i{color:var(--indigo);font-size:16px}
+.chart-wrap{position:relative;height:220px}
+
+/* Table */
+.table-card{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.table-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.table-head-title{font-size:13px;font-weight:700;color:var(--text)}
+.table-head i{color:var(--indigo);font-size:16px}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);background:var(--indigo-bg);border-bottom:1px solid var(--indigo-border)}
+td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:50px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.b-urgent{background:var(--urgent-bg);color:var(--urgent)}
+.b-prio{background:var(--prio-bg);color:var(--prio)}
+.b-normal{background:#F3F4F6;color:#6B7280}
+
+/* Empty */
+.empty-state{display:flex;flex-direction:column;align-items:center;gap:14px;padding:60px 24px;text-align:center;color:rgba(255,255,255,.75)}
+.empty-state i{font-size:48px;opacity:.4}
+.empty-state h2{font-size:16px;font-weight:700}
+.empty-state p{font-size:13px;opacity:.7;max-width:340px}
+.empty-cta{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:#fff;color:var(--indigo);border-radius:50px;font-size:13px;font-weight:700;text-decoration:none;margin-top:4px;transition:all .15s}
+.empty-cta:hover{background:var(--indigo);color:#fff}
+
+@media(max-width:680px){.sidebar{display:none}.kpi-strip{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <div class="sidebar">
+    <div class="sidebar-logo-wrap">
+      <div class="sidebar-logo-icon">BW</div>
+      <div>
+        <div class="sidebar-logo-name">Studio Créatif</div>
+        <div class="sidebar-logo-sub">Multi-marques</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="snav-item" href="../dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
+      <a class="snav-item" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
+      <div class="snav-sep"></div>
+      <a class="snav-item" href="../dashboard.html"><i class="ti ti-list"></i><span>Demandes</span></a>
+      <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
+      <a class="snav-item active" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
+    </nav>
+  </div>
+
+  <div class="app-content">
+    <header class="hdr">
+      <div class="hdr-brand">
+        <span class="hdr-title">Statistiques</span>
+        <span class="hdr-sub" id="hdr-period">Chargement…</span>
+      </div>
+      <nav class="hdr-actions">
+        <a href="calendrier.html" class="hdr-btn"><i class="ti ti-calendar-month"></i> Calendrier</a>
+        <a href="index.html" class="hdr-btn hdr-btn-primary"><i class="ti ti-plus"></i> Nouvelle demande</a>
+      </nav>
+    </header>
+
+    <main class="stats-main" id="stats-main">
+      <div class="empty-state" id="empty-state" hidden>
+        <i class="ti ti-chart-bar"></i>
+        <h2>Pas encore de données</h2>
+        <p>Les statistiques s'alimentent dès que des briefs sont soumis via le formulaire ou le brief rapide.</p>
+        <a href="index.html" class="empty-cta"><i class="ti ti-plus"></i> Soumettre un brief</a>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-strip" id="kpi-strip"></div>
+
+      <!-- Charts -->
+      <div class="charts-grid" id="charts-grid"></div>
+
+      <!-- Table récente -->
+      <div class="table-card" id="table-card"></div>
+    </main>
+  </div>
+</div>
+
+<script>
+const HISTORY_KEY = 'bw_brief_history';
+
+/* ── Palette cohérente ── */
+const COLORS = {
+  indigo:  ['#4F46E5','#6366F1','#818CF8','#A5B4FC','#C7D2FE'],
+  types:   { campagne:'#4F46E5', packaging:'#7C3AED', vitrophanie:'#0EA5E9', autre:'#6B7280' },
+  prios:   { urgent:'#DC2626', prioritaire:'#EA580C', normal:'#059669' },
+  marques: { bnw:'#1E1B4B', marquise:'#7C3AED', autre:'#6B7280' }
+};
+
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size   = 11;
+Chart.defaults.color       = '#6B7280';
+
+/* ── Chargement ── */
+async function loadBriefs() {
+  const all = [];
+  try {
+    const r = await fetch('../api/briefs.json');
+    const d = await r.json();
+    if (d.ok && d.briefs) all.push(...d.briefs);
+  } catch {}
+  try {
+    const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    hist.forEach(b => { if (!all.find(x => x.id === b.id)) all.push(b); });
+  } catch {}
+  return all;
+}
+
+/* ── Helpers ── */
+function count(arr, key) {
+  return arr.reduce((acc, b) => {
+    const v = (b.data || b)[key] || 'inconnu';
+    acc[v] = (acc[v] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function avgDays(briefs) {
+  const vals = briefs.map(b => {
+    const data = b.data || b;
+    if (!data.submittedAt || !data.dateLancement) return null;
+    const diff = (new Date(data.dateLancement) - new Date(data.submittedAt)) / 86400000;
+    return diff > 0 ? diff : null;
+  }).filter(Boolean);
+  return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+}
+
+function byMonth(briefs) {
+  const counts = {};
+  briefs.forEach(b => {
+    const data = b.data || b;
+    const d = data.submittedAt ? new Date(data.submittedAt) : null;
+    if (!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return counts;
+}
+
+function chartOptions(opts = {}) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: opts.legend ?? false, position: 'bottom', labels: { boxWidth: 10, padding: 12 } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y ?? ctx.parsed} brief${(ctx.parsed.y ?? ctx.parsed) > 1 ? 's' : ''}` } }
+    },
+    scales: opts.noScales ? undefined : {
+      x: { grid: { display: false }, border: { display: false } },
+      y: { grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { stepSize: 1, precision: 0 } }
+    },
+    ...opts.extra
+  };
+}
+
+/* ── Rendu ── */
+function makeKPI(num, label, delta, deltaType) {
+  return `<div class="kpi-card">
+    <div class="kpi-num">${num}</div>
+    <div class="kpi-label">${label}</div>
+    ${delta ? `<div class="kpi-delta ${deltaType || ''}">${delta}</div>` : ''}
+  </div>`;
+}
+
+function makeChart(id, title, icon) {
+  return `<div class="chart-card">
+    <div class="chart-title"><i class="ti ${icon}"></i>${title}</div>
+    <div class="chart-wrap"><canvas id="${id}"></canvas></div>
+  </div>`;
+}
+
+function render(briefs) {
+  if (!briefs.length) {
+    document.getElementById('empty-state').hidden = false;
+    document.getElementById('kpi-strip').hidden   = true;
+    document.getElementById('charts-grid').hidden = true;
+    document.getElementById('table-card').hidden  = true;
+    return;
+  }
+
+  const data = briefs.map(b => b.data || b);
+  const now  = new Date();
+  const thisMonth = data.filter(d => {
+    const s = d.submittedAt ? new Date(d.submittedAt) : null;
+    return s && s.getMonth() === now.getMonth() && s.getFullYear() === now.getFullYear();
+  });
+  const urgents = data.filter(d => d.priorite === 'urgent' || d.prioriteNiveau === 'urgent');
+  const avg = avgDays(briefs);
+
+  document.getElementById('hdr-period').textContent =
+    `${briefs.length} brief${briefs.length > 1 ? 's' : ''} au total · depuis ${new Date(Math.min(...briefs.map(b=>(b.data||b).submittedAt||Date.now()).map(d=>new Date(d)))).toLocaleDateString('fr-BE',{month:'long',year:'numeric'})}`;
+
+  /* KPIs */
+  document.getElementById('kpi-strip').innerHTML = [
+    makeKPI(briefs.length, 'Briefs total'),
+    makeKPI(thisMonth.length, 'Ce mois-ci'),
+    makeKPI(urgents.length, 'Urgents', urgents.length > 2 ? '⚠ Charge élevée' : '', urgents.length > 2 ? 'warn' : ''),
+    makeKPI(avg ? avg + 'j' : '—', 'Délai moyen soumission → lancement', avg && avg < 7 ? '⚠ Très court' : '', avg < 7 ? 'warn' : ''),
+    makeKPI(Object.keys(count(briefs,'dept')).length, 'Départements actifs'),
+  ].join('');
+
+  /* Charts */
+  const cg = document.getElementById('charts-grid');
+  cg.innerHTML = [
+    makeChart('chart-types',   'Par type de demande',      'ti-tag'),
+    makeChart('chart-dept',    'Par département',           'ti-building'),
+    makeChart('chart-prio',    'Par priorité',              'ti-alert-triangle'),
+    makeChart('chart-monthly', 'Volume mensuel',            'ti-trending-up'),
+    makeChart('chart-marque',  'Par marque',                'ti-brand-apple'),
+  ].join('');
+
+  /* chart types */
+  const typeCounts = count(briefs, 'typeDemande');
+  const typeLabels = { campagne:'Campagne', packaging:'Packaging', vitrophanie:'Vitrophanie', autre:'Autre' };
+  new Chart(document.getElementById('chart-types'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(typeCounts).map(k => typeLabels[k] || k),
+      datasets: [{ data: Object.values(typeCounts), backgroundColor: Object.keys(typeCounts).map(k=>COLORS.types[k]||'#9CA3AF'), borderWidth:0, hoverOffset:6 }]
+    },
+    options: { ...chartOptions({ noScales:true, legend:true }), plugins: { legend: { display:true, position:'bottom', labels:{ boxWidth:10, padding:12 } } } }
+  });
+
+  /* chart dept */
+  const deptCounts = count(briefs, 'dept');
+  const depts = Object.entries(deptCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  new Chart(document.getElementById('chart-dept'), {
+    type: 'bar',
+    data: {
+      labels: depts.map(([k])=>k),
+      datasets: [{ data: depts.map(([,v])=>v), backgroundColor: COLORS.indigo[0], borderRadius:6, maxBarThickness:40 }]
+    },
+    options: chartOptions()
+  });
+
+  /* chart prio */
+  const prioCounts = count(briefs, 'priorite');
+  const prioLabels = { urgent:'Urgent', prioritaire:'Prioritaire', normal:'Normal' };
+  new Chart(document.getElementById('chart-prio'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(prioCounts).map(k => prioLabels[k] || k),
+      datasets: [{ data: Object.values(prioCounts), backgroundColor: Object.keys(prioCounts).map(k=>COLORS.prios[k]||'#9CA3AF'), borderWidth:0, hoverOffset:6 }]
+    },
+    options: { ...chartOptions({ noScales:true, legend:true }), plugins: { legend: { display:true, position:'bottom', labels:{ boxWidth:10, padding:12 } } } }
+  });
+
+  /* chart monthly */
+  const monthly = byMonth(briefs);
+  const sortedMonths = Object.keys(monthly).sort().slice(-8);
+  const monthLabels = sortedMonths.map(m => {
+    const [y,mo] = m.split('-');
+    return new Date(+y,+mo-1,1).toLocaleDateString('fr-BE',{month:'short',year:'2-digit'});
+  });
+  new Chart(document.getElementById('chart-monthly'), {
+    type: 'line',
+    data: {
+      labels: monthLabels,
+      datasets: [{ data: sortedMonths.map(k=>monthly[k]), borderColor: COLORS.indigo[0], backgroundColor:'rgba(79,70,229,.08)', fill:true, tension:.4, pointRadius:4, pointBackgroundColor:COLORS.indigo[0] }]
+    },
+    options: chartOptions()
+  });
+
+  /* chart marque */
+  const marqCounts = count(briefs, 'marque');
+  const marqLabels = { bnw:'B&W Burger', marquise:'Maison Marquise', autre:'Autre' };
+  new Chart(document.getElementById('chart-marque'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(marqCounts).map(k => marqLabels[k] || k),
+      datasets: [{ data: Object.values(marqCounts), backgroundColor: Object.keys(marqCounts).map(k=>COLORS.marques[k]||'#9CA3AF'), borderRadius:6, maxBarThickness:60 }]
+    },
+    options: chartOptions()
+  });
+
+  /* Table briefs récents */
+  const recent = [...briefs].sort((a,b) => new Date((b.data||b).submittedAt||0) - new Date((a.data||a).submittedAt||0)).slice(0,10);
+  const prioBadge = p => p === 'urgent'
+    ? '<span class="badge b-urgent">Urgent</span>'
+    : p === 'prioritaire'
+    ? '<span class="badge b-prio">Prioritaire</span>'
+    : '<span class="badge b-normal">Normal</span>';
+
+  document.getElementById('table-card').innerHTML = `
+    <div class="table-head"><i class="ti ti-clock"></i><span class="table-head-title">10 derniers briefs</span></div>
+    <table>
+      <thead><tr>
+        <th>ID</th><th>Demandeur</th><th>Type</th><th>Marque</th><th>Priorité</th><th>Soumis le</th>
+      </tr></thead>
+      <tbody>
+        ${recent.map(b => {
+          const d = b.data || b;
+          const typeLabels = { campagne:'Campagne', packaging:'Packaging', vitrophanie:'Vitrophanie', autre:'Autre' };
+          const marqLabels = { bnw:'B&W Burger', marquise:'Maison Marquise', autre:'Autre' };
+          return `<tr>
+            <td><code style="font-size:10px;color:var(--indigo)">${(d.briefId || b.id || '—').slice(0,10)}</code></td>
+            <td>${d.ref || '—'}</td>
+            <td>${typeLabels[d.typeDemande] || d.typeDemande || '—'}</td>
+            <td>${marqLabels[d.marque] || d.marque || '—'}</td>
+            <td>${prioBadge(d.priorite || d.prioriteNiveau || 'normal')}</td>
+            <td>${d.submittedAt ? new Date(d.submittedAt).toLocaleDateString('fr-BE',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+(async () => {
+  const briefs = await loadBriefs();
+  render(briefs);
+})();
+</script>
+</body>
+</html>

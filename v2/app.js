@@ -570,10 +570,12 @@
     try {
       await sendWebhook(State.data);
       State.saveToHistory();
+      const gcCreated = await GCalSync.syncBrief(State.data);
       State.files = [];
-      showToast(`Brief ${State.data.briefId} soumis avec succès ✓`);
+      const gcMsg = gcCreated ? ` · ${gcCreated} date${gcCreated > 1 ? 's' : ''} → Google Calendar` : '';
+      showToast(`Brief ${State.data.briefId} soumis avec succès ✓${gcMsg}`);
       localStorage.removeItem(STORAGE_KEY);
-      setTimeout(() => location.reload(), 1600);
+      setTimeout(() => location.reload(), 2200);
     } catch (err) {
       console.error('[BW Submit] Échec envoi:', err.message);
       submitBtns.forEach((b, i) => {
@@ -762,10 +764,12 @@
     try {
       await sendWebhook(State.data);
       State.saveToHistory();
+      const gcCreatedR = await GCalSync.syncBrief(State.data);
       State.rapideFiles = [];
-      showToast(`Brief ${State.data.briefId} soumis avec succès ✓`);
+      const gcMsgR = gcCreatedR ? ` · ${gcCreatedR} date${gcCreatedR > 1 ? 's' : ''} → Google Calendar` : '';
+      showToast(`Brief ${State.data.briefId} soumis avec succès ✓${gcMsgR}`);
       localStorage.removeItem(STORAGE_KEY);
-      setTimeout(() => location.reload(), 1600);
+      setTimeout(() => location.reload(), 2200);
     } catch (err) {
       console.error('[BW Submit Rapide] Échec envoi:', err.message);
       if (rBtn) { rBtn.disabled = false; rBtn.textContent = rBtnLabel; }
