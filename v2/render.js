@@ -45,7 +45,43 @@ const Render = {
       const minL = f.minLength || 0;
       const helpHtml = f.help ? `<div class="field-help">${f.help}</div>` : '';
       const minNote = minL ? `<div class="field-minlength" id="minl-${f.id}"><span class="minl-cur">0</span>/${minL} caractères minimum</div>` : '';
-      inputHtml = `${helpHtml}<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
+      // Rich text editor pour le champ description (contexte du projet)
+      if (f.id === 'description') {
+        const safeVal = this.esc(val);
+        const htmlVal = val ? val.replace(/\n/g, '<br>') : '';
+        inputHtml = `${helpHtml}
+          <div class="rte-wrap" id="rte-wrap-${f.id}">
+            <div class="rte-toolbar">
+              <button type="button" class="rte-btn" data-cmd="bold" title="Gras (Ctrl+B)"><b>B</b></button>
+              <button type="button" class="rte-btn" data-cmd="italic" title="Italique (Ctrl+I)"><i>I</i></button>
+              <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Liste à puces">≡</button>
+              <span class="rte-sep"></span>
+              <button type="button" class="rte-btn" data-cmd="removeFormat" title="Effacer la mise en forme">✕</button>
+            </div>
+            <div class="rte-editor" id="rte-${f.id}" contenteditable="true" data-placeholder="${f.placeholder || ''}" data-field-rte="${f.id}">${htmlVal}</div>
+            <textarea data-field="${f.id}" data-min-length="${minL}" style="display:none">${safeVal}</textarea>
+          </div>${minNote}`;
+      } else {
+        inputHtml = `${helpHtml}<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
+      }
+    } else if (f.type === 'attachments') {
+      const helpHtml = f.help ? `<div class="field-help">${f.help}</div>` : '';
+      const files = (typeof State !== 'undefined' && State.files) ? State.files : [];
+      const listHtml = files.length ? files.map((file, i) =>
+        `<div class="att-item" data-idx="${i}">
+          <span class="att-icon">${/image/.test(file.type) ? '🖼' : '📄'}</span>
+          <span class="att-name">${this.esc(file.name)}</span>
+          <span class="att-size">${(file.size / 1024).toFixed(0)} Ko</span>
+          <button type="button" class="att-remove" data-att-idx="${i}" title="Supprimer">×</button>
+        </div>`).join('') : '';
+      inputHtml = `${helpHtml}
+        <label class="att-dropzone" id="att-dropzone">
+          <input type="file" id="att-input" multiple accept="image/*,.pdf,.doc,.docx,.pptx,.xlsx,.zip" style="display:none">
+          <span class="att-icon-add">＋</span>
+          <span class="att-label">Glisser des fichiers ici ou <u>parcourir</u></span>
+          <span class="att-hint">Max 3 fichiers · 5 Mo chacun</span>
+        </label>
+        <div class="att-list" id="att-list">${listHtml}</div>`;
     } else if (f.type === 'select') {
       const opts = (CONFIG[f.options] || []).map(o =>
         `<option value="${this.esc(o)}" ${val === o ? 'selected' : ''}>${this.esc(o)}</option>`
@@ -209,7 +245,7 @@ const Render = {
             </div>
             <div class="cond-block ${type ? 'visible' : 'hidden'}">
               ${subContent}
-              ${this.field(CONFIG.champsEtape2[0])}
+              ${CONFIG.champsEtape2.map(f => this.field(f)).join('')}
             </div>
             <div class="cond-block ${type === 'campagne' ? 'visible' : 'hidden'}">
               ${supportsBlock}
@@ -379,10 +415,229 @@ ${Recap.toHtml(r)}
   },
 
   /* ════════════════════════════════════════════════════════════
-     RENDU COMPLET DES SECTIONS
+     RENDU COMPLET DES SECTIONS (mode accordéon — conservé)
      ════════════════════════════════════════════════════════════ */
   allSections() {
     return this.section1() + this.section2() + this.section3() + this.section4() + this.section5();
+  },
+
+  /* ════════════════════════════════════════════════════════════
+     WIZARD — Rendu étape par étape
+     ════════════════════════════════════════════════════════════ */
+
+  wizardProgress(step) {
+    const steps = [
+      { n: 1, label: 'L\'essentiel' },
+      { n: 2, label: 'Le contexte' },
+      { n: 3, label: 'Deadline' },
+      { n: 4, label: 'Récap' }
+    ];
+    const items = steps.map((s, i) => {
+      const cls = step === s.n ? 'active' : (step > s.n ? 'done' : '');
+      const numContent = step > s.n ? Icons.check : s.n;
+      const lineAfter = i < steps.length - 1
+        ? `<div class="wz-line ${step > s.n ? 'done' : ''}"></div>` : '';
+      return `<div class="wz-step-wrap">
+        <div class="wz-step ${cls}">
+          <div class="wz-step-num">${numContent}</div>
+          <div class="wz-step-label">${s.label}</div>
+        </div>${lineAfter}
+      </div>`;
+    }).join('');
+    return `<div class="wizard-progress"><div class="wizard-steps">${items}</div></div>`;
+  },
+
+  wizardNav(step) {
+    const isFirst = step === 1;
+    const isLast = step === 4;
+    const left = `<div class="wizard-nav-left">
+      <button class="btn-wz-prev" id="wz-prev"${isFirst ? ' disabled' : ''}>← Retour</button>
+      <span class="wz-step-hint">Étape ${step} / 4</span>
+    </div>`;
+    const right = isLast ? '' : `<button class="btn-wz-next" id="wz-next">Suivant →</button>`;
+    return `<div class="wizard-nav">${left}${right}</div>`;
+  },
+
+  wizardStep1() {
+    const fields = State.getChampsEtape1();
+    const type = State.data.typeDemande;
+
+    const typeCards = CONFIG.typesDemande.map(t => `
+      <button type="button" class="select-card ${type === t.id ? 'active' : ''}" data-type-select="${t.id}">
+        ${Icons[t.icon]}
+        <span class="select-card-label">${t.label}</span>
+        ${t.sub ? `<span class="select-card-sub">${t.sub}</span>` : ''}
+      </button>`).join('');
+
+    let subContent = '';
+    if (type === 'campagne') {
+      subContent = `<div class="field"><label class="field-label">Genre de campagne</label>
+        <div class="pill-group">${CONFIG.genresCampagne.map(g =>
+          `<button type="button" class="pill ${State.data.genreCampagne === g.id ? 'active' : ''}" data-field="genreCampagne" data-value="${g.id}">${g.label}</button>`
+        ).join('')}</div></div>`;
+    } else if (type === 'packaging') {
+      subContent = `<div class="field"><label class="field-label">Phase de production</label>
+        <div class="pill-group">${CONFIG.phasesPackaging.map(p =>
+          `<button type="button" class="pill ${State.data.phasePackaging === p.id ? 'active' : ''}" data-field="phasePackaging" data-value="${p.id}">${p.label}</button>`
+        ).join('')}</div></div>`;
+    } else if (type === 'vitrophanie') {
+      subContent = `<div class="field"><label class="field-label">Type de vitrophanie</label>
+        <div class="pill-group">${CONFIG.typesVitrophanie.map(v =>
+          `<button type="button" class="pill ${State.data.typeVitrophanie === v.id ? 'active' : ''}" data-field="typeVitrophanie" data-value="${v.id}">${v.label}</button>`
+        ).join('')}</div></div>`;
+    }
+
+    const fMarque = fields.find(f => f.id === 'marque');
+    const fDept   = fields.find(f => f.id === 'dept');
+    const fRef    = fields.find(f => f.id === 'ref');
+    const fResto  = fields.find(f => f.id === 'restaurant');
+    const fAlt    = fields.find(f => f.id === 'deptAutrePrecision');
+
+    return `
+      <div class="wz-card">
+        <div class="wz-card-header">
+          <div class="wz-card-label">Étape 1 sur 4</div>
+          <div class="wz-card-title">Qui fait la demande ?</div>
+          <div class="wz-card-sub">Identification du demandeur et de la marque concernée.</div>
+        </div>
+        ${this.field(fMarque)}
+        <div class="field-row">
+          ${this.field(fDept)}
+          ${this.field(fRef)}
+        </div>
+        ${fResto ? this.field(fResto) : ''}
+        ${fAlt   ? this.field(fAlt)   : ''}
+      </div>
+      <div class="wz-card">
+        <div class="wz-card-header">
+          <div class="wz-card-label">Type de demande</div>
+          <div class="wz-card-title">De quoi s'agit-il ?</div>
+          <div class="wz-card-sub">Choisissez la catégorie qui correspond le mieux à votre besoin.</div>
+        </div>
+        <div class="field">
+          <label class="field-label">Type de demande<span class="req">*</span></label>
+          <div class="card-grid">${typeCards}</div>
+        </div>
+        ${type ? `<div style="margin-top:16px">${subContent}</div>` : ''}
+      </div>`;
+  },
+
+  wizardStep2() {
+    const type = State.data.typeDemande;
+    const specificFields = type
+      ? (CONFIG.champsEtape3[type] || []).filter(f => !f.showIf || f.showIf(State.data))
+      : [];
+
+    const specificHtml = specificFields.length ? `
+      <div class="wz-card">
+        <div class="wz-card-header">
+          <div class="wz-card-label">Informations spécifiques</div>
+          <div class="wz-card-title">Détails de la demande</div>
+          <div class="wz-card-sub">Informations propres au type « ${type} » sélectionné.</div>
+        </div>
+        ${specificFields.map(f => this.field(f)).join('')}
+      </div>` : '';
+
+    return `
+      <div class="wz-card">
+        <div class="wz-card-header">
+          <div class="wz-card-label">Étape 2 sur 4</div>
+          <div class="wz-card-title">Le contexte du projet</div>
+          <div class="wz-card-sub">Décrivez votre besoin avec le maximum de détails pour que le studio puisse commencer sans questions supplémentaires.</div>
+        </div>
+        ${CONFIG.champsEtape2.map(f => this.field(f)).join('')}
+      </div>
+      ${specificHtml}`;
+  },
+
+  wizardStep3() {
+    const priorityPills = CONFIG.prioritesNiveau.map(p =>
+      `<button type="button" class="pill ${p.id === 'urgent' ? 'urgent' : ''} ${State.data.priorite === p.id ? 'active' : ''}" data-field="priorite" data-value="${p.id}">${p.label}</button>`
+    ).join('');
+
+    const urgenceField = this.field({
+      id: 'raisonUrgence', label: 'Pourquoi cette demande est-elle urgente ?',
+      type: 'text', gravity: 'blocking',
+      placeholder: 'Ex : Lancement avancé par la direction, campagne presse imminente…'
+    });
+
+    const supportsHtml = State.data.typeDemande === 'campagne' ? `
+      <div class="wz-card">
+        <div class="wz-card-header">
+          <div class="wz-card-label">Supports</div>
+          <div class="wz-card-title">Ce qu'il faut produire</div>
+        </div>
+        ${this.supportsBlock()}
+      </div>` : '';
+
+    return `
+      <div class="wz-card">
+        <div class="wz-card-header">
+          <div class="wz-card-label">Étape 3 sur 4</div>
+          <div class="wz-card-title">Calendrier & priorité</div>
+          <div class="wz-card-sub">Indiquez vos contraintes de temps pour que le studio puisse planifier la production.</div>
+        </div>
+        <div class="field-row">
+          ${this.field(CONFIG.champsEtape4Deadlines[0])}
+          ${this.field(CONFIG.champsEtape4Deadlines[1])}
+        </div>
+        ${this.field(CONFIG.champsEtape4Deadlines[2])}
+        <div class="field" style="margin-top:4px">
+          <label class="field-label">Priorité<span class="req">*</span>${this.tooltip('Normal = délai raisonnable · Prioritaire = à traiter avant d\'autres · Urgent = délai très court, à justifier')}</label>
+          <div class="pill-group">${priorityPills}</div>
+        </div>
+        <div class="cond-block ${State.data.priorite === 'urgent' ? 'visible' : 'hidden'}">
+          ${urgenceField}
+        </div>
+      </div>
+      ${supportsHtml}`;
+  },
+
+  wizardStep4() {
+    const r = Recap.build();
+    const globalConfirmed = !!State.data.globalConfirmed;
+    const ready = State.isReadyToSubmit();
+
+    return `
+      <div class="wz-card">
+        <div class="wz-card-header">
+          <div class="wz-card-label">Étape 4 sur 4 — Récapitulatif</div>
+          <div class="wz-card-title">Vérification finale</div>
+          <div class="wz-card-sub">Relisez votre brief avant de l'envoyer au studio.</div>
+        </div>
+        <div class="recap-doc">${Recap.toHtml(r)}</div>
+      </div>
+      <div class="wz-card">
+        <div class="reserves-wrap">
+          <label class="field-label" for="field-reserves-wz">Informations à confirmer / réserves <span class="field-label-optional">(facultatif)</span>${this.tooltip('Informations encore incertaines : prix à confirmer, date provisoire, texte non validé, gabarit en attente, mesure à vérifier…')}</label>
+          <p class="field-hint">Prix encore à confirmer, date provisoire, texte non validé, gabarit en attente, mesure à vérifier…</p>
+          <textarea id="field-reserves-wz" data-field="reserves" placeholder="Indiquez ici toute information encore incertaine ou à valider avant l'exécution." rows="3">${this.esc(State.data.reserves || '')}</textarea>
+        </div>
+        <label class="global-confirm-label ${globalConfirmed ? 'is-confirmed' : ''}" style="margin-top:20px">
+          <input type="checkbox" id="chk-global-confirm" ${globalConfirmed ? 'checked' : ''}>
+          <span>Je confirme que les informations obligatoires fournies sont correctes et exploitables par le studio graphique.</span>
+        </label>
+      </div>
+      <div class="wz-submit-block">
+        <button class="btn-wz-submit${ready && globalConfirmed ? ' ready' : ''}" id="btn-wz-submit"${ready && globalConfirmed ? '' : ' disabled'}>
+          Soumettre le brief
+        </button>
+        <p class="wz-submit-note" id="wz-submit-note">${
+          !ready ? 'Complétez les champs requis pour soumettre' :
+          !globalConfirmed ? 'Cochez la case de confirmation pour soumettre' :
+          'Brief prêt à envoyer ✓'
+        }</p>
+      </div>`;
+  },
+
+  renderWizardStep(step) {
+    switch (step) {
+      case 1: return this.wizardStep1();
+      case 2: return this.wizardStep2();
+      case 3: return this.wizardStep3();
+      case 4: return this.wizardStep4();
+      default: return this.wizardStep1();
+    }
   },
 
   /* ════════════════════════════════════════════════════════════

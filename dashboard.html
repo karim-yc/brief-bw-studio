@@ -26,13 +26,13 @@
   --prio:#EA580C;--prio-bg:#FFF7ED;--prio-border:#FED7AA;
   --normal-bg:#F3F4F6;--normal-text:#6B7280;
 
-  --campagne:#1D4ED8;--campagne-bg:#EFF6FF;
-  --packaging:#B45309;--packaging-bg:#FEF3C7;
-  --vitro:#166534;--vitro-bg:#F0FDF4;
+  --campagne:#4F46E5;--campagne-bg:#EEF2FF;
+  --packaging:#4F46E5;--packaging-bg:#EEF2FF;
+  --vitro:#4F46E5;--vitro-bg:#EEF2FF;
   --autre:#6B7280;--autre-bg:#F9FAFB;
 
-  /* Statuts : on adopte les teintes de la référence */
-  --status-soumis:#D97706;--status-soumis-bg:#FFFBEB;--status-soumis-border:#FDE68A;
+  /* Statuts */
+  --status-soumis:#4F46E5;--status-soumis-bg:#EEF2FF;--status-soumis-border:#C7D2FE;
   --status-encours:#2563EB;--status-encours-bg:#EFF6FF;--status-encours-border:#BFDBFE;
   --status-simul:#7C3AED;--status-simul-bg:#F5F3FF;--status-simul-border:#DDD6FE;
   --status-valide:#059669;--status-valide-bg:#ECFDF5;--status-valide-border:#A7F3D0;
@@ -164,7 +164,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 /* Accent priorité à gauche */
 .brief-card.is-urgent{border-left:3px solid var(--urgent)}
 .brief-card.is-prio{border-left:3px solid var(--prio)}
-.brief-card.is-retard{border-left:3px solid #dc2626}
+.brief-card.is-retard{border-left:3px solid #fca5a5}
 .brief-card.is-today{border-left:3px solid #ea580c}
 
 /* ── Vue toggle Liste / Calendrier ───────────────────────── */
@@ -256,15 +256,26 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 /* ── Detail drawer ────────────────────────────────────────────── */
 .drawer-overlay{position:fixed;inset:0;background:rgba(79,70,229,.2);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
 .drawer-overlay.open{opacity:1;pointer-events:all}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:440px;max-width:100vw;background:#fff;z-index:201;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.12)}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:480px;max-width:100vw;background:#fff;z-index:201;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.12)}
 .drawer.open{transform:translateX(0)}
-.drawer-head{background:linear-gradient(135deg,var(--indigo-dark),var(--indigo));padding:20px 20px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0}
-.drawer-id{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.65);margin-bottom:5px;text-transform:uppercase}
-.drawer-type{font-size:14px;color:#fff;font-weight:600;line-height:1.4}
+.drawer-head{background:linear-gradient(135deg,var(--indigo-dark),var(--indigo));padding:20px 20px 0;display:flex;flex-direction:column;gap:0;flex-shrink:0}
+.drawer-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:14px}
+.drawer-id{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.65);margin-bottom:4px;text-transform:uppercase}
+.drawer-type{font-size:15px;color:#fff;font-weight:600;line-height:1.3}
 .drawer-close{width:32px;height:32px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .drawer-close:hover{background:rgba(255,255,255,.3)}
-.drawer-body{flex:1;overflow-y:auto;padding:20px}
-.drawer-section{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border-light)}
+/* Drawer tabs */
+.drawer-tabs{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.12)}
+.drawer-tab{flex:1;padding:10px 8px;font-size:12px;font-weight:600;color:rgba(255,255,255,.55);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.drawer-tab:hover{color:rgba(255,255,255,.85)}
+.drawer-tab.active{color:#fff;border-bottom-color:#fff}
+.drawer-tab-badge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;background:rgba(255,255,255,.18);color:#fff}
+.drawer-tab.active .drawer-tab-badge{background:rgba(255,255,255,.3)}
+/* Drawer body */
+.drawer-body{flex:1;overflow-y:auto;padding:0}
+.drawer-tab-panel{padding:20px;display:none}
+.drawer-tab-panel.active{display:block}
+.drawer-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border-light)}
 .drawer-section:last-child{border-bottom:none;margin-bottom:0}
 .drawer-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);margin-bottom:6px}
 .drawer-val{font-size:13px;color:var(--text);line-height:1.6}
@@ -272,6 +283,47 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .drawer-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .drawer-foot{padding:14px 20px;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0;display:flex;gap:8px;flex-wrap:wrap}
 .drawer-foot .status-pill{font-size:11px;padding:5px 12px}
+/* Checklist styles */
+.checklist-section{margin-bottom:12px}
+.checklist-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-tertiary);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border-light)}
+.checklist-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--border-light)}
+.checklist-item:last-child{border-bottom:none}
+.checklist-cb{width:18px;height:18px;min-width:18px;border:1.5px solid var(--border);border-radius:4px;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:all .15s;padding:0;margin-top:1px;flex-shrink:0}
+.checklist-cb:hover{border-color:var(--indigo)}
+.checklist-item.cl-done .checklist-cb{background:var(--indigo);border-color:var(--indigo)}
+.checklist-item.cl-done .checklist-txt{color:var(--text-tertiary);text-decoration:line-through;text-decoration-color:var(--border)}
+.checklist-txt{font-size:12.5px;color:var(--text);line-height:1.45;flex:1}
+.checklist-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+.checklist-tag.ct-block{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.checklist-tag.ct-check{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.checklist-progress{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;background:var(--bg);border-radius:8px}
+.checklist-progress-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.checklist-progress-fill{height:100%;background:var(--indigo);border-radius:3px;transition:width .3s}
+.checklist-progress-txt{font-size:11px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
+/* Activity log */
+.assignee-avatar{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;cursor:pointer;vertical-align:middle}
+.assignee-empty{width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-tertiary);cursor:pointer;vertical-align:middle}
+.assignee-empty-sm{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--border);font-size:12px;color:var(--text-tertiary);vertical-align:middle}
+.assign-inline-btn{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);padding:4px 6px;border-radius:6px;font-family:inherit}
+.assign-inline-btn:hover{background:var(--surface)}
+.assign-picker{position:absolute;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;padding:4px;flex-direction:column;gap:1px;display:none}
+.assign-picker:not([hidden]){display:flex}
+.assign-option{display:flex;align-items:center;gap:8px;padding:7px 10px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text);font-family:inherit;width:100%;text-align:left}
+.assign-option:hover{background:var(--bg)}
+.assign-option.active{background:var(--indigo-bg,#eef2ff);color:var(--indigo)}
+.assign-dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.activity-log{display:flex;flex-direction:column;gap:0}
+.activity-entry{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light)}
+.activity-entry:last-child{border-bottom:none}
+.activity-dot-col{display:flex;flex-direction:column;align-items:center;gap:0}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;margin-top:4px}
+.activity-dot.dot-status{background:var(--indigo)}
+.activity-dot.dot-create{background:#22c55e}
+.activity-dot.dot-comment{background:#f59e0b}
+.activity-line{flex:1;width:1px;background:var(--border-light);margin-top:2px}
+.activity-body{flex:1;min-width:0}
+.activity-text{font-size:12.5px;color:var(--text);line-height:1.4}
+.activity-time{font-size:10.5px;color:var(--text-tertiary);margin-top:2px}
 
 /* ── Status modal ─────────────────────────────────────────────── */
 .status-modal{position:fixed;inset:0;background:rgba(79,70,229,.2);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
@@ -363,10 +415,10 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-header h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase;margin:0}
 .pd-pills{display:flex;gap:6px;flex-wrap:wrap}
 .pd-pill{font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;white-space:nowrap}
-.pd-pill.p-retard{background:#dc2626;color:#fff}
-.pd-pill.p-today{background:#ea580c;color:#fff}
-.pd-pill.p-week{background:#d97706;color:#fff}
-.pd-pill.p-ok{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}.pd-pill.p-urgent{background:#dc2626;color:#fff}.pd-pill.p-calm{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+.pd-pill.p-retard{background:#fee2e2;color:#b91c1c}
+.pd-pill.p-today{background:#ffedd5;color:#9a3412}
+.pd-pill.p-week{background:#fef3c7;color:#92400e}
+.pd-pill.p-ok{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}.pd-pill.p-urgent{background:#fee2e2;color:#b91c1c}.pd-pill.p-calm{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
 .pd-body{display:grid;grid-template-columns:1fr 200px;gap:0}
 @media(max-width:640px){.pd-body{grid-template-columns:1fr}}
 .pd-list{padding:8px 0;border-right:1px solid var(--border)}
@@ -376,9 +428,9 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-item:last-child{border-bottom:none}
 .pd-item:hover{background:var(--hover)}
 .pd-stripe{width:3px;flex-shrink:0;border-radius:2px;min-height:40px;align-self:stretch}
-.pd-stripe.s-retard{background:#dc2626}
-.pd-stripe.s-today{background:#ea580c}
-.pd-stripe.s-week{background:#d97706}
+.pd-stripe.s-retard{background:#fca5a5}
+.pd-stripe.s-today{background:#fdba74}
+.pd-stripe.s-week{background:#fcd34d}
 .pd-stripe.s-urgent{background:#dc2626}
 .pd-stripe.s-prio{background:#6366f1}
 .pd-stripe.s-later,.pd-stripe.s-nodate{background:var(--border)}
@@ -402,9 +454,9 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-bar-lbl{font-size:10px;color:var(--text-secondary);width:72px;flex-shrink:0;text-align:right}
 .pd-bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
 .pd-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
-.pd-bar-fill.f-retard{background:#dc2626}
-.pd-bar-fill.f-today{background:#ea580c}
-.pd-bar-fill.f-week{background:#d97706}
+.pd-bar-fill.f-retard{background:#fca5a5}
+.pd-bar-fill.f-today{background:#fdba74}
+.pd-bar-fill.f-week{background:#fcd34d}
 .pd-bar-fill.f-prio{background:#6366f1}
 .pd-bar-fill.f-later{background:#9ca3af}
 .pd-bar-fill.f-nodate{background:#d1d5db}
@@ -520,36 +572,149 @@ body { overflow-x: hidden; max-width: 100vw; }
   /* Boutons dans la liste priorités */
   .action-cta   { display: none; }          /* masqué sur très petit écran, tap sur la carte suffit */
 }
+
+/* ══════════════════════════════════════════════════════════════
+   APP SHELL — Sidebar + Main (refonte DA)
+   ══════════════════════════════════════════════════════════════ */
+.app-shell{display:flex;min-height:100vh}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+.sidebar{width:220px;background:rgba(20,17,60,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow:hidden}
+.sidebar-logo-wrap{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.sidebar-logo-icon{width:36px;height:36px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:14px;color:#3730A3;flex-shrink:0}
+.sidebar-logo-name{font-size:14px;font-weight:700;color:#fff;line-height:1.2}
+.sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.45);line-height:1}
+.sidebar-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.snav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.58);font-size:13px;font-weight:500;transition:all .15s;text-decoration:none;margin-bottom:1px;user-select:none}
+.snav-item:hover{background:rgba(255,255,255,.09);color:#fff}
+.snav-item.active{background:rgba(255,255,255,.16);color:#fff}
+.snav-item i{font-size:16px;flex-shrink:0}
+.snav-sep{height:1px;background:rgba(255,255,255,.07);margin:8px 4px}
+.sidebar-bottom{flex-shrink:0}
+.sidebar-sync-row{padding:10px 14px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:7px}
+.sidebar-sync-row .sync-dot{flex-shrink:0}
+.sidebar-sync-row .sync-lbl{font-size:11px;color:rgba(255,255,255,.45);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-sync-row .sync-btn{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:3px;border-radius:4px;font-size:13px;transition:color .15s}
+.sidebar-sync-row .sync-btn:hover{color:rgba(255,255,255,.8)}
+
+/* ── Main content ───────────────────────────────────────────── */
+.main-content{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+.page-header{padding:22px 28px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;flex-shrink:0}
+.page-greeting{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.2}
+.page-sub{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px}
+.page-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.page-body{background:var(--bg);border-radius:20px 20px 0 0;margin-top:18px;flex:1;padding:24px 28px 72px;min-width:0}
+
+/* ── KPI 3-cartes ───────────────────────────────────────────── */
+.kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:900px){.kpi-grid-3{grid-template-columns:repeat(3,1fr)}}
+.kpi-card-lg{background:#fff;border-radius:16px;border:1px solid var(--border);padding:22px 20px;box-shadow:var(--shadow-card);cursor:default;transition:transform .2s,box-shadow .2s}
+.kpi-card-lg:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,70,229,.14)}
+.kpi-card-lg.kpi-clickable{cursor:pointer}
+.kpi-card-lg .kpi-val{font-size:42px;font-weight:800;line-height:1;letter-spacing:-2px;color:var(--text);margin-bottom:6px}
+.kpi-card-lg .kpi-val.red{color:var(--urgent)}
+.kpi-card-lg .kpi-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary)}
+
+/* ── Tabs filtre ────────────────────────────────────────────── */
+.page-tabs{display:flex;align-items:center;gap:2px;background:#eff0f4;border-radius:10px;padding:3px;width:fit-content;margin-bottom:16px}
+.page-tab{padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-secondary);border:none;background:none;font-family:'Inter',sans-serif;transition:all .15s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.page-tab:hover{color:var(--text)}
+.page-tab.active{background:#fff;color:var(--indigo);box-shadow:0 1px 4px rgba(0,0,0,.09)}
+.tab-badge{font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px;background:var(--border);color:var(--text-secondary);transition:all .15s}
+.page-tab.active .tab-badge{background:var(--indigo-bg);color:var(--indigo)}
+
+/* ── Table briefs ───────────────────────────────────────────── */
+.briefs-table-wrap{background:#fff;border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow-card)}
+.briefs-table{width:100%;border-collapse:collapse}
+.briefs-table thead th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);padding:11px 16px;border-bottom:1px solid var(--border);text-align:left;background:#fafafa;white-space:nowrap}
+.briefs-table tbody tr{border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .12s}
+.briefs-table tbody tr:last-child{border-bottom:none}
+.briefs-table tbody tr:hover{background:#f7f8ff}
+.briefs-table td{padding:12px 16px;vertical-align:middle}
+.bt-demande-wrap{min-width:180px;max-width:320px}
+.bt-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px}
+.bt-id-row{display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap}
+.bt-subid{font-size:10px;color:var(--text-tertiary);font-weight:500}
+.bt-date{font-size:12px;color:var(--text-secondary);white-space:nowrap}
+.bt-date.late{color:var(--urgent);font-weight:600}
+.bt-date.soon{color:#d97706;font-weight:600}
+.bt-assignee{display:flex;align-items:center;gap:8px;min-width:100px}
+.bt-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.bt-name{font-size:12px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+
+/* ── Responsive sidebar ─────────────────────────────────────── */
+@media(max-width:900px){
+  .sidebar{width:64px}
+  .sidebar-logo-name,.sidebar-logo-sub,.snav-item span,.sidebar-sync-row .sync-lbl{display:none}
+  .sidebar-logo-wrap{padding:14px 12px;justify-content:center}
+  .snav-item{justify-content:center;padding:10px}
+  .snav-item i{font-size:18px}
+  .main-content{margin-left:64px}
+  .page-header{padding:16px 16px 0}
+  .page-body{padding:16px 16px 60px}
+}
+@media(max-width:600px){
+  .sidebar{display:none}
+  .main-content{margin-left:0}
+  .page-header{padding:12px 12px 0}
+  .page-body{padding:12px 12px 48px;border-radius:12px 12px 0 0;margin-top:12px}
+  .kpi-grid-3{grid-template-columns:repeat(3,1fr);gap:8px}
+  .kpi-card-lg .kpi-val{font-size:28px}
+  .briefs-table thead{display:none}
+  .briefs-table td{display:block;padding:6px 12px}
+  .briefs-table td:first-child{padding-top:12px}
+  .briefs-table td:last-child{padding-bottom:12px}
+}
 </style>
 </head>
 <body>
+<div class="app-shell">
 
-<!-- HEADER -->
-<header class="hdr">
-  <div class="hdr-brand">
-    <div class="hdr-logo">BW</div>
+<!-- ═══ SIDEBAR ══════════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo-wrap">
+    <div class="sidebar-logo-icon">BW</div>
     <div>
-      <div class="hdr-title">Studio Créatif</div>
-      <div class="hdr-sub">Multi-marques · Dashboard</div>
+      <div class="sidebar-logo-name">Studio Créatif</div>
+      <div class="sidebar-logo-sub">Multi-marques</div>
     </div>
   </div>
-  <div class="hdr-actions">
-    <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
-    <a href="v2/index.html" class="hdr-btn hdr-btn-primary"><i class="ti ti-plus"></i><span class="hdr-btn-lbl"> Nouvelle demande</span></a>
+  <div class="sidebar-nav">
+    <a class="snav-item active" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
+    <a class="snav-item" href="v2/index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
+    <div class="snav-sep"></div>
+    <div class="snav-item" onclick="setViewMode('list');document.querySelector('.snav-item.cal-nav-item')?.classList.remove('active');this.classList.add('active')"><i class="ti ti-list"></i><span>Demandes</span></div>
+    <div class="snav-item cal-nav-item" onclick="setViewMode('calendar');document.querySelectorAll('.snav-item').forEach(e=>e.classList.remove('active'));this.classList.add('active')"><i class="ti ti-calendar-month"></i><span>Calendrier</span></div>
+    <div class="snav-item" onclick="document.getElementById('stats-toggle').click()"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
   </div>
-</header>
+  <div class="sidebar-bottom">
+    <div class="sidebar-sync-row">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span class="sync-lbl" id="sync-label">Chargement...</span>
+      <button class="sync-btn" onclick="loadData()" title="Actualiser"><i class="ti ti-refresh"></i></button>
+    </div>
+  </div>
+</nav>
 
-<!-- SYNC BAR -->
-<div class="sync-bar">
-  <div class="sync-info">
-    <span class="sync-dot" id="sync-dot"></span>
-    <span id="sync-label">Chargement...</span>
+<!-- ═══ MAIN CONTENT ════════════════════════════════════════= -->
+<div class="main-content">
+
+  <!-- En-tête page -->
+  <div class="page-header">
+    <div>
+      <div class="page-greeting">Bienvenue, Studio</div>
+      <div class="page-sub" id="page-date-range">Dashboard · Briefs actifs</div>
+    </div>
+    <div class="page-actions">
+      <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
+    </div>
   </div>
-  <button class="sync-refresh" onclick="loadData()"><i class="ti ti-refresh"></i> Sync</button>
-</div>
+
+  <!-- Corps de page -->
+  <div class="page-body">
 
 <!-- DEBUG PANEL (visible si problème) -->
-<div id="bw-debug">
+<div id="bw-debug" style="margin-bottom:12px;border-radius:var(--r)">
   <div class="dbg-row"><span class="dbg-lbl">Build</span><span class="dbg-val" id="dbg-build">—</span></div>
   <div class="dbg-row"><span class="dbg-lbl">Source testée</span><span class="dbg-val" id="dbg-source">—</span></div>
   <div class="dbg-row"><span class="dbg-lbl">HTTP status</span><span class="dbg-val" id="dbg-status">—</span></div>
@@ -560,8 +725,8 @@ body { overflow-x: hidden; max-width: 100vw; }
   <details><summary>Extrait réponse brute</summary><div class="dbg-val" id="dbg-raw" style="white-space:pre-wrap;max-height:120px;overflow-y:auto;margin-top:4px;background:#0f0f1a;padding:6px;border-radius:4px"></div></details>
   <div class="dbg-row"><span class="dbg-err" id="dbg-error"></span></div>
 </div>
-<!-- FILTERS -->
-<div class="filters-wrap">
+<!-- FILTERS (compact bar dans page-body) -->
+<div class="filters-wrap" style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:10px 16px;margin-bottom:16px;box-shadow:var(--shadow-card)">
   <div class="filters-row">
     <div class="search-input">
       <i class="ti ti-search"></i>
@@ -569,62 +734,43 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Période <span class="tt" data-tt="Filtre basé sur la date de soumission du brief, pas sur la date de lancement."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Filtre basé sur la date de soumission du brief, pas sur la date de lancement.</span></span></span>
+      <span class="filter-label">Période</span>
       <button class="filter-chip active" data-days="0" onclick="setDayFilter(this)">Tout</button>
       <button class="filter-chip" data-days="7" onclick="setDayFilter(this)">7j</button>
       <button class="filter-chip" data-days="30" onclick="setDayFilter(this)">30j</button>
       <button class="filter-chip" data-days="90" onclick="setDayFilter(this)">3m</button>
     </div>
-  </div>
-  <div class="filters-row">
+    <span class="filter-sep"></span>
     <div class="filter-group">
       <span class="filter-label">Type</span>
       <button class="filter-chip active" data-type="" onclick="setTypeFilter(this)">Tous</button>
       <button class="filter-chip fc-campagne" data-type="Campagne Marketing" onclick="setTypeFilter(this)">Campagne</button>
       <button class="filter-chip fc-packaging" data-type="Packaging" onclick="setTypeFilter(this)">Packaging</button>
-      <button class="filter-chip fc-vitro" data-type="Vitrophanie / Travaux" onclick="setTypeFilter(this)">Vitrophanie</button>
+      <button class="filter-chip fc-vitro" data-type="Vitrophanie / Travaux" onclick="setTypeFilter(this)">Vitro</button>
       <button class="filter-chip" data-type="Autre demande" onclick="setTypeFilter(this)">Autre</button>
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Priorité <span class="tt" data-tt="Normal = délai classique. Prioritaire = à traiter avant d'autres. Urgent = délai court ou contrainte forte."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Normal = délai classique. Prioritaire = à traiter avant d'autres. Urgent = délai court ou contrainte forte.</span></span></span>
+      <span class="filter-label">Priorité</span>
       <button class="filter-chip active" data-prio="" onclick="setPrioFilter(this)">Toutes</button>
       <button class="filter-chip fc-urgent" data-prio="urgent" onclick="setPrioFilter(this)">Urgent</button>
       <button class="filter-chip fc-prio" data-prio="prioritaire" onclick="setPrioFilter(this)">Prioritaire</button>
-      <button class="filter-chip" data-prio="normal" onclick="setPrioFilter(this)">Normal</button>
     </div>
     <span class="filter-sep"></span>
     <div class="filter-group">
-      <span class="filter-label">Statut <span class="tt" data-tt="Soumis = reçu, en attente. En cours = production. Simulation = aperçu envoyé. Validé = approuvé. Livré = fichiers transmis."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Soumis = reçu, en attente. En cours = production. Simulation = aperçu envoyé. Validé = approuvé. Livré = fichiers transmis.</span></span></span>
-      <button class="filter-chip active" data-statut="" onclick="setStatutFilter(this)">Tous</button>
-      <button class="filter-chip" data-statut="soumis" onclick="setStatutFilter(this)">Soumis</button>
-      <button class="filter-chip" data-statut="encours" onclick="setStatutFilter(this)">En cours</button>
-      <button class="filter-chip" data-statut="simulation" onclick="setStatutFilter(this)">Simulation</button>
-      <button class="filter-chip" data-statut="valide" onclick="setStatutFilter(this)">Validé</button>
-      <button class="filter-chip" data-statut="livre" onclick="setStatutFilter(this)">Livré</button>
-    </div>
-    <span class="filter-sep"></span>
-    <div class="filter-group">
-      <span class="filter-label">Marque <span class="tt" data-tt="Filtre par marque concernée par le brief."><span class="tt-icon" tabindex="0">i</span><span class="tt-bubble">Filtre par marque concernée par le brief.</span></span></span>
+      <span class="filter-label">Marque</span>
       <button class="filter-chip active" data-marque="" onclick="setMarqueFilter(this)">Toutes</button>
-      <button class="filter-chip" data-marque="bnw" onclick="setMarqueFilter(this)">B&W Burger</button>
-      <button class="filter-chip" data-marque="marquise" onclick="setMarqueFilter(this)">Maison Marquise</button>
-      <button class="filter-chip" data-marque="autre" onclick="setMarqueFilter(this)">Autre</button>
+      <button class="filter-chip" data-marque="bnw" onclick="setMarqueFilter(this)">B&W</button>
+      <button class="filter-chip" data-marque="marquise" onclick="setMarqueFilter(this)">Marquise</button>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<main class="main">
-
-  <!-- KPIs -->
-  <div class="kpi-grid" id="kpi-grid">
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
-    <div class="kpi-card"><div class="skeleton" style="height:28px;width:40px;margin:0 auto 6px"></div><div class="skeleton" style="height:10px;width:64px;margin:0 auto"></div></div>
+  <!-- KPIs (3 grandes cartes) -->
+  <div class="kpi-grid kpi-grid-3" id="kpi-grid">
+    <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
+    <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
+    <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
   </div>
 
   <!-- CHARGE STUDIO (Pépite 7) -->
@@ -648,12 +794,19 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
   </div>
 
-  <!-- BRIEFS LIST -->
-  <div class="section-hd">
-    <div style="display:flex;align-items:center;gap:8px"><h2>Briefs</h2><span id="briefs-count" style="font-family:'Inter',sans-serif;font-weight:400;font-size:12px;color:var(--text-tertiary)"></span></div>
-    <div class="view-toggle">
-      <button class="view-btn active" id="btn-list" onclick="setViewMode('list')" title="Vue liste"><i class="ti ti-list"></i></button>
-      <button class="view-btn" id="btn-cal"  onclick="setViewMode('calendar')" title="Vue calendrier"><i class="ti ti-calendar-month"></i></button>
+  <!-- TABS + BRIEFS TABLE -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div class="page-tabs" id="page-tabs">
+      <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">Ouvrir <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
+      <button class="page-tab" data-tab="complete" onclick="setTabFilter(this,'complete')">Complété <span class="tab-badge" id="tab-cnt-complete">—</span></button>
+      <button class="page-tab" data-tab="tous" onclick="setTabFilter(this,'tous')">Tous <span class="tab-badge" id="tab-cnt-tous">—</span></button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="briefs-count" style="font-size:12px;color:var(--text-tertiary)"></span>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-list" onclick="setViewMode('list')" title="Vue liste"><i class="ti ti-list"></i></button>
+        <button class="view-btn" id="btn-cal"  onclick="setViewMode('calendar')" title="Vue calendrier"><i class="ti ti-calendar-month"></i></button>
+      </div>
     </div>
   </div>
   <div id="briefs-list" class="briefs-list"></div>
@@ -689,7 +842,9 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
   </div>
 
-</main>
+  </div><!-- .page-body -->
+</div><!-- .main-content -->
+</div><!-- .app-shell -->
 
 
 <!-- ZONE IMPRESSION PDF (cachée, peuplée par JS) -->
@@ -699,13 +854,24 @@ body { overflow-x: hidden; max-width: 100vw; }
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="brief-drawer">
   <div class="drawer-head">
-    <div>
-      <div class="drawer-id" id="d-id"></div>
-      <div class="drawer-type" id="d-type"></div>
+    <div class="drawer-head-top">
+      <div>
+        <div class="drawer-id" id="d-id"></div>
+        <div class="drawer-type" id="d-type"></div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">×</button>
     </div>
-    <button class="drawer-close" onclick="closeDrawer()">×</button>
+    <div class="drawer-tabs" id="drawer-tabs">
+      <button class="drawer-tab active" data-panel="details" onclick="switchDrawerTab(this,'details')"><i class="ti ti-file-text"></i> Détails</button>
+      <button class="drawer-tab" data-panel="checklist" onclick="switchDrawerTab(this,'checklist')"><i class="ti ti-checklist"></i> Checklist <span class="drawer-tab-badge" id="d-cl-badge">—</span></button>
+      <button class="drawer-tab" data-panel="activity" onclick="switchDrawerTab(this,'activity')"><i class="ti ti-history"></i> Activité</button>
+    </div>
   </div>
-  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-body" id="drawer-body">
+    <div class="drawer-tab-panel active" id="panel-details"></div>
+    <div class="drawer-tab-panel" id="panel-checklist"></div>
+    <div class="drawer-tab-panel" id="panel-activity"></div>
+  </div>
   <div class="drawer-foot" id="drawer-foot"></div>
 </div>
 
@@ -777,7 +943,7 @@ function selectStatus(opt) {
 function statusPill(briefId, e_stopper) {
   const s = getStatut(briefId);
   const onclick = e_stopper ? `openStatusModal('${briefId}',event)` : `openStatusModal('${briefId}')`;
-  return `<span class="status-pill ${STATUS_CSS[s]||'st-soumis'}" onclick="${onclick}" title="Changer le statut">${STATUS_LABELS[s]||s} ✎</span>`;
+  return `<span class="status-pill ${STATUS_CSS[s]||'st-soumis'}" onclick="${onclick}" title="Changer le statut">${STATUS_LABELS[s]||s}</span>`;
 }
 
 /* ── Normalisation localStorage V2 → format unifié ──────── */
@@ -1064,6 +1230,12 @@ function applyFilters() {
     const q=fSearch.trim().toLowerCase();
     data=data.filter(b=>(b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q));
   }
+  // Tab filter (Ouvrir / Complété / Tous)
+  if(tabFilter==='ouvert') {
+    data=data.filter(b=>{ const s=getStatut(b.briefId); return s!=='livre'&&s!=='valide'; });
+  } else if(tabFilter==='complete') {
+    data=data.filter(b=>{ const s=getStatut(b.briefId); return s==='livre'||s==='valide'; });
+  }
   filteredBriefs=data;
   renderDashboard(data);
 }
@@ -1115,8 +1287,17 @@ function toggleReserve(briefId, idx, total) {
       ? `ℹ Infos à confirmer · ${openCount} ouverte${openCount>1?'s':''}`
       : '✓ Infos à confirmer · Tout résolu';
   }
-  // Refresh brief cards to update badge
+  // Refresh checklist panel + brief cards
+  if (_currentDrawerBrief && _currentDrawerBrief.briefId === briefId) renderChecklistPanel(_currentDrawerBrief);
   renderBriefs(filteredBriefs);
+}
+
+/* ── Tab filter (Ouvrir / Complété / Tous) ───────────────── */
+let tabFilter = 'ouvert';
+function setTabFilter(btn, tab) {
+  tabFilter = tab;
+  document.querySelectorAll('.page-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  applyFilters();
 }
 
 /* ── Recherche ────────────────────────────────────────────── */
@@ -1176,24 +1357,28 @@ function tt(text) {
 }
 
 function renderKPIs(data) {
-  const total = allBriefs.length; // sur tous, pas filtrés
+  const total = allBriefs.length;
   const urgent = data.filter(b=>b.priorite==='urgent').length;
   const enRetard = allBriefs.filter(b=>categorizeBrief(b)?.cat==='retard').length;
-  const campagnes = data.filter(b=>b.typeDemande==='Campagne Marketing').length;
-  const packaging = data.filter(b=>b.typeDemande==='Packaging').length;
-  const vitro = data.filter(b=>b.typeDemande==='Vitrophanie / Travaux').length;
 
   G('kpi-grid').innerHTML = [
-    {val:total,    lbl:'Total briefs',  color:'', tip:'Nombre total de briefs visibles selon les filtres actifs.'},
-    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':'', tip:'Briefs marqués comme urgents lors de la soumission.'},
-    {val:enRetard, lbl:'En retard',     color:enRetard>0?'red':'', tip:'Briefs dont la deadline est dépassée et non encore livrés.', onclick:'toggleRetardFilter()'},
-    {val:campagnes,lbl:'Campagnes',     color:'', tip:'Nombre de briefs Campagne Marketing dans les filtres actifs.'},
-    {val:packaging,lbl:'Packaging',     color:'', tip:'Nombre de briefs Packaging dans les filtres actifs.'},
-    {val:vitro,    lbl:'Vitrophanie',   color:'', tip:'Nombre de briefs Vitrophanie / Travaux dans les filtres actifs.'},
-  ].map(k=>`<div class="kpi-card${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
+    {val:total,    lbl:'Total briefs',  color:'', tip:'Nombre total de briefs.'},
+    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':'', tip:'Briefs marqués comme urgents.'},
+    {val:enRetard, lbl:'En retard',     color:enRetard>0?'red':'', tip:'Deadlines dépassées, non livrés.', onclick:'toggleRetardFilter()'},
+  ].map(k=>`<div class="kpi-card kpi-card-lg${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
     <div class="kpi-val ${k.color}">${k.val}</div>
     <div class="kpi-lbl">${k.lbl}${tt(k.tip)}</div>
   </div>`).join('');
+
+  // Update tab counts
+  const statuts = (() => { try { return JSON.parse(localStorage.getItem('bw_brief_statuts')||'{}'); } catch(e){ return {}; } })();
+  const isComplete = b => { const s=(statuts[b.briefId]||'').toLowerCase(); return s==='livre'||s==='valide'; };
+  const ouvert = allBriefs.filter(b=>!isComplete(b)).length;
+  const complete = allBriefs.filter(b=>isComplete(b)).length;
+  const tous = allBriefs.length;
+  const tc = G('tab-cnt-ouvert'); if(tc) tc.textContent=ouvert;
+  const tc2 = G('tab-cnt-complete'); if(tc2) tc2.textContent=complete;
+  const tc3 = G('tab-cnt-tous'); if(tc3) tc3.textContent=tous;
 }
 
 /* ── Render actions urgentes ──────────────────────────────── */
@@ -1350,47 +1535,83 @@ function renderPriorities(data) {
   }
 }
 
-/* ── Render briefs cards ──────────────────────────────────── */
+/* ── Avatar helper ───────────────────────────────────────── */
+function avatarColor(str) {
+  const palette=['#6366F1','#8B5CF6','#EC4899','#EF4444','#F59E0B','#10B981','#3B82F6','#14B8A6'];
+  let h=0; for(let i=0;i<(str||'').length;i++) h=(h*31+str.charCodeAt(i))&0xffff;
+  return palette[h%palette.length];
+}
+function avatarInitials(name) {
+  if(!name) return '?';
+  const parts=(name||'').trim().split(/\s+/);
+  if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+  return (name||'?')[0].toUpperCase();
+}
+
+/* ── Render briefs table ─────────────────────────────────── */
 function renderBriefs(data) {
-  const el=G('briefs-list'), cnt=G('briefs-count'); const dbgR=G('dbg-rendered'); if(dbgR) dbgR.textContent=data.length+' briefs après filtres';
+  const el=G('briefs-list'), cnt=G('briefs-count');
+  const dbgR=G('dbg-rendered'); if(dbgR) dbgR.textContent=data.length+' briefs après filtres';
   if(cnt) cnt.textContent=data.length+' brief'+(data.length>1?'s':'');
   el.style.display = viewMode === 'list' ? '' : 'none';
   if(!data.length) {
     el.innerHTML=`<div class="empty-state"><i class="ti ti-file-off"></i><p>Aucun brief ne correspond aux filtres.<br>Ou <a href="v2/index.html">créez un nouveau brief →</a></p></div>`;
     return;
   }
-  el.innerHTML=data.map((b,_i)=>{
-    const st=getStatut(b.briefId);
-    const detail=ctxDetail(b);
+  const rows = data.map((b,_i)=>{
     const cat=categorizeBrief(b);
-    const deadlineCls=cat?.cat==='retard'?'is-retard':cat?.cat==='today'?'is-today':'';
-    const borderCls=b.priorite==='urgent'?'is-urgent':b.priorite==='prioritaire'?'is-prio':'';
-    const mBadge=marqueBadge(b.marque);
-    const deadlineBadge=cat?.badge||'';
+    // Date column
+    let dateCls='bt-date', dateStr='—';
+    if(b.dateLancement && b.dateLancement!=='—') {
+      dateStr=fmtDate(b.dateLancement);
+      if(cat?.cat==='retard') dateCls='bt-date late';
+      else if(cat?.cat==='today'||cat?.cat==='week') dateCls='bt-date soon';
+    }
+    const demandeur = b.demandeur || b.departement || '—';
+    // Deadline label
+    const deadlineLabel = cat?.dateLabel ? cat.dateLabel : (b.dateLancement&&b.dateLancement!=='—'?fmtDate(b.dateLancement):'—');
+    // Reserves badge
     const resBadge=(() => {
       if (!b.reserves) return '';
       const items = b.reserves.split('\n').map(s=>s.trim()).filter(Boolean);
       if (!items.length) return '';
       const open = items.length - getReserves(b.briefId).size;
       if (open <= 0) return '';
-      return `<span class="pd-badge b-clarify" title="${open} infos à confirmer">⚠ ${open} à confirmer</span>`;
+      return `<span class="pd-badge b-clarify" style="margin-left:4px">⚠ ${open}</span>`;
     })();
-    return `<div class="brief-card ${borderCls} ${deadlineCls}" onclick="openDrawer('${b.briefId}', ${_i})">
-      <div class="brief-card-top">
-        <span class="brief-id">${b.briefId||'—'}</span>
-        <div class="brief-badges">${deadlineBadge}${resBadge}${typeBadge(b.typeDemande)}${mBadge}${prioBadge(b.priorite)}</div>
-      </div>
-      <div class="brief-ctx">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
-      ${detail?`<div class="brief-detail">${detail}</div>`:''}
-      <div class="brief-foot">
-        <div class="brief-who"><strong>${b.demandeur||'—'}</strong> · ${b.departement||'—'}</div>
-        <div class="brief-right">
-          ${statusPill(b.briefId,true)}
-          ${cat?.dateLabel?`<span class="brief-date">${cat.dateLabel}</span>`:b.dateLancement&&b.dateLancement!=='—'?`<span class="brief-date"><i class="ti ti-calendar"></i>${fmtDate(b.dateLancement)}</span>`:''}
+    return `<tr onclick="openDrawer('${b.briefId}', ${_i})">
+      <td class="bt-demande-wrap">
+        <div class="bt-title">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
+        <div class="bt-id-row">
+          <span class="bt-subid">${b.briefId||'—'}</span>
+          ${typeBadge(b.typeDemande)}
+          ${marqueBadge(b.marque)}
+          ${resBadge}
         </div>
-      </div>
-    </div>`;
+      </td>
+      <td>${prioBadge(b.priorite)}</td>
+      <td>${statusPill(b.briefId,true)}</td>
+      <td><span class="${dateCls}">${deadlineLabel}</span></td>
+      <td>
+        <div class="bt-assignee" style="cursor:pointer" onclick="openAssignPicker('${b.briefId}',event)" title="Attribuer">
+          ${assigneeAvatar(b.briefId)}
+        </div>
+      </td>
+    </tr>`;
   }).join('');
+
+  el.innerHTML=`<div class="briefs-table-wrap">
+    <table class="briefs-table">
+      <thead><tr>
+        <th>DEMANDE</th>
+        <th>PRIORITÉ</th>
+        <th>STATUT</th>
+        <th>DATE D'ÉCHÉANCE</th>
+        <th>ATTRIBUÉ</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
 }
 
 /* ── Vue mode toggle ──────────────────────────────────────── */
@@ -1605,6 +1826,194 @@ function closeDrawer() {
   G('drawer-overlay').classList.remove('open');
   document.body.style.overflow='';
 }
+/* ── Checklists de production par type ──────────────────────── */
+const CHECKLISTS = {
+  'Campagne Marketing': [
+    { txt: 'Texte exact validé par le demandeur', tag: 'block' },
+    { txt: 'Prix et mentions légales confirmés', tag: 'block' },
+    { txt: 'Visuels / photos produit disponibles', tag: 'check' },
+    { txt: 'Formats & supports définis', tag: 'check' },
+    { txt: 'Lien Drive / références partagé', tag: 'check' },
+    { txt: 'Date de diffusion confirmée', tag: 'block' },
+    { txt: 'Validation finale client avant export', tag: 'block' },
+  ],
+  'Packaging': [
+    { txt: 'Texte exact packaging validé', tag: 'block' },
+    { txt: 'Version du logo confirmée', tag: 'block' },
+    { txt: 'Dimensions / format fournis', tag: 'block' },
+    { txt: 'Gabarit fournisseur disponible', tag: 'check' },
+    { txt: 'Matière / support définie', tag: 'check' },
+    { txt: 'BAT envoyé et validé', tag: 'block' },
+  ],
+  'Vitrophanie / Travaux': [
+    { txt: 'Mesures exactes confirmées', tag: 'block' },
+    { txt: 'Photos de la devanture disponibles', tag: 'block' },
+    { txt: 'Plan vectoriel fourni', tag: 'check' },
+    { txt: 'Contraintes de pose notées', tag: 'check' },
+    { txt: 'Matière / support définie', tag: 'check' },
+    { txt: 'BAT envoyé et validé', tag: 'block' },
+  ],
+  'Autre demande': [
+    { txt: 'Brief détaillé reçu', tag: 'block' },
+    { txt: 'Références ou exemples partagés', tag: 'check' },
+    { txt: 'Format de livraison précisé', tag: 'check' },
+    { txt: 'Validation finale client', tag: 'block' },
+  ],
+};
+
+const CL_KEY = 'bw_checklists_v1';
+const ASSIGN_KEY = 'bw_brief_assignments_v1';
+const TEAM_MEMBERS = [
+  { id: 'unassigned', name: '—', initials: '—', color: '#6b7280' },
+  { id: 'karim',     name: 'Karim',    initials: 'K',  color: '#6366f1' },
+  { id: 'sarah',     name: 'Sarah',    initials: 'S',  color: '#ec4899' },
+  { id: 'thomas',    name: 'Thomas',   initials: 'T',  color: '#f59e0b' },
+  { id: 'lea',       name: 'Léa',      initials: 'L',  color: '#10b981' },
+  { id: 'autre',     name: 'Autre',    initials: 'A',  color: '#94a3b8' },
+];
+function getAssignment(briefId) {
+  try { return JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}')[briefId]||null; } catch(e){ return null; }
+}
+function setAssignment(briefId, memberId) {
+  try {
+    const all = JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}');
+    if (!memberId || memberId === 'unassigned') { delete all[briefId]; }
+    else { all[briefId] = memberId; }
+    localStorage.setItem(ASSIGN_KEY, JSON.stringify(all));
+    if (_currentDrawerBrief && _currentDrawerBrief.briefId === briefId) renderDrawer(_currentDrawerBrief);
+    renderBriefs(_lastBriefs);
+  } catch(e) {}
+}
+function getMemberById(id) { return TEAM_MEMBERS.find(m=>m.id===id)||null; }
+function assigneeAvatar(briefId, size) {
+  const id = getAssignment(briefId);
+  const m = id ? getMemberById(id) : null;
+  if (!m || m.id==='unassigned') return `<span class="assignee-empty" title="Non attribué" onclick="openAssignPicker('${briefId}',event)">+</span>`;
+  return `<span class="assignee-avatar" style="background:${m.color}" title="${m.name}" onclick="openAssignPicker('${briefId}',event)">${m.initials}</span>`;
+}
+let _assignPickerBriefId = null;
+function openAssignPicker(briefId, e) {
+  e.stopPropagation();
+  _assignPickerBriefId = briefId;
+  let picker = document.getElementById('assign-picker');
+  if (!picker) {
+    picker = document.createElement('div');
+    picker.id = 'assign-picker';
+    picker.className = 'assign-picker';
+    document.body.appendChild(picker);
+  }
+  const current = getAssignment(briefId);
+  picker.innerHTML = TEAM_MEMBERS.map(m =>
+    `<button class="assign-option${current===m.id?' active':''}" onclick="setAssignment('${briefId}','${m.id}');closeAssignPicker()">
+      <span class="assign-dot" style="background:${m.color}">${m.id==='unassigned'?'':m.initials}</span>
+      ${m.name}
+    </button>`
+  ).join('');
+  const rect = e.target.getBoundingClientRect();
+  picker.style.top = (rect.bottom + 6 + window.scrollY) + 'px';
+  picker.style.left = (rect.left + window.scrollX) + 'px';
+  picker.hidden = false;
+  setTimeout(() => document.addEventListener('click', closeAssignPicker, { once: true }), 10);
+}
+function closeAssignPicker() {
+  const p = document.getElementById('assign-picker');
+  if (p) p.hidden = true;
+}
+function getChecklist(briefId) {
+  try { return JSON.parse(localStorage.getItem(CL_KEY)||'{}')[briefId]||{}; } catch(e){ return {}; }
+}
+function toggleChecklistItem(briefId, idx) {
+  try {
+    const all = JSON.parse(localStorage.getItem(CL_KEY)||'{}');
+    if (!all[briefId]) all[briefId] = {};
+    all[briefId][idx] = !all[briefId][idx];
+    localStorage.setItem(CL_KEY, JSON.stringify(all));
+    renderChecklistPanel(_currentDrawerBrief);
+  } catch(e) {}
+}
+
+function switchDrawerTab(btn, panel) {
+  document.querySelectorAll('.drawer-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.drawer-tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const el = G('panel-'+panel);
+  if (el) el.classList.add('active');
+}
+
+function getActivityLog(b) {
+  const log = [];
+  // Création
+  if (b.submittedAt) {
+    const d = new Date(b.submittedAt);
+    log.push({ type:'create', text:`Brief soumis par <strong>${b.demandeur||'—'}</strong>`, time: d });
+  }
+  // Statuts sauvegardés (simulés depuis localStorage — on affiche le statut courant)
+  const st = getStatut(b.briefId);
+  if (st && st !== 'soumis') {
+    log.push({ type:'status', text:`Statut mis à jour : <strong>${STATUS_LABELS[st]||st}</strong>`, time: null });
+  }
+  // Réserves résolues
+  const resItems = (b.reserves||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  const resolved = getReserves(b.briefId);
+  if (resItems.length) {
+    const openCount = resItems.length - resolved.size;
+    if (resolved.size > 0) {
+      log.push({ type:'comment', text:`${resolved.size} réserve${resolved.size>1?'s':''} marquée${resolved.size>1?'s':''} comme résolue${resolved.size>1?'s':''}`, time: null });
+    }
+    if (openCount > 0) {
+      log.push({ type:'comment', text:`${openCount} info${openCount>1?'s':''} en attente de confirmation`, time: null });
+    }
+  }
+  return log.reverse();
+}
+
+function renderChecklistPanel(b) {
+  const el = G('panel-checklist');
+  if (!el) return;
+  const items = CHECKLISTS[b.typeDemande] || CHECKLISTS['Autre demande'];
+  const state = getChecklist(b.briefId);
+  const done = items.filter((_,i)=>state[i]).length;
+  const total = items.length;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  // Update badge
+  const badge = G('d-cl-badge');
+  if (badge) badge.textContent = `${done}/${total}`;
+
+  el.innerHTML = `
+    <div class="checklist-progress">
+      <div class="checklist-progress-bar"><div class="checklist-progress-fill" style="width:${pct}%"></div></div>
+      <span class="checklist-progress-txt">${done}/${total} fait${done>1?'s':''}</span>
+    </div>
+    <div class="checklist-section">
+      <div class="checklist-title">Checklist — ${b.typeDemande||'Autre demande'}</div>
+      ${items.map((item,i)=>{
+        const isDone = !!state[i];
+        return `<div class="checklist-item${isDone?' cl-done':''}">
+          <button class="checklist-cb" onclick="toggleChecklistItem('${b.briefId}',${i})">${isDone?'<i class="ti ti-check"></i>':''}</button>
+          <span class="checklist-txt">${item.txt}</span>
+          <span class="checklist-tag ${item.tag==='block'?'ct-block':'ct-check'}">${item.tag==='block'?'Bloquant':'À vérif.'}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    ${b.reserves ? (() => {
+      const resItems = b.reserves.split('\n').map(s=>s.trim()).filter(Boolean);
+      if(!resItems.length) return '';
+      const resolved = getReserves(b.briefId);
+      return `<div class="checklist-section">
+        <div class="checklist-title">Infos à confirmer (${resItems.length - resolved.size} ouvertes)</div>
+        ${resItems.map((txt,i)=>{
+          const done2 = resolved.has(i);
+          return `<div class="checklist-item${done2?' cl-done':''}">
+            <button class="checklist-cb" onclick="toggleReserve('${b.briefId}',${i},${resItems.length})">${done2?'<i class="ti ti-check"></i>':''}</button>
+            <span class="checklist-txt">${txt}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    })() : ''}
+  `;
+}
+
 function renderDrawer(b) {
   G('d-id').textContent=b.briefId;
   G('d-type').textContent=b.typeDemande||'—';
@@ -1612,90 +2021,88 @@ function renderDrawer(b) {
   const row=(label,val)=>val&&val!=='—'?`<div class="drawer-section"><div class="drawer-label">${label}</div><div class="drawer-val">${val}</div></div>`:'';
   const muted=(label,val)=>val&&val!=='—'?`<div class="drawer-section"><div class="drawer-label">${label}</div><div class="drawer-val muted">${val}</div></div>`:'';
 
+  /* ── Onglet Détails ── */
   let html='';
-
-  // Demandeur
-  html+=`<div class="drawer-section">
-    <div class="drawer-label">Demandeur</div>
-    <div class="drawer-val">${b.demandeur||'—'} <span style="color:var(--text-tertiary)">— ${b.departement||'—'}</span></div>
-  </div>`;
-
-  // Marque
-  html+=`<div class="drawer-section"><div class="drawer-label">Marque</div><div class="drawer-val">${marqueBadge(b.marque)}</div></div>`;
-
-  // Priorité + statut
   html+=`<div class="drawer-section">
     <div class="drawer-label">Priorité & statut</div>
     <div class="drawer-badges">${prioBadge(b.priorite)}${statusPill(b.briefId,true)}</div>
     ${b.raisonUrgence?`<div class="drawer-val muted" style="margin-top:4px">${b.raisonUrgence}</div>`:''}
   </div>`;
-
-  // Contexte
+  html+=`<div class="drawer-section">
+    <div class="drawer-label">Demandeur</div>
+    <div class="drawer-val">${b.demandeur||'—'} <span style="color:var(--text-tertiary)">— ${b.departement||'—'}</span></div>
+  </div>`;
+  const assignId = getAssignment(b.briefId);
+  const assignMember = assignId ? getMemberById(assignId) : null;
+  html+=`<div class="drawer-section">
+    <div class="drawer-label">Attribué à</div>
+    <div class="drawer-val">
+      <button class="assign-inline-btn" onclick="openAssignPicker('${b.briefId}',event)" title="Modifier l'attribution">
+        ${assignMember && assignMember.id!=='unassigned'
+          ? `<span class="assignee-avatar" style="background:${assignMember.color}">${assignMember.initials}</span> ${assignMember.name}`
+          : `<span class="assignee-empty-sm">+</span> <span style="color:var(--text-tertiary)">Non attribué</span>`}
+        <span style="color:var(--text-tertiary);font-size:11px;margin-left:4px">✎</span>
+      </button>
+    </div>
+  </div>`;
+  html+=`<div class="drawer-section"><div class="drawer-label">Marque</div><div class="drawer-val">${marqueBadge(b.marque)}</div></div>`;
   if(b.contexte) html+=`<div class="drawer-section"><div class="drawer-label">Contexte</div><div class="drawer-val">${b.contexte.replace(/\n/g,'<br>')}</div></div>`;
-
-  // Genre campagne
   if(b.genreCampagne) html+=muted('Genre','Campagne '+b.genreCampagne.toLowerCase());
-
-  // Contexte spécifique type
   if(b.typeDemande==='Campagne Marketing' && b.supports) {
     html+=`<div class="drawer-section">
       <div class="drawer-label">Supports à produire</div>
       <div class="drawer-val">${b.supports}${b.totalDeclinaisons&&b.totalDeclinaisons!=='0'?`<br><strong>${b.totalDeclinaisons} déclinaisons visuelles</strong>`:''}</div>
     </div>`;
   }
-  if(b.typeDemande==='Packaging' && b.packagingProduits) {
+  if(b.typeDemande==='Packaging' && b.packagingProduits)
     html+=`<div class="drawer-section"><div class="drawer-label">Produits packaging</div><div class="drawer-val">${b.packagingProduits}</div></div>`;
-  }
-  if((b.typeDemande==='Vitrophanie / Travaux') && b.restaurant) {
+  if((b.typeDemande==='Vitrophanie / Travaux') && b.restaurant)
     html+=`<div class="drawer-section"><div class="drawer-label">Restaurant / adresse</div><div class="drawer-val">${b.restaurant}</div></div>`;
-  }
-
-  // Deadlines
   const hasDeadlines = [b.dateLancement,b.dateValidation,b.dateRetourSimul].some(d=>d&&d!=='—');
   if(hasDeadlines) html+=`<div class="drawer-section">
     <div class="drawer-label">Deadlines</div>
     <div class="drawer-val">
-      ${b.dateLancement&&b.dateLancement!=='—'?`Lancement : <strong>${fmtDate(b.dateLancement)}</strong><br>`:''}
-      ${b.dateValidation&&b.dateValidation!=='—'?`Validation infos : ${fmtDate(b.dateValidation)}<br>`:''}
-      ${b.dateRetourSimul&&b.dateRetourSimul!=='—'?`Retour simulation : ${fmtDate(b.dateRetourSimul)}`:''}
+      ${b.dateLancement&&b.dateLancement!=='—'?`🚀 Lancement : <strong>${fmtDate(b.dateLancement)}</strong><br>`:''}
+      ${b.dateValidation&&b.dateValidation!=='—'?`✅ Validation infos : ${fmtDate(b.dateValidation)}<br>`:''}
+      ${b.dateRetourSimul&&b.dateRetourSimul!=='—'?`👁 Retour simulation : ${fmtDate(b.dateRetourSimul)}`:''}
     </div>
   </div>`;
-
-  // Réserves interactives (Pépite 9)
-  if(b.reserves) {
-    const items = b.reserves.split('\n').map(s=>s.trim()).filter(Boolean);
-    if(items.length) {
-      const resolved = getReserves(b.briefId);
-      const checkItems = items.map((txt,i) => {
-        const done = resolved.has(i);
-        return `<div class="res-item ${done?'res-done':''}">
-          <button class="res-check" onclick="toggleReserve('${b.briefId}',${i},${items.length})" aria-label="${done?'Marquer ouvert':'Marquer résolu'}">
-            ${done?'<i class="ti ti-check"></i>':''}
-          </button>
-          <span class="res-txt">${txt}</span>
-        </div>`;
-      }).join('');
-      const openCount = items.length - resolved.size;
-      const headerColor = openCount > 0 ? '#b45309' : '#166534';
-      html+=`<div class="drawer-section">
-        <div class="drawer-label" style="color:${headerColor}">
-          ${openCount>0?'ℹ':'✓'} Infos à confirmer${openCount>0?` · <span style="font-weight:500">${openCount} ouverte${openCount>1?'s':''}</span>`:' · Tout résolu'}
-        </div>
-        <div class="res-list" id="res-list-${b.briefId}">${checkItems}</div>
-      </div>`;
-    }
-  }
-
-  // Soumis le
   if(b.submittedAt) {
     const d=new Date(b.submittedAt);
     html+=muted('Soumis le',d.toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'})+' à '+d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'}));
   }
 
-  G('drawer-body').innerHTML=html;
+  const detailPanel = G('panel-details');
+  if (detailPanel) detailPanel.innerHTML = html;
+
+  /* ── Onglet Checklist ── */
+  renderChecklistPanel(b);
+
+  /* ── Onglet Activité ── */
+  const actPanel = G('panel-activity');
+  if (actPanel) {
+    const log = getActivityLog(b);
+    if (!log.length) {
+      actPanel.innerHTML = '<div style="color:var(--text-tertiary);font-size:13px;padding:8px 0">Aucune activité enregistrée.</div>';
+    } else {
+      actPanel.innerHTML = `<div class="activity-log">${log.map((entry,i) => `
+        <div class="activity-entry">
+          <div class="activity-dot-col">
+            <div class="activity-dot dot-${entry.type}"></div>
+            ${i < log.length-1 ? '<div class="activity-line"></div>' : ''}
+          </div>
+          <div class="activity-body">
+            <div class="activity-text">${entry.text}</div>
+            ${entry.time ? `<div class="activity-time">${entry.time.toLocaleDateString('fr-BE',{day:'2-digit',month:'short',year:'numeric'})} à ${entry.time.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}</div>` : ''}
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }
+  }
+
   G('drawer-foot').innerHTML=`
     <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Statut ✎</button>
-    <button class="btn-pdf" onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text)"><i class="ti ti-copy"></i> Dupliquer</button>
+    <button onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text);font-family:'Inter',sans-serif"><i class="ti ti-copy"></i> Dupliquer</button>
     <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
     ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
   `;

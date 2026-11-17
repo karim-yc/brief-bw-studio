@@ -6,11 +6,34 @@
 <title>Brief Créatif — Studio Graphique Multi-marques</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="app">
+<div class="app-shell">
+
+  <!-- ════════ SIDEBAR GAUCHE ════════ -->
+  <div class="sidebar">
+    <div class="sidebar-logo-wrap">
+      <div class="sidebar-logo-icon">BW</div>
+      <div>
+        <div class="sidebar-logo-name">Studio Créatif</div>
+        <div class="sidebar-logo-sub">Multi-marques</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="snav-item" href="../dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
+      <a class="snav-item active" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
+      <div class="snav-sep"></div>
+      <div class="snav-item"><i class="ti ti-list"></i><span>Demandes</span></div>
+      <div class="snav-item"><i class="ti ti-calendar-month"></i><span>Calendrier</span></div>
+      <div class="snav-item"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
+    </nav>
+  </div>
+
+  <!-- ════════ CONTENU PRINCIPAL ════════ -->
+  <div class="app-content">
 
   <!-- ════════ HEADER ════════ -->
   <header class="hdr">
@@ -38,7 +61,7 @@
   </nav>
 
   <!-- ════════ MAIN LAYOUT ════════ -->
-  <main class="layout form-pristine" id="app-main">
+  <main class="layout form-pristine" id="app-main" data-wizard-step="1">
 
     <!-- ─── COLONNE PRINCIPALE ─── -->
     <div class="main-col" id="main-col">
@@ -49,14 +72,20 @@
         <button class="banner-close" id="banner-close" aria-label="Fermer">&times;</button>
       </div>
 
+      <!-- Wizard progress injecté par JS -->
+      <div id="wizard-progress"></div>
+
       <!-- Sections injectées par JS -->
       <div id="sections-root"></div>
 
+      <!-- Wizard navigation injectée par JS -->
+      <div id="wizard-nav"></div>
+
     </div>
 
-    <!-- ─── SIDEBAR STICKY ─── -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-inner">
+    <!-- ─── RECAP PANEL (droite) ─── -->
+    <aside class="recap-panel" id="sidebar">
+      <div class="recap-panel-inner">
 
         <div class="sb-block">
           <p class="sb-label">Récapitulatif</p>
@@ -112,6 +141,7 @@
   </main>
 
   <!-- ════════ MODE RAPIDE — formulaire allégé ════════ -->
+
   <div class="rapide-wrap" id="rapide-wrap" hidden>
     <div class="rapide-card">
       <div class="rapide-head">
@@ -133,7 +163,17 @@
 
         <div class="field">
           <label class="field-label">Quelle est la demande ?<span class="req">*</span></label>
-          <textarea id="r-desc" placeholder="Ex : Post Instagram pour le lancement du B&amp;W Smash Burger. Texte : « Le smash qui change tout · 12,90€ ». À publier le 20 juin."></textarea>
+          <div class="rapide-rte-wrap">
+            <div class="rte-toolbar">
+              <button type="button" class="rte-btn" data-cmd="bold" title="Gras"><b>B</b></button>
+              <button type="button" class="rte-btn" data-cmd="italic" title="Italique"><i>I</i></button>
+              <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Liste">≡</button>
+              <span class="rte-sep"></span>
+              <button type="button" class="rte-btn" data-cmd="removeFormat" title="Effacer">✕</button>
+            </div>
+            <div class="rte-editor" id="r-desc-editor" contenteditable="true" data-placeholder="Ex : Post Instagram pour le lancement du B&amp;W Smash Burger. Texte : « Le smash qui change tout · 12,90€ ». À publier le 20 juin." data-sync-to="r-desc"></div>
+            <textarea id="r-desc" style="display:none" placeholder=""></textarea>
+          </div>
         </div>
 
         <div class="field">
@@ -151,6 +191,16 @@
             <label class="field-label">Priorité<span class="req">*</span></label>
             <div class="pill-group" id="r-priorite"></div>
           </div>
+        </div>
+
+        <div class="field" style="margin-top:8px">
+          <label class="field-label">Fichiers joints <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-tertiary)">(optionnel · max 3 · 5 Mo)</span></label>
+          <label class="att-dropzone rapide-att-dropzone" id="r-att-dropzone">
+            <input type="file" id="r-att-input" multiple accept="image/*,.pdf,.doc,.docx,.pptx,.xlsx,.zip" style="display:none">
+            <span class="att-icon-add">＋</span>
+            <span class="att-label">Glisser ou <u>parcourir</u></span>
+          </label>
+          <div class="att-list" id="r-att-list"></div>
         </div>
 
         <button class="btn-submit ready" id="r-submit" style="margin-top:8px">Soumettre le brief rapide</button>
@@ -207,6 +257,8 @@
 
 <!-- Zone impression historique (cachée, peuplée au moment du print) -->
 <div id="brief-print-area-v2"></div>
+
+  </div><!-- /.app-shell -->
 
 <script src="config.js"></script>
 <script src="state.js"></script>

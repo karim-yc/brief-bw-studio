@@ -7,18 +7,80 @@
 
   let saveTimer = null;
   let _submitBypass = false;
+  let currentStep = 1;
+
+  /* ── Rendu wizard ───────────────────────────────────────────── */
+  function renderWizard() {
+    const progressEl = document.getElementById('wizard-progress');
+    const sectionsRoot = document.getElementById('sections-root');
+    const navEl = document.getElementById('wizard-nav');
+    const appMain = document.getElementById('app-main');
+
+    if (progressEl) progressEl.innerHTML = Render.wizardProgress(currentStep);
+    if (sectionsRoot) sectionsRoot.innerHTML = Render.renderWizardStep(currentStep);
+    if (navEl) navEl.innerHTML = Render.wizardNav(currentStep);
+    if (appMain) appMain.dataset.wizardStep = currentStep;
+
+    Render.sidebar();
+    bindFieldEvents();
+    bindAttachmentEvents();
+
+    // Wire wizard navigation buttons
+    const prevBtn = document.getElementById('wz-prev');
+    const nextBtn = document.getElementById('wz-next');
+    if (prevBtn) prevBtn.addEventListener('click', prevStep);
+    if (nextBtn) nextBtn.addEventListener('click', nextStep);
+
+    // Wire inline submit button (step 4)
+    const wzSubmit = document.getElementById('btn-wz-submit');
+    if (wzSubmit) wzSubmit.addEventListener('click', submitBrief);
+  }
 
   /* ── Rendu complet ──────────────────────────────────────────── */
   function renderAll() {
-    document.getElementById('sections-root').innerHTML = Render.allSections();
-    Render.sidebar();
-    bindFieldEvents();
+    renderWizard();
   }
 
   /* ── Re-render léger (juste sidebar, pas tout le DOM) ─────────
      Utilisé pour les inputs texte afin de ne pas perdre le focus */
   function renderSidebarOnly() {
     Render.sidebar();
+    // Mettre à jour le bouton inline submit si on est à l'étape 4
+    if (currentStep === 4) {
+      const wzSubmit = document.getElementById('btn-wz-submit');
+      const wzNote = document.getElementById('wz-submit-note');
+      if (wzSubmit) {
+        const ready = State.isReadyToSubmit();
+        const confirmed = !!State.data.globalConfirmed;
+        wzSubmit.disabled = !(ready && confirmed);
+        wzSubmit.classList.toggle('ready', ready && confirmed);
+        if (wzNote) {
+          wzNote.textContent = !ready ? 'Complétez les champs requis pour soumettre' :
+            !confirmed ? 'Cochez la case de confirmation pour soumettre' :
+            'Brief prêt à envoyer ✓';
+        }
+      }
+    }
+  }
+
+  /* ── Navigation wizard ───────────────────────────────────────── */
+  function goToStep(n) {
+    if (n < 1 || n > 4) return;
+    currentStep = n;
+    renderWizard();
+    // Scroll to top of main content
+    const mainCol = document.getElementById('main-col');
+    if (mainCol) mainCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function nextStep() { goToStep(currentStep + 1); }
+  function prevStep() { goToStep(currentStep - 1); }
+
+  function determineStartStep() {
+    if (!State.data.marque || !State.data.dept || !State.data.typeDemande) return 1;
+    if (!State.data.description) return 2;
+    if (!State.data.dateLancement) return 3;
+    return 4;
   }
 
   /* ════════════════════════════════════════════════════════════
@@ -202,6 +264,94 @@
   }
 
   /* ════════════════════════════════════════════════════════════
+     PIÈCES JOINTES — gestion fichiers (formulaire complet)
+     ════════════════════════════════════════════════════════════ */
+  if (!State.files) State.files = [];
+
+  function bindAttachmentEvents() {
+    const input = document.getElementById('att-input');
+    const zone  = document.getElementById('att-dropzone');
+    if (!input || !zone) return;
+
+    zone.addEventListener('click', () => input.click());
+    input.addEventListener('change', () => handleFiles(Array.from(input.files)));
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      handleFiles(Array.from(e.dataTransfer.files));
+    });
+  }
+
+  function handleFiles(newFiles) {
+    const MAX = 3, MAX_SIZE = 5 * 1024 * 1024;
+    newFiles.forEach(f => {
+      if (State.files.length >= MAX) { showToast(`Maximum ${MAX} fichiers autorisés.`); return; }
+      if (f.size > MAX_SIZE) { showToast(`${f.name} dépasse 5 Mo.`); return; }
+      if (State.files.some(x => x.name === f.name && x.size === f.size)) return;
+      State.files.push({ name: f.name, type: f.type, size: f.size, _file: f });
+    });
+    renderAll();
+  }
+
+  function removeAttachment(idx) {
+    State.files.splice(idx, 1);
+    renderAll();
+  }
+
+  async function readFilesAsBase64(items) {
+    return Promise.all((items || []).map(item =>
+      new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = () => res({ name: item.name, type: item.type, size: item.size, data: reader.result.split(',')[1] });
+        reader.onerror = rej;
+        reader.readAsDataURL(item._file);
+      })
+    ));
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     PIÈCES JOINTES — formulaire rapide
+     ════════════════════════════════════════════════════════════ */
+  if (!State.rapideFiles) State.rapideFiles = [];
+
+  function bindRapideAttachmentEvents() {
+    const input = document.getElementById('r-att-input');
+    if (!input) return;
+    input.addEventListener('change', () => handleRapideFiles(Array.from(input.files)));
+  }
+
+  function handleRapideFiles(newFiles) {
+    const MAX = 3, MAX_SIZE = 5 * 1024 * 1024;
+    newFiles.forEach(f => {
+      if (State.rapideFiles.length >= MAX) { showToast(`Maximum ${MAX} fichiers autorisés.`); return; }
+      if (f.size > MAX_SIZE) { showToast(`${f.name} dépasse 5 Mo.`); return; }
+      if (State.rapideFiles.some(x => x.name === f.name && x.size === f.size)) return;
+      State.rapideFiles.push({ name: f.name, type: f.type, size: f.size, _file: f });
+    });
+    renderRapideFileList();
+  }
+
+  function removeRapideFile(idx) {
+    State.rapideFiles.splice(idx, 1);
+    renderRapideFileList();
+  }
+
+  function renderRapideFileList() {
+    const list = document.getElementById('r-att-list');
+    if (!list) return;
+    list.innerHTML = State.rapideFiles.map((f, i) =>
+      `<div class="att-item">
+        <span class="att-icon">${/image/.test(f.type) ? '🖼' : '📄'}</span>
+        <span class="att-name">${f.name}</span>
+        <span class="att-size">${(f.size / 1024).toFixed(0)} Ko</span>
+        <button type="button" class="att-remove" data-r-att-idx="${i}" title="Supprimer">×</button>
+      </div>`
+    ).join('');
+  }
+
+  /* ════════════════════════════════════════════════════════════
      CLICS — délégation globale (cartes, pills, toggle sections)
      ════════════════════════════════════════════════════════════ */
   document.addEventListener('click', function (e) {
@@ -227,7 +377,6 @@
       }
       scheduleSave();
       renderAll();
-      State.openSections[3] = true;
       return;
     }
 
@@ -269,16 +418,13 @@
       return;
     }
 
-    // Navigation depuis sidebar → ouvrir section
+    // Navigation depuis sidebar → aller à l'étape wizard correspondante
     const gotoSection = e.target.closest('[data-goto-section]');
     if (gotoSection) {
-      const n = gotoSection.dataset.gotoSection;
-      State.openSections[n] = true;
-      renderAll();
-      setTimeout(() => {
-        const card = document.querySelector(`[data-section="${n}"]`);
-        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
+      const n = parseInt(gotoSection.dataset.gotoSection, 10);
+      // Mapping sections → étapes wizard : 1→1, 2→1, 3→2, 4→3, 5→4
+      const stepMap = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 };
+      goToStep(stepMap[n] || 1);
       return;
     }
 
@@ -287,6 +433,20 @@
     if (gotoField) {
       const fieldId = gotoField.dataset.gotoField;
       scrollToField(fieldId);
+      return;
+    }
+
+    // Suppression pièce jointe (formulaire complet)
+    const attRemove = e.target.closest('.att-remove[data-att-idx]');
+    if (attRemove) {
+      removeAttachment(parseInt(attRemove.dataset.attIdx, 10));
+      return;
+    }
+
+    // Suppression pièce jointe (formulaire rapide)
+    const rAttRemove = e.target.closest('.att-remove[data-r-att-idx]');
+    if (rAttRemove) {
+      removeRapideFile(parseInt(rAttRemove.dataset.rAttIdx, 10));
       return;
     }
 
@@ -299,26 +459,29 @@
   });
 
   function scrollToField(fieldId) {
-    // S'assurer que la bonne section est ouverte
+    // Mapper le champ vers l'étape wizard
     let sectionGuess = guessSection(fieldId);
     if (!sectionGuess) {
-      if (fieldId === '__supports') sectionGuess = 2; // supports vivent en section 2 désormais
+      if (fieldId === '__supports') sectionGuess = 4;
       else if (fieldId === 'priorite' || fieldId === 'raisonUrgence' || fieldId.startsWith('date')) sectionGuess = 4;
       else if (fieldId === '__type') sectionGuess = 2;
       else sectionGuess = 1;
     }
-    State.openSections[sectionGuess] = true;
-    renderAll();
+    // Mapping section → étape wizard
+    const stepMap = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 };
+    const targetStep = stepMap[sectionGuess] || 1;
+    if (currentStep !== targetStep) {
+      goToStep(targetStep);
+    }
 
     setTimeout(() => {
-      let target = document.querySelector(`[data-field-wrap="${fieldId}"]`);
-      if (!target) target = document.querySelector(`[data-section="${sectionGuess}"]`);
+      const target = document.querySelector(`[data-field-wrap="${fieldId}"]`);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         target.classList.add('highlight');
         setTimeout(() => target.classList.remove('highlight'), 1500);
       }
-    }, 80);
+    }, 120);
   }
 
   /* ════════════════════════════════════════════════════════════
@@ -373,6 +536,7 @@
     try {
       await sendWebhook(State.data);
       State.saveToHistory();
+      State.files = [];
       showToast(`Brief ${State.data.briefId} soumis avec succès ✓`);
       localStorage.removeItem(STORAGE_KEY);
       setTimeout(() => location.reload(), 1600);
@@ -385,12 +549,15 @@
     }
   }
 
-  async function sendWebhook(data) {
+  async function sendWebhook(data, extraFiles) {
     const WEBHOOK_URL = 'https://hook.eu1.make.com/v3nyc7z5x81gk5609ayay78rwuu75krk';
     const recap = Recap.build();
+    const allFiles = [...(State.files || []), ...(State.rapideFiles || []), ...(extraFiles || [])];
+    const fichiers = allFiles.length ? await readFilesAsBase64(allFiles) : [];
     const payload = {
       ...data,
       recap,
+      fichiers,
       mailSubject: `Nouveau brief B&W — ${recap.briefId} — ${recap.typeDemande}${recap.raisonUrgence ? ' [URGENT]' : ' — ' + recap.priorite}`,
       mailBody: Recap.toPlainText(recap),
       mailHtml: Recap.toMailHtml(recap)
@@ -508,15 +675,20 @@
     ['r-dept', 'r-ref', 'r-desc', 'r-launch'].forEach(id => {
       document.getElementById(id).addEventListener('input', updateRapideSubmit);
     });
+    const rDescEditor = document.getElementById('r-desc-editor');
+    if (rDescEditor) rDescEditor.addEventListener('input', updateRapideSubmit);
 
     document.getElementById('r-submit').addEventListener('click', submitRapide);
     document.getElementById('r-to-full').addEventListener('click', switchToFullFromRapide);
+
+    bindRapideAttachmentEvents();
   }
 
   function updateRapideSubmit() {
     const dept = document.getElementById('r-dept').value;
     const ref = document.getElementById('r-ref').value.trim();
-    const desc = document.getElementById('r-desc').value.trim();
+    const descEditor = document.getElementById('r-desc-editor');
+    const desc = descEditor ? (descEditor.innerText || '').trim() : document.getElementById('r-desc').value.trim();
     const launch = document.getElementById('r-launch').value;
     const prio = document.getElementById('r-priorite').dataset.value;
     const ok = dept && ref && desc && launch && prio && rapideSupports.size > 0;
@@ -555,6 +727,7 @@
     try {
       await sendWebhook(State.data);
       State.saveToHistory();
+      State.rapideFiles = [];
       showToast(`Brief ${State.data.briefId} soumis avec succès ✓`);
       localStorage.removeItem(STORAGE_KEY);
       setTimeout(() => location.reload(), 1600);
@@ -575,7 +748,7 @@
     State.data.supportsSelected = [...rapideSupports];
     scheduleSave();
     switchMode('form');
-    State.openSections = { 1: true, 2: true, 3: true, 4: true, 5: false };
+    currentStep = 3; // Aller directement aux deadlines (déjà remplies)
     renderAll();
   }
 
@@ -610,6 +783,77 @@
   /* ════════════════════════════════════════════════════════════
      INIT
      ════════════════════════════════════════════════════════════ */
+  /* ════════════════════════════════════════════════════════════
+     RICH TEXT EDITOR — toolbar + sync contenteditable → textarea
+     ════════════════════════════════════════════════════════════ */
+  function initRTE() {
+    // Toolbar clicks (gras, italique, liste, effacer)
+    document.addEventListener('click', function (e) {
+      const btn = e.target.closest('.rte-btn[data-cmd]');
+      if (!btn) return;
+      e.preventDefault();
+      const cmd = btn.dataset.cmd;
+      const wrap = btn.closest('.rte-wrap, .rapide-rte-wrap');
+      const editor = wrap ? wrap.querySelector('[contenteditable]') : null;
+      if (editor) editor.focus();
+      document.execCommand(cmd, false, null);
+      if (editor) syncRTE(editor);
+    });
+
+    // Sync contenteditable → hidden textarea on input
+    document.addEventListener('input', function (e) {
+      const editor = e.target.closest('[data-field-rte], [data-sync-to]');
+      if (!editor || !editor.isContentEditable) return;
+      syncRTE(editor);
+    });
+
+    // Blur on RTE editor → forward to hidden textarea for hint IA
+    document.addEventListener('blur', function (e) {
+      const editor = e.target.closest('[data-field-rte]');
+      if (!editor) return;
+      const fid = editor.dataset.fieldRte;
+      const ta = document.querySelector(`textarea[data-field="${fid}"]`);
+      if (ta) ta.dispatchEvent(new Event('blur', { bubbles: true }));
+    }, true);
+
+    // Update active state of toolbar buttons on selection change
+    document.addEventListener('selectionchange', function () {
+      const sel = window.getSelection();
+      if (!sel || !sel.anchorNode) return;
+      const editor = sel.anchorNode.parentElement && sel.anchorNode.parentElement.closest('[data-field-rte], [data-sync-to]');
+      if (!editor) return;
+      const wrap = editor.closest('.rte-wrap, .rapide-rte-wrap');
+      if (!wrap) return;
+      wrap.querySelectorAll('.rte-btn[data-cmd]').forEach(btn => {
+        try { btn.classList.toggle('active', document.queryCommandState(btn.dataset.cmd)); } catch(err) {}
+      });
+    });
+  }
+
+  function syncRTE(editor) {
+    // Sync to hidden textarea
+    const syncId = editor.dataset.syncTo;
+    const fieldId = editor.dataset.fieldRte;
+    if (syncId) {
+      const ta = document.getElementById(syncId);
+      if (ta) ta.value = editor.innerText || '';
+    }
+    if (fieldId) {
+      const ta = document.querySelector(`textarea[data-field="${fieldId}"]`);
+      if (ta) {
+        ta.value = editor.innerText || '';
+        // Fire input event so existing app.js listener picks it up
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+      }
+    }
+    // For rapide r-desc: fire input on the hidden textarea
+    if (syncId) {
+      const ta = document.getElementById(syncId);
+      if (ta) ta.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
   function init() {
     // Duplication depuis le dashboard (Pépite 3)
     if (new URLSearchParams(location.search).get('dupe') === '1') {
@@ -643,13 +887,14 @@
     const restored = State.load();
     if (restored && (State.data.dept || State.data.typeDemande)) {
       document.getElementById('restore-banner').hidden = false;
-      autoOpenFilledSections();
+      currentStep = determineStartStep();
     }
 
     const hist = State.getHistory();
     document.getElementById('hist-count').textContent = hist.length;
 
     renderAll();
+    initRTE();
     initRapideMode();
 
     // Tabs
@@ -657,7 +902,9 @@
       tab.addEventListener('click', () => switchMode(tab.dataset.mode));
     });
 
-    document.getElementById('btn-submit').addEventListener('click', submitBrief);
+    // btn-submit (sidebar) — toujours dans le DOM
+    const sbSubmit = document.getElementById('btn-submit');
+    if (sbSubmit) sbSubmit.addEventListener('click', submitBrief);
     document.getElementById('btn-submit-mobile').addEventListener('click', submitBrief);
 
     document.getElementById('banner-close').addEventListener('click', () => {

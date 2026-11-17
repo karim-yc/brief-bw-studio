@@ -158,7 +158,9 @@ const CONFIG = {
     { id: 'description', label: 'Contexte du projet', type: 'textarea', gravity: 'blocking',
       help: 'Expliquez l\'objectif de la demande : que faut-il créer, pour qui, où ce sera diffusé, et quel est le but ?',
       minLength: 100,
-      placeholder: 'Ex : Campagne lancement du B&W Smash Burger sur Instagram, du 1er au 30 juin. Objectif : notoriété et drive-to-store en restaurant.' }
+      placeholder: 'Ex : Campagne lancement du B&W Smash Burger sur Instagram, du 1er au 30 juin. Objectif : notoriété et drive-to-store en restaurant.' },
+    { id: 'attachments', label: 'Fichiers joints', type: 'attachments', gravity: 'optional',
+      help: 'Images, PDF ou documents de référence. Max 3 fichiers · 5 Mo chacun.' }
   ],
 
   // ── ÉTAPE 3 — Infos indispensables, PAR TYPE ───────────────
