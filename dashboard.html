@@ -614,6 +614,14 @@ body { overflow-x: hidden; max-width: 100vw; }
 .snav-item.active{background:rgba(255,255,255,.16);color:#fff}
 .snav-item i{font-size:16px;flex-shrink:0}
 .snav-sep{height:1px;background:rgba(255,255,255,.07);margin:8px 4px}
+.snav-section-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:14px 11px 6px}
+.snav-brand-item{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:8px;color:rgba(255,255,255,.65);font-size:12.5px;font-weight:500;cursor:default;margin-bottom:1px}
+.snav-brand-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.snav-brand-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.25)}
+.snav-brand-dot.bnw{background:#111;border-color:rgba(255,255,255,.4)}
+.snav-brand-dot.mm{background:#b5804e;border-color:rgba(255,255,255,.25)}
+.snav-brand-dot.autre{background:#6B7280;border-color:rgba(255,255,255,.2)}
+@media(max-width:900px){.snav-section-label,.snav-brand-item span,.snav-user-info{display:none}.snav-brand-item{justify-content:center}}
 .sidebar-bottom{flex-shrink:0}
 .sidebar-sync-row{padding:10px 14px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:7px}
 .sidebar-sync-row .sync-dot{flex-shrink:0}
@@ -689,6 +697,37 @@ body { overflow-x: hidden; max-width: 100vw; }
   .briefs-table td:first-child{padding-top:12px}
   .briefs-table td:last-child{padding-bottom:12px}
 }
+
+/* ── KPI icons ─────────────────────────────────────────── */
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.kpi-icon-wrap{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kpi-icon-indigo{background:rgba(79,70,229,.1);color:var(--indigo)}
+.kpi-icon-orange{background:rgba(234,88,12,.1);color:#ea580c}
+.kpi-icon-red{background:rgba(220,38,38,.1);color:var(--urgent)}
+
+/* ── Page header search + icon buttons ─────────────────── */
+.page-hdr-search{position:relative;display:flex;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:var(--r-sm);padding:0 10px;gap:7px;height:34px;min-width:200px;transition:background .15s}
+.page-hdr-search:hover,.page-hdr-search:focus-within{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.35)}
+.page-hdr-search input{background:none;border:none;outline:none;font-size:12px;color:#fff;font-family:'Inter',sans-serif;flex:1;min-width:0}
+.page-hdr-search input::placeholder{color:rgba(255,255,255,.45)}
+.page-hdr-search i{color:rgba(255,255,255,.5);font-size:13px;flex-shrink:0}
+.page-hdr-search-kbd{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+.page-hdr-icon-btn{width:34px;height:34px;border:1px solid rgba(255,255,255,.18);border-radius:var(--r-sm);background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;font-size:15px;transition:background .15s;flex-shrink:0}
+.page-hdr-icon-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:#ef4444;border:1.5px solid rgba(255,255,255,.25)}
+@media(max-width:600px){.page-hdr-search{display:none}.page-hdr-icon-btn{display:none}}
+
+/* ── Charge bar icon ───────────────────────────────────── */
+.charge-bar-icon{width:32px;height:32px;border-radius:8px;background:var(--indigo-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--indigo)}
+.charge-bar-icon i{font-size:16px}
+
+/* ── Kanban status dots ────────────────────────────────── */
+.kanban-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;margin-right:4px;vertical-align:middle}
+.ksd-soumis{background:#3b82f6}
+.ksd-encours{background:#f59e0b}
+.ksd-simulation{background:#8b5cf6}
+.ksd-valide{background:#22c55e}
+.ksd-livre{background:#374151}
 </style>
 </head>
 <body>
@@ -710,12 +749,24 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="snav-item" onclick="setViewMode('list');document.querySelector('.snav-item.cal-nav-item')?.classList.remove('active');this.classList.add('active')"><i class="ti ti-list"></i><span>Demandes</span></div>
     <div class="snav-item cal-nav-item" onclick="setViewMode('calendar');document.querySelectorAll('.snav-item').forEach(e=>e.classList.remove('active'));this.classList.add('active')"><i class="ti ti-calendar-month"></i><span>Calendrier</span></div>
     <div class="snav-item" onclick="document.getElementById('stats-toggle').click()"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
+    <div class="snav-sep"></div>
+    <div class="snav-section-label">Marques</div>
+    <div class="snav-brand-item"><span class="snav-brand-dot bnw"></span><span>Black &amp; White Burger</span></div>
+    <div class="snav-brand-item"><span class="snav-brand-dot mm"></span><span>Maison Marquise</span></div>
+    <div class="snav-brand-item"><span class="snav-brand-dot autre"></span><span>Autre</span></div>
   </div>
   <div class="sidebar-bottom">
     <div class="sidebar-sync-row">
       <span class="sync-dot" id="sync-dot"></span>
       <span class="sync-lbl" id="sync-label">Chargement...</span>
       <button class="sync-btn" onclick="loadData()" title="Actualiser"><i class="ti ti-refresh"></i></button>
+    </div>
+  </div>
+  <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">
+    <div class="snav-user-av" style="width:30px;height:30px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">KY</div>
+    <div class="snav-user-info" style="flex:1;min-width:0">
+      <div class="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Karim Y.-Cherif</div>
+      <div class="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">Brand Design Lead</div>
     </div>
   </div>
 </nav>
@@ -730,6 +781,13 @@ body { overflow-x: hidden; max-width: 100vw; }
       <div class="page-sub" id="page-date-range">Dashboard · Briefs actifs</div>
     </div>
     <div class="page-actions">
+      <div class="page-hdr-search">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Rechercher un brief, une marque…" id="hdr-search-input" oninput="fSearch=this.value;applyFilters()">
+        <span class="page-hdr-search-kbd">⌘K</span>
+      </div>
+      <button class="page-hdr-icon-btn" title="Notifications"><i class="ti ti-bell"></i><span class="notif-dot"></span></button>
+      <button class="page-hdr-icon-btn" title="Aide"><i class="ti ti-help"></i></button>
       <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
     </div>
   </div>
@@ -808,7 +866,10 @@ body { overflow-x: hidden; max-width: 100vw; }
   <!-- PRIORITÉS DU JOUR -->
   <div class="pd-section" id="pd-section">
     <div class="pd-header">
-      <h2>Priorités du jour</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <i class="ti ti-clipboard-list" style="font-size:16px;color:rgba(255,255,255,.8)"></i>
+        <h2>Priorités du jour</h2>
+      </div>
       <div class="pd-pills" id="pd-pills"></div>
     </div>
     <div class="pd-body">
@@ -1420,11 +1481,18 @@ function renderKPIs(data) {
   const urgent = data.filter(b=>b.priorite==='urgent').length;
   const enRetard = allBriefs.filter(b=>categorizeBrief(b)?.cat==='retard').length;
 
+  const layersIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`;
+  const zapIcon    = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+  const clockIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+
   G('kpi-grid').innerHTML = [
-    {val:total,    lbl:'Total briefs',  color:'', tip:'Nombre total de briefs.'},
-    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':'', tip:'Briefs marqués comme urgents.'},
-    {val:enRetard, lbl:'En retard',     color:enRetard>0?'red':'', tip:'Deadlines dépassées, non livrés.', onclick:'toggleRetardFilter()'},
+    {val:total,    lbl:'Total briefs',  color:'', tip:'Nombre total de briefs.', iconCls:'kpi-icon-indigo', icon:layersIcon},
+    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':'', tip:'Briefs marqués comme urgents.', iconCls:'kpi-icon-orange', icon:zapIcon},
+    {val:enRetard, lbl:'En retard',     color:enRetard>0?'red':'', tip:'Deadlines dépassées, non livrés.', iconCls:'kpi-icon-red', icon:clockIcon, onclick:'toggleRetardFilter()'},
   ].map(k=>`<div class="kpi-card kpi-card-lg${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
+    <div class="kpi-top">
+      <div class="kpi-icon-wrap ${k.iconCls}">${k.icon}</div>
+    </div>
     <div class="kpi-val ${k.color}">${k.val}</div>
     <div class="kpi-lbl">${k.lbl}${tt(k.tip)}</div>
   </div>`).join('');
@@ -1707,11 +1775,11 @@ function renderKanban(data) {
   if (!el) return;
 
   const COLS = [
-    { id: 'soumis',     label: 'Soumis',      icon: '🔵' },
-    { id: 'encours',    label: 'En cours',     icon: '🟠' },
-    { id: 'simulation', label: 'Simulation',   icon: '🟣' },
-    { id: 'valide',     label: 'Validé',       icon: '🟢' },
-    { id: 'livre',      label: 'Livré',        icon: '⚫' },
+    { id: 'soumis',     label: 'Soumis',      dot: 'ksd-soumis' },
+    { id: 'encours',    label: 'En cours',     dot: 'ksd-encours' },
+    { id: 'simulation', label: 'Simulation',   dot: 'ksd-simulation' },
+    { id: 'valide',     label: 'Validé',       dot: 'ksd-valide' },
+    { id: 'livre',      label: 'Livré',        dot: 'ksd-livre' },
   ];
 
   const byStatus = {};
@@ -1741,7 +1809,7 @@ function renderKanban(data) {
 
     return `<div class="kanban-col kc-${col.id}">
       <div class="kanban-col-head">
-        ${col.icon} ${col.label}
+        <span class="kanban-status-dot ${col.dot}"></span>${col.label}
         <span class="kanban-col-count">${briefs.length}</span>
       </div>
       <div class="kanban-col-body">${cards}</div>
@@ -1941,6 +2009,7 @@ function renderCharge(data) {
   const cls = pct < 70 ? 'c-ok' : pct < 90 ? 'c-mid' : 'c-high';
 
   wrap.innerHTML = `
+    <div class="charge-bar-icon"><i class="ti ti-calendar-week"></i></div>
     <span class="charge-bar-label">Charge semaine</span>
     <div class="charge-bar-track"><div class="charge-bar-fill ${cls}" style="width:${pct}%"></div></div>
     <span class="charge-bar-count">${count}/${cap}</span>
