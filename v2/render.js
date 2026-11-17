@@ -453,8 +453,7 @@ ${Recap.toHtml(r)}
     const isFirst = step === 1;
     const isLast = step === 4;
     const left = `<div class="wizard-nav-left">
-      <button class="btn-wz-prev" id="wz-prev"${isFirst ? ' disabled' : ''} aria-label="Étape précédente">← Étape précédente</button>
-      <span class="wz-step-hint" aria-live="polite">Étape ${step} / 4</span>
+      ${isFirst ? '' : `<button class="btn-wz-prev" id="wz-prev" aria-label="Étape précédente">← Étape précédente</button>`}
     </div>`;
     const right = isLast ? '' : `<button class="btn-wz-next" id="wz-next">Continuer →</button>`;
     const saveIndicator = `<div class="wz-save-indicator" id="wz-save-indicator" aria-live="polite" aria-atomic="true"><svg viewBox="0 0 16 16" fill="none" width="12" height="12"><path d="M3.5 8.5l2.5 2.5L12.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Brouillon sauvegardé</div>`;

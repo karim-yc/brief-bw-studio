@@ -188,6 +188,8 @@ svg { display: block; }
   cursor: pointer;
   transition: background var(--t-fast), color var(--t-fast);
 }
+.snav-item:not([href]):not(.active) { opacity: .35; cursor: default; }
+.snav-item:not([href]):not(.active):hover { background: transparent; color: rgba(255,255,255,.6); }
 .snav-item:hover { background: rgba(255,255,255,.09); color: #fff; }
 .snav-item.active { background: rgba(255,255,255,.16); color: #fff; }
 .snav-item i { font-size: 18px; flex-shrink: 0; }

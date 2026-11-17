@@ -670,7 +670,7 @@
 
   function initRapideMode() {
     const deptSel = document.getElementById('r-dept');
-    deptSel.innerHTML = '<option value="">— Sélectionner —</option>' +
+    deptSel.innerHTML = '<option value="" disabled selected>Choisir…</option>' +
       CONFIG.departements.map(d => `<option value="${d}">${d}</option>`).join('');
 
     const supportsEl = document.getElementById('r-supports');
@@ -716,6 +716,7 @@
     document.getElementById('r-to-full').addEventListener('click', switchToFullFromRapide);
 
     bindRapideAttachmentEvents();
+    updateRapideSubmit();
   }
 
   function updateRapideSubmit() {
