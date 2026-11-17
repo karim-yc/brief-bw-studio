@@ -14,7 +14,7 @@
 <div class="app-shell">
 
   <!-- ════════ SIDEBAR GAUCHE ════════ -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar" role="navigation" aria-label="Navigation principale">
     <div class="sidebar-logo-wrap">
       <div class="sidebar-logo-icon">BW</div>
       <div>
@@ -32,12 +32,18 @@
     </nav>
   </div>
 
+  <!-- Overlay sidebar mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
   <!-- ════════ CONTENU PRINCIPAL ════════ -->
   <div class="app-content">
 
   <!-- ════════ HEADER ════════ -->
   <header class="hdr">
     <div class="hdr-brand">
+      <button class="btn-hamburger" id="btn-hamburger" aria-label="Ouvrir la navigation" aria-expanded="false" aria-controls="sidebar">
+        <svg viewBox="0 0 20 20" fill="none" width="20" height="20"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
       <span class="hdr-title">Brief Créatif</span>
       <span class="hdr-sub">Studio Graphique — Multi-marques</span>
     </div>

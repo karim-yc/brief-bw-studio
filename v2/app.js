@@ -25,6 +25,10 @@
     bindFieldEvents();
     bindAttachmentEvents();
 
+    // Date min = aujourd'hui
+    const _today = new Date().toISOString().slice(0, 10);
+    document.querySelectorAll('input[type="date"]').forEach(el => { el.min = _today; });
+
     // Wire wizard navigation buttons
     const prevBtn = document.getElementById('wz-prev');
     const nextBtn = document.getElementById('wz-next');
@@ -73,7 +77,35 @@
     if (mainCol) mainCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function nextStep() { goToStep(currentStep + 1); }
+  /* Champs bloquants par étape wizard */
+  const BLOCKING_FIELDS_BY_STEP = {
+    1: ['marque', 'dept', 'ref', 'typeDemande'],
+    2: ['description'],
+    3: ['dateLancement', 'priorite'],
+  };
+
+  function validateStep(step) {
+    const fields = BLOCKING_FIELDS_BY_STEP[step];
+    if (!fields) return true;
+    const missing = fields.filter(id => !State.isFieldFilled({ id, gravity: 'blocking' }));
+    if (!missing.length) return true;
+
+    // Shake + highlight les champs manquants
+    missing.forEach(id => {
+      const wrap = document.querySelector(`[data-field-wrap="${id}"]`);
+      if (wrap) {
+        wrap.classList.add('field-error-shake');
+        wrap.addEventListener('animationend', () => wrap.classList.remove('field-error-shake'), { once: true });
+      }
+    });
+    showToast('Complétez les champs en rouge avant de continuer');
+    return false;
+  }
+
+  function nextStep() {
+    if (!validateStep(currentStep)) return;
+    goToStep(currentStep + 1);
+  }
   function prevStep() { goToStep(currentStep - 1); }
 
   function determineStartStep() {
@@ -940,6 +972,31 @@
       const badge = document.getElementById('hist-count');
       if (badge && merged.length > 0) badge.textContent = merged.length;
     }).catch(() => {});
+
+    // Hamburger mobile
+    const hamburger = document.getElementById('btn-hamburger');
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('sidebar-overlay');
+    if (hamburger && sidebar && overlay) {
+      function openSidebar() {
+        sidebar.classList.add('is-open');
+        overlay.classList.add('is-open');
+        hamburger.setAttribute('aria-expanded', 'true');
+      }
+      function closeSidebar() {
+        sidebar.classList.remove('is-open');
+        overlay.classList.remove('is-open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      }
+      hamburger.addEventListener('click', () => {
+        sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
+      });
+      overlay.addEventListener('click', closeSidebar);
+    }
+
+    // Date min = aujourd'hui sur tous les champs date
+    const today = new Date().toISOString().slice(0, 10);
+    document.querySelectorAll('input[type="date"]').forEach(el => { el.min = today; });
 
     window.scrollTo(0, 0);
   }

@@ -19,7 +19,7 @@
 
   --text: #111827;
   --text-secondary: #6B7280;
-  --text-tertiary: #9CA3AF;
+  --text-tertiary: #6B7280;
 
   --success: #1e8e4a;
   --success-bg: #f0faf3;
@@ -51,7 +51,7 @@
   --r-btn: 8px;
   --r-pill: 50px;
   --r-pill-sm: 10px;
-  --r-input: 0px;
+  --r-input: 8px;
 
   /* Shadow */
   --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 8px rgba(0,0,0,0.04);
@@ -89,6 +89,30 @@ button { font-family: inherit; cursor: pointer; }
 input, select, textarea { font-family: inherit; }
 ul { list-style: none; }
 svg { display: block; }
+
+/* ── Animation shake pour champs invalides ── */
+@keyframes field-shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-6px); }
+  40%,80% { transform: translateX(6px); }
+}
+.field-error-shake { animation: field-shake .35s ease; }
+.field-error-shake input,
+.field-error-shake select,
+.field-error-shake textarea,
+.field-error-shake .pill-group,
+.field-error-shake .card-grid {
+  border-color: var(--danger) !important;
+  outline: 1px solid var(--danger);
+}
+
+/* ── Accessibilité — focus visible global (WCAG 2.4.7) ── */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 
 /* ════════════════════════════════════════════════════════════
    APP SHELL — layout principal (sidebar gauche + contenu)
@@ -812,9 +836,20 @@ select:focus { border-bottom-color: var(--indigo); }
 }
 
 @media (max-width: 640px) {
-  .sidebar { display: none; }
+  .sidebar { display: none; transform: translateX(-100%); transition: transform .25s var(--ease); }
+  .sidebar.is-open { display: flex; transform: translateX(0); }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 99; }
+  .sidebar-overlay.is-open { display: block; }
   .app-content { margin-left: 0; }
   .mobile-submit { left: 0; }
+  /* Bouton hamburger */
+  .btn-hamburger {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border: none; background: transparent;
+    color: var(--text-secondary); cursor: pointer; border-radius: 8px;
+    margin-right: 4px;
+  }
+  .btn-hamburger:focus-visible { outline: 2px solid var(--indigo); }
 }
 
 @media (max-width: 560px) {
@@ -1437,11 +1472,12 @@ select:focus { border-bottom-color: var(--indigo); }
 .wz-card-header { margin-bottom: 24px; }
 
 .wz-card-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: .07em;
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--indigo);
+  opacity: .75;
   margin-bottom: 4px;
 }
 
@@ -1479,7 +1515,8 @@ select:focus { border-bottom-color: var(--indigo); }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 20px;
+  padding: 12px 20px;
+  min-height: 48px;
   border: 1px solid var(--border);
   border-radius: var(--r-btn);
   background: var(--surface);
@@ -1496,7 +1533,8 @@ select:focus { border-bottom-color: var(--indigo); }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 24px;
+  padding: 12px 28px;
+  min-height: 48px;
   border: none;
   border-radius: var(--r-btn);
   background: var(--indigo);

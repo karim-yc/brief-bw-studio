@@ -86,7 +86,7 @@ const Render = {
       const opts = (CONFIG[f.options] || []).map(o =>
         `<option value="${this.esc(o)}" ${val === o ? 'selected' : ''}>${this.esc(o)}</option>`
       ).join('');
-      inputHtml = `<select data-field="${f.id}"><option value="">— Sélectionner —</option>${opts}</select>`;
+      inputHtml = `<select id="field-${f.id}" data-field="${f.id}"><option value="" disabled ${!val ? 'selected' : ''}>Choisir…</option>${opts}</select>`;
     } else if (f.type === 'pills') {
       const pillOpts = Array.isArray(f.options) ? f.options : (CONFIG[f.options] || []);
       inputHtml = `<div class="pill-group" data-field-group="${f.id}">` +
@@ -105,15 +105,15 @@ const Render = {
         `</div>` +
         `<input type="text" data-field="${f.id}" placeholder="Précisez la matière / support…" value="${this.esc(textVal)}"${isAutre ? '' : ' style="display:none"'}>`;
     } else if (f.type === 'date') {
-      inputHtml = `<input type="date" data-field="${f.id}" value="${this.esc(val)}">`;
+      inputHtml = `<input type="date" id="field-${f.id}" data-field="${f.id}" value="${this.esc(val)}">`;
     } else {
-      inputHtml = `<input type="text" data-field="${f.id}" placeholder="${f.placeholder || ''}" value="${this.esc(val)}">`;
+      inputHtml = `<input type="text" id="field-${f.id}" data-field="${f.id}" placeholder="${f.placeholder || ''}" value="${this.esc(val)}">`;
     }
 
     return `
       <div class="${cls.join(' ')}" data-field-wrap="${f.id}">
         <div class="field-label-row">
-          <label class="field-label">${f.label}${f.gravity === 'blocking' ? '<span class="req">*</span>' : ''}${f.tooltip ? this.tooltip(f.tooltip) : ''}</label>
+          <label class="field-label" for="field-${f.id}">${f.label}${f.gravity === 'blocking' ? '<span class="req">*</span>' : ''}${f.tooltip ? this.tooltip(f.tooltip) : ''}</label>
         </div>
         ${inputHtml}
       </div>`;
@@ -191,7 +191,7 @@ const Render = {
     const type = State.data.typeDemande;
 
     const cards = CONFIG.typesDemande.map(t => `
-      <button type="button" class="select-card ${type === t.id ? 'active' : ''}" data-type-select="${t.id}">
+      <button type="button" role="radio" aria-checked="${type === t.id ? 'true' : 'false'}" class="select-card ${type === t.id ? 'active' : ''}" data-type-select="${t.id}">
         ${Icons[t.icon]}
         <span class="select-card-label">${t.label}</span>
         ${t.sub ? `<span class="select-card-sub">${t.sub}</span>` : ''}
@@ -241,7 +241,7 @@ const Render = {
           <div class="card-body-inner">
             <div class="field">
               <label class="field-label">Type de demande<span class="req">*</span></label>
-              <div class="card-grid">${cards}</div>
+              <div class="card-grid" role="radiogroup" aria-label="Type de demande">${cards}</div>
             </div>
             <div class="cond-block ${type ? 'visible' : 'hidden'}">
               ${subContent}
@@ -407,7 +407,7 @@ ${Recap.toHtml(r)}
             </div>
             <label class="global-confirm-label ${globalConfirmed ? 'is-confirmed' : ''}">
               <input type="checkbox" id="chk-global-confirm" ${globalConfirmed ? 'checked' : ''}>
-              <span>Je confirme que les informations obligatoires fournies sont correctes et exploitables par le studio graphique.</span>
+              <span>Je certifie que ces informations sont complètes et prêtes à exécuter par le studio graphique.</span>
             </label>
           </div>
         </div>
@@ -451,10 +451,10 @@ ${Recap.toHtml(r)}
     const isFirst = step === 1;
     const isLast = step === 4;
     const left = `<div class="wizard-nav-left">
-      <button class="btn-wz-prev" id="wz-prev"${isFirst ? ' disabled' : ''}>← Retour</button>
-      <span class="wz-step-hint">Étape ${step} / 4</span>
+      <button class="btn-wz-prev" id="wz-prev"${isFirst ? ' disabled' : ''} aria-label="Étape précédente">← Étape précédente</button>
+      <span class="wz-step-hint" aria-live="polite">Étape ${step} / 4</span>
     </div>`;
-    const right = isLast ? '' : `<button class="btn-wz-next" id="wz-next">Suivant →</button>`;
+    const right = isLast ? '' : `<button class="btn-wz-next" id="wz-next">Continuer →</button>`;
     return `<div class="wizard-nav">${left}${right}</div>`;
   },
 

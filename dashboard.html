@@ -19,7 +19,7 @@
   --bg:#F8F7FF;--surface:#fff;
   --border:#E5E7EB;--border-light:#F3F4F6;
   --hover:#F9FAFB;
-  --text:#111827;--text-secondary:#6B7280;--text-tertiary:#9CA3AF;
+  --text:#111827;--text-secondary:#6B7280;--text-tertiary:#6B7280;
   --text-primary:#111827;
 
   --urgent:#DC2626;--urgent-bg:#FEF2F2;--urgent-border:#FECACA;
@@ -79,6 +79,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .filters-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search-input{flex:1;min-width:180px;max-width:260px;position:relative}
 .search-input input{width:100%;padding:7px 10px 7px 32px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:12px;font-family:'Inter',sans-serif;color:var(--text);background:#fff;outline:none;transition:border-color .15s;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+:focus{outline:none}:focus-visible{outline:2px solid var(--indigo);outline-offset:2px;border-radius:4px}
 .search-input input:focus{border-color:var(--indigo);background:#fff;box-shadow:0 0 0 3px var(--indigo-bg)}
 .search-input i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:13px;pointer-events:none}
 .filter-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -1555,7 +1556,18 @@ function renderBriefs(data) {
   if(cnt) cnt.textContent=data.length+' brief'+(data.length>1?'s':'');
   el.style.display = viewMode === 'list' ? '' : 'none';
   if(!data.length) {
-    el.innerHTML=`<div class="empty-state"><i class="ti ti-file-off"></i><p>Aucun brief ne correspond aux filtres.<br>Ou <a href="v2/index.html">créez un nouveau brief →</a></p></div>`;
+    const isFiltered = document.querySelector('.filter-btn.active[data-filter]:not([data-filter="all"])') ||
+      document.querySelector('#search-input')?.value?.trim();
+    el.innerHTML = isFiltered
+      ? `<div class="empty-state"><i class="ti ti-filter-off"></i><p>Aucun brief ne correspond à ces filtres.<br><a href="#" onclick="resetFilters();return false">Réinitialiser les filtres</a></p></div>`
+      : `<div class="empty-state">
+           <i class="ti ti-file-plus" style="font-size:48px;opacity:.25;margin-bottom:16px"></i>
+           <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Aucun brief en cours</p>
+           <p style="margin-bottom:20px">Créez votre première demande et elle apparaîtra ici.</p>
+           <a href="v2/index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--indigo);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px">
+             <i class="ti ti-plus"></i> Nouvelle demande
+           </a>
+         </div>`;
     return;
   }
   const rows = data.map((b,_i)=>{
