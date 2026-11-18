@@ -92,14 +92,28 @@ jobs:
           tasks = []
 
           STATUS_COLORS = {
-              'done':       'done',
-              'completed':  'done',
-              'terminé':    'done',
-              'in progress':'in_progress',
-              'en cours':   'in_progress',
-              'stuck':      'stuck',
-              'bloqué':     'stuck',
-              '':           'none',
+              # Anglais
+              'done':                 'done',
+              'completed':            'done',
+              'finished':             'done',
+              'working on it':        'in_progress',
+              'in progress':          'in_progress',
+              'stuck':                'stuck',
+              # Français Monday.com
+              'fait':                 'done',
+              'terminé':              'done',
+              'terminée':             'done',
+              'livré':                'done',
+              'livrée':               'done',
+              'en cours':             'in_progress',
+              'en cours de livraison':'in_progress',
+              'bloqué':               'stuck',
+              'bloquée':              'stuck',
+              'pas encore entamé':    'none',
+              'à faire':              'none',
+              'projet':               'none',
+              'new':                  'none',
+              '':                     'none',
           }
 
           for board in boards:
@@ -124,13 +138,13 @@ jobs:
                       col_text = col.get('text', '') or ''
                       col_val  = col.get('value', '') or ''
 
-                      # Colonne assigné (people)
-                      if col_type == 'multiple-person' or col_id in ('person', 'people', 'owner', 'assigned'):
+                      # Colonne assigné — Monday retourne type='people', ids variés
+                      if col_type == 'people' or col_id in ('person', 'people', 'owner', 'assigned') or col_id.startswith('multiple_person') or col_id.startswith('person'):
                           if me_id in str(col_val):
                               assigned_to_me = True
 
-                      # Statut
-                      if col_type == 'color' or col_id in ('status', 'statut', 'etat', 'état'):
+                      # Statut — Monday retourne type='status' (pas 'color')
+                      if col_type == 'status' or col_id in ('status', 'statut', 'etat', 'état'):
                           status_text = col_text
 
                       # Priorité
