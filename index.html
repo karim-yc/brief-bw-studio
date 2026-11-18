@@ -3,2336 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brief Projet — Studio Graphique B&W</title>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-/* ── RESET ─────────────────────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0}
-html{background:#fff;min-height:100%}body{background:#fff;min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Roboto',sans-serif;color:#1d1d1f;min-height:100vh}
-
-/* ── FONTS ──────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-/* ── APP SHELL ──────────────────────────────────────────────── */
-.app{max-width:680px;margin:0 auto;min-height:100vh;background:#fff;position:relative}
-
-/* ── HEADER ─────────────────────────────────────────────────── */
-.hdr{
-  background:#000;
-  padding:0 28px;
-  height:52px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;
-}
-.hdr-left{display:flex;flex-direction:column;gap:1px}
-.hdr-title{
-  font-family:'Anton',sans-serif;
-  font-size:15px;letter-spacing:2px;color:#fff;text-transform:uppercase;line-height:1
-}
-.hdr-sub{font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.35);text-transform:uppercase}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.hdr-hist-btn{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:5px 11px;border-radius:20px;
-  background:rgba(255,255,255,0.1);border:none;
-  color:rgba(255,255,255,0.75);
-  font-size:10px;font-weight:500;font-family:inherit;
-  cursor:pointer;letter-spacing:0.3px;transition:background .15s;
-  text-decoration:none
-}
-.hdr-hist-btn:hover{background:rgba(255,255,255,0.18)}
-.hdr-hist-count{
-  background:rgba(255,255,255,0.2);
-  border-radius:8px;padding:1px 5px;
-  font-size:9px;font-weight:600
-}
-.hdr-logo{font-family:'Anton',sans-serif;font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-align:right;text-transform:uppercase;line-height:1.7}
-
-/* ── MODE BAR ────────────────────────────────────────────────── */
-.mode-bar{
-  display:flex;border-bottom:1px solid #f2f2f2;
-  background:#fff;
-  position:sticky;top:52px;z-index:90;
-}
-.mode-btn{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:13px 8px;border:none;background:transparent;
-  font-size:11px;font-weight:500;color:#86868b;
-  font-family:inherit;cursor:pointer;
-  border-bottom:2px solid transparent;
-  transition:color .15s,border-color .15s;
-  letter-spacing:0.2px;
-}
-.mode-btn i{font-size:14px}
-.mode-btn:hover{color:#1d1d1f}
-.mode-btn.active{color:#1d1d1f;border-bottom-color:#1d1d1f}
-
-/* ── PROGRESS ────────────────────────────────────────────────── */
-.prog-wrap{padding:16px 28px 12px;cursor:pointer}
-.prog-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.prog-title{font-size:12px;font-weight:500;color:#86868b}
-.prog-count{font-size:12px;font-weight:600;color:#1d1d1f}
-.prog-track{height:3px;background:#f2f2f2;border-radius:2px;overflow:hidden;margin-top:8px}
-.prog-fill{height:100%;background:#1d1d1f;border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1)}
-.prog-details{font-size:11px;color:#86868b;margin-top:8px;line-height:1.5;display:none}
-.prog-details.open{display:block}
-#save-badge{
-  font-size:10px;color:#34c759;
-  display:none;align-items:center;gap:4px;
-  background:#f2fff5;padding:2px 8px;border-radius:10px;
-  border:1px solid rgba(52,199,89,0.25)
-}
-
-/* ── INFO BANNER ─────────────────────────────────────────────── */
-.info-banner{
-  margin:12px 28px 0;
-  padding:10px 14px;
-  background:#f5f5f7;border-radius:10px;
-  font-size:11px;color:#86868b;
-  display:flex;align-items:center;gap:8px;line-height:1.5
-}
-.info-banner i{font-size:13px;color:#86868b;flex-shrink:0}
-.info-banner strong{color:#1d1d1f}
-
-/* ── RESTORE BANNER ──────────────────────────────────────────── */
-#restore-banner{
-  margin:10px 28px 0;
-  padding:10px 14px;border-radius:10px;
-  background:#f2fff5;border:1px solid rgba(52,199,89,0.2);
-  font-size:12px;color:#1d7a3a;
-  display:flex;align-items:center;gap:8px;
-}
-
-/* ── SECTIONS ────────────────────────────────────────────────── */
-.sections-wrap{padding:8px 0 120px}
-.section{border-bottom:1px solid #f2f2f2}
-
-.sec-head{
-  display:flex;align-items:center;gap:12px;
-  padding:16px 28px;cursor:pointer;
-  transition:background .1s;
-  user-select:none;
-}
-.sec-head:hover{background:#fafafa}
-.sec-head.open{background:#fff}
-
-.sec-num{
-  width:24px;height:24px;border-radius:6px;
-  background:#1d1d1f;color:#fff;
-  font-family:'Anton',sans-serif;font-size:11px;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;letter-spacing:0
-}
-.sec-title{
-  font-size:13px;font-weight:600;color:#1d1d1f;
-  flex:1;letter-spacing:0.1px
-}
-.sec-badge{
-  font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px;
-  text-transform:uppercase;letter-spacing:0.4px;
-}
-.sec-badge.empty{background:#f5f5f7;color:#86868b}
-.sec-badge.partial{background:#fff8ec;color:#d97706}
-.sec-badge.done{background:#f2fff5;color:#16a34a}
-.sec-chevron{font-size:14px;color:#c7c7cc;transition:transform .2s}
-.sec-head.open .sec-chevron{transform:rotate(180deg)}
-
-.sec-body{
-  display:none;padding:0 28px 20px;
-  animation:fadeInDown .18s ease
-}
-.sec-body.open{display:block}
-
-@keyframes fadeInDown{
-  from{opacity:0;transform:translateY(-6px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-/* ── FIELDS ──────────────────────────────────────────────────── */
-.field{margin-top:20px}
-.field:first-child{margin-top:0}
-
-.field label,.checks-label{
-  display:block;
-  font-size:11px;font-weight:600;
-  color:#86868b;text-transform:uppercase;
-  letter-spacing:0.8px;margin-bottom:8px
-}
-.req{color:#ff3b30;margin-left:2px}
-
-input[type=text],input[type=number],input[type=date],input[type=email],textarea{
-  width:100%;
-  border:none;border-bottom:1px solid #e8e8ed;
-  padding:8px 0;
-  font-family:inherit;font-size:15px;color:#1d1d1f;
-  background:transparent;outline:none;
-  transition:border-color .2s;
-  border-radius:0
-}
-select{
-  width:100%;
-  border:none;border-bottom:1px solid #e8e8ed;
-  padding:10px 20px 10px 0;
-  font-family:inherit;font-size:15px;color:#1d1d1f;
-  background:transparent;outline:none;
-  cursor:pointer;line-height:1.4;
-  -webkit-appearance:none;appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c7c7cc' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 2px center;
-}
-input:focus,select:focus,textarea:focus{border-bottom-color:#1d1d1f}
-input::placeholder,textarea::placeholder{color:#c7c7cc}
-select{cursor:pointer}
-
-textarea{
-  border:1px solid #e8e8ed;border-radius:10px;
-  padding:12px 14px;resize:vertical;min-height:80px;
-  line-height:1.5;font-size:14px
-}
-textarea:focus{border-color:#1d1d1f}
-
-/* ── DEPT SELECT ─────────────────────────────────────────────── */
-.dept-context-banner{
-  margin:16px 0 -4px;padding:10px 14px;border-radius:10px;
-  font-size:12px;font-weight:500;
-  display:flex;align-items:center;gap:10px;
-  animation:fadeInDown .2s ease
-}
-.dept-context-banner strong{font-weight:700;display:block;font-size:12px}
-.dept-context-banner.travaux{background:#fff8ec;color:#d97706;border:1px solid #fde68a}
-.dept-context-banner.packaging{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd}
-
-/* ── CHECKBOXES ──────────────────────────────────────────────── */
-.cg{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.chk{
-  display:inline-flex;align-items:center;gap:7px;
-  padding:7px 13px;border:1px solid #e8e8ed;border-radius:20px;
-  cursor:pointer;font-size:13px;color:#1d1d1f;
-  transition:all .15s;background:#fff;
-  user-select:none
-}
-.chk:hover{border-color:#1d1d1f}
-.chk input{display:none}
-.chk-box{
-  width:15px;height:15px;border-radius:50%;
-  border:1.5px solid #c7c7cc;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;transition:all .15s
-}
-.chk input:checked ~ .chk-box{
-  background:#1d1d1f;border-color:#1d1d1f;
-}
-.chk input:checked ~ .chk-box::after{
-  content:'';width:5px;height:5px;border-radius:50%;background:#fff
-}
-.chk input:checked ~ span{font-weight:500}
-
-/* ── BOUTONS PRIORITÉ ────────────────────────────────────────── */
-.prio-btn{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:7px 14px;border:1px solid #e8e8ed;border-radius:20px;
-  font-size:13px;font-weight:500;font-family:inherit;
-  color:#86868b;background:#fff;cursor:pointer;
-  transition:all .15s
-}
-.prio-btn:hover{border-color:#1d1d1f;color:#1d1d1f}
-.prio-btn.active{background:#1d1d1f;border-color:#1d1d1f;color:#fff}
-.prio-btn.prio-prioritaire.active{background:#f59e0b;border-color:#f59e0b;color:#fff}
-.prio-btn.prio-urgent.active{background:#ff3b30;border-color:#ff3b30;color:#fff}
-
-/* ── GENRE CAMPAGNE ──────────────────────────────────────────── */
-.genre-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-.genre-btn{
-  display:flex;align-items:center;gap:7px;
-  padding:9px 15px;border:1px solid #e8e8ed;border-radius:10px;
-  font-size:13px;font-weight:500;font-family:inherit;
-  color:#86868b;background:#fff;cursor:pointer;
-  transition:all .18s;text-align:left
-}
-.genre-btn i{font-size:16px;opacity:0.7}
-.genre-btn:hover{border-color:#1d1d1f;color:#1d1d1f}
-.genre-btn:hover i{opacity:1}
-.genre-btn.active{background:#1d1d1f;border-color:#1d1d1f;color:#fff}
-.genre-btn.active i{opacity:1}
-
-/* ── VAL ROWS ────────────────────────────────────────────────── */
-.val-rows{display:flex;flex-direction:column;margin-top:4px}
-.val-row{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid #f2f2f2}
-.val-row:last-child{border-bottom:none}
-.val-row-label{font-size:13px;color:#1d1d1f;flex:1;padding-top:6px;line-height:1.4}
-.val-row-body{display:flex;align-items:center;gap:8px;flex:1.5}
-.val-row-body input,.val-row-body textarea{font-size:14px}
-.val-select{
-  width:auto;min-width:110px;
-  border:1px solid #e8e8ed;border-radius:8px;
-  padding:5px 10px;font-size:11px;font-weight:600;
-  color:#86868b;background:#fafafa;
-  cursor:pointer;flex-shrink:0
-}
-
-/* ── STATUS CIRCLE ───────────────────────────────────────────── */
-.val-select[style*="background:#f0fdf4"]{color:#16a34a}
-.val-select[style*="background:#fef2f2"]{color:#dc2626}
-
-/* ── FICHIERS GRID ───────────────────────────────────────────── */
-.fichiers-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-
-/* ── SUPPORTS ────────────────────────────────────────────────── */
-#supports{display:flex;flex-wrap:wrap;gap:8px}
-.decli-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f2f2f2;background:#fafafa;border-radius:0}
-.decli-row:first-child{border-radius:10px 10px 0 0}
-.decli-row:last-child{border-bottom:none;border-radius:0 0 10px 10px}
-.decli-label{font-size:13px;color:#1d1d1f;flex:1}
-.decli-input{width:56px;text-align:center;border:none;border-bottom:1px solid #e8e8ed;font-size:14px;font-family:inherit;background:transparent;outline:none;padding:3px 0}
-.decli-input:focus{border-bottom-color:#1d1d1f}
-.decli-unit{font-size:11px;color:#c7c7cc}
-#decli-rows{border:1px solid #e8e8ed;border-radius:10px;overflow:hidden;margin-top:6px}
-#decli-total{font-size:13px;font-weight:600;color:#1d1d1f}
-
-/* ── DONE BANNER ─────────────────────────────────────────────── */
-.done-banner{
-  margin:0 28px 16px;padding:12px 16px;
-  background:#f2fff5;border:1px solid rgba(52,199,89,0.25);
-  border-radius:10px;font-size:13px;font-weight:600;
-  color:#16a34a;display:none;
-  align-items:center;gap:8px
-}
-.done-banner.show{display:flex}
-
-/* ── SUBMIT ACTIONS ──────────────────────────────────────────── */
-.actions-wrap{padding:0 28px 12px;display:flex;flex-direction:column;gap:10px}
-.btn-submit{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  width:100%;padding:16px;
-  background:#1d1d1f;color:#fff;
-  font-family:'Anton',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;
-  border:none;border-radius:12px;cursor:pointer;
-  transition:opacity .15s,transform .1s
-}
-.btn-submit:hover{opacity:0.9}
-.btn-submit:active{transform:scale(0.99)}
-.btn-submit-note{text-align:center;font-size:11px;color:#c7c7cc}
-.btn-pdf{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  width:100%;padding:14px;
-  background:transparent;color:#1d1d1f;
-  font-family:'Anton',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
-  border:1.5px solid #e8e8ed;border-radius:12px;cursor:pointer;
-  transition:border-color .15s
-}
-.btn-pdf:hover{border-color:#1d1d1f}
-.btn-row{display:flex;gap:8px}
-.btn-sm{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:11px;background:#f5f5f7;color:#1d1d1f;
-  font-family:inherit;font-size:11px;font-weight:600;
-  border:none;border-radius:10px;cursor:pointer;
-  transition:background .15s
-}
-.btn-sm:hover{background:#ebebef}
-.btn-reset{
-  width:100%;padding:12px;background:transparent;
-  color:#ff3b30;font-family:inherit;font-size:12px;font-weight:500;
-  border:1px solid rgba(255,59,48,0.2);border-radius:10px;cursor:pointer;
-  transition:all .15s
-}
-.btn-reset:hover{background:#fff5f5;border-color:#ff3b30}
-
-/* ── FOOTER ──────────────────────────────────────────────────── */
-.ftr{padding:20px 28px;text-align:center;font-size:10px;color:#c7c7cc;letter-spacing:0.8px;text-transform:uppercase}
-
-/* ── FLOAT SUBMIT MOBILE ─────────────────────────────────────── */
-.float-submit{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(0,0,0,0.08);padding:12px 20px 24px}
-.float-submit-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;background:#1d1d1f;color:#fff;font-family:'Anton',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;border-radius:12px}
-.float-submit-info{font-size:10px;color:#86868b;text-align:center;margin-top:7px}
-@media(max-width:600px){
-  .float-submit{display:block}
-  .sections-wrap{padding-bottom:160px}
-  .sec-head{padding:14px 20px}
-  .sec-body{padding:0 20px 18px}
-  .prog-wrap{padding:14px 20px 0}
-  .info-banner{margin:10px 20px 0}
-  .actions-wrap{padding:0 20px 12px}
-}
-
-/* ── TOOLTIPS ────────────────────────────────────────────────── */
-.tip-wrap{position:relative;display:inline-block}
-.tip-icon{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:15px;height:15px;border-radius:50%;
-  background:#e8e8ed;color:#86868b;
-  font-size:9px;font-style:normal;font-weight:700;
-  cursor:pointer;vertical-align:middle;margin-left:3px
-}
-.tip-box{
-  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
-  background:#1d1d1f;color:#fff;
-  font-size:11px;line-height:1.5;padding:10px 12px;border-radius:8px;
-  width:220px;white-space:normal;pointer-events:none;
-  opacity:0;transition:opacity .15s;z-index:200
-}
-.tip-wrap:hover .tip-box,.tip-wrap.tip-open .tip-box{opacity:1}
-
-/* ── ADD OTHER ───────────────────────────────────────────────── */
-.add-other-btn{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:6px 12px;border:1px dashed #e8e8ed;border-radius:16px;
-  font-size:11px;color:#86868b;font-family:inherit;
-  background:transparent;cursor:pointer;margin-top:8px;
-  transition:all .15s
-}
-.add-other-btn:hover{border-color:#1d1d1f;color:#1d1d1f}
-.other-inputs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.other-input-wrap{display:flex;align-items:center;gap:4px;background:#f5f5f7;border-radius:20px;padding:5px 5px 5px 12px}
-.other-input-wrap input{width:120px;border:none;background:transparent;font-size:12px;outline:none;color:#1d1d1f}
-.other-input-wrap button{width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,0.1);color:#86868b;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-
-/* ── HISTORY DRAWER ──────────────────────────────────────────── */
-.dr-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:none;backdrop-filter:blur(4px)}
-.dr-overlay.open{display:block}
-.drawer{position:fixed;right:0;top:0;bottom:0;width:min(420px,100vw);background:#fff;z-index:301;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-20px 0 60px rgba(0,0,0,0.15)}
-.drawer.open{transform:translateX(0)}
-.dr-head{background:#000;padding:16px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.dr-head-title{font-family:'Anton',sans-serif;font-size:14px;letter-spacing:2px;color:#fff;text-transform:uppercase;flex:1}
-.dr-close{width:28px;height:28px;border:none;background:rgba(255,255,255,0.1);border-radius:50%;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.dr-search{padding:12px 16px;border-bottom:1px solid #f2f2f2;display:flex;gap:8px}
-.dr-search input{flex:1;border:1px solid #e8e8ed;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit}
-.dr-search input:focus{border-color:#1d1d1f}
-.dr-sort{padding:4px 8px;border-radius:8px;border:1px solid #e8e8ed;font-size:11px;font-family:inherit;cursor:pointer;color:#86868b;background:#fff}
-.dr-body{flex:1;overflow-y:auto;padding:8px 0}
-.dr-empty{text-align:center;padding:48px 20px;color:#c7c7cc}
-.dr-empty i{font-size:36px;display:block;margin-bottom:12px;opacity:0.4}
-.hist-item{padding:14px 16px;border-bottom:1px solid #f2f2f2;cursor:pointer;transition:background .1s}
-.hist-item:hover{background:#fafafa}
-.hist-item-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.hist-id{font-family:'Anton',sans-serif;font-size:10px;color:#c7c7cc;letter-spacing:1px}
-.hist-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px}
-.hist-badge.latest{background:#f2fff5;color:#16a34a}
-.hist-badge.old{background:#f5f5f7;color:#86868b}
-.hist-dept{font-size:13px;font-weight:600;color:#1d1d1f;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hist-desc{font-size:12px;color:#86868b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px}
-.hist-meta{display:flex;align-items:center;justify-content:space-between}
-.hist-date{font-size:11px;color:#c7c7cc}
-.hist-actions{display:flex;gap:6px}
-.hist-btn{padding:5px 10px;border-radius:6px;border:none;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
-.hist-btn-load{background:#f5f5f7;color:#1d1d1f}
-.hist-btn-load:hover{background:#e8e8ed}
-.hist-btn-del{background:transparent;color:#ff3b30;border:1px solid rgba(255,59,48,0.2)}
-.hist-btn-del:hover{background:#fff5f5}
-
-/* ── STATUS WRAP (Section 6) ─────────────────────────────────── */
-.status-wrap{padding-top:16px}
-.status-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#f5f5f7;border-radius:10px}
-.sdot{width:8px;height:8px;border-radius:50%;background:#c7c7cc;flex-shrink:0;transition:background .3s}
-.sdot.ok{background:#34c759}
-.sdot.warn{background:#ff9500}
-.sdot.err{background:#ff3b30}
-.slbl{font-size:13px;color:#86868b;flex:1}
-
-/* ── REF SECTION ─────────────────────────────────────────────── */
-.ref-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;padding:14px 0;border-bottom:1px solid #f2f2f2}
-.ref-toggle-box{width:34px;height:20px;border-radius:10px;background:#e8e8ed;position:relative;transition:background .2s;flex-shrink:0}
-.ref-toggle-box::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
-.ref-toggle-box.on{background:#34c759}
-.ref-toggle-box.on::after{transform:translateX(14px)}
-.ref-fields{padding-top:12px}
-.ref-type-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.ref-type-btn{padding:8px 14px;border:1px solid #e8e8ed;border-radius:8px;font-size:12px;font-weight:500;font-family:inherit;color:#86868b;background:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
-.ref-type-btn:hover{border-color:#1d1d1f;color:#1d1d1f}
-.ref-type-btn.active{background:#1d1d1f;border-color:#1d1d1f;color:#fff}
-
-/* ── CONDITIONAL LOGIC ANIMATIONS ───────────────────────────── */
-.ctx-block{transition:opacity .2s ease,max-height .25s ease;overflow:hidden}
-.ctx-block.hidden{max-height:0!important;opacity:0;pointer-events:none;margin:0!important;padding:0!important;border:none!important;height:0}
-.ctx-block.visible{max-height:1200px;opacity:1}
-
-/* ── MODE RAPIDE ─────────────────────────────────────────────── */
-.mode-rapide-bar{background:#1d1d1f;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.mode-rapide-bar span{font-size:11px;color:rgba(255,255,255,0.6)}
-.mode-rapide-toggle{padding:6px 14px;border:1px solid rgba(255,255,255,0.2);border-radius:20px;background:transparent;color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:0.3px;transition:all .15s}
-.mode-rapide-toggle:hover{background:rgba(255,255,255,0.1)}
-.rapide-form{padding:24px 28px;display:flex;flex-direction:column;gap:20px}
-.rapide-field label{display:block;font-size:11px;font-weight:600;color:#86868b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
-.rapide-field input,.rapide-field select,.rapide-field textarea{width:100%;border:none;border-bottom:1px solid #e8e8ed;padding:8px 0;font-family:inherit;font-size:15px;color:#1d1d1f;background:transparent;outline:none;transition:border-color .2s}
-.rapide-field input:focus,.rapide-field select:focus,.rapide-field textarea:focus{border-bottom-color:#1d1d1f}
-.rapide-field textarea{border:1px solid #e8e8ed;border-radius:10px;padding:12px 14px;resize:vertical;min-height:72px;font-size:14px}
-.rapide-field textarea:focus{border-color:#1d1d1f}
-.rapide-prio{display:flex;gap:8px;flex-wrap:wrap}
-.rapide-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;background:#1d1d1f;color:#fff;font-family:'Anton',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;border-radius:12px;margin-top:4px;transition:opacity .15s}
-.rapide-submit:hover{opacity:0.9}
-.rapide-link{text-align:center;font-size:12px;color:#86868b;padding:0 0 8px;cursor:pointer}
-.rapide-link:hover{color:#1d1d1f}
-.rapide-separator{border-top:1px solid #f2f2f2;margin:4px 0 0}
-
-/* ── PACKAGING ───────────────────────────────────────────────── */
-.pack-row{display:grid;grid-template-columns:1fr 110px 72px 30px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f2f2f2}
-.pack-row:last-child{border-bottom:none}
-.pack-input{border:none;border-bottom:1px solid #e8e8ed;padding:5px 2px;font-size:13px;font-family:inherit;color:#1d1d1f;width:100%;outline:none;background:transparent;transition:border-color .2s}
-.pack-input:focus{border-bottom-color:#1d1d1f}
-.pack-del{width:24px;height:24px;border:none;background:none;color:#c7c7cc;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:all .15s}
-.pack-del:hover{color:#ff3b30;background:#fff5f5}
-.add-pack-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px dashed #e8e8ed;border-radius:8px;background:transparent;color:#86868b;font-size:12px;font-family:inherit;cursor:pointer;margin-top:8px;transition:all .15s}
-.add-pack-btn:hover{border-color:#1d1d1f;color:#1d1d1f}
-
-/* ── MODAL RESET ─────────────────────────────────────────────── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
-.modal-overlay.open{display:flex}
-.modal-box{background:#fff;border-radius:16px;width:100%;max-width:320px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
-.modal-title{padding:20px 20px 0;font-size:15px;font-weight:700;color:#1d1d1f;text-align:center}
-.modal-desc{padding:10px 20px 16px;font-size:13px;color:#86868b;text-align:center;line-height:1.5}
-.modal-input-wrap{padding:0 20px 16px}
-.modal-input{width:100%;border:1px solid #e8e8ed;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
-.modal-input:focus{border-color:#ff3b30}
-.modal-actions{display:flex;border-top:1px solid #f2f2f2}
-.modal-cancel{flex:1;padding:14px;border:none;background:transparent;font-size:14px;color:#86868b;cursor:pointer;font-family:inherit;border-right:1px solid #f2f2f2;transition:background .1s}
-.modal-cancel:hover{background:#fafafa}
-.modal-delete{flex:1;padding:14px;border:none;background:transparent;font-size:14px;font-weight:600;color:#ff3b30;cursor:pointer;font-family:inherit;transition:background .1s}
-.modal-delete:hover{background:#fff5f5}
-.modal-delete:disabled{color:#c7c7cc;cursor:not-allowed}
-
-/* ── ANIMATIONS ──────────────────────────────────────────────── */
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-
-/* ── SAVE BADGE ──────────────────────────────────────────────── */
-#save-badge{font-size:10px;color:#34c759;display:none;align-items:center;gap:4px;background:#f2fff5;padding:2px 8px;border-radius:10px;border:1px solid rgba(52,199,89,0.25)}
-
-/* ── ROW2 ────────────────────────────────────────────────────── */
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-@media(max-width:520px){.row2{grid-template-columns:1fr}}
-
-/* ── CHAT ────────────────────────────────────────────────────── */
-.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 200px);min-height:400px}
-.chat-msgs{flex:1;overflow-y:auto;padding:20px 28px;display:flex;flex-direction:column;gap:12px}
-.chat-msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.5}
-.chat-msg.ai{background:#f5f5f7;color:#1d1d1f;border-radius:4px 12px 12px 12px;align-self:flex-start}
-.chat-msg.user{background:#1d1d1f;color:#fff;border-radius:12px 4px 12px 12px;align-self:flex-end}
-.chat-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 28px 12px;align-self:flex-start}
-.chat-chip{padding:7px 14px;border:1px solid #e8e8ed;border-radius:16px;font-size:12px;color:#1d1d1f;cursor:pointer;background:#fff;font-family:inherit;transition:all .15s}
-.chat-chip:hover{background:#1d1d1f;border-color:#1d1d1f;color:#fff}
-.chat-input-row{display:flex;gap:8px;padding:12px 28px 20px;border-top:1px solid #f2f2f2}
-.chat-input{flex:1;border:1px solid #e8e8ed;border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;outline:none;resize:none;min-height:40px;max-height:120px}
-.chat-input:focus{border-color:#1d1d1f}
-.chat-send{width:40px;height:40px;background:#1d1d1f;border:none;border-radius:10px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
-.chat-send:hover{opacity:0.85}
-.chat-typing{display:flex;gap:4px;padding:10px 14px}
-.chat-typing span{width:6px;height:6px;border-radius:50%;background:#c7c7cc;animation:typing 1.2s infinite}
-.chat-typing span:nth-child(2){animation-delay:.2s}
-.chat-typing span:nth-child(3){animation-delay:.4s}
-@keyframes typing{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-
-/* ── VOICE ───────────────────────────────────────────────────── */
-.voice-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:60px 28px;text-align:center}
-.voice-btn{width:72px;height:72px;border-radius:50%;background:#1d1d1f;border:none;color:#fff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
-.voice-btn:hover{transform:scale(1.05)}
-.voice-btn.listening{background:#ff3b30;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,48,0.4)}50%{box-shadow:0 0 0 16px rgba(255,59,48,0)}}
-.voice-label{font-size:14px;color:#86868b}
-
-/* ── MISC ────────────────────────────────────────────────────── */
-.files-note{font-size:12px;color:#c7c7cc;line-height:1.5;margin-top:8px}
-</style>
+<title>Brief Créatif — Studio Graphique Multi-marques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
-<div class="app">
 
-  <div class="hdr">
-    <div>
-      <div class="title">Brief Projet</div>
-      <div class="sub">Studio Graphique — Document interne &nbsp;·&nbsp; <span id="brief-id-display" style="opacity:0.6"></span></div>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <a href="dashboard.html" class="hdr-hist-btn" title="Voir le dashboard analytics">
-          <i class="ti ti-chart-bar"></i> Dashboard
-        </a>
-        <button class="hdr-hist-btn" onclick="openHistory()">
-          <i class="ti ti-history"></i> Historique <span class="hdr-hist-count" id="hist-count">0</span>
-        </button>
-        <div class="hdr-logo" style="font-size:9px">Black &amp; White<br>Burger</div>
+<div class="app-shell">
+
+  <!-- ════════ SIDEBAR GAUCHE ════════ -->
+  <div class="sidebar" id="sidebar" role="navigation" aria-label="Navigation principale">
+    <div class="sidebar-logo-wrap">
+      <div class="sidebar-logo-icon">BW</div>
+      <div>
+        <div class="sidebar-logo-name">Studio Créatif</div>
+        <div class="sidebar-logo-sub">Multi-marques</div>
       </div>
-      <div id="save-indicator" style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1px;text-transform:uppercase;opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:4px">
-        <i class="ti ti-device-floppy" style="font-size:11px"></i> Sauvegardé
+    </div>
+    <nav class="sidebar-nav">
+      <a class="snav-item" href="../dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
+      <a class="snav-item active" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
+      <div class="snav-sep"></div>
+      <a class="snav-item" href="../dashboard.html"><i class="ti ti-list"></i><span>Demandes</span></a>
+      <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
+      <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
+      <div class="snav-sep"></div>
+      <div class="snav-section-label">Marques</div>
+      <div class="snav-brand-item"><span class="snav-brand-dot bnw">BW</span><span>Black &amp; White Burger</span></div>
+      <div class="snav-brand-item"><span class="snav-brand-dot mm">M</span><span>Maison Marquise</span></div>
+      <div class="snav-brand-item"><span class="snav-brand-dot autre">···</span><span>Autre / Multi-marques</span></div>
+    </nav>
+    <div class="snav-user">
+      <div class="snav-user-av">KY</div>
+      <div class="snav-user-info">
+        <div class="snav-user-name">Karim Y.-Cherif</div>
+        <div class="snav-user-role">Brand Design Lead</div>
       </div>
     </div>
   </div>
 
-  <div class="mode-bar">
-    <button class="mode-btn active" id="btn-manual" onclick="switchMode('manual')">
-      <i class="ti ti-forms"></i><span>Formulaire</span>
-    </button>
-    <button class="mode-btn" id="btn-rapide" onclick="switchMode('rapide')">
-      <i class="ti ti-bolt"></i><span>Rapide</span>
-    </button>
-    <button class="mode-btn" id="btn-chat" onclick="switchMode('chat')">
-      <i class="ti ti-message-circle"></i><span>Assistant IA</span>
-      <span style="font-size:8px;font-weight:700;background:#e8e8e8;color:#888;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;line-height:1;margin-left:2px">BÊTA</span>
-    </button>
-    <button class="mode-btn" id="btn-voice" onclick="switchMode('voice')">
-      <i class="ti ti-microphone"></i><span>Vocal</span>
-      <span style="font-size:8px;font-weight:700;background:#e8e8e8;color:#888;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;line-height:1;margin-left:2px">BÊTA</span>
-    </button>
-  </div>
+  <!-- Overlay sidebar mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
-  <!-- ── FORMULAIRE ────────────────────────────── -->
-  <div id="mode-manual">
+  <!-- ════════ CONTENU PRINCIPAL ════════ -->
+  <div class="app-content">
 
-    <div class="prog-wrap" onclick="toggleProgDetails()" title="Cliquez pour voir les sections à compléter">
-      <div class="prog-header">
-        <span class="prog-title">Progression</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span id="save-badge" style="font-size:10px;color:#16a34a;display:none;align-items:center;gap:4px;background:#f0fdf4;padding:2px 8px;border-radius:10px;border:1px solid #bbf7d0">
-            <span style="font-size:11px">✓</span> Brouillon sauvegardé
-          </span>
-          <span class="prog-count" id="plbl">0 / 5</span>
-        </div>
+  <!-- ════════ HEADER ════════ -->
+  <header class="hdr">
+    <div class="hdr-page-info">
+      <div class="hdr-page-icon">
+        <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </div>
-      <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
-      <div class="prog-details" id="prog-details"></div>
+      <div class="hdr-page-title">Nouvelle demande</div>
+      <div class="hdr-page-sub">Créez une demande complète pour l'équipe créative.</div>
+    </div>
+    <div class="hdr-search-bar">
+      <svg viewBox="0 0 20 20" fill="none" class="hdr-search-icon"><circle cx="8.5" cy="8.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="hdr-search-text">Rechercher un brief, une marque…</span>
+      <kbd class="hdr-search-kbd">⌘ K</kbd>
+    </div>
+    <nav class="hdr-actions">
+      <button class="hdr-icon-btn hdr-icon-notif" title="Notifications" aria-label="Notifications">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 0 1 6 6c0 3.5 1 4.5 1.5 5H2.5C3 13.5 4 12.5 4 8a6 6 0 0 1 6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 15a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <button class="hdr-icon-btn" id="btn-history" title="Historique des briefs" aria-label="Historique">
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="hdr-icon-btn" title="Aide" aria-label="Aide">
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 14v.01M10 7a2 2 0 0 1 2 2c0 1.3-2 1.5-2 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ════════ MODE TABS ════════ -->
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-mode="form" role="tab">Formulaire</button>
+    <button class="tab" data-mode="rapide" role="tab">Brief rapide</button>
+  </nav>
+
+  <!-- ════════ MAIN LAYOUT ════════ -->
+  <main class="layout form-pristine" id="app-main" data-wizard-step="1">
+
+    <!-- ─── COLONNE PRINCIPALE ─── -->
+    <div class="main-col" id="main-col">
+
+      <div class="banner" id="restore-banner" hidden>
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 4v6l4 2M16 10a6 6 0 1 1-1.76-4.24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Brouillon restauré — reprenez où vous en étiez</span>
+        <button class="banner-close" id="banner-close" aria-label="Fermer">&times;</button>
+      </div>
+
+      <!-- Wizard progress injecté par JS -->
+      <div id="wizard-progress"></div>
+
+      <!-- Sections injectées par JS -->
+      <div id="sections-root"></div>
+
+      <!-- Wizard navigation injectée par JS -->
+      <div id="wizard-nav"></div>
+
     </div>
 
-    <div class="rule-bar">
-      <i class="ti ti-alert-circle"></i>
-      Ce brief doit être complété <strong style="color:#1d1d1f;margin:0 3px;font-weight:700">AVANT</strong> toute demande de création. Les infos via WhatsApp ne sont pas considérées comme validées.
-    </div>
+    <!-- ─── RECAP PANEL (droite) ─── -->
+    <aside class="recap-panel" id="sidebar">
+      <div class="recap-panel-inner">
 
-    <!-- S1 -->
-    <div class="section">
-      <div class="sec-head open" id="sh1" onclick="toggleSec(1)">
-        <span class="sec-num">1</span>
-        <span class="sec-title">Qui demande</span>
-        <span class="sec-badge empty" id="b1">Vide</span>
-        <i class="ti ti-chevron-up sec-chevron"></i>
-      </div>
-      <div class="sec-body open" id="sb1">
-        <div class="field" style="margin-top:4px">
-          <label>Département<span class="req">*</span></label>
-          <select id="dept" onchange="onDeptChange()">
-            <option value="">— Sélectionner —</option>
-            <option>Marketing</option><option>IT</option><option>Finances</option>
-            <option>Achats</option><option>Travaux</option><option>Direction</option>
-            <option>Franchisé</option><option value="Autre">Autre</option>
-          </select>
-          <div id="dept-autre-wrap" style="display:none;margin-top:8px">
-            <input type="text" id="dept-autre" placeholder="Précisez le département..." oninput="upd()" style="border:none;border-bottom:2px solid #e8e8e8;padding:7px 0;font-family:Roboto,sans-serif;font-size:14px;color:#111;background:transparent;outline:none;width:100%;transition:border-color .2s" onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e8e8e8'">
+        <div class="sb-block">
+          <p class="sb-label">Récapitulatif</p>
+          <div class="sb-progress">
+            <div class="sb-dots" id="sb-dots"></div>
+            <span class="sb-progress-text" id="sb-progress-text">0 / 5 sections</span>
           </div>
-        </div>
-        <div class="field">
-            <label>Référent unique<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">La seule personne à contacter pour ce projet. Toutes les questions et simulations lui seront envoyées.</span></span></label>
-            <input type="text" id="ref" placeholder="Ex : Sophie Martin (Marketing)" oninput="onRefChange()">
-          </div>
-          <input type="hidden" id="valid" value="">
-        </div>
-      </div>
-    </div>
-
-    
-    <div class="section">
-      <div class="sec-head" id="sh2" onclick="toggleSec(2)">
-        <span class="sec-num">2</span>
-        <span class="sec-title">La demande</span>
-        <span class="sec-badge empty" id="b2">Vide</span>
-        <i class="ti ti-chevron-down sec-chevron"></i>
-      </div>
-      <div class="sec-body" id="sb2">
-
-        <!-- Bannière contexte département -->
-        <div id="dept-banner" style="display:none;margin-top:4px;margin-bottom:4px"></div>
-
-        <!-- Description toujours visible -->
-        <div class="field" style="margin-top:4px">
-          <label>Description du projet<span class="req">*</span></label>
-          <textarea id="desc" placeholder="Ex : Campagne launch du nouveau B&W Smash Burger sur Instagram & TikTok, cible 18-35 ans, du 1er au 30 juin 2026. Objectif : notoriété et drive-to-store." oninput="upd()"></textarea>
+          <div class="sb-track"><div class="sb-fill" id="sb-fill"></div></div>
         </div>
 
-        <!-- ── MARKETING : Accroche + Genre + Supports ── -->
-        <div class="ctx-block visible" id="ctx-marketing">
-
-          <div class="field">
-            <label>Accroche / Claim <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Le message fort et court que le visuel doit communiquer.</span></span></label>
-            <input type="text" id="msg" placeholder='Ex : "Le smash qui change tout" · "Black is back" · "Offre FIFA -20% ce week-end"' oninput="upd()">
-          </div>
-
-          <div class="field">
-            <label>Genre de campagne</label>
-            <div class="genre-bar" id="genre-bar">
-              <button type="button" class="genre-btn" data-genre="produit" onclick="setGenre(this)">
-                <i class="ti ti-burger"></i>Produit avec prix
-              </button>
-              <button type="button" class="genre-btn" data-genre="image" onclick="setGenre(this)">
-                <i class="ti ti-camera"></i>Image / Influenceur
-              </button>
-              <button type="button" class="genre-btn" data-genre="promo" onclick="setGenre(this)">
-                <i class="ti ti-discount"></i>Promo / Offre
-              </button>
-              <button type="button" class="genre-btn" data-genre="autre" onclick="setGenre(this)">
-                <i class="ti ti-dots"></i>Autre
-              </button>
-            </div>
-            <input type="hidden" id="genre-campagne" value="">
-          </div>
-
-          <!-- Shooting — visible si Image/Influenceur -->
-          <div class="ctx-block hidden field" id="ctx-shooting">
-            <label>Shooting photo nécessaire ?</label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-              <button type="button" class="prio-btn" data-val="dispo" onclick="setShoot(this)"><i class="ti ti-check" style="font-size:12px"></i> Déjà disponible</button>
-              <button type="button" class="prio-btn" data-val="produit" onclick="setShoot(this)"><i class="ti ti-camera" style="font-size:12px"></i> Shooting produit</button>
-              <button type="button" class="prio-btn" data-val="lifestyle" onclick="setShoot(this)"><i class="ti ti-users" style="font-size:12px"></i> Shooting lifestyle</button>
-              <button type="button" class="prio-btn" data-val="planifier" onclick="setShoot(this)"><i class="ti ti-calendar" style="font-size:12px"></i> À planifier</button>
-            </div>
-            <input type="hidden" id="shooting-type" value="">
-          </div>
-
-          <div class="field">
-            <span class="checks-label">Supports</span>
-            <div class="cg" id="types">
-              <label class="chk"><input type="checkbox" value="Post réseaux sociaux" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Post réseaux sociaux</span></label>
-              <label class="chk"><input type="checkbox" value="Story / Reel 9:16" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Story / Reel 9:16</span></label>
-              <label class="chk"><input type="checkbox" value="Affiche / flyer A5" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Affiche / flyer A5</span></label>
-              <label class="chk"><input type="checkbox" value="Menu board / borne" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Menu board / borne</span></label>
-              <label class="chk"><input type="checkbox" value="PLV / print" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>PLV / print</span></label>
-              <label class="chk"><input type="checkbox" value="Newsletter" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Newsletter</span></label>
-              <label class="chk"><input type="checkbox" value="Bannière web" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Bannière web</span></label>
-              <label class="chk"><input type="checkbox" value="Présentation" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Présentation</span></label>
-            </div>
-            <div class="other-inputs" id="types-others"></div>
-            <button class="add-other-btn" onclick="addOther('types-others','upd')">
-              <i class="ti ti-plus"></i> Ajouter un autre support
-            </button>
-          </div>
-
+        <div class="sb-block">
+          <ul class="sb-sections" id="sb-sections"></ul>
         </div>
 
-        <!-- ── TRAVAUX : Vitrophanie ── -->
-        <div class="ctx-block hidden field" id="ctx-travaux">
-          <label>Type de vitrophanie<span class="req">*</span></label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-            <button type="button" class="genre-btn" data-vtype="camouflage" onclick="setVtype(this)">
-              <i class="ti ti-eye-off"></i>Camouflage ouverture
-            </button>
-            <button type="button" class="genre-btn" data-vtype="permanente" onclick="setVtype(this)">
-              <i class="ti ti-building-store"></i>Vitrine permanente
-            </button>
-          </div>
-          <input type="hidden" id="vtype" value="">
-          <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
-            <div>
-              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;display:block;margin-bottom:5px">Adresse / restaurant concerné<span class="req">*</span></label>
-              <input type="text" id="v-adresse" style="width:100%;border:none;border-bottom:2px solid #e8e8e8;padding:6px 0;font-family:Roboto,sans-serif;font-size:13px;outline:none" placeholder="Ex : B&W Châtelet — Rue de la Montagne 6, 1000 Bruxelles" oninput="upd()">
-            </div>
-            <div>
-              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;display:block;margin-bottom:5px">Mesures exactes de la vitrine<span class="req">*</span></label>
-              <input type="text" id="v-mesures" style="width:100%;border:none;border-bottom:2px solid #e8e8e8;padding:6px 0;font-family:Roboto,sans-serif;font-size:13px;outline:none" placeholder="Ex : Largeur 3,20m × Hauteur 2,40m — 2 panneaux de 1,60m chacun" oninput="upd()">
-            </div>
-            <div>
-              <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;display:block;margin-bottom:5px">Plan vectoriel ou PDF disponible ?</label>
-              <div style="display:flex;gap:8px;margin-top:4px">
-                <button type="button" class="prio-btn" data-val="oui" onclick="setVplan(this)"><i class="ti ti-check" style="font-size:12px"></i> Oui, disponible</button>
-                <button type="button" class="prio-btn" data-val="non" onclick="setVplan(this)"><i class="ti ti-x" style="font-size:12px"></i> Non / À fournir</button>
-              </div>
-              <input type="hidden" id="v-plan" value="">
-            </div>
-          </div>
+        <div class="sb-block" id="sb-issues-block">
+          <div id="sb-blocking"></div>
+          <div id="sb-recommended"></div>
+          <div id="sb-complete"></div>
         </div>
 
-        <!-- ── PACKAGING ── -->
-        <div class="ctx-block hidden" id="ctx-packaging">
-          <div class="field">
-            <label>Phase de production<span class="req">*</span></label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-              <button type="button" class="genre-btn" data-phase="simulation" onclick="setPhase(this)">
-                <i class="ti ti-file-3d"></i>Simulation initiale
-              </button>
-              <button type="button" class="genre-btn" data-phase="retour" onclick="setPhase(this)">
-                <i class="ti ti-refresh"></i>Retour simulation
-              </button>
-              <button type="button" class="genre-btn" data-phase="patron" onclick="setPhase(this)">
-                <i class="ti ti-template"></i>Adaptation patron
-              </button>
-            </div>
-            <input type="hidden" id="pack-phase" value="">
-          </div>
-          <div class="field" style="margin-top:8px">
-            <label>Produits à réaliser<span class="req">*</span></label>
-            <div style="display:grid;grid-template-columns:1fr 120px 80px 32px;gap:8px;padding:4px 0;border-bottom:1px solid #e8e8e8;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px">
-              <span>Nom du produit</span><span>Format</span><span>Qté</span><span></span>
-            </div>
-            <div id="pack-rows"></div>
-            <button class="add-pack-btn" onclick="addPackRow()">
-              <i class="ti ti-plus"></i> Ajouter un produit
-            </button>
-          </div>
+        <div class="sb-block sb-submit-block">
+          <button class="btn-submit" id="btn-submit" disabled>
+            Soumettre le brief
+          </button>
+          <p class="sb-submit-note" id="sb-submit-note">Complétez les champs requis</p>
         </div>
 
-      </div>
-    </div>
-
-    <!-- S3 -->
-    <div class="section">
-      <div class="sec-head" id="sh3" onclick="toggleSec(3)">
-        <span class="sec-num">3</span>
-        <span class="sec-title">Infos techniques</span>
-        <span class="sec-badge empty" id="b3">Vide</span>
-        <i class="ti ti-chevron-down sec-chevron"></i>
-      </div>
-      <div class="sec-body" id="sb3">
-        <div class="val-rows" style="margin-top:4px">
-          <div class="val-row">
-            <div class="val-row-label">Nom produit / projet</div>
-            <div class="val-row-body">
-              <input type="text" id="v-nom" placeholder="Ex : B&W Smash Burger, FIFA Duo Menu, Black Digital..." oninput="upd()">
-              <select class="val-select" id="s-nom" onchange="updValSelect(this);upd()">
-                <option value="">Statut</option><option value="Oui">✓ Confirmé</option><option value="Non">✗ À confirmer</option><option value="En attente">⏳ En attente</option>
-              </select>
-            </div>
-          </div>
-          <div class="val-row ctx-block visible" id="ctx-prix-row">
-            <div class="val-row-label">Prix</div>
-            <div class="val-row-body">
-              <input type="text" id="v-prix" placeholder="Ex : 12,90 € · Duo à 19,90 € · À partir de 8,90 €" oninput="upd()">
-              <select class="val-select" id="s-prix" onchange="updValSelect(this);upd()">
-                <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
-              </select>
-            </div>
-          </div>
-          <div class="val-row">
-            <div class="val-row-label">Dates / période</div>
-            <div class="val-row-body">
-              <input type="text" id="v-dates" placeholder="Ex : Du 1er au 30 juin 2026 · Offre valable le 18 juin uniquement" oninput="upd()">
-              <select class="val-select" id="s-dates" onchange="updValSelect(this);upd()">
-                <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
-              </select>
-            </div>
-          </div>
-          <div class="val-row">
-            <div class="val-row-label">Texte exact à utiliser <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Copiez-collez ici le texte final et validé : titre, accroche, prix, slogan... Ce texte sera utilisé tel quel dans les visuels.</span></span></div>
-            <div class="val-row-body" style="flex-direction:column;align-items:stretch;gap:8px">
-              <textarea id="v-texte" placeholder="Copier-coller le texte exact validé (titre, accroche, prix, mentions...)" oninput="upd()" style="width:100%;border:2px solid #e8e8e8;border-radius:4px;padding:8px 10px;font-family:Roboto,sans-serif;font-size:13px;color:#111;background:transparent;outline:none;resize:vertical;min-height:72px;line-height:1.5;transition:border-color .2s" onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e8e8e8'"></textarea>
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-                <span id="v-texte-count" style="font-size:10px;color:#bbb;letter-spacing:0.5px">0 caractère</span>
-                <select class="val-select" id="s-texte" onchange="updValSelect(this);upd()">
-                  <option value="">Statut</option><option>Oui</option><option>Non</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="val-row">
-            <div class="val-row-label">Mentions obligatoires <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Texte légal à faire apparaître en petit : conditions de l'offre, mentions promotionnelles, allergènes, etc. Obligatoire pour les offres commerciales.</span></span></div>
-            <div class="val-row-body">
-              <input type="text" id="v-mentions" placeholder="Ex : *Offre valable jusqu'au 30/06/2026. Dans la limite des stocks disponibles. Restaurants participants." oninput="upd()">
-              <select class="val-select" id="s-mentions" onchange="updValSelect(this);upd()">
-                <option value="">Statut</option><option>Oui</option><option>Non</option><option>N/A</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="field" style="margin-top:16px">
-          <label>Fichiers disponibles</label>
-          <div class="files-grid" id="fichiers-grid">
-            <label class="file-chk"><input type="checkbox" value="Logo HD" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Logo HD</span></label>
-            <label class="file-chk"><input type="checkbox" value="Photos produit" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Photos produit</span></label>
-            <label class="file-chk"><input type="checkbox" value="Charte graphique" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Charte graphique</span></label>
-            <label class="file-chk"><input type="checkbox" value="Gabarit existant" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Gabarit existant</span></label>
-            <label class="file-chk"><input type="checkbox" value="Texte validé" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Texte validé</span></label>
-            <label class="file-chk"><input type="checkbox" value="Références visuelles" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Références visuelles</span></label>
-            <label class="file-chk"><input type="checkbox" value="Vidéos / assets" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Vidéos / assets</span></label>
-            <label class="file-chk"><input type="checkbox" value="Aucun fichier" onchange="upd()"><span class="file-chk-box"></span><span class="file-chk-label">Aucun fichier</span></label>
-          </div>
-          <div class="files-note">Cochez uniquement les fichiers <strong>déjà disponibles</strong> et prêts à partager.</div>
-        </div>
-        <div class="field" style="margin-top:12px">
-          <label>Lien Drive / dossier partagé</label>
-          <input type="text" id="drive" placeholder="Ex : https://drive.google.com/drive/folders/XXX — dossier avec logo, photos, textes" oninput="upd()">
-          <div style="font-size:10px;color:#bbb;margin-top:4px">Partagez un lien vers le dossier contenant tous les fichiers cochés ci-dessus.</div>
-        </div>
-        <div class="field" style="margin-top:12px">
-          <label>Notes sur les fichiers</label>
-          <input type="text" id="drive-notes" placeholder="Ex : Utiliser le logo blanc sur fond noir uniquement. Photos produit : dossier /photos-smash-juin. PAS la version V1 du logo." oninput="upd()">
-        </div>
-      </div>
-    </div>
-
-    <!-- S4 -->
-    <div class="section">
-      <div class="sec-head" id="sh4" onclick="toggleSec(4)">
-        <span class="sec-num">4</span>
-        <span class="sec-title">Supports &amp; formats</span>
-        <span class="sec-badge empty" id="b4">Vide</span>
-        <i class="ti ti-chevron-down sec-chevron"></i>
-      </div>
-      <div class="sec-body" id="sb4">
-        <div class="field" style="margin-top:4px">
-          <span class="checks-label">Supports à créer<span class="req">*</span></span>
-          <div class="cg" id="supports">
-            <label class="chk"><input type="checkbox" value="Post réseaux sociaux" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Post réseaux sociaux</span></label>
-            <label class="chk"><input type="checkbox" value="Story / Reel 9:16" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Story / Reel 9:16</span></label>
-            <label class="chk"><input type="checkbox" value="Affiche / flyer" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Affiche / flyer</span></label>
-            <label class="chk"><input type="checkbox" value="Menu board" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Menu board</span></label>
-            <label class="chk"><input type="checkbox" value="Newsletter" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Newsletter</span></label>
-            <label class="chk"><input type="checkbox" value="Bannière web" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Bannière web</span></label>
-            <label class="chk"><input type="checkbox" value="YouTube / vidéo" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>YouTube / vidéo</span></label>
-            <label class="chk"><input type="checkbox" value="Packaging" onchange="updateDecliRows();upd()"><span class="chk-box"></span><span>Packaging</span></label>
-          </div>
-          <div class="other-inputs" id="supports-others"></div>
-          <button class="add-other-btn" onclick="addOther('supports-others','upd')">
-            <i class="ti ti-plus"></i> Ajouter un autre support
+        <div class="sb-block sb-secondary">
+          <button class="sb-icon-btn" id="btn-pdf" title="Télécharger en PDF">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 15v1.5A1.5 1.5 0 0 0 5.5 18h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            PDF
+          </button>
+          <span class="sb-secondary-sep">·</span>
+          <button class="sb-icon-btn" id="btn-copy" title="Copier le récapitulatif">
+            <svg viewBox="0 0 20 20" fill="none"><rect x="7" y="7" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-7A1.5 1.5 0 0 0 3 5.5v7A1.5 1.5 0 0 0 4.5 14H6" stroke="currentColor" stroke-width="1.4"/></svg>
+            Copier
+          </button>
+          <span class="sb-secondary-sep">·</span>
+          <button class="sb-icon-btn" id="btn-mail" title="Envoyer par email">
+            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 6l6.5 5 6.5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Mail
           </button>
         </div>
+
+        <div class="sb-save-state" id="sb-save-state">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l2.5 2.5L12.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="sb-save-text">Brouillon sauvegardé</span>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ════════ MODE RAPIDE — formulaire allégé ════════ -->
+
+  <div class="rapide-wrap" id="rapide-wrap" hidden>
+    <div class="rapide-card">
+      <div class="rapide-head">
+        <h2>Brief rapide</h2>
+        <p>5 champs essentiels — moins de 2 minutes</p>
+      </div>
+      <div class="rapide-body">
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Département<span class="req">*</span></label>
+            <select id="r-dept"></select>
+          </div>
+          <div class="field">
+            <label class="field-label">Prénom et nom<span class="req">*</span></label>
+            <input type="text" id="r-ref" placeholder="Ex : Sophie Martin">
+          </div>
+        </div>
+
         <div class="field">
-          <label>Formats / dimensions</label>
-          <input type="text" id="formats" placeholder="Ex : 1080×1080 (post carré), 1080×1920 (story/reel), 1200×628 (FB), 1920×1080 (menu board)" oninput="upd()">
+          <label class="field-label">Quelle est la demande ?<span class="req">*</span></label>
+          <div class="rapide-rte-wrap">
+            <div class="rte-toolbar">
+              <button type="button" class="rte-btn" data-cmd="bold" title="Gras"><b>B</b></button>
+              <button type="button" class="rte-btn" data-cmd="italic" title="Italique"><i>I</i></button>
+              <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Liste">≡</button>
+              <span class="rte-sep"></span>
+              <button type="button" class="rte-btn" data-cmd="removeFormat" title="Effacer">✕</button>
+            </div>
+            <div class="rte-editor" id="r-desc-editor" contenteditable="true" data-placeholder="Ex : Post Instagram pour le lancement du B&amp;W Smash Burger. Texte : « Le smash qui change tout · 12,90€ ». À publier le 20 juin." data-sync-to="r-desc"></div>
+            <textarea id="r-desc" style="display:none" placeholder=""></textarea>
+          </div>
         </div>
-        <div class="row2">
+
+        <div class="field">
+          <label class="field-label">Support(s)<span class="req">*</span></label>
+          <div class="support-grid" id="r-supports"></div>
+          <div class="supports-alert" id="supports-alert">Plusieurs supports sont sélectionnés. Pensez à préciser les formats, textes ou variantes attendues pour chaque support dans le contexte ou les réserves.</div>
+        </div>
+
+        <div class="field-row">
           <div class="field">
-            <label>Nombre de déclinaisons attendues<span class="req">*</span> <span class="tip-wrap"><i class="tip-icon">?</i><span class="tip-box">Nombre total de fichiers à produire. Ex : 1 post + 2 stories + 1 bannière = 4 déclinaisons. Cela permet d'estimer le temps de production.</span></span></label>
-            <input type="number" id="nb-decli" min="1" max="999" placeholder="Ex : 5" oninput="validateNbDecli();upd()" style="max-width:120px">
-            <div style="font-size:10px;color:#bbb;margin-top:4px;line-height:1.4">Nombre total de visuels / fichiers à produire</div>
+            <label class="field-label">Date de lancement<span class="req">*</span></label>
+            <input type="date" id="r-launch">
           </div>
           <div class="field">
-            <label>Niveau de priorité<span class="req">*</span></label>
-            <select id="priorite" onchange="updPriorite();upd()">
-              <option value="">— Sélectionner —</option>
-              <option value="normal">Normal</option>
-              <option value="prioritaire">Prioritaire</option>
-              <option value="urgent">Urgent</option>
-            </select>
-            <div id="prio-warn" style="display:none;font-size:11px;color:#cc0000;margin-top:5px;line-height:1.4">
-              ⚑ Urgent : validez d'abord les informations complètes avant de soumettre.
-            </div>
+            <label class="field-label">Priorité<span class="req">*</span></label>
+            <div class="pill-group" id="r-priorite"></div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- S5 -->
-    <div class="section">
-      <div class="sec-head" id="sh5" onclick="toggleSec(5)">
-        <span class="sec-num">5</span>
-        <span class="sec-title">Deadlines</span>
-        <span class="sec-badge empty" id="b5">Vide</span>
-        <i class="ti ti-chevron-down sec-chevron"></i>
-      </div>
-      <div class="sec-body" id="sb5">
-        <div class="deadline-grid" style="margin-top:4px">
-          <div class="deadline-item">
-            <div>
-              <div class="deadline-lbl">Date de lancement<span class="req">*</span></div>
-              <div class="deadline-sub">Quand le projet doit être visible</div>
-            </div>
-            <input type="date" class="deadline-input" id="launch" onchange="checkDeadlineGap();upd()">
-          </div>
-          <div class="deadline-item">
-            <div>
-              <div class="deadline-lbl">Validation des infos<span class="req">*</span></div>
-              <div class="deadline-sub">Date limite pour fournir les contenus</div>
-            </div>
-            <input type="date" class="deadline-input" id="valinfo" onchange="checkDeadlineGap();upd()">
-          </div>
-          <div class="deadline-item">
-            <div>
-              <div class="deadline-lbl">Retour simulation<span class="req">*</span></div>
-              <div class="deadline-sub">Délai pour valider la maquette</div>
-            </div>
-            <input type="date" class="deadline-input" id="simul" onchange="checkDeadlineGap();upd()">
-          </div>
+        <div class="field" style="margin-top:8px">
+          <label class="field-label">Fichiers joints <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-tertiary)">(optionnel · max 3 · 5 Mo)</span></label>
+          <label class="att-dropzone rapide-att-dropzone" id="r-att-dropzone">
+            <input type="file" id="r-att-input" multiple accept="image/*,.pdf,.doc,.docx,.pptx,.xlsx,.zip" style="display:none">
+            <span class="att-icon-add">＋</span>
+            <span class="att-label">Glisser ou <u>parcourir</u></span>
+          </label>
+          <div class="att-list" id="r-att-list"></div>
         </div>
-        <div id="deadline-gap-wrap" style="display:none;margin-top:10px">
-          <div id="deadline-gap-msg" style="font-size:12px;padding:10px 13px;border-radius:4px;line-height:1.5"></div>
-        </div>
-        <div style="background:#111;color:#fff;font-size:11px;padding:11px 14px;line-height:1.5;margin-top:10px;border-radius:4px">
-          Sans validation dans les délais impartis, la deadline de lancement ne peut pas être garantie.
-        </div>
-      </div>
-    </div>
 
-    <!-- S6 -->
-    <div class="section" style="border-bottom:none">
-      <div class="sec-head" id="sh6" onclick="toggleSec(6)">
-        <span class="sec-num" style="background:#888;font-size:14px;padding:0 8px">✎</span>
-        <span class="sec-title">Notes &amp; bloquants</span>
-        <span class="sec-badge" id="b6" style="display:none"></span>
-        <i class="ti ti-chevron-down sec-chevron"></i>
-      </div>
-      <div class="sec-body" id="sb6">
-        <div class="status-wrap">
-          <div class="status-bar">
-            <span class="sdot" id="sdot"></span>
-            <span class="slbl" id="slbl">Remplissez le formulaire pour voir le statut</span>
-          </div>
-        </div>
-        <div class="field" style="margin-top:14px">
-          <label>Notes / bloquants</label>
-          <textarea id="bloquants" placeholder="Ex : Prix non encore validé par la direction. Photos produit disponibles vendredi 20/06. Texte légal en attente du service juridique." oninput="upd()"></textarea>
-        </div>
-      </div>
-    </div>
-
-
-  </div><!-- /mode-manual -->
-
-  <!-- ── MODE RAPIDE ─────────────────────────── -->
-  <div id="mode-rapide" style="display:none">
-    <div class="mode-rapide-bar">
-      <span><i class="ti ti-bolt" style="font-size:13px"></i> Brief rapide — 5 champs essentiels · moins de 2 minutes</span>
-      <button class="mode-rapide-toggle" onclick="switchMode('manual')">Formulaire complet →</button>
-    </div>
-    <div class="rapide-form">
-
-      <div class="rapide-field">
-        <label>Département &amp; Référent <span style="color:#cc0000">*</span></label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <select id="r-dept" onchange="updRapide()">
-            <option value="">— Département —</option>
-            <option>Marketing</option><option>IT</option><option>Finances</option>
-            <option>Achats</option><option>Travaux</option><option>Direction</option>
-            <option>Franchisé</option><option>Autre</option>
-          </select>
-          <input type="text" id="r-ref" placeholder="Prénom Nom" oninput="updRapide()">
-        </div>
-      </div>
-
-      <div class="rapide-field">
-        <label>Quelle est la demande ? <span style="color:#cc0000">*</span></label>
-        <textarea id="r-desc" placeholder="Ex : Post Instagram pour le lancement du B&W Smash Burger. Texte : 'Le smash qui change tout · 12,90€'. À publier le 20 juin." oninput="updRapide()"></textarea>
-      </div>
-
-      <div class="rapide-field">
-        <label>Support(s) <span style="color:#cc0000">*</span></label>
-        <div style="display:flex;gap:7px;flex-wrap:wrap" id="r-supports-btns">
-          <button type="button" class="prio-btn" data-sup="Post réseaux sociaux" onclick="toggleRapideSup(this)"><i class="ti ti-brand-instagram" style="font-size:13px"></i> Post</button>
-          <button type="button" class="prio-btn" data-sup="Story / Reel 9:16" onclick="toggleRapideSup(this)"><i class="ti ti-brand-tiktok" style="font-size:13px"></i> Story/Reel</button>
-          <button type="button" class="prio-btn" data-sup="Affiche / flyer" onclick="toggleRapideSup(this)"><i class="ti ti-file" style="font-size:13px"></i> Flyer</button>
-          <button type="button" class="prio-btn" data-sup="Menu board" onclick="toggleRapideSup(this)"><i class="ti ti-layout" style="font-size:13px"></i> Menu board</button>
-          <button type="button" class="prio-btn" data-sup="Newsletter" onclick="toggleRapideSup(this)"><i class="ti ti-mail" style="font-size:13px"></i> Newsletter</button>
-          <button type="button" class="prio-btn" data-sup="Autre" onclick="toggleRapideSup(this)"><i class="ti ti-dots" style="font-size:13px"></i> Autre</button>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="rapide-field">
-          <label>Date de lancement <span style="color:#cc0000">*</span></label>
-          <input type="date" id="r-launch" onchange="updRapide()">
-        </div>
-        <div class="rapide-field">
-          <label>Priorité <span style="color:#cc0000">*</span></label>
-          <div class="rapide-prio">
-            <button type="button" class="prio-btn" data-val="normal" onclick="setRapidePrio(this)"><i class="ti ti-clock" style="font-size:12px"></i> Normal</button>
-            <button type="button" class="prio-btn prio-urgent" data-val="urgent" onclick="setRapidePrio(this)"><i class="ti ti-alert-triangle" style="font-size:12px"></i> Urgent</button>
-          </div>
-          <input type="hidden" id="r-priorite" value="normal">
-        </div>
-      </div>
-
-      <div class="rapide-separator"></div>
-
-      <button class="rapide-submit" onclick="submitRapide()" id="r-submit-btn">
-        <i class="ti ti-send" style="font-size:16px"></i> Soumettre le brief rapide
-      </button>
-      <div class="rapide-link" onclick="switchToFullFromRapide()">
-        Besoin d'ajouter des infos ? → Passer au formulaire complet
+        <button class="btn-submit" id="r-submit" disabled style="margin-top:8px">Soumettre le brief rapide</button>
+        <button class="rapide-link" id="r-to-full">Besoin d'ajouter des infos ? → Passer au formulaire complet</button>
       </div>
     </div>
   </div>
 
-  <!-- ── CHAT ─────────────────────────────────── -->
-  <div id="mode-chat" style="display:none">
-    <div class="chat-wrap">
-      <div class="chat-area" id="chat-area"></div>
-      <div class="chips-wrap" id="chips-wrap" style="display:none"></div>
-      <div class="chat-bar">
-        <textarea class="chat-input" id="chat-input" placeholder="Répondez ici..." rows="1"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
-          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
-        <button class="send-btn" onclick="sendChat()"><i class="ti ti-send"></i></button>
-      </div>
-    </div>
-    <div id="chat-recap" style="display:none"></div>
+  <!-- ════════ MOBILE STICKY SUBMIT ════════ -->
+  <div class="mobile-submit" id="mobile-submit">
+    <div class="mobile-submit-issues" id="mobile-submit-issues"></div>
+    <button class="btn-submit" id="btn-submit-mobile" disabled>Soumettre le brief</button>
   </div>
 
-  <!-- ── VOCAL ─────────────────────────────────── -->
-  <div id="mode-voice" style="display:none">
-    <div class="voice-wrap">
-      <div class="voice-question" id="vq">Appuyez sur le micro et parlez de votre projet.</div>
-      <div class="voice-status" id="vst">Prêt</div>
-      <button class="voice-btn" id="vbtn" onclick="toggleVoice()"><i class="ti ti-microphone"></i></button>
-      <div class="voice-transcript" id="vtxt"></div>
-      <div class="voice-hint">Chrome ou Safari — langue FR</div>
-      <div class="voice-progress" id="vprog"></div>
-    </div>
-    <div id="voice-recap" style="display:none"></div>
-  </div>
-
-  <!-- ── ACTIONS ───────────────────────────────── -->
-  <div class="actions-wrap">
-    <div class="done-banner" id="done-banner">
-      <i class="ti ti-circle-check"></i> Brief complet — prêt pour création
-    </div>
-    <button class="btn-submit" onclick="submitBrief()">
-      <i class="ti ti-send" style="font-size:15px"></i> Soumettre le brief
-    </button>
-    <p class="btn-submit-note">Sauvegarde dans l'historique · notification envoyée</p>
-    <button class="btn-pdf" onclick="dlPDF()">
-      <i class="ti ti-download" style="font-size:14px"></i> Télécharger le PDF
-    </button>
-    <div class="btn-row">
-      <button class="btn-sm" onclick="printBrief()"><i class="ti ti-printer"></i> Imprimer</button>
-      <button class="btn-sm" onclick="copyLink()"><i class="ti ti-link"></i> Copier le lien</button>
-      <button class="btn-sm" onclick="toggleEmail()"><i class="ti ti-mail"></i> Envoyer</button>
-    </div>
-    <div class="email-inline" id="email-row" style="display:none;gap:8px;margin:0">
-      <input type="email" id="email-dest" placeholder="adresse@bnwburger.com" style="flex:1;border:1px solid #e8e8ed;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;font-family:inherit">
-      <button onclick="doEmail()" style="padding:9px 16px;background:#1d1d1f;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Envoyer</button>
-    </div>
-    <button class="btn-reset" onclick="openResetModal()">
-      <i class="ti ti-trash"></i> Effacer et recommencer
-    </button>
-    <div id="amsg" style="font-size:12px;text-align:center;color:#86868b;min-height:16px"></div>
-  </div>
-
-  <div class="ftr" id="main-ftr">Studio Graphique — Black &amp; White Burger — Document interne</div>
 </div>
 
-<!-- BOUTON FLOTTANT MOBILE -->
-<div class="float-submit" id="float-submit" style="display:none">
-  <button class="float-submit-btn" onclick="submitBrief()">
-    <i class="ti ti-send" style="font-size:16px"></i> Soumettre le brief
-  </button>
-  <div class="float-submit-info" id="float-submit-info">Progression : 0 / 6</div>
-</div>
+<!-- ════════ TOAST / TOOLTIP CONTAINER ════════ -->
+<div class="toast" id="toast"></div>
 
-<!-- HISTORY DRAWER -->
-<div class="drawer-overlay" id="hist-overlay" onclick="closeHistory()"></div>
-<div class="drawer" id="hist-drawer">
-  <div class="drawer-head">
-    <h2>Historique des briefs</h2>
-    <button class="drawer-close" onclick="closeHistory()"><i class="ti ti-x"></i></button>
+<!-- ════════ HISTORIQUE DRAWER ════════ -->
+<div class="dr-overlay" id="dr-overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="dr-head">
+    <span class="dr-head-title">Historique des briefs</span>
+    <button class="dr-close" id="dr-close" aria-label="Fermer">&times;</button>
   </div>
-  <div class="hist-toolbar">
-    <input class="hist-search" id="hist-search" type="text" placeholder="Rechercher un brief..." oninput="filterHistory()" autocomplete="off">
-    <button class="hist-clear" id="hist-clear" onclick="clearSearch()" title="Effacer" style="display:none"><i class="ti ti-x" style="font-size:13px"></i></button>
-    <select class="hist-sort" id="hist-sort" onchange="filterHistory()">
-      <option value="date-desc">Plus récent</option>
-      <option value="date-asc">Plus ancien</option>
-      <option value="dept">Département</option>
-      <option value="prio">Priorité</option>
-      <option value="latest">Dernières versions</option>
-    </select>
+  <div class="dr-sync-bar">
+    <span id="dr-sync-status">Chargement de l'historique…</span>
+    <a href="dashboard.html" class="dr-dashboard-link" target="_blank">Dashboard complet →</a>
   </div>
-  <div class="drawer-body" id="hist-body">
-    <div class="drawer-empty">
-      <i class="ti ti-inbox"></i>
-      <p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l'historique.</p>
-    </div>
+  <div class="dr-body" id="dr-body"></div>
+  <div class="dr-footer" id="dr-footer" hidden>
+    <button class="dr-clear-btn" id="dr-clear-all">Vider l'historique local</button>
   </div>
-</div>
+</aside>
 
-<!-- MODAL RESET -->
-<div class="modal-overlay" id="reset-modal" onclick="closeModal(event)">
-  <div class="modal-box">
-    <div class="modal-icon"><i class="ti ti-trash"></i></div>
-    <div class="modal-title">Effacer le brief ?</div>
-    <div class="modal-desc">Cette action supprimera tous les champs remplis et le brouillon sauvegardé.<br>Elle est <strong>irréversible</strong>.</div>
-    <div class="modal-confirm-wrap">
-      <span class="modal-confirm-label">Tapez EFFACER pour confirmer</span>
-      <input class="modal-confirm-input" id="reset-confirm-input" type="text" placeholder="EFFACER" oninput="onResetInput(this)" autocomplete="off">
+<!-- ════════ MODAL DÉTAIL BRIEF ════════ -->
+<div class="modal-overlay" id="brief-detail-overlay">
+  <div class="modal-box" id="brief-detail-box" style="max-width:560px;text-align:left">
+    <div class="rapide-head" style="border-radius:16px 16px 0 0">
+      <h2 id="brief-detail-title" style="font-size:14px">Brief</h2>
+      <p id="brief-detail-sub">—</p>
     </div>
+    <div id="brief-detail-content" style="padding:20px;max-height:60vh;overflow-y:auto;font-size:12.5px;line-height:1.8;color:var(--text-secondary)"></div>
     <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeResetModal()">Annuler</button>
-      <button class="modal-delete" id="reset-confirm-btn" onclick="doReset()" disabled>Effacer</button>
+      <button class="modal-cancel" id="brief-detail-close">Fermer</button>
+      <button class="btn-pdf-hist" id="brief-detail-pdf" title="Télécharger en PDF">
+        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="M4 4a2 2 0 0 1 2-2h5l5 5v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" stroke="currentColor" stroke-width="1.4"/><path d="M13 2v5h5M7 13h6M7 10h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        PDF
+      </button>
     </div>
   </div>
 </div>
 
-<script>
-const G = id => document.getElementById(id);
-const checked = sel => [...document.querySelectorAll(sel+' input[type=checkbox]:checked')].map(c=>c.value);
-const fmtDate = s => { if(!s)return'—'; const[y,m,d]=s.split('-'); return d+'/'+m+'/'+y };
-const now = () => new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-
-function genBriefId() {
-  const now = new Date();
-  const yy = now.getFullYear();
-  const rand = String(Math.floor(Math.random()*9000)+1000);
-  return 'BW-'+yy+'-'+rand;
-}
-
-const data = {
-  briefId: genBriefId(),
-  dept:'',ref:'',valid:'',desc:'',msg:'',
-  types:[],othersTypes:[],supports:[],othersSupports:[],
-  vNom:'',sNom:'',vPrix:'',sPrix:'',vDates:'',sDates:'',
-  vTexte:'',sTexte:'',vMentions:'',sMentions:'',
-  drive:'',driveNotes:'',fichiers:[],formats:'',nbDecli:'',priorite:'',launch:'',valinfo:'',simul:'',bloquants:'',isUpdate:false
-};
-
-// ── SECTIONS ACCORDÉON ────────────────────────
-function toggleSec(n) {
-  const id = typeof n === 'string' && n.includes('-') ? n : (n === 'ref' ? 'ref' : n);
-  const head = G('sh-'+id) || G('sh'+id);
-  const body = G('sb-'+id) || G('sb'+id);
-  if(!head || !body) return;
-  const isOpen = body.classList.contains('open');
-  head.classList.toggle('open', !isOpen);
-  body.classList.toggle('open', !isOpen);
-  const chevron = head.querySelector('.sec-chevron');
-  if(chevron) chevron.className = 'ti ti-chevron-'+(isOpen?'down':'up')+' sec-chevron';
-}
-
-// ── VAL SELECT COLORS ─────────────────────────
-function updValSelect(sel) {
-  sel.className = 'val-select';
-  if(sel.value==='Oui'||sel.value==='✓ Confirmé') sel.classList.add('validated');
-  else if(sel.value==='Non'||sel.value==='✗ À confirmer') sel.classList.add('invalid');
-  else if(sel.value==='En attente') { sel.style.background='#fff8e1'; sel.style.color='#856404'; }
-  else { sel.style.background=''; sel.style.color=''; }
-}
-
-// Mobile tooltip toggle
-document.addEventListener('click', function(e) {
-  const icon = e.target.closest('.tip-icon');
-  if(icon) {
-    e.stopPropagation();
-    const wrap = icon.closest('.tip-wrap');
-    const isOpen = wrap.classList.contains('tip-open');
-    document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
-    if(!isOpen) wrap.classList.add('tip-open');
-    return;
-  }
-  document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
-});
-document.querySelectorAll('.val-select').forEach(updValSelect);
-
-// ── ADD OTHER ─────────────────────────────────
-function addOther(containerId, callback, value='') {
-  const wrap = G(containerId);
-  if(!wrap) return;
-  const row = document.createElement('div');
-  row.className = 'other-row';
-  const input = document.createElement('input');
-  input.type='text'; input.placeholder='Précisez...'; input.value=value;
-  input.oninput = () => { syncOthers(); window[callback]&&window[callback](); };
-  const rm = document.createElement('button');
-  rm.className='rm-btn'; rm.innerHTML='<i class="ti ti-x"></i>';
-  rm.onclick = () => { row.remove(); syncOthers(); window[callback]&&window[callback](); };
-  row.appendChild(input); row.appendChild(rm);
-  wrap.appendChild(row);
-  input.focus();
-  return input;
-}
-function syncOthers() {
-  data.othersTypes = [...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean);
-  data.othersSupports = [...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean);
-}
-
-// ── MODE SWITCH ───────────────────────────────
-let currentMode = 'manual';
-function switchMode(m) {
-  currentMode = m;
-  ['chat','voice','manual','rapide'].forEach(k => {
-    const modeEl = G('mode-'+k);
-    const btnEl = G('btn-'+k);
-    if(modeEl) modeEl.style.display = k===m?'block':'none';
-    if(btnEl) btnEl.classList.toggle('active', k===m);
-  });
-  if(m==='chat' && chatState.step===0) startChat();
-  if(m==='voice') startVoiceConv();
-  if(m==='manual') syncFormFromData();
-  if(m==='rapide') initRapide();
-  // Float button only in manual mode (CSS handles mobile/desktop)
-  const fb = G('float-submit');
-  if(fb) fb.style.display = (m==='manual') ? '' : 'none';
-}
-
-// ── COLLECT & VALIDATE ────────────────────────
-function collect() {
-  return {
-    dept: (()=>{const s=G('dept');if(!s)return'';if(s.value==='Autre'){const a=G('dept-autre');return a&&a.value.trim()?'Autre — '+a.value.trim():'Autre';}return s.value;})(),
-    ref:G('ref').value.trim(), valid:G('valid').value.trim(),
-    desc:G('desc').value.trim(), msg:G('msg').value.trim(),
-    types:checked('#types'),
-    othersTypes:[...document.querySelectorAll('#types-others input')].map(i=>i.value.trim()).filter(Boolean),
-    vNom:G('v-nom').value.trim(), sNom:G('s-nom').value,
-    vPrix:G('v-prix').value.trim(), sPrix:G('s-prix').value,
-    vDates:G('v-dates').value.trim(), sDates:G('s-dates').value,
-    vTexte:G('v-texte').value.trim(), sTexte:G('s-texte').value,
-    vMentions:G('v-mentions').value.trim(), sMentions:G('s-mentions').value,
-    drive:G('drive')?G('drive').value.trim():'',
-    driveNotes:G('drive-notes')?G('drive-notes').value.trim():'',
-    fichiers:[...document.querySelectorAll('#fichiers-grid input[type=checkbox]:checked')].map(c=>c.value),
-    formats:G('formats').value.trim(),
-    nbDecli: String(calcDecliTotal()||''),
-    genre: G('genre-campagne') ? G('genre-campagne').value : '',
-    shooting: G('shooting-type') ? G('shooting-type').value : '',
-    vtype: G('vtype') ? G('vtype').value : '',
-    vAdresse: G('v-adresse') ? G('v-adresse').value.trim() : '',
-    vMesures: G('v-mesures') ? G('v-mesures').value.trim() : '',
-    vPlan: G('v-plan') ? G('v-plan').value : '',
-    packPhase: G('pack-phase') ? G('pack-phase').value : '',
-    packProduits: getPackData ? getPackData() : '',
-    decliDetails: getDecliData(),
-    priorite:G('priorite')?G('priorite').value:'',
-    supports:checked('#supports'),
-    othersSupports:[...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean),
-    launch:G('launch').value, valinfo:G('valinfo').value, simul:G('simul').value,
-    bloquants:G('bloquants').value.trim(),
-    isUpdate: false
-  };
-}
-
-function getMiss(d) {
-  const m=[];
-  if(!d.dept) m.push('Département');
-  if(!d.ref) m.push('Référent unique');
-  if(!d.desc) m.push('Description du projet');
-  if(!d.msg) m.push('Message principal');
-  if(!d.supports.length&&!d.othersSupports.length) m.push('Supports à créer');
-  if(!d.nbDecli) m.push('Nombre de déclinaisons');
-  if(!d.priorite) m.push('Niveau de priorité');
-  if(!d.launch) m.push('Date de lancement');
-  if(!d.valinfo) m.push('Validation infos');
-  if(!d.simul) m.push('Retour simulation');
-  if(!d.vNom) m.push('Nom produit / projet');
-  if(!d.vTexte&&d.sTexte!=='Oui') m.push('Texte exact à utiliser');
-  return m;
-}
-
-function setBadge(id,state) {
-  const el=G(id); if(!el)return;
-  el.className='sec-badge '+state;
-  el.textContent={done:'Complet',partial:'Partiel',empty:'Vide'}[state];
-}
-
-function toggleSameAsRef() {
-  const cb = G('same-as-ref');
-  const validEl = G('valid');
-  const refEl = G('ref');
-  if(!cb || !validEl || !refEl) return;
-  if(cb.checked) {
-    validEl.value = refEl.value;
-    validEl.disabled = true;
-    validEl.style.opacity = '0.5';
-    validEl.style.fontStyle = 'italic';
-  } else {
-    validEl.disabled = false;
-    validEl.style.opacity = '1';
-    validEl.style.fontStyle = 'normal';
-  }
-  upd();
-}
-
-// Auto-update validateur when ref changes and checkbox is checked
-document.addEventListener('DOMContentLoaded', () => {
-  const refEl = G('ref');
-  if(refEl) refEl.addEventListener('input', () => {
-    const cb = G('same-as-ref');
-    if(cb && cb.checked) {
-      G('valid').value = refEl.value;
-      upd();
-    }
-  });
-});
-
-// ── CURRENT CONTEXT STATE ────────────────────────────────────────────
-let currentDept = '';
-let currentGenre = '';
-let currentVtype = '';
-let currentPhase = '';
-let currentShoot = '';
-let packRows = [];
-
-function onDeptChange() {
-  const sel = G('dept');
-  const wrap = G('dept-autre-wrap');
-  if(!sel || !wrap) return;
-  wrap.style.display = sel.value === 'Autre' ? 'block' : 'none';
-  if(sel.value === 'Autre') G('dept-autre').focus();
-  currentDept = sel.value;
-  applyDeptContext();
-  upd();
-}
-
-function applyDeptContext() {
-  const dept = currentDept;
-  const banner = G('dept-banner');
-
-  // Reset
-  showCtx('ctx-marketing', true);
-  showCtx('ctx-travaux', false);
-  showCtx('ctx-packaging', false);
-  showCtx('ctx-prix-row', true);
-  showCtx('ctx-mentions-row', false);
-
-  if(dept === 'Travaux') {
-    showCtx('ctx-marketing', false);
-    showCtx('ctx-travaux', true);
-    showCtx('ctx-prix-row', false);
-    if(banner) {
-      banner.style.display = 'flex';
-      banner.className = 'dept-context-banner travaux';
-      banner.innerHTML = '<i class="ti ti-ruler-2" style="font-size:15px"></i><div><strong>Champs Travaux actifs</strong> — Vitrophanie, mesures, adresse</div>';
-    }
-    // Mark section 2 header with context color
-    const sh2 = G('sh2');
-    if(sh2) sh2.style.borderLeft = '4px solid #ea580c';
-  } else if(dept === 'Packaging') {
-    showCtx('ctx-marketing', false);
-    showCtx('ctx-packaging', true);
-    showCtx('ctx-prix-row', false);
-    if(banner) {
-      banner.style.display = 'flex';
-      banner.className = 'dept-context-banner packaging';
-      banner.innerHTML = '<i class="ti ti-package" style="font-size:15px"></i><div><strong>Champs Packaging actifs</strong> — Liste produits, phase de production</div>';
-    }
-    const sh2 = G('sh2');
-    if(sh2) sh2.style.borderLeft = '4px solid #0ea5e9';
-    initPackRows();
-  } else {
-    if(banner) banner.style.display = 'none';
-    const sh2 = G('sh2');
-    if(sh2) sh2.style.borderLeft = '';
-    applyGenreContext();
-  }
-}
-
-function showCtx(id, visible) {
-  const el = G(id);
-  if(!el) return;
-  if(visible) { el.classList.remove('hidden'); el.classList.add('visible'); }
-  else { el.classList.remove('visible'); el.classList.add('hidden'); }
-}
-
-function setGenre(btn) {
-  document.querySelectorAll('.genre-btn[data-genre]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentGenre = btn.dataset.genre;
-  const hidden = G('genre-campagne'); if(hidden) hidden.value = currentGenre;
-  applyGenreContext();
-  upd();
-}
-
-function applyGenreContext() {
-  const g = currentGenre;
-  // Shooting — show for image/influenceur
-  showCtx('ctx-shooting', g === 'image');
-  // Prix — hide for image/influenceur, show for produit/promo/autre
-  showCtx('ctx-prix-row', g !== 'image' && currentDept !== 'Travaux');
-  // Mentions — show for promo
-  showCtx('ctx-mentions-row', g === 'promo');
-}
-
-function setShoot(btn) {
-  document.querySelectorAll('#ctx-shooting .prio-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentShoot = btn.dataset.val;
-  const h = G('shooting-type'); if(h) h.value = currentShoot;
-  upd();
-}
-
-function setVtype(btn) {
-  document.querySelectorAll('.genre-btn[data-vtype]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentVtype = btn.dataset.vtype;
-  const h = G('vtype'); if(h) h.value = currentVtype;
-  upd();
-}
-
-function setVplan(btn) {
-  document.querySelectorAll('#ctx-travaux .prio-btn[data-val]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const h = G('v-plan'); if(h) h.value = btn.dataset.val;
-  upd();
-}
-
-function setPhase(btn) {
-  document.querySelectorAll('.genre-btn[data-phase]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentPhase = btn.dataset.phase;
-  const h = G('pack-phase'); if(h) h.value = currentPhase;
-  upd();
-}
-
-// ── PACKAGING ROWS ────────────────────────────────────────────────────
-function initPackRows() {
-  if(!G('pack-rows')) return;
-  if(packRows.length === 0) { addPackRow(); addPackRow(); }
-  else renderPackRows();
-}
-
-function addPackRow() {
-  packRows.push({nom:'', format:'', qte:''});
-  renderPackRows();
-}
-
-function delPackRow(idx) {
-  packRows.splice(idx,1);
-  if(packRows.length===0) packRows.push({nom:'',format:'',qte:''});
-  renderPackRows();
-}
-
-function renderPackRows() {
-  const wrap = G('pack-rows'); if(!wrap) return;
-  wrap.innerHTML = packRows.map((r,i) => `
-    <div class="pack-row">
-      <input class="pack-input" placeholder="Ex : Boîte burger individuelle" value="${r.nom||''}"
-        oninput="packRows[${i}].nom=this.value;upd()">
-      <input class="pack-input" placeholder="Ex : 12×12cm" value="${r.format||''}"
-        oninput="packRows[${i}].format=this.value;upd()">
-      <input class="pack-input" placeholder="Qté" type="number" min="1" value="${r.qte||''}"
-        oninput="packRows[${i}].qte=this.value;upd()">
-      <button class="pack-del" onclick="delPackRow(${i})" title="Supprimer">×</button>
-    </div>`).join('');
-}
-
-function getPackData() {
-  return packRows.filter(r => r.nom.trim()).map(r => r.nom.trim() + (r.format?' ('+r.format+')':'') + (r.qte?' ×'+r.qte:'')).join(' | ');
-}
-
-function onRefChange() {
-  // valid = ref automatically
-  const v = G('valid');
-  if(v) v.value = G('ref').value;
-  upd();
-}
-
-function onSamePerson() {
-  const cb = G('same-person');
-  const box = G('same-person-box');
-  const validInput = G('valid');
-  if(cb.checked) {
-    box.style.background = '#111';
-    box.style.borderColor = '#111';
-    box.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
-    validInput.value = G('ref').value;
-    validInput.style.opacity = '0.5';
-    validInput.readOnly = true;
-  } else {
-    box.style.background = '#fff';
-    box.style.borderColor = '#ddd';
-    box.innerHTML = '';
-    validInput.readOnly = false;
-    validInput.style.opacity = '1';
-    validInput.focus();
-  }
-  upd();
-}
-
-// Make the label trigger the hidden checkbox
-
-
-function setPrio(btn) {
-  document.querySelectorAll('.prio-btn').forEach(b => {
-    b.classList.remove('active','prio-prioritaire');
-  });
-  btn.classList.add('active');
-  if(btn.dataset.val === 'prioritaire') btn.classList.add('prio-prioritaire');
-  G('priorite').value = btn.dataset.val;
-  G('prio-warn').style.display = btn.dataset.val === 'urgent' ? 'block' : 'none';
-  upd();
-}
-
-function updateDecliRows() {
-  const wrap = G('decli-rows');
-  if(!wrap) return;
-  const supports = checked('#supports');
-  const others = [...document.querySelectorAll('#supports-others input')].map(i=>i.value.trim()).filter(Boolean);
-  const all = [...supports, ...others.map(o=>'Autre : '+o)];
-  if(!all.length) {
-    wrap.innerHTML = '<div class="decli-row"><span class="decli-label" style="color:#bbb;font-style:italic">S\u00e9lectionnez d\u2019abord des supports</span></div>';
-    G('decli-total').textContent = '0 déclinaison';
-    return;
-  }
-  // Keep existing values
-  const existing = {};
-  wrap.querySelectorAll('.decli-row').forEach(row => {
-    const lbl = row.querySelector('.decli-label');
-    const inp = row.querySelector('.decli-input');
-    if(lbl && inp) existing[lbl.textContent] = inp.value;
-  });
-  wrap.innerHTML = all.map(s => `
-    <div class="decli-row">
-      <span class="decli-label">${s}</span>
-      <input class="decli-input" type="number" min="0" max="99" placeholder="0"
-        value="${existing[s]||''}"
-        oninput="calcDecliTotal();upd()"
-        aria-label="Nombre de déclinaisons pour ${s}">
-      <span class="decli-unit">visuel(s)</span>
-    </div>`).join('');
-  calcDecliTotal();
-}
-
-function calcDecliTotal() {
-  const inputs = document.querySelectorAll('.decli-input');
-  let total = 0;
-  inputs.forEach(inp => { total += parseInt(inp.value)||0; });
-  const el = G('decli-total');
-  if(el) el.textContent = total + ' déclinaison' + (total > 1 ? 's' : '');
-  return total;
-}
-
-function getDecliData() {
-  const rows = {};
-  document.querySelectorAll('.decli-row').forEach(row => {
-    const lbl = row.querySelector('.decli-label');
-    const inp = row.querySelector('.decli-input');
-    if(lbl && inp && inp.value) rows[lbl.textContent] = parseInt(inp.value)||0;
-  });
-  return rows;
-}
-
-function validateNbDecli() {
-  const el = G('nb-decli');
-  if(!el) return;
-  const v = parseInt(el.value);
-  if(el.value !== '' && (isNaN(v) || v < 1)) {
-    el.value = 1;
-    el.style.borderBottomColor = '#e07b00';
-    setTimeout(() => { el.style.borderBottomColor = ''; }, 1500);
-  }
-}
-
-function checkDeadlineGap() {
-  const launch = G('launch') ? G('launch').value : '';
-  const valinfo = G('valinfo') ? G('valinfo').value : '';
-  const wrap = G('deadline-gap-wrap');
-  const msg = G('deadline-gap-msg');
-  if(!wrap || !msg) return;
-  if(!launch || !valinfo) { wrap.style.display='none'; return; }
-  const launchDate = new Date(launch);
-  const valDate = new Date(valinfo);
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const gapDays = Math.round((launchDate - valDate) / (1000*60*60*24));
-  const daysToLaunch = Math.round((launchDate - today) / (1000*60*60*24));
-  wrap.style.display = 'block';
-  if(valDate > launchDate) {
-    msg.style.background = '#fff0f0';
-    msg.style.color = '#cc0000';
-    msg.style.border = '1px solid #ffcccc';
-    msg.innerHTML = '<strong>⚠ Problème de dates</strong> — La date de validation est postérieure au lancement. Vérifiez les dates.';
-  } else if(gapDays < 3) {
-    msg.style.background = '#fff8e1';
-    msg.style.color = '#856404';
-    msg.style.border = '1px solid #ffe082';
-    msg.innerHTML = '<strong>⚡ Délai très court</strong> — Seulement ' + gapDays + ' jour' + (gapDays > 1 ? 's' : '') + ' entre la validation et le lancement. Prévoyez un retour rapide.';
-  } else if(daysToLaunch < 7) {
-    msg.style.background = '#fff8e1';
-    msg.style.color = '#856404';
-    msg.style.border = '1px solid #ffe082';
-    msg.innerHTML = '<strong>⏰ Lancement dans ' + daysToLaunch + ' jour' + (daysToLaunch > 1 ? 's' : '') + '</strong> — Assurez-vous que toutes les informations sont prêtes.';
-  } else {
-    msg.style.background = '#e8f5e9';
-    msg.style.color = '#1a6b2a';
-    msg.style.border = '1px solid #c8e6c9';
-    msg.innerHTML = '<strong>✓ Délai correct</strong> — ' + gapDays + ' jour' + (gapDays > 1 ? 's' : '') + ' entre validation et lancement.';
-  }
-}
-
-function toggleProgDetails() {
-  if(currentMode !== 'manual') return;
-  const el = G('prog-details');
-  if(!el) return;
-  const d = collect();
-  const miss = getMiss(d);
-  if(!miss.length) {
-    el.innerHTML = '<strong style="color:#1a6b2a">✓ Brief complet — tout est renseigné !</strong>';
-  } else {
-    el.innerHTML = '<strong>À compléter :</strong><ul>' + miss.map(m => '<li>' + m + '</li>').join('') + '</ul>';
-  }
-  el.classList.toggle('open');
-}
-
-function updPriorite() {
-  // Legacy compat — handled by setPrio now
-  const val = G('priorite') ? G('priorite').value : '';
-  document.querySelectorAll('.prio-btn').forEach(b => {
-    b.classList.remove('active','prio-prioritaire');
-    if(b.dataset.val === val) {
-      b.classList.add('active');
-      if(val === 'prioritaire') b.classList.add('prio-prioritaire');
-    }
-  });
-  const warn = G('prio-warn');
-  if(warn) warn.style.display = val === 'urgent' ? 'block' : 'none';
-}
-
-function upd() {
-  // Textarea char counter
-  const vt = G('v-texte');
-  const cnt = G('v-texte-count');
-  if(vt && cnt) {
-    const n = vt.value.length;
-    cnt.textContent = n + ' caractère' + (n > 1 ? 's' : '');
-    cnt.style.color = n > 500 ? '#e07b00' : '#bbb';
-  }
-  const d=collect();
-  Object.assign(data,d);
-  const dept = currentDept || d.dept;
-  const s1 = d.dept && d.ref && d.valid;
-  // s2 — La demande (context-aware)
-  const s2 = dept==='Travaux' ? (d.desc && d.vtype && d.vAdresse && d.vMesures)
-           : dept==='Packaging' ? (d.desc && d.packPhase && d.packProduits)
-           : (d.desc && d.msg);
-  // s3 — Infos techniques (context-aware)
-  const s3 = dept==='Travaux' ? true  // no tech infos needed for travaux
-           : dept==='Packaging' ? true
-           : (d.vNom || d.vPrix || d.vTexte);
-  // s4 — Supports (not required for Travaux/Packaging)
-  const s4 = dept==='Travaux' || dept==='Packaging'
-           ? true
-           : (d.supports.length>0 || d.othersSupports.length>0);
-  // s5 — Deadlines
-  const s5 = d.launch && d.valinfo && d.simul;
-  const miss = getMiss(d);
-  const sc = [s1,s2,s3,s4,s5,miss.length===0].filter(Boolean).length;
-  G('prog').style.width=Math.round(sc/5*100)+'%';
-  G('plbl').textContent=sc+' / 5';
-  setBadge('b1',s1?'done':(d.dept||d.ref?'partial':'empty'));
-  setBadge('b2',s2?'done':(d.desc||d.msg?'partial':'empty'));
-  setBadge('b3',s3?'done':'empty');
-  setBadge('b4',s4?'done':'empty');
-  setBadge('b5',s5?'done':(d.launch?'partial':'empty'));
-  setBadge('b6',miss.length===0?'done':(miss.length<5?'partial':'empty'));
-  const dot=G('sdot'),lbl=G('slbl'),cb=G('done-banner');
-  if(!miss.length){
-    dot.className='sdot ok';lbl.textContent='Brief complet — prêt pour création';lbl.style.color='#1a6b2a';cb.style.display='flex';
-  } else {
-    dot.className='sdot '+(miss.length>5?'err':'warn');
-    lbl.textContent=miss.length+' élément'+(miss.length>1?'s':'')+' manquant'+(miss.length>1?'s':'');
-    lbl.style.color=miss.length>5?'#cc0000':'#e07b00';
-    cb.style.display='none';
-  }
-  // Update floating mobile button
-  const floatBtn = G('float-submit');
-  const floatInfo = G('float-submit-info');
-  if(floatBtn && currentMode==='manual') {
-    floatBtn.style.display = '';  // let CSS media query decide
-    if(floatInfo) floatInfo.textContent = sc + ' / 5 sections · ' + (miss.length ? miss.length + ' info'+(miss.length>1?'s':'')+' manquante'+(miss.length>1?'s':'') : '✓ Prêt à soumettre');
-  } else if(floatBtn) { floatBtn.style.display = 'none'; }
-  autoSave();
-}
-
-// ── CHAT ─────────────────────────────────────
-const chatState = {step:0,done:false};
-const QUESTIONS = [
-  "Bonjour ! Pour commencer — c'est pour quel département et quel projet ?",
-  d => `Parfait. Qui est le référent unique${d.dept?' au '+d.dept:''}? Et qui valide en dernier ?`,
-  () => "Décrivez le projet en quelques mots — et quel est le message principal ?",
-  () => "Sur quels supports ? Réseaux sociaux, menu board, print, newsletter...",
-  d => `Vous avez déjà le nom du produit, le prix et les textes validés${d.vNom?' pour "'+d.vNom+'"':''}?`,
-  () => "Quelles sont les deadlines ? Date de lancement et validation des infos ?",
-  () => "Y a-t-il un lien Drive avec les fichiers, des formats précis ou des notes ?"
-];
-
-function startChat(){G('chat-area').innerHTML='';chatState.step=0;chatState.done=false;addAiMsg(QUESTIONS[0]);showChips(['Marketing','IT','Finances','Achats','Travaux','Direction','Franchisé'])}
-function addAiMsg(t){const a=G('chat-area'),d=document.createElement('div');d.className='msg ai';d.innerHTML=`<div class="bubble">${t}</div><div class="ts">${now()}</div>`;a.appendChild(d);a.scrollTop=a.scrollHeight}
-function addUserMsg(t){const a=G('chat-area'),d=document.createElement('div');d.className='msg user';d.innerHTML=`<div class="bubble">${t}</div><div class="ts">${now()}</div>`;a.appendChild(d);a.scrollTop=a.scrollHeight}
-function showChips(arr){const w=G('chips-wrap');w.innerHTML='';if(!arr||!arr.length){w.style.display='none';return}w.style.display='flex';arr.forEach(c=>{const d=document.createElement('div');d.className='chip';d.textContent=c;d.onclick=()=>{G('chat-input').value=c;sendChat()};w.appendChild(d)})}
-function showTyping(){const a=G('chat-area'),d=document.createElement('div');d.className='typing-wrap';d.id='typ';d.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';a.appendChild(d);a.scrollTop=a.scrollHeight}
-function rmTyping(){const t=G('typ');if(t)t.remove()}
-
-function sendChat(){const inp=G('chat-input'),t=inp.value.trim();if(!t)return;addUserMsg(t);inp.value='';inp.style.height='auto';G('chips-wrap').style.display='none';showTyping();setTimeout(()=>processChat(t),800)}
-
-function processChat(text){
-  rmTyping();const t=text.toLowerCase();const step=chatState.step;
-  if(step===0){
-    const dm={marketing:'Marketing',it:'IT',tech:'IT',finances:'Finances',finance:'Finances',achats:'Achats',travaux:'Travaux',direction:'Direction','franchis':'Franchisé'};
-    for(const[k,v]of Object.entries(dm)){if(t.includes(k)){data.dept=v;break}}
-    const nm=text.match(/(?:projet|campagne|opération|lancement|pour)\s+["«]?([A-Za-zÀ-ÿ0-9\s\-&]{3,30})["»]?/i);
-    if(nm)data.vNom=nm[1].trim().toUpperCase();
-    chatState.step=1;addAiMsg(typeof QUESTIONS[1]==='function'?QUESTIONS[1](data):QUESTIONS[1]);showChips([]);
-  } else if(step===1){
-    const parts=text.split(/(?:et|valide[ur]*|responsable|validat[eu]+r|final|dernier)/i);
-    data.ref=parts[0].trim();if(parts[1])data.valid=parts[1].trim();
-    chatState.step=2;addAiMsg(QUESTIONS[2](data));showChips([]);
-  } else if(step===2){
-    data.desc=text;
-    const mm=text.match(/(?:message|slogan|dire|communiquer)[:\s]+(.+)/i);
-    if(mm)data.msg=mm[1].trim();
-    chatState.step=3;addAiMsg(QUESTIONS[3](data));showChips(['Réseaux sociaux','Menu board','Print','Newsletter','Bannière web','YouTube']);
-  } else if(step===3){
-    const km={'réseau':'Réseaux sociaux','social':'Réseaux sociaux','instagram':'Post réseaux sociaux','tiktok':'Story / Reel 9:16','snap':'Story / Reel 9:16','story':'Story / Reel 9:16','reel':'Story / Reel 9:16','menu board':'Menu board','borne':'Menu board','print':'PLV / print','flyer':'Affiche / flyer','affiche':'Affiche / flyer','newsletter':'Newsletter','bannière':'Bannière web','youtube':'YouTube / vidéo','vidéo':'YouTube / vidéo','packaging':'Packaging'};
-    const found=new Set(),others=[];
-    text.split(/[,\/\n]+|(?:\s+et\s+)/i).forEach(p=>{const pl=p.toLowerCase().trim();let m=false;for(const[k,v]of Object.entries(km)){if(pl.includes(k)){found.add(v);m=true;break}}if(!m&&pl.length>2&&!['sur','les','des','un','une','du','de','et','le','la'].includes(pl))others.push(p.trim())});
-    data.supports=[...found];data.othersSupports=others.filter(o=>o.length>2);
-    chatState.step=4;let r=QUESTIONS[4](data);if(data.othersSupports.length)r+=' (Noté aussi : '+data.othersSupports.join(', ')+'.)';addAiMsg(r);showChips(['Oui, tout est prêt','Le nom oui, pas le prix','Pas encore']);
-  } else if(step===4){
-    if(t.includes('oui')||t.includes('prêt')||t.includes('validé')){data.sNom='Oui';data.sPrix='Oui';data.sTexte='Oui'}
-    const pm=t.match(/(\d+[,.]?\d*)\s*€/);if(pm){data.vPrix=pm[1]+'€';data.sPrix='Oui'}
-    const nm=text.match(/(?:s'appelle|nom[:\s]+|produit[:\s]+)(["'\w\s\-À-ÿ]{2,30})/i);if(nm)data.vNom=nm[1].trim().toUpperCase();
-    chatState.step=5;addAiMsg(QUESTIONS[5](data));showChips([]);
-  } else if(step===5){
-    const dr=/(\\d{1,2})[\\/\\-\\s](\\d{1,2})(?:[\\/\\-\\s](\\d{4}|\\d{2}))?/g;const dates=[];let m;
-    const re2=/(\d{1,2})[\/\-\s](\d{1,2})(?:[\/\-\s](\d{4}|\d{2}))?/g;
-    while((m=re2.exec(text))!==null){const y=m[3]?(m[3].length===2?'20'+m[3]:m[3]):new Date().getFullYear();dates.push(`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`)}
-    if(dates[0])data.launch=dates[0];if(dates[1])data.valinfo=dates[1];
-    if(t.includes('urgent')||t.includes('asap')){const s=new Date();s.setDate(s.getDate()+3);data.launch=s.toISOString().slice(0,10)}
-    chatState.step=6;addAiMsg(QUESTIONS[6](data));showChips(["Non, c'est tout","Oui, j'ai un Drive"]);
-  } else if(step===6){
-    const dm2=text.match(/https?:\/\/[^\s]+/);if(dm2)data.drive=dm2[0];
-    const fm=text.match(/\d+x\d+[^\n,]*/g);if(fm)data.formats=fm.join(', ');
-    if(t.length>10&&!t.includes('non')&&!t.includes("c'est tout"))data.bloquants=text;
-    chatState.step=7;chatState.done=true;
-    addAiMsg("Parfait — j'ai tout noté. Voici le récapitulatif :");
-    setTimeout(()=>{showChips([]);const re=G('chat-recap');re.innerHTML=buildRecapHtml();re.style.display='block';re.scrollIntoView({behavior:'smooth'})},600);
-  }
-}
-
-// ── VOICE ─────────────────────────────────────
-let isOn=false,recog=null;
-const VQ=["Pour commencer, c'est pour quel département et quel projet ?","Qui est le référent unique ? Et qui valide en dernier ?","Décrivez le projet. Quel est le message principal ?","Quels supports prévoyez-vous ?","Avez-vous le nom, le prix et les textes validés ?","Quelles sont les deadlines ?","Y a-t-il un Drive, des formats précis ou des notes ?"];
-function startVoiceConv(){G('vprog').innerHTML='';G('vq').textContent=VQ[0];G('vtxt').textContent='';G('voice-recap').style.display='none'}
-function toggleVoice(){isOn?stopV():startV()}
-function startV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){G('vst').textContent='Non supporté — utilisez Chrome';return}recog=new SR();recog.lang='fr-FR';recog.continuous=false;recog.interimResults=true;recog.onstart=()=>{isOn=true;G('vbtn').classList.add('on');G('vst').textContent='En écoute...'};recog.onresult=e=>{const t=[...e.results].map(r=>r[0].transcript).join(' ');G('vtxt').textContent=t;if(e.results[e.results.length-1].isFinal)processVoice(t)};recog.onerror=()=>stopV();recog.onend=()=>stopV();recog.start()}
-function stopV(){isOn=false;if(recog)recog.stop();G('vbtn').classList.remove('on');G('vst').textContent='Appuyez pour répondre'}
-function processVoice(text){stopV();processChat(text);const step=chatState.step;if(step-1<VQ.length&&!chatState.done){G('vq').textContent=VQ[step-1]||'';G('vtxt').textContent=''}const pills=['dept','desc','vNom','launch'];const labels=['Département','Référent','Description','Produit','Deadline'];const vp=G('vprog');vp.innerHTML='';pills.forEach((k,i)=>{if(data[k]&&data[k].length){const p=document.createElement('span');p.className='vpill';p.textContent=labels[i];vp.appendChild(p)}});if(chatState.done){G('vq').textContent='Brief complet !';G('vst').textContent='Terminé';G('voice-recap').innerHTML=buildRecapHtml();G('voice-recap').style.display='block';G('voice-recap').scrollIntoView({behavior:'smooth'})}else G('vst').textContent='Appuyez pour répondre'}
-
-// ── RECAP ─────────────────────────────────────
-function buildRecapHtml(){
-  const d=data;
-  const rows=[['Département',d.dept],['Référent',d.ref],['Description',d.desc],['Message',d.msg],['Types',[...d.types,...d.othersTypes].join(', ')],['Nom produit',d.vNom],['Prix',d.vPrix],['Supports',[...d.supports,...d.othersSupports].join(', ')],['Lancement',fmtDate(d.launch)],['Validation',fmtDate(d.valinfo)],['Drive',d.drive],['Notes',d.bloquants]].filter(([,v])=>v&&v!=='—');
-  return`<div class="recap-wrap"><div class="recap-title"><i class="ti ti-check-circle"></i>Récapitulatif du brief</div>${rows.map(([l,v])=>`<div class="recap-item"><span class="recap-label">${l}</span><span class="recap-value">${v}</span></div>`).join('')}</div>`;
-}
-
-// ── SYNC FORM ─────────────────────────────────
-function syncFormFromData(){
-  const d=data;
-  const sv=(id,v)=>{const el=G(id);if(el)el.value=v};
-  const ss=(id,v)=>{const el=G(id);if(!el)return;[...el.options].forEach(o=>{if(o.text===v||o.value===v)o.selected=true});updValSelect(el)};
-  // Handle dept Autre
-  const deptRaw = d.dept||'';
-  const deptSel = G('dept');
-  const deptAutreWrap = G('dept-autre-wrap');
-  const deptAutreInp = G('dept-autre');
-  if(deptRaw.startsWith('Autre — ')) {
-    if(deptSel) [...deptSel.options].forEach(o=>{if(o.value==='Autre')o.selected=true});
-    if(deptAutreWrap) deptAutreWrap.style.display='block';
-    if(deptAutreInp) deptAutreInp.value=deptRaw.replace('Autre — ','');
-  } else {
-    ss('dept',deptRaw);
-    if(deptAutreWrap) deptAutreWrap.style.display='none';
-  }sv(d.ref);sv('valid',d.valid);sv('desc',d.desc);sv('msg',d.msg);
-  sv('v-nom',d.vNom);ss('s-nom',d.sNom);sv('v-prix',d.vPrix);ss('s-prix',d.sPrix);
-  sv('v-dates',d.vDates);ss('s-dates',d.sDates);sv('v-texte',d.vTexte);ss('s-texte',d.sTexte);
-  sv('v-mentions',d.vMentions);ss('s-mentions',d.sMentions);sv('drive',d.drive);
-  sv('formats',d.formats);sv('launch',d.launch);sv('valinfo',d.valinfo);sv('simul',d.simul);sv('bloquants',d.bloquants);
-  document.querySelectorAll('#types input[type=checkbox]').forEach(cb=>cb.checked=d.types.includes(cb.value));
-  document.querySelectorAll('#supports input[type=checkbox]').forEach(cb=>cb.checked=d.supports.includes(cb.value));
-  G('types-others').innerHTML='';d.othersTypes.forEach(v=>addOther('types-others','upd',v));
-  G('supports-others').innerHTML='';d.othersSupports.forEach(v=>addOther('supports-others','upd',v));
-  upd();
-}
-
-// ── EXPORT ────────────────────────────────────
-function getExportData(){return currentMode==='manual'?collect():{...data,types:[...data.types,...data.othersTypes],supports:[...data.supports,...data.othersSupports]}}
-function checkMiss(){const d=getExportData(),miss=getMiss(d);if(!miss.length)return true;return confirm(miss.length+' information'+(miss.length>1?'s manquantes':' manquante')+' :\n\n'+miss.map(m=>'• '+m).join('\n')+'\n\nContinuer quand même ?')}
-
-function buildPDF(){
-  const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});
-  const d=getExportData();const W=210,ML=14,CW=196;let y=0;
-  function np(){doc.addPage();y=14}
-  function cp(n=20){if(y+n>283)np()}
-  doc.setFillColor(17,17,17);doc.rect(0,0,W,26,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);doc.text('BRIEF PROJET',ML,11);
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);doc.text('Studio Graphique — Black & White Burger  ·  '+( d.briefId||''),ML,17);
-  doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(180,180,180);doc.text('BLACK & WHITE BURGER',W-ML,14,{align:'right'});
-  doc.setFillColor(30,30,30);doc.rect(0,26,W,9,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(190,190,190);doc.text("REGLE D'OR : Ce brief doit etre complete AVANT toute demande de creation.",ML,31.5);
-  y=42;
-  function st(n,t){cp(14);doc.setFillColor(17,17,17);doc.rect(ML,y,7,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text(String(n),ML+3.5,y+5,{align:'center'});doc.setTextColor(17,17,17);doc.setFontSize(9.5);doc.text(t.toUpperCase(),ML+11,y+5);y+=11}
-  function fl(lbl,val,miss=false){cp(9);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(120,120,120);doc.text(lbl.toUpperCase(),ML,y);const v=val||(miss?'— MANQUANT':'—');doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(miss?180:17,miss?0:17,miss?0:17);const lines=doc.splitTextToSize(v,CW-46);doc.text(lines,ML+46,y);doc.setDrawColor(miss?200:210,miss?0:210,miss?0:210);doc.line(ML+44,y+1.5,ML+CW,y+1.5);y+=7+Math.max(0,(lines.length-1)*5)}
-  function dv(){cp(7);doc.setDrawColor(220,220,220);doc.line(ML,y,ML+CW,y);y+=7}
-  function wb(t){cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,9,'F');doc.setFont('helvetica','italic');doc.setFontSize(7.5);doc.setTextColor(220,220,220);doc.text(t,ML+4,y+5.5);y+=13}
-  const allT=[...(d.types||[]),...(d.othersTypes||[])].join(', ')||'—';
-  const allS=[...(d.supports||[]),...(d.othersSupports||[]).map(o=>'Autre : '+o)].join(', ')||'—';
-  st(1,'Qui demande');fl('Département',d.dept,!d.dept);fl('Référent unique',d.ref,!d.ref);dv();
-  st(2,'La demande');fl('Description',d.desc,!d.desc);fl('Message principal',d.msg,!d.msg);fl('Type de demande',allT);dv();
-  st(3,'Infos techniques');
-  cp(12);doc.setFillColor(17,17,17);doc.rect(ML,y,CW,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);doc.text('INFORMATION',ML+3,y+4.5);doc.text('CONTENU EXACT',ML+58,y+4.5);doc.text('VALIDE ?',ML+CW-18,y+4.5);y+=8;
-  [[d.vNom,'Nom produit',d.sNom],[d.vPrix,'Prix',d.sPrix],[d.vDates,'Dates',d.sDates],[d.vTexte,'Texte exact',d.sTexte],[d.vMentions,'Mentions',d.sMentions]].forEach(([v,l,s],i)=>{cp(8);i%2===0?doc.setFillColor(255,255,255):doc.setFillColor(250,250,250);doc.rect(ML,y-1,CW,8,'F');doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(!v?170:60,!v?0:60,!v?0:60);doc.text(l,ML+3,y+4.5);doc.setTextColor(17,17,17);doc.text(v||'—',ML+58,y+4.5);doc.setTextColor(s==='Oui'?26:100,s==='Oui'?107:100,s==='Oui'?42:100);doc.text(s||'—',ML+CW-18,y+4.5);y+=8});
-  y+=3;
-  fl('Fichiers dispo',(d.fichiers&&d.fichiers.length)?d.fichiers.join(', '):'—');
-  fl('Lien Drive',d.drive||'—');
-  if(d.driveNotes)fl('Notes fichiers',d.driveNotes);
-  dv();
-  const prioLabels={'normal':'Normal','prioritaire':'Prioritaire ⚡','urgent':'URGENT ⚑'};
-  st(4,'Supports & formats');fl('Supports',allS,!d.supports.length&&!d.othersSupports.length);fl('Formats',d.formats||'—');fl('Déclinaisons',d.nbDecli?d.nbDecli+' visuel'+(d.nbDecli>1?'s':''):'—',!d.nbDecli);fl('Priorité',prioLabels[d.priorite]||'—',!d.priorite);dv();
-  st(5,'Deadlines');fl('Lancement',fmtDate(d.launch),!d.launch);fl('Validation infos',fmtDate(d.valinfo),!d.valinfo);fl('Retour simulation',fmtDate(d.simul),!d.simul);wb("Sans validation dans les delais, la deadline de lancement ne peut pas etre garantie.");dv();
-  st(6,'Statut');const miss=getMiss(d);fl('Statut',miss.length?'Incomplet — '+miss.length+' élément(s) manquant(s)':'Complet — prêt pour création');
-  if(d.isUpdate){
-    cp(14);
-    doc.setFillColor(85,85,85);doc.rect(ML,y,7,7,'F');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text('↻',ML+3.5,y+5,{align:'center'});
-    doc.setTextColor(17,17,17);doc.setFontSize(9.5);doc.text('MISE À JOUR VISUEL EXISTANT',ML+11,y+5);y+=11;
-    if(d.refType)fl('Type de modification',d.refType);
-
-    dv();
-  }
-  if(d.bloquants)fl('Notes',d.bloquants);
-  if(miss.length){cp(8+miss.length*6);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(180,0,0);doc.text('INFORMATIONS MANQUANTES :',ML,y);y+=6;doc.setFont('helvetica','normal');miss.forEach(m=>{cp(6);doc.text('→  '+m,ML+4,y);y+=5.5})}
-  cp(12);y+=6;doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(160,160,160);doc.line(ML,y-2,ML+CW,y-2);
-  const _ts=new Date();const _tsStr=_ts.toLocaleDateString('fr-BE')+' à '+_ts.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
-  doc.text('Studio Graphique — B&W Burger — Généré le '+_tsStr+'  ·  '+(d.briefId||''),ML,y+3);
-  return doc;
-}
-
-function showMsg(t,c='#1a6b2a'){const el=G('amsg');el.textContent=t;el.style.color=c;setTimeout(()=>el.textContent='',3000)}
-function dlPDF(){if(!checkMiss())return;try{const d=getExportData();buildPDF().save('Brief_BW_'+(d.dept||'Studio')+'_'+new Date().toISOString().slice(0,10)+'.pdf');showMsg('PDF téléchargé avec succès')}catch(e){showMsg('Erreur lors de la génération','#cc0000')}}
-function printBrief(){if(!checkMiss())return;try{const blob=buildPDF().output('blob');const url=URL.createObjectURL(blob);const w=window.open(url,'_blank');if(w)w.onload=()=>w.print();showMsg('Ouverture pour impression...')}catch(e){showMsg('Erreur impression','#cc0000')}}
-function copyLink(){navigator.clipboard?navigator.clipboard.writeText(location.href).then(()=>showMsg('Lien copié !')):showMsg("Copiez l'URL du navigateur",'#666')}
-function toggleEmail(){const r=G('email-row');r.classList.toggle('open')}
-function doEmail(){const dest=G('email-dest').value.trim();if(!dest||!dest.includes('@')){showMsg('Email invalide','#cc0000');return}const d=getExportData();const s=encodeURIComponent('Brief Projet B&W — '+(d.dept||'Studio')+' — '+(d.vNom||d.desc||'B&W'));const b=encodeURIComponent('Bonjour,\n\nBrief projet Studio Graphique B&W.\n\nDépartement : '+(d.dept||'—')+'\nRéférent : '+(d.ref||'—')+'\nDescription : '+(d.desc||'—')+'\nLancement : '+fmtDate(d.launch)+'\n\nCordialement,\nStudio Graphique B&W');window.open('mailto:'+dest+'?subject='+s+'&body='+b);toggleEmail();showMsg('Client mail ouvert')}
-function openResetModal() {
-  G('reset-confirm-input').value='';
-  G('reset-confirm-btn').classList.remove('armed');
-  G('reset-confirm-btn').disabled=true;
-  G('reset-modal').classList.add('open');
-  setTimeout(()=>G('reset-confirm-input').focus(),100);
-}
-function closeResetModal() { G('reset-modal').classList.remove('open'); }
-function closeModal(e) { if(e.target===G('reset-modal')) closeResetModal(); }
-function onResetInput(inp) {
-  const ok = inp.value.trim().toUpperCase()==='EFFACER';
-  inp.classList.toggle('valid',ok);
-  G('reset-confirm-btn').classList.toggle('armed',ok);
-  G('reset-confirm-btn').disabled=!ok;
-}
-function doReset() {
-  closeResetModal();
-  try{localStorage.removeItem('bw_brief_draft')}catch(e){}
-  const newId=genBriefId();
-  Object.keys(data).forEach(k=>data[k]=Array.isArray(data[k])?[]:'');
-  data.briefId=newId;
-  document.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach(el=>el.value='');
-  document.querySelectorAll('input[type=checkbox]').forEach(el=>el.checked=false);
-  document.querySelectorAll('.val-select').forEach(el=>{el.value='';updValSelect(el)});
-  G('types-others').innerHTML=''; G('supports-others').innerHTML='';
-  const bidEl=G('brief-id-display'); if(bidEl) bidEl.textContent=newId;
-  const sameCb=G('same-person'); if(sameCb){sameCb.checked=false;onSamePerson();}
-  chatState.step=0; chatState.done=false;
-  upd(); showMsg('Brief réinitialisé','#666');
-}
-
-// ── AUTO-SAVE ─────────────────────────────────
-function autoSave() {
-  try {
-    const d = currentMode === 'manual' ? collect() : data;
-    localStorage.setItem('bw_brief_draft', JSON.stringify(d));
-    showSaveIndicator();
-  } catch(e) {}
-}
-
-function autoLoad() {
-  try {
-    const raw = localStorage.getItem('bw_brief_draft');
-    if(!raw) return;
-    const saved = JSON.parse(raw);
-    if(!saved.briefId) saved.briefId = genBriefId();
-    // Preserve fields that might be newer in form vs brouillon
-    const toRestore = {...saved};
-    Object.assign(data, toRestore);
-    syncFormFromData();
-    // Show prominent restore banner
-    setTimeout(() => {
-      const existing = G('restore-banner');
-      if(existing) return;
-      const banner = document.createElement('div');
-      banner.id = 'restore-banner';
-      banner.style.cssText = 'background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 14px;margin:0 0 12px;display:flex;align-items:center;gap:10px;font-size:12px;color:#166534;animation:fadeIn .3s ease';
-      banner.innerHTML = '<span style="font-size:16px">↩</span><span><strong>Brouillon restauré</strong> — reprenez où vous en étiez</span><button onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:#166534;cursor:pointer;font-size:16px;line-height:1">×</button>';
-      const progWrap = document.querySelector('.prog-wrap');
-      if(progWrap) progWrap.parentNode.insertBefore(banner, progWrap.nextSibling);
-    }, 500);
-    setTimeout(checkDeadlineGap, 200);
-  } catch(e) {}
-}
-
-let saveTimer = null;
-function showSaveIndicator() {
-  const el = G('save-indicator');
-  if(el) { el.style.opacity = '1'; clearTimeout(saveTimer); saveTimer = setTimeout(() => { el.style.opacity = '0'; }, 2000); }
-  // Also show persistent badge in progress bar
-  const badge = G('save-badge');
-  if(badge) { badge.style.display = 'flex'; clearTimeout(badge._t); badge._t = setTimeout(() => { badge.style.display = 'none'; }, 4000); }
-}
-
-// INIT
-// ── MODE RAPIDE ──────────────────────────────────────
-let rapideSupports = new Set();
-
-function initRapide() {
-  // Set Normal as default priority if not set
-  const prio = G('r-priorite') ? G('r-priorite').value : '';
-  if(!prio) {
-    const normalBtn = document.querySelector('#mode-rapide .prio-btn[data-val="normal"]');
-    if(normalBtn) { normalBtn.classList.add('active'); if(G('r-priorite')) G('r-priorite').value='normal'; }
-  }
-  // Reset support buttons visual state from data
-  document.querySelectorAll('#r-supports-btns .prio-btn').forEach(b => {
-    b.classList.toggle('active', rapideSupports.has(b.dataset.sup));
-  });
-}
-
-function toggleRapideSup(btn) {
-  const sup = btn.dataset.sup;
-  if(rapideSupports.has(sup)) { rapideSupports.delete(sup); btn.classList.remove('active'); }
-  else { rapideSupports.add(sup); btn.classList.add('active'); }
-  updRapide();
-}
-
-function setRapidePrio(btn) {
-  document.querySelectorAll('#mode-rapide .prio-btn[data-val]').forEach(b => b.classList.remove('active','prio-prioritaire'));
-  btn.classList.add('active');
-  if(btn.dataset.val==='prioritaire') btn.classList.add('prio-prioritaire');
-  const hidden = G('r-priorite'); if(hidden) hidden.value = btn.dataset.val;
-  updRapide();
-}
-
-function updRapide() {
-  const dept = G('r-dept') ? G('r-dept').value : '';
-  const ref  = G('r-ref')  ? G('r-ref').value.trim() : '';
-  const desc = G('r-desc') ? G('r-desc').value.trim() : '';
-  const launch = G('r-launch') ? G('r-launch').value : '';
-  const ok = dept && ref && desc && launch && rapideSupports.size > 0;
-  const btn = G('r-submit-btn');
-  if(btn) { btn.style.opacity = ok ? '1' : '0.6'; btn.style.cursor = ok ? 'pointer' : 'not-allowed'; }
-}
-
-function switchToFullFromRapide() {
-  // Copy rapide data into main form
-  const dept = G('r-dept') ? G('r-dept').value : '';
-  const ref  = G('r-ref')  ? G('r-ref').value.trim() : '';
-  const desc = G('r-desc') ? G('r-desc').value.trim() : '';
-  const launch = G('r-launch') ? G('r-launch').value : '';
-  const prio = G('r-priorite') ? G('r-priorite').value : 'normal';
-  if(dept) { const s=G('dept'); if(s){[...s.options].forEach(o=>{if(o.value===dept)o.selected=true})} }
-  if(ref)  { const r=G('ref'); if(r) r.value=ref; }
-  if(desc) { const d=G('desc'); if(d) d.value=desc; }
-  if(launch){ const l=G('launch'); if(l) l.value=launch; }
-  rapideSupports.forEach(sup => {
-    const cb=document.querySelector('#supports input[value="'+sup+'"]');
-    if(cb){cb.checked=true;}
-  });
-  // Set priority
-  document.querySelectorAll('.prio-btn[data-val]').forEach(b=>{
-    b.classList.remove('active','prio-prioritaire');
-    if(b.dataset.val===prio){b.classList.add('active');if(prio==='prioritaire')b.classList.add('prio-prioritaire');}
-  });
-  const ph=G('priorite'); if(ph) ph.value=prio;
-  switchMode('manual');
-  // Open relevant sections
-  [1,2,4,5].forEach(n=>{ const h=G('sh'+n),bo=G('sb'+n);if(h&&bo){h.classList.add('open');bo.classList.add('open');const ch=h.querySelector('.sec-chevron');if(ch)ch.className='ti ti-chevron-up sec-chevron';} });
-  upd();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function submitRapide() {
-  const dept  = G('r-dept') ? G('r-dept').value : '';
-  const ref   = G('r-ref')  ? G('r-ref').value.trim() : '';
-  const desc  = G('r-desc') ? G('r-desc').value.trim() : '';
-  const launch= G('r-launch')? G('r-launch').value : '';
-  const prio  = G('r-priorite')? G('r-priorite').value : 'normal';
-  const sups  = [...rapideSupports];
-  if(!dept||!ref||!desc||!launch||!sups.length) {
-    showMsg('Remplissez tous les champs obligatoires', '#cc0000'); return;
-  }
-  const briefData = {
-    ...data,
-    briefId: data.briefId || genBriefId(),
-    dept, ref, valid: ref,
-    desc, msg: desc.slice(0, 80),
-    supports: sups, types: ['Campagne marketing'],
-    launch, priorite: prio,
-    nbDecli: '1',
-    submittedAt: new Date().toISOString(),
-    rootBriefId: data.briefId || genBriefId(),
-    version: 1, isLatest: true
-  };
-  const saved = saveToHistory(briefData);
-  if(saved) {
-    sendToWebhook({...briefData});
-    showConfirmation(briefData);
-  }
-}
-
-// ── HISTORY ───────────────────────────────────────────
-const HIST_KEY = 'bw_brief_history';
-const WEBHOOK_URL = 'https://hook.eu1.make.com/un4wy721ere5mxdujxor3ovihzrlbl1v';
-
-async function sendToWebhook(briefData) {
-  try {
-    await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(briefData)
-    });
-  } catch(e) {
-    console.warn('Webhook non disponible — historique local uniquement', e);
-  }
-}
-
-function getHistory() {
-  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }
-  catch(e) { return []; }
-}
-
-function saveToHistory(briefData) {
-  try {
-    const history = getHistory();
-    const now = new Date().toISOString();
-    // Check if a version of this briefId already exists
-    const existingIdx = history.findIndex(h =>
-      h.briefId === briefData.briefId ||
-      h.rootBriefId === briefData.briefId ||
-      briefData.rootBriefId === h.rootBriefId && h.rootBriefId
-    );
-    let entry;
-    if(existingIdx >= 0) {
-      const existing = history[existingIdx];
-      const rootId = existing.rootBriefId || existing.briefId;
-      const prevVersion = existing.version || 1;
-      const newVersion = prevVersion + 1;
-      const newBriefId = rootId + '-v' + newVersion;
-      entry = {
-        ...briefData,
-        briefId: newBriefId,
-        rootBriefId: rootId,
-        version: newVersion,
-        submittedAt: now,
-        status: 'submitted'
-      };
-      // Mark previous as not latest
-      history[existingIdx] = {...existing, isLatest: false};
-      entry.isLatest = true;
-      history.unshift(entry);
-    } else {
-      entry = {
-        ...briefData,
-        rootBriefId: briefData.briefId,
-        version: 1,
-        isLatest: true,
-        submittedAt: now,
-        status: 'submitted'
-      };
-      history.unshift(entry);
-    }
-    // Keep max 100 entries
-    if(history.length > 100) history.pop();
-    localStorage.setItem(HIST_KEY, JSON.stringify(history));
-    // Update data.briefId to match the saved entry
-    data.briefId = entry.briefId;
-    const bidEl = G('brief-id-display');
-    if(bidEl) bidEl.textContent = entry.briefId;
-    updateHistCount();
-    return entry;
-  } catch(e) { return null; }
-}
-
-function updateHistCount() {
-  const el = G('hist-count');
-  if(!el) return;
-  const n = getHistory().length;
-  el.textContent = n;
-  el.style.display = n > 0 ? 'inline' : 'none';
-}
-
-function openHistory() {
-  const search = G('hist-search');
-  if(search) search.value = '';
-  const clear = G('hist-clear');
-  if(clear) clear.style.display = 'none';
-  filterHistory();
-  G('hist-overlay').classList.add('open');
-  G('hist-drawer').classList.add('open');
-  setTimeout(() => { if(search) search.focus(); }, 300);
-}
-
-function closeHistory() {
-  G('hist-overlay').classList.remove('open');
-  G('hist-drawer').classList.remove('open');
-}
-
-function renderHistory(filtered) {
-  const body = G('hist-body');
-  const history = filtered !== undefined ? filtered : getHistory();
-  const allCount = getHistory().length;
-  if(!allCount) {
-    body.innerHTML = '<div class="drawer-empty"><i class="ti ti-inbox"></i><p>Aucun brief soumis pour le moment.<br>Soumettez votre premier brief pour commencer l&#39;historique.</p></div>';
-    return;
-  }
-  if(!history.length) {
-    body.innerHTML = '<div class="hist-no-results">Aucun résultat pour cette recherche.</div>';
-    return;
-  }
-  const fmtDt = iso => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('fr-BE') + ' à ' + d.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
-  };
-  const prioLabel = {'normal':'Normal','prioritaire':'Prioritaire','urgent':'URGENT'};
-  const prioClass = {'urgent':'prio-urgent','prioritaire':'prio-prioritaire'};
-  const allHistory = getHistory();
-  body.innerHTML = history.map((b) => {
-    const realIdx = allHistory.findIndex(h => h.briefId === b.briefId);
-    return `<div class="hist-item">
-      <div class="hist-item-head">
-        <span class="hist-id">${b.rootBriefId||b.briefId||'—'}</span>
-        ${b.version > 1 ? `<span class="hist-version${b.isLatest?' latest':''}">${b.isLatest?'✓ ':''}v${b.version}</span>` : (b.isLatest===false?'<span class="hist-version">v1</span>':'')}
-        <span class="hist-dept">${b.dept||'—'}</span>
-        <span class="hist-date">${b.submittedAt?fmtDt(b.submittedAt):''}</span>
-      </div>
-      <div class="hist-desc">${b.desc||b.vNom||'Sans description'}</div>
-      <div class="hist-meta">
-        ${b.ref?`<span class="hist-tag">${b.ref}</span>`:''}
-        ${(b.supports||[]).slice(0,2).map(s=>`<span class="hist-tag">${s}</span>`).join('')}
-        ${b.launch?`<span class="hist-tag">📅 ${fmtDate(b.launch)}</span>`:''}
-        ${b.priorite?`<span class="hist-tag ${prioClass[b.priorite]||''}">${prioLabel[b.priorite]||b.priorite}</span>`:''}
-      </div>
-      <div class="hist-actions">
-        <button class="hist-btn hist-btn-load" data-idx="${realIdx}" onclick="loadFromHistory(parseInt(this.dataset.idx))">
-          <i class="ti ti-arrow-back-up"></i> Rouvrir
-        </button>
-        <button class="hist-btn hist-btn-del" data-id="${b.briefId}" onclick="deleteFromHistory(this.dataset.id,event)">
-          <i class="ti ti-trash"></i> Supprimer
-        </button>
-      </div>
-    </div>`;
-  }).join('') + `<div class="hist-counter">${history.length}${history.length < allCount ? ' résultat'+(history.length>1?'s':'') : ' brief'+(allCount>1?'s':'')} • ${allCount} total</div>`;
-}
-
-function filterHistory() {
-  const q = (G('hist-search')||{value:''}).value.toLowerCase().trim();
-  const sort = (G('hist-sort')||{value:'date-desc'}).value;
-  const clear = G('hist-clear');
-  if(clear) clear.style.display = q ? 'flex' : 'none';
-  let history = getHistory();
-  if(q) {
-    history = history.filter(b =>
-      (b.briefId||'').toLowerCase().includes(q) ||
-      (b.dept||'').toLowerCase().includes(q) ||
-      (b.ref||'').toLowerCase().includes(q) ||
-      (b.desc||'').toLowerCase().includes(q) ||
-      (b.vNom||'').toLowerCase().includes(q) ||
-      (b.priorite||'').toLowerCase().includes(q)
-    );
-  }
-  if(sort === 'date-asc') history = [...history].reverse();
-  else if(sort === 'dept') history = [...history].sort((a,b) => (a.dept||'').localeCompare(b.dept||''));
-  else if(sort === 'prio') {
-    const order = {urgent:0, prioritaire:1, normal:2, '':3};
-    history = [...history].sort((a,b) => (order[a.priorite||'']||3) - (order[b.priorite||'']||3));
-  } else if(sort === 'latest') {
-    history = history.filter(b => b.isLatest !== false);
-  }
-  renderHistory(history);
-}
-
-function clearSearch() {
-  const el = G('hist-search');
-  if(el) { el.value = ''; el.focus(); }
-  filterHistory();
-}
-
-function loadFromHistory(idx) {
-  const history = getHistory();
-  const entry = history[idx];
-  if(!entry) return;
-  if(!confirm('Charger ce brief ? Le formulaire actuel sera remplacé.')) return;
-  Object.assign(data, entry);
-  closeHistory();
-  switchMode('manual');
-  syncFormFromData();
-  showMsg('Brief ' + (entry.briefId||'') + ' chargé', '#1a6b2a');
-}
-
-function deleteFromHistory(briefId, e) {
-  if(e) e.stopPropagation();
-  if(!confirm('Supprimer ce brief de l\'historique ?')) return;
-  try {
-    const history = getHistory().filter(h => h.briefId !== briefId);
-    localStorage.setItem(HIST_KEY, JSON.stringify(history));
-    updateHistCount();
-    filterHistory();
-  } catch(err) {}
-}
-
-function submitBrief() {
-  const d = currentMode === 'manual' ? collect() : {...data};
-  const miss = getMiss(d);
-  if(miss.length) {
-    const go = confirm(miss.length + ' information' + (miss.length>1?'s manquantes':' manquante') + ' :\n\n' + miss.map(m=>'\u2022 '+m).join('\n') + '\n\nSoumettre quand même ?');
-    if(!go) return;
-  }
-  Object.assign(data, d);
-  const saved = saveToHistory({...d});
-  if(saved) {
-    // Send to Make webhook (async, non-blocking)
-    sendToWebhook({...d, types: [...(d.types||[]),...(d.othersTypes||[])], supports: [...(d.supports||[]),...(d.othersSupports||[])]});
-    showMsg('Brief ' + (d.briefId||'') + ' soumis et sauvegardé ✓', '#1a6b2a');
-    // Show confirmation screen — NO auto PDF
-    // Update d with the potentially new versioned briefId
-    const updatedD = {...d, briefId: data.briefId};
-    showConfirmation(updatedD);
-  }
-}
-
-function showConfirmation(d) {
-  const overlay = document.createElement('div');
-  overlay.id = 'confirm-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
-  overlay.innerHTML = `
-    <div style="background:#fff;max-width:380px;width:100%;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
-      <div style="background:#1a6b2a;padding:24px 22px;text-align:center">
-        <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-          <i class="ti ti-circle-check" style="font-size:28px;color:#fff"></i>
-        </div>
-        <div style="font-family:Anton,sans-serif;font-size:18px;letter-spacing:2px;text-transform:uppercase;color:#fff">Brief soumis</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:6px">${d.briefId||''}</div>
-      </div>
-      <div style="padding:20px 22px">
-        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px">
-          Votre brief a été sauvegardé le <strong style="color:#111">${new Date().toLocaleDateString('fr-BE')} à ${new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}</strong>.<br>
-          Département : <strong style="color:#111">${d.dept||'—'}</strong><br>
-          ${d.priorite==='urgent'?'<span style="color:#cc0000;font-weight:500">⚑ Priorité URGENTE</span><br>':''}
-          ${d.launch?'Lancement prévu : <strong style="color:#111">'+fmtDate(d.launch)+'</strong>':''}
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <button onclick="document.getElementById('confirm-overlay').remove();dlPDF()" style="padding:12px;background:#111;color:#fff;border:none;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="ti ti-download" style="font-size:15px"></i> Télécharger le PDF</button>
-          <button onclick="document.getElementById('confirm-overlay').remove();openHistory()" style="padding:12px;background:#fff;color:#111;border:1.5px solid #ddd;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><i class="ti ti-history" style="font-size:15px"></i> Voir l'historique</button>
-          <button onclick="document.getElementById('confirm-overlay').remove()" style="padding:12px;background:transparent;color:#999;border:none;border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;cursor:pointer">Fermer et continuer à modifier</button>
-        </div>
-      </div>
-    </div>
-  `;
-  // Remove any existing overlay first
-  const existingOverlay = document.getElementById('confirm-overlay');
-  if(existingOverlay) existingOverlay.remove();
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
-}
-
-autoLoad();
-updateDecliRows();
-// Show brief ID
-const bidEl = G('brief-id-display');
-if(bidEl) bidEl.textContent = data.briefId || genBriefId();
-updateHistCount();
-// Open all sections on mobile
-if(window.innerWidth < 600) {
-  [1,2,3,4,5,6].forEach(n => {
-    const head = G('sh'+n), body = G('sb'+n);
-    if(head && body) {
-      head.classList.add('open');
-      body.classList.add('open');
-      const chevron = head.querySelector('.sec-chevron');
-      if(chevron) chevron.className = 'ti ti-chevron-up sec-chevron';
-    }
-  });
-
-}
-upd();
-</script>
+<!-- Zone impression historique (cachée, peuplée au moment du print) -->
+<div id="brief-print-area-v2"></div>
+
+  </div><!-- /.app-shell -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.6/dist/umd/supabase.js"></script>
+<script src="supabase-config.js?v=1"></script>
+<script src="config.js?v=3"></script>
+<script src="state.js?v=3"></script>
+<script src="recap.js?v=2"></script>
+<script src="render.js?v=5"></script>
+<script src="gcal-sync.js?v=2"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
