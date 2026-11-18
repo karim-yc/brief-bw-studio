@@ -693,11 +693,17 @@ body { overflow-x: hidden; max-width: 100vw; }
   .page-header{padding:16px 16px 0}
   .page-body{padding:16px 16px 60px}
 }
+/* Mobile bottom navigation */
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:rgba(20,17,60,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.1);z-index:200;flex-direction:row;justify-content:space-around;align-items:center}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.4);text-decoration:none;font-size:10px;font-weight:500;padding:8px 14px;transition:color .15s;line-height:1}
+.mob-nav-item i{font-size:20px}
+.mob-nav-item.active,.mob-nav-item:hover{color:#818cf8}
 @media(max-width:600px){
   .sidebar{display:none}
   .main-content{margin-left:0}
   .page-header{padding:12px 12px 0}
-  .page-body{padding:12px 12px 48px;border-radius:12px 12px 0 0;margin-top:12px}
+  .page-body{padding:12px 12px 72px;border-radius:12px 12px 0 0;margin-top:12px}
+  .mobile-bottom-nav{display:flex}
   .kpi-grid-3{grid-template-columns:repeat(3,1fr);gap:8px}
   .kpi-card-lg .kpi-val{font-size:28px}
   .briefs-table thead{display:none}
@@ -1112,6 +1118,23 @@ body { overflow-x: hidden; max-width: 100vw; }
 
   </div><!-- .page-body -->
 </div><!-- .main-content -->
+
+<!-- ══ MOBILE BOTTOM NAV ═══════════════════════════════════= -->
+<nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Navigation mobile">
+  <a href="index.html" class="mob-nav-item">
+    <i class="ti ti-plus-circle"></i><span>Nouveau</span>
+  </a>
+  <a href="dashboard.html" class="mob-nav-item active">
+    <i class="ti ti-layout-dashboard"></i><span>Dashboard</span>
+  </a>
+  <a href="calendrier.html" class="mob-nav-item">
+    <i class="ti ti-calendar-month"></i><span>Agenda</span>
+  </a>
+  <a href="statistiques.html" class="mob-nav-item">
+    <i class="ti ti-chart-bar"></i><span>Stats</span>
+  </a>
+</nav>
+
 </div><!-- .app-shell -->
 
 
