@@ -1167,6 +1167,23 @@ body { overflow-x: hidden; max-width: 100vw; }
    Source : Supabase (principal) → api/briefs.json (fallback)
    ════════════════════════════════════════════════════════════ */
 
+/* ── Gate mot de passe ──────────────────────────────────────
+   Protection basique côté JS (sessionStorage).
+   Mot de passe modifiable ici : constante DASH_PASS.
+   ─────────────────────────────────────────────────────────── */
+(function() {
+  const DASH_PASS = 'BW2026';
+  const SK = 'bw_dash_v1_auth';
+  if (sessionStorage.getItem(SK) === '1') return;
+  const p = prompt('🔒 BW Studio — Mot de passe dashboard');
+  if (p !== DASH_PASS) {
+    document.body.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;background:#1E1B4B;color:rgba(255,255,255,.5);font-size:14px';
+    document.body.innerHTML = '<div>Accès non autorisé.</div>';
+    throw new Error('bw:unauthorized');
+  }
+  sessionStorage.setItem(SK, '1');
+})();
+
 const G = id => document.getElementById(id);
 
 // ── Config Supabase ────────────────────────────────────────
@@ -1212,10 +1229,19 @@ function openStatusModal(briefId, e) {
 function closeStatusModal() { G('status-modal').classList.remove('open'); _statusTarget=null; }
 function selectStatus(opt) {
   if(!_statusTarget) return;
-  setStatut(_statusTarget, opt.dataset.status);
+  const newStatus = opt.dataset.status;
+  setStatut(_statusTarget, newStatus);
   closeStatusModal();
   applyFilters();
   if(_currentDrawerBrief && _currentDrawerBrief.briefId === _statusTarget) renderDrawer(_currentDrawerBrief);
+  // Sync → Supabase (nécessite politique UPDATE RLS : voir supabase/update-policies.sql)
+  if(sbClient) {
+    sbClient.from('briefs').update({ statut: newStatus }).eq('brief_id', _statusTarget)
+      .then(({ error }) => {
+        if (error) console.warn('[BW Supabase] statut non synchronisé (politique UPDATE manquante ?):', error.message);
+        else console.log('[BW Supabase] statut →', _statusTarget, newStatus);
+      });
+  }
 }
 function statusPill(briefId, e_stopper) {
   const s = getStatut(briefId);
