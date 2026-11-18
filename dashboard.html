@@ -3073,6 +3073,41 @@ fetchWhatsAppMessages();
 loadData();
 
 setInterval(loadData, 5*60*1000);
+
+/* ── Supabase Realtime — mise à jour automatique ─────────────
+   INSERT  → recharge les données + toast notification
+   UPDATE  → recharge les données (changement de statut)
+   ─────────────────────────────────────────────────────────── */
+if (sbClient) {
+  sbClient.channel('bw-briefs-live')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'briefs' },
+      payload => {
+        console.log('[BW Realtime] Nouveau brief →', payload.new?.brief_id);
+        loadData();
+        showRealtimeToast(`📋 Nouveau brief — ${payload.new?.brief_id || ''}`);
+      }
+    )
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'briefs' },
+      () => loadData()
+    )
+    .subscribe(status => {
+      console.log('[BW Realtime] état :', status);
+    });
+}
+
+function showRealtimeToast(msg) {
+  let t = document.getElementById('bw-rt-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'bw-rt-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1E1B4B;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-family:Inter,sans-serif;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);pointer-events:none;opacity:0;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 4000);
+}
 </script>
 </body>
 </html>
