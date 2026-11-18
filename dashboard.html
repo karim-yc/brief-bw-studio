@@ -1447,8 +1447,7 @@ function setTabFilter(btn, tab) {
   applyFilters();
 }
 
-/* ── Recherche ────────────────────────────────────────────── */
-G('search-input').addEventListener('input', e=>{ fSearch=e.target.value; applyFilters(); });
+/* ── Recherche (input géré via oninput inline sur #hdr-search-input) ── */
 function setMarqueFilter(btn) {
   const v=btn.dataset.marque;
   if(v===''){fMarque.clear();}
