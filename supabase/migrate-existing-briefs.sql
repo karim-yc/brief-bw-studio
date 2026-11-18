@@ -1,0 +1,38 @@
+-- ════════════════════════════════════════════════════════
+--  Migration des 3 briefs existants vers Supabase
+--  Coller APRÈS avoir exécuté schema.sql
+-- ════════════════════════════════════════════════════════
+
+INSERT INTO public.briefs (brief_id, submitted_at, statut, marque, departement, demandeur, priorite, data)
+VALUES
+(
+  'BW-20261118-130637-2621',
+  '2026-11-18T12:06:37.170Z'::timestamptz,
+  'soumis',
+  'Black & White Burger',
+  'Marketing',
+  'Emilie Guerreiro',
+  'urgent',
+  '{"briefId":"BW-20261118-130637-2621","submittedAt":"2026-11-18T12:06:37.170Z","typeDemande":"—","departement":"Marketing","demandeur":"Emilie Guerreiro","priorite":"urgent","raisonUrgence":"soirée","dateLancement":"2026-11-18","dateValidation":"2026-11-18","dateRetourSimul":"2026-11-18","contexte":"affiche : evenement so kahina","reserves":"","statut":"soumis","genreCampagne":"","restaurant":"","totalDeclinaisons":"0","supports":"","packagingProduits":"","nbBloquants":"0","mailSubject":"Nouveau brief B&W — BW-20261118-130637-2621 — — [URGENT]","marque":"Black & White Burger"}'::jsonb
+),
+(
+  'BW-20261118-111055-7972',
+  '2026-11-18T10:10:55.435Z'::timestamptz,
+  'soumis',
+  'Black & White Burger',
+  'Marketing',
+  'Karim Y.',
+  'urgent',
+  '{"briefId":"BW-20261118-111055-7972","submittedAt":"2026-11-18T10:10:55.435Z","typeDemande":"Campagne Marketing","departement":"Marketing","demandeur":"Karim Y.","priorite":"urgent","raisonUrgence":"raison non précisée","dateLancement":"2026-06-20","dateValidation":"—","dateRetourSimul":"","contexte":"Post Instagram lancement B&W Smash Burger 12,90€. À publier le 20 juin.","reserves":"","statut":"soumis","genreCampagne":"","restaurant":"","totalDeclinaisons":"0","supports":"Post carré","packagingProduits":"","nbBloquants":"0","mailSubject":"Nouveau brief B&W — BW-20261118-111055-7972 — Campagne Marketing [URGENT]","marque":"Black & White Burger"}'::jsonb
+),
+(
+  'BW-20261117-120014-8285',
+  '2026-11-17T11:00:14.599Z'::timestamptz,
+  'soumis',
+  'Autre',
+  'Marketing',
+  'Sami Chaghouani',
+  'prioritaire',
+  '{"briefId":"BW-20261117-120014-8285","submittedAt":"2026-11-17T11:00:14.599Z","typeDemande":"Campagne Marketing","departement":"Marketing","demandeur":"Sami Chaghouani","priorite":"prioritaire","raisonUrgence":"","dateLancement":"2026-12-25","dateValidation":"2026-11-22","dateRetourSimul":"2026-11-10","contexte":"Campagne de lancement de poké belge, nous allons sortir une gamme poké belge pour notre clientèle belge, donc dans cette gamme il y aura un poké et un side de salade, On veut diffuser ça sur nos réseaux et dans nos pointes de ventes donc j aimerai plusieurs visuels du poké pour les RS. C est un poké special belge donc les français n auront pas droit à cette gamme.","reserves":"","statut":"soumis","genreCampagne":"Image & Brand","restaurant":"","totalDeclinaisons":"0","supports":"Post carré, Affiche / Flyer, Menu board, PLV print, Story / Reel 9:16, Borne digitale","packagingProduits":"","nbBloquants":"0","mailSubject":"Nouveau brief B&W — BW-20261117-120014-8285 — Campagne Marketing — prioritaire","marque":"Autre"}'::jsonb
+)
+ON CONFLICT (brief_id) DO NOTHING;

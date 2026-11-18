@@ -604,44 +604,57 @@
   }
 
   async function sendWebhook(data, extraFiles) {
-    const WEBHOOK_URL = 'https://hook.eu1.make.com/v3nyc7z5x81gk5609ayay78rwuu75krk';
     const recap = Recap.build();
     const allFiles = [...(State.files || []), ...(State.rapideFiles || []), ...(extraFiles || [])];
     const fichiers = allFiles.length ? await readFilesAsBase64(allFiles) : [];
-    const payload = {
-      ...data,
-      recap,
-      fichiers,
-      mailSubject: `Nouveau brief B&W — ${recap.briefId} — ${recap.typeDemande}${recap.raisonUrgence ? ' [URGENT]' : ' — ' + recap.priorite}`,
-      mailBody: Recap.toPlainText(recap),
-      mailHtml: Recap.toMailHtml(recap)
-    };
 
-    console.log('[BW Webhook] Envoi →', WEBHOOK_URL);
-    console.log('[BW Webhook] briefId:', payload.briefId, '| type:', payload.typeDemande, '| priorité:', payload.priorite);
-    console.log('[BW Webhook] Payload complet:', JSON.stringify(payload).slice(0, 300) + '…');
+    const mailSubject = `Nouveau brief B&W — ${recap.briefId} — ${recap.typeDemande}${recap.raisonUrgence ? ' [URGENT]' : ' — ' + recap.priorite}`;
+
+    // ── Supabase (source principale) ─────────────────────────────
+    if (typeof sbClient !== 'undefined' && sbClient) {
+      console.log('[BW Supabase] Envoi brief →', recap.briefId);
+
+      const row = {
+        brief_id:     recap.briefId,
+        submitted_at: recap.submittedAt || new Date().toISOString(),
+        statut:       'soumis',
+        marque:       recap.marque || '',
+        departement:  recap.departement || '',
+        demandeur:    recap.demandeur || '',
+        priorite:     recap.priorite || '',
+        data: {
+          ...recap,
+          fichiers,
+          mailSubject,
+          mailBody: Recap.toPlainText(recap),
+          mailHtml: Recap.toMailHtml(recap),
+        }
+      };
+
+      const { error } = await sbClient.from('briefs').insert(row);
+
+      if (error) {
+        console.error('[BW Supabase] Erreur insert:', error.message, error.details);
+        throw new Error(`Supabase refus : ${error.message}`);
+      }
+
+      console.log('[BW Supabase] ✓ Brief inséré —', recap.briefId);
+      return;
+    }
+
+    // ── Fallback Make.com (si Supabase non configuré) ────────────
+    const WEBHOOK_URL = 'https://hook.eu1.make.com/v3nyc7z5x81gk5609ayay78rwuu75krk';
+    const payload = { ...data, recap, fichiers, mailSubject, mailBody: Recap.toPlainText(recap), mailHtml: Recap.toMailHtml(recap) };
+    console.warn('[BW] Supabase non configuré — fallback Make.com');
 
     let response;
     try {
-      response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      response = await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     } catch (networkErr) {
-      console.error('[BW Webhook] Erreur réseau:', networkErr.message);
       throw new Error('Réseau inaccessible — Make non joint');
     }
-
-    const responseText = await response.text().catch(() => '');
-    console.log('[BW Webhook] HTTP', response.status, response.statusText, '| Corps:', responseText.slice(0, 100));
-
-    if (!response.ok) {
-      console.error('[BW Webhook] Réponse HTTP non-OK:', response.status, responseText.slice(0, 200));
-      throw new Error(`Make a refusé le webhook (HTTP ${response.status})`);
-    }
-
-    console.log('[BW Webhook] ✓ Reçu par Make — traitement en cours côté scénario');
+    if (!response.ok) throw new Error(`Make a refusé le webhook (HTTP ${response.status})`);
+    console.log('[BW Webhook] ✓ Reçu par Make');
   }
 
   function showContextWarning(len) {

@@ -1160,18 +1160,27 @@ body { overflow-x: hidden; max-width: 100vw; }
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.6/dist/umd/supabase.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════════
    DASHBOARD V2 — Studio Graphique Multi-marques
-   Source : api/briefs.json GitHub (principal) + cache local (fallback)
+   Source : Supabase (principal) → api/briefs.json (fallback)
    ════════════════════════════════════════════════════════════ */
 
 const G = id => document.getElementById(id);
 
+// ── Config Supabase ────────────────────────────────────────
+// Remplacer après création du projet : supabase.com → Settings → API
+const SUPABASE_URL      = 'https://zpapoywzilwubjglhsmu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_PhHq5kbGxyntZ8JlSumImA_pqzR8tKL';
+const sbClient = (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'REMPLACER_PAR_PROJECT_URL')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
 const HIST_KEY   = 'bw_brief_v2_history';
 const SHEET_ID   = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
-const GITHUB_API      = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/briefs.json'; // Source primaire — JSON statique GitHub Pages (CORS natif)
-const MAKE_API        = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b'; // Fallback Make
+const GITHUB_API      = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/briefs.json'; // Fallback — JSON statique GitHub Pages
+const MAKE_API        = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b'; // Fallback Make (désactivé)
 const APPS_SCRIPT_URL = ''; // Fallback Apps Script (si configuré)
 const STATUS_KEY = 'bw_brief_statuts';
 
@@ -1341,7 +1350,37 @@ async function fetchBriefs() {
     }
   }
 
-  // ── Source 1 : GitHub JSON statique (CORS natif GitHub, mis à jour par Make à chaque soumission)
+  // ── Source 0 : Supabase (source principale depuis la migration)
+  if (sbClient) {
+    try {
+      D('source', 'Supabase');
+      console.log('[BW] Supabase → SELECT briefs ORDER BY submitted_at DESC');
+      const { data: rows, error } = await sbClient
+        .from('briefs')
+        .select('data, statut, submitted_at')
+        .order('submitted_at', { ascending: false });
+
+      if (error) throw new Error(error.message);
+
+      // Chaque ligne : data = objet brief complet, statut = colonne dédiée
+      const data = (rows || []).map(row => ({
+        ...row.data,
+        statut: row.statut || row.data?.statut || 'soumis',
+      })).filter(b => b.briefId);
+
+      D('rows', data.length + ' lignes'); D('parsed', data.length + ' briefs');
+      if (data.length > 0) {
+        console.log('[BW] Supabase OK —', data.length, 'briefs');
+        D('status', 'OK'); return { data, status: 'supabase' };
+      }
+      console.warn('[BW] Supabase → 0 brief — fallback GitHub JSON');
+    } catch(e) {
+      console.warn('[BW] Supabase erreur:', e.message);
+      D('status', 'ERREUR Supabase: ' + e.message);
+    }
+  }
+
+  // ── Source 1 : GitHub JSON statique (fallback — briefs pré-migration)
   {
     const ghText = await tryURL('GitHub JSON', GITHUB_API + '?t=' + Date.now());
     if (ghText) {
@@ -1419,7 +1458,9 @@ async function loadData() {
 
   const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   const n = merged.length, s = n > 1 ? 's' : '';
-  if (status === 'github') {
+  if (status === 'supabase') {
+    setSyncState('ok', `${n} brief${s} · Supabase · ${t}`);
+  } else if (status === 'github') {
     setSyncState('ok', `${n} brief${s} · GitHub JSON · ${t}`);
   } else if (status === 'apps-script') {
     setSyncState('ok', `${n} brief${s} · Apps Script · ${t}`);
