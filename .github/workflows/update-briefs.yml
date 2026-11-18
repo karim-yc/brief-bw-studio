@@ -26,7 +26,9 @@ jobs:
           briefs = payload.get('briefs', [])
 
           # Récupérer le payload du dispatch Make (si disponible)
-          client_payload = json.loads(os.environ.get('CLIENT_PAYLOAD', '{}'))
+          # Support deux formats : flat (ancien) et imbriqué sous 'brief' (nouveau, contourne la limite 10 props GitHub)
+          raw = json.loads(os.environ.get('CLIENT_PAYLOAD', '{}') or '{}')
+          client_payload = raw.get('brief', raw) if isinstance(raw, dict) else {}
 
           if client_payload.get('briefId'):
               brief_id = client_payload['briefId']
