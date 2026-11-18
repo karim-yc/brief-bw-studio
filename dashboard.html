@@ -2709,6 +2709,7 @@ function renderDrawer(b) {
     <button onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text);font-family:'Inter',sans-serif"><i class="ti ti-copy"></i> Dupliquer</button>
     <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
     ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
+    <button onclick="deleteBrief('${b.briefId}')" title="Supprimer définitivement ce brief" style="margin-left:auto;background:none;border:1.5px solid #fca5a5;border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:#ef4444;font-family:'Inter',sans-serif;transition:all .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'"><i class="ti ti-trash"></i> Supprimer</button>
   `;
 }
 
@@ -2721,6 +2722,17 @@ function dupliquerBrief(briefId) {
     localStorage.setItem('bw_dupe_brief', JSON.stringify(b));
   } catch(e) {}
   window.location.href = 'v2/index.html?dupe=1';
+}
+
+/* ── Suppression brief ────────────────────────────────────── */
+async function deleteBrief(briefId) {
+  if (!confirm(`Supprimer définitivement le brief ${briefId} ?\n\nCette action est irréversible.`)) return;
+  if (!sbClient) { alert('Supabase non disponible.'); return; }
+  const { error } = await sbClient.from('briefs').delete().eq('brief_id', briefId);
+  if (error) { alert('Erreur suppression : ' + error.message); return; }
+  allBriefs = allBriefs.filter(b => b.briefId !== briefId);
+  closeDrawer();
+  applyFilters();
 }
 
 /* ── Impression PDF ───────────────────────────────────────── */

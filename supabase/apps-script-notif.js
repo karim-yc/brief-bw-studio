@@ -13,7 +13,7 @@
  *  7. Exécute notify-trigger.sql dans le SQL Editor Supabase
  */
 
-const DESTINATAIRE = 'studio@bnwburger.com'; // ← ton adresse email
+const DESTINATAIRES = 'studio@bnwburger.com,karim.yc@bnwburger.com';
 
 function doPost(e) {
   try {
@@ -47,7 +47,7 @@ function doPost(e) {
       '👉 Dashboard : https://karim-yc.github.io/brief-bw-studio/dashboard.html',
     ].join('\n');
 
-    GmailApp.sendEmail(DESTINATAIRE, sujet, corps);
+    GmailApp.sendEmail(DESTINATAIRES, sujet, corps);
 
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true }))
