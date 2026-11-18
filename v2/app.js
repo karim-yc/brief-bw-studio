@@ -755,7 +755,8 @@
   async function submitRapide() {
     const dept = document.getElementById('r-dept').value;
     const ref = document.getElementById('r-ref').value.trim();
-    const desc = document.getElementById('r-desc').value.trim();
+    const descEditor = document.getElementById('r-desc-editor');
+    const desc = descEditor ? (descEditor.innerText || '').trim() : document.getElementById('r-desc').value.trim();
     const launch = document.getElementById('r-launch').value;
     const prio = document.getElementById('r-priorite').dataset.value;
 
@@ -798,7 +799,8 @@
   function switchToFullFromRapide() {
     State.data.dept = document.getElementById('r-dept').value;
     State.data.ref = document.getElementById('r-ref').value.trim();
-    State.data.description = document.getElementById('r-desc').value.trim();
+    const _rdesc = document.getElementById('r-desc-editor');
+    State.data.description = _rdesc ? (_rdesc.innerText||'').trim() : document.getElementById('r-desc').value.trim();
     State.data.dateLancement = document.getElementById('r-launch').value;
     State.data.priorite = document.getElementById('r-priorite').dataset.value || '';
     State.data.typeDemande = 'campagne';
