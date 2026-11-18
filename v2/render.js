@@ -7,6 +7,8 @@ const Icons = {
   packaging: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 8l8-4 8 4-8 4-8-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8v8l8 4 8-4V8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 12v8" stroke="currentColor" stroke-width="1.5"/></svg>',
   vitrophanie: '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 12h16M12 5v14" stroke="currentColor" stroke-width="1.5"/></svg>',
   autre: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M12 16v.01M12 8a2.2 2.2 0 0 1 2.2 2.2c0 1.5-2.2 1.8-2.2 3.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  affiche: '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h8M8 12h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 16l2.5-3 2 2.5L15 13l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  menu: '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 8h12M6 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   check: '<svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6l2.5 2.5L9.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   chevron: '<svg viewBox="0 0 20 20" fill="none"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   plus: '<svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
@@ -43,13 +45,12 @@ const Render = {
     let inputHtml = '';
     if (f.type === 'textarea') {
       const minL = f.minLength || 0;
-      const helpHtml = f.help ? `<div class="field-help">${f.help}</div>` : '';
       const minNote = minL ? `<div class="field-minlength" id="minl-${f.id}"><span class="minl-cur">0</span>/${minL} caractères minimum</div>` : '';
       // Rich text editor pour le champ description (contexte du projet)
       if (f.id === 'description') {
         const safeVal = this.esc(val);
         const htmlVal = val ? val.replace(/\n/g, '<br>') : '';
-        inputHtml = `${helpHtml}
+        inputHtml = `
           <div class="rte-wrap" id="rte-wrap-${f.id}">
             <div class="rte-toolbar">
               <button type="button" class="rte-btn" data-cmd="bold" title="Gras (Ctrl+B)"><b>B</b></button>
@@ -62,10 +63,9 @@ const Render = {
             <textarea data-field="${f.id}" data-min-length="${minL}" style="display:none">${safeVal}</textarea>
           </div>${minNote}`;
       } else {
-        inputHtml = `${helpHtml}<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
+        inputHtml = `<textarea data-field="${f.id}" placeholder="${f.placeholder || ''}" data-min-length="${minL}">${this.esc(val)}</textarea>${minNote}`;
       }
     } else if (f.type === 'attachments') {
-      const helpHtml = f.help ? `<div class="field-help">${f.help}</div>` : '';
       const files = (typeof State !== 'undefined' && State.files) ? State.files : [];
       const listHtml = files.length ? files.map((file, i) =>
         `<div class="att-item" data-idx="${i}">
@@ -74,7 +74,7 @@ const Render = {
           <span class="att-size">${(file.size / 1024).toFixed(0)} Ko</span>
           <button type="button" class="att-remove" data-att-idx="${i}" title="Supprimer">×</button>
         </div>`).join('') : '';
-      inputHtml = `${helpHtml}
+      inputHtml = `
         <label class="att-dropzone" id="att-dropzone">
           <input type="file" id="att-input" multiple accept="image/*,.pdf,.doc,.docx,.pptx,.xlsx,.zip" style="display:none">
           <span class="att-icon-add">＋</span>
@@ -429,22 +429,21 @@ ${Recap.toHtml(r)}
 
   wizardProgress(step) {
     const steps = [
-      { n: 1, label: 'L\'essentiel' },
-      { n: 2, label: 'Le contexte' },
-      { n: 3, label: 'Deadline' },
-      { n: 4, label: 'Récap' }
+      { n: 1, label: 'L\'essentiel',  sub: 'Qui fait la demande ?' },
+      { n: 2, label: 'Le contexte',   sub: 'Détails du projet' },
+      { n: 3, label: 'Deadline',      sub: 'Planning et priorité' },
+      { n: 4, label: 'Récap',         sub: 'Vérification et envoi' }
     ];
-    const items = steps.map((s, i) => {
+    const items = steps.map(s => {
       const cls = step === s.n ? 'active' : (step > s.n ? 'done' : '');
       const numContent = step > s.n ? Icons.check : s.n;
-      const lineAfter = i < steps.length - 1
-        ? `<div class="wz-line ${step > s.n ? 'done' : ''}"></div>` : '';
-      return `<div class="wz-step-wrap">
-        <div class="wz-step ${cls}">
-          <div class="wz-step-num">${numContent}</div>
-          <div class="wz-step-label">${s.label}</div>
-        </div>${lineAfter}
-      </div>`;
+      return `<div class="wz-step-wrap"><div class="wz-step ${cls}">
+        <div class="wz-step-num">${numContent}</div>
+        <div class="wz-step-info">
+          <div class="wz-step-name">${s.label}</div>
+          <div class="wz-step-sub">${s.sub}</div>
+        </div>
+      </div></div>`;
     }).join('');
     return `<div class="wizard-progress"><div class="wizard-steps">${items}</div></div>`;
   },
@@ -452,10 +451,13 @@ ${Recap.toHtml(r)}
   wizardNav(step) {
     const isFirst = step === 1;
     const isLast = step === 4;
+    const nextLabels = { 1: 'Suivant : Le contexte →', 2: 'Suivant : Deadline →', 3: 'Suivant : Récap →' };
     const left = `<div class="wizard-nav-left">
-      ${isFirst ? '' : `<button class="btn-wz-prev" id="wz-prev" aria-label="Étape précédente">← Étape précédente</button>`}
+      ${isFirst
+        ? `<button class="btn-wz-draft" id="wz-cancel"><svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M13 2.5L3 12.5M3 7.5V12.5H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Enregistrer le brouillon</button>`
+        : `<button class="btn-wz-prev" id="wz-prev" aria-label="Étape précédente">← Précédent</button>`}
     </div>`;
-    const right = isLast ? '' : `<button class="btn-wz-next" id="wz-next">Continuer →</button>`;
+    const right = isLast ? '' : `<button class="btn-wz-next" id="wz-next">${nextLabels[step] || 'Continuer →'}</button>`;
     const saveIndicator = `<div class="wz-save-indicator" id="wz-save-indicator" aria-live="polite" aria-atomic="true"><svg viewBox="0 0 16 16" fill="none" width="12" height="12"><path d="M3.5 8.5l2.5 2.5L12.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Brouillon sauvegardé</div>`;
     return `<div class="wizard-nav">${left}${saveIndicator}${right}</div>`;
   },
@@ -463,12 +465,19 @@ ${Recap.toHtml(r)}
   wizardStep1() {
     const fields = State.getChampsEtape1();
     const type = State.data.typeDemande;
+    const marque = State.data.marque || '';
 
-    const typeCards = CONFIG.typesDemande.map(t => `
-      <button type="button" class="select-card ${type === t.id ? 'active' : ''}" data-type-select="${t.id}">
-        ${Icons[t.icon]}
-        <span class="select-card-label">${t.label}</span>
-        ${t.sub ? `<span class="select-card-sub">${t.sub}</span>` : ''}
+    const allTypes = [
+      ...CONFIG.typesDemande,
+      { id: 'affiche', icon: 'affiche', label: 'Affiche / Flyer',    sub: 'Support print ou digital à diffuser.' },
+      { id: 'menu',    icon: 'menu',    label: 'Menu board',         sub: 'Carte, ardoise ou panneau menu.' }
+    ];
+    const typeCards = allTypes.map(t => `
+      <button type="button" class="type-card ${type === t.id ? 'active' : ''}" data-type-select="${t.id}">
+        <div class="type-card-icon">${Icons[t.icon] || Icons.autre}</div>
+        <div class="type-card-title">${t.label}</div>
+        ${t.sub ? `<div class="type-card-desc">${t.sub}</div>` : ''}
+        <div class="type-card-check">${Icons.check}</div>
       </button>`).join('');
 
     let subContent = '';
@@ -489,38 +498,57 @@ ${Recap.toHtml(r)}
         ).join('')}</div></div>`;
     }
 
-    const fMarque = fields.find(f => f.id === 'marque');
-    const fDept   = fields.find(f => f.id === 'dept');
-    const fRef    = fields.find(f => f.id === 'ref');
-    const fResto  = fields.find(f => f.id === 'restaurant');
-    const fAlt    = fields.find(f => f.id === 'deptAutrePrecision');
+    const fDept  = fields.find(f => f.id === 'dept');
+    const fRef   = fields.find(f => f.id === 'ref');
+    const fResto = fields.find(f => f.id === 'restaurant');
+    const fAlt   = fields.find(f => f.id === 'deptAutrePrecision');
+
+    const marqueHtml = `
+      <div class="field" data-field-wrap="marque">
+        <div class="field-label-row">
+          <label class="field-label">Marque concernée<span class="req">*</span></label>
+        </div>
+        <div class="marque-pill-group">
+          <button type="button" class="marque-pill ${marque === 'bnw' ? 'active' : ''}" data-field="marque" data-value="bnw">
+            <span class="marque-badge marque-bnw">BW</span>Black &amp; White Burger
+            <span class="marque-check"><svg viewBox="0 0 12 12" fill="none" width="10" height="10"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+          <button type="button" class="marque-pill ${marque === 'mm' ? 'active' : ''}" data-field="marque" data-value="mm">
+            <span class="marque-badge marque-mm">M</span>Maison Marquise
+            <span class="marque-check"><svg viewBox="0 0 12 12" fill="none" width="10" height="10"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+          <button type="button" class="marque-pill ${marque === 'autre' ? 'active' : ''}" data-field="marque" data-value="autre">
+            <span class="marque-badge marque-autre">···</span>Autre
+            <span class="marque-check"><svg viewBox="0 0 12 12" fill="none" width="10" height="10"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+        </div>
+      </div>`;
 
     return `
-      <div class="wz-card">
-        <div class="wz-card-header">
-          <div class="wz-card-label">Étape 1 sur 4</div>
-          <div class="wz-card-title">Qui fait la demande ?</div>
-          <div class="wz-card-sub">Identification du demandeur et de la marque concernée.</div>
+      <div class="wz-step1-layout">
+        <div class="wz-step1-col wz-card">
+          <div class="wz-card-label">ÉTAPE 1 SUR 4</div>
+          <div class="wz-card-title" style="font-size:22px;font-weight:700;color:var(--text);margin:6px 0 4px">Qui fait la demande ?</div>
+          <div class="wz-card-sub" style="margin-bottom:24px">Identification du demandeur et de la marque concernée.</div>
+          ${marqueHtml}
+          <div class="field-row" style="margin-top:4px">
+            ${this.field(fDept)}
+            ${this.field(fRef)}
+          </div>
+          ${fResto ? this.field(fResto) : ''}
+          ${fAlt   ? this.field(fAlt)   : ''}
         </div>
-        ${this.field(fMarque)}
-        <div class="field-row">
-          ${this.field(fDept)}
-          ${this.field(fRef)}
+        <div class="wz-step1-col wz-card">
+          <div class="wz-step1-type-header">
+            <svg viewBox="0 0 20 20" fill="none" class="wz-step1-type-icon"><path d="M9 5H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-5M13 3l4 4-6 6H7v-4l6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <div>
+              <div class="wz-step1-type-title">Type de demande</div>
+              <div class="wz-card-sub">Choisissez la catégorie qui correspond le mieux à votre besoin.</div>
+            </div>
+          </div>
+          <div class="type-card-grid">${typeCards}</div>
+          ${type ? `<div style="margin-top:16px">${subContent}</div>` : ''}
         </div>
-        ${fResto ? this.field(fResto) : ''}
-        ${fAlt   ? this.field(fAlt)   : ''}
-      </div>
-      <div class="wz-card">
-        <div class="wz-card-header">
-          <div class="wz-card-label">Type de demande</div>
-          <div class="wz-card-title">De quoi s'agit-il ?</div>
-          <div class="wz-card-sub">Choisissez la catégorie qui correspond le mieux à votre besoin.</div>
-        </div>
-        <div class="field">
-          <label class="field-label">Type de demande<span class="req">*</span></label>
-          <div class="card-grid">${typeCards}</div>
-        </div>
-        ${type ? `<div style="margin-top:16px">${subContent}</div>` : ''}
       </div>`;
   },
 
@@ -632,13 +660,35 @@ ${Recap.toHtml(r)}
       </div>`;
   },
 
+  aiAssistBar() {
+    return `
+      <div class="ai-bar" id="ai-bar">
+        <div class="ai-bar-left">
+          <div class="ai-bar-icon">
+            <svg viewBox="0 0 20 20" fill="none" width="20" height="20"><path d="M10 2l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11l-3.7 2.5 1.4-4.3L4 6.5h4.5L10 2z" fill="currentColor"/></svg>
+          </div>
+          <div class="ai-bar-meta">
+            <div class="ai-bar-label">Remplissage IA</div>
+            <div class="ai-bar-sub">Décrivez votre besoin, l'IA remplit le formulaire.</div>
+          </div>
+        </div>
+        <div class="ai-bar-body">
+          <input type="text" class="ai-bar-input" id="ai-prompt" placeholder="Ex : Post Instagram lancement B&W Smash Burger, 12,90€, mi-juin, urgent…" autocomplete="off">
+          <button class="ai-bar-btn" id="ai-fill-btn" title="Remplir le formulaire avec l'IA">
+            <span class="ai-bar-btn-text">✦ Remplir avec l'IA</span>
+          </button>
+        </div>
+      </div>`;
+  },
+
   renderWizardStep(step) {
+    const aiBar = step === 1 ? this.aiAssistBar() : '';
     switch (step) {
-      case 1: return this.wizardStep1();
+      case 1: return aiBar + this.wizardStep1();
       case 2: return this.wizardStep2();
       case 3: return this.wizardStep3();
       case 4: return this.wizardStep4();
-      default: return this.wizardStep1();
+      default: return aiBar + this.wizardStep1();
     }
   },
 

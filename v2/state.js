@@ -209,7 +209,7 @@ const State = {
      section 2 (Que faut-il créer), uniquement pour Campagne Marketing ── */
   getSupportsFields() {
     return [{
-      id: '__supports', label: 'Au moins un support sélectionné', type: 'virtual', gravity: 'blocking',
+      id: '__supports', label: 'Au moins un support sélectionné', type: 'virtual', gravity: 'recommended',
       virtualCheck: () => this.data.supportsSelected.length > 0
     }];
   },
@@ -218,11 +218,11 @@ const State = {
   getDeadlinesFields() {
     const fields = [...CONFIG.champsEtape4Deadlines];
     fields.push({
-      id: 'priorite', label: 'Niveau de priorité', type: 'pills', gravity: 'blocking'
+      id: 'priorite', label: 'Niveau de priorité', type: 'pills', gravity: 'recommended'
     });
     if (this.data.priorite === 'urgent') {
       fields.push({
-        id: 'raisonUrgence', label: 'Raison de l\'urgence', type: 'text', gravity: 'blocking'
+        id: 'raisonUrgence', label: 'Raison de l\'urgence', type: 'text', gravity: 'recommended'
       });
     }
     return fields;

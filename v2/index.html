@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -29,7 +29,19 @@
       <a class="snav-item" href="../dashboard.html"><i class="ti ti-list"></i><span>Demandes</span></a>
       <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
       <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
+      <div class="snav-sep"></div>
+      <div class="snav-section-label">Marques</div>
+      <div class="snav-brand-item"><span class="snav-brand-dot bnw">BW</span><span>Black &amp; White Burger</span></div>
+      <div class="snav-brand-item"><span class="snav-brand-dot mm">M</span><span>Maison Marquise</span></div>
+      <div class="snav-brand-item"><span class="snav-brand-dot autre">···</span><span>Autre / Multi-marques</span></div>
     </nav>
+    <div class="snav-user">
+      <div class="snav-user-av">KY</div>
+      <div class="snav-user-info">
+        <div class="snav-user-name">Karim Y.-Cherif</div>
+        <div class="snav-user-role">Brand Design Lead</div>
+      </div>
+    </div>
   </div>
 
   <!-- Overlay sidebar mobile -->
@@ -40,22 +52,24 @@
 
   <!-- ════════ HEADER ════════ -->
   <header class="hdr">
-    <div class="hdr-brand">
-      <div class="hdr-logo-icon">BW</div>
-      <div class="hdr-brand-text">
-        <span class="hdr-title">Brief Créatif</span>
-        <span class="hdr-sub">Studio Graphique — Multi-marques</span>
+    <div class="hdr-page-info">
+      <div class="hdr-page-icon">
+        <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </div>
+      <div class="hdr-page-title">Nouvelle demande</div>
+      <div class="hdr-page-sub">Créez une demande complète pour l'équipe créative.</div>
+    </div>
+    <div class="hdr-search-bar">
+      <svg viewBox="0 0 20 20" fill="none" class="hdr-search-icon"><circle cx="8.5" cy="8.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="hdr-search-text">Rechercher un brief, une marque…</span>
+      <kbd class="hdr-search-kbd">⌘ K</kbd>
     </div>
     <nav class="hdr-actions">
-      <a href="../dashboard.html" class="hdr-btn" title="Voir le dashboard">
-        <svg viewBox="0 0 20 20" fill="none"><path d="M3 13h3v4H3v-4zm5.5-5h3v9h-3V8zM14 4h3v13h-3V4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-        Dashboard
-      </a>
-      <button class="hdr-btn" id="btn-history">
-        <svg viewBox="0 0 20 20" fill="none"><path d="M10 5v5l3.5 2M17 10a7 7 0 1 1-2.05-4.95" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Historique
-        <span class="hdr-badge" id="hist-count">0</span>
+      <button class="hdr-icon-btn hdr-icon-notif" title="Notifications" aria-label="Notifications">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 0 1 6 6c0 3.5 1 4.5 1.5 5H2.5C3 13.5 4 12.5 4 8a6 6 0 0 1 6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 15a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <button class="hdr-icon-btn" title="Aide" aria-label="Aide">
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 14v.01M10 7a2 2 0 0 1 2 2c0 1.3-2 1.5-2 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
     </nav>
   </header>
@@ -266,11 +280,11 @@
 
   </div><!-- /.app-shell -->
 
-<script src="config.js"></script>
-<script src="state.js"></script>
-<script src="recap.js"></script>
-<script src="render.js"></script>
-<script src="gcal-sync.js"></script>
-<script src="app.js"></script>
+<script src="config.js?v=3"></script>
+<script src="state.js?v=3"></script>
+<script src="recap.js?v=2"></script>
+<script src="render.js?v=5"></script>
+<script src="gcal-sync.js?v=2"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

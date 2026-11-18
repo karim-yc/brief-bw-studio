@@ -35,6 +35,10 @@
     if (prevBtn) prevBtn.addEventListener('click', prevStep);
     if (nextBtn) nextBtn.addEventListener('click', nextStep);
 
+    // Wire AI fill button
+    const aiFillBtn = document.getElementById('ai-fill-btn');
+    if (aiFillBtn) aiFillBtn.addEventListener('click', claudeAIFill);
+
     // Wire inline submit button (step 4)
     const wzSubmit = document.getElementById('btn-wz-submit');
     if (wzSubmit) wzSubmit.addEventListener('click', submitBrief);
@@ -43,6 +47,7 @@
   /* ── Rendu complet ──────────────────────────────────────────── */
   function renderAll() {
     renderWizard();
+    updateAIChecklist();
   }
 
   /* ── Re-render léger (juste sidebar, pas tout le DOM) ─────────
@@ -78,10 +83,10 @@
   }
 
   /* Champs bloquants par étape wizard */
+  // Seuls marque + typeDemande génèrent un avertissement doux à la navigation
+  // (pas de blocage réel — navigation libre, A+B)
   const BLOCKING_FIELDS_BY_STEP = {
-    1: ['marque', 'dept', 'ref', 'typeDemande'],
-    2: ['description'],
-    3: ['dateLancement', 'priorite'],
+    1: ['marque', 'typeDemande'],
   };
 
   function validateStep(step) {
@@ -103,7 +108,20 @@
   }
 
   function nextStep() {
-    if (!validateStep(currentStep)) return;
+    // Navigation libre — pas de blocage inter-étapes
+    // Un avertissement doux si des champs recommandés sont vides
+    const fields = BLOCKING_FIELDS_BY_STEP[currentStep] || [];
+    const missing = fields.filter(id => !State.isFieldFilled({ id, gravity: 'blocking' }));
+    if (missing.length) {
+      missing.forEach(id => {
+        const wrap = document.querySelector(`[data-field-wrap="${id}"]`);
+        if (wrap) {
+          wrap.classList.add('field-error-shake');
+          wrap.addEventListener('animationend', () => wrap.classList.remove('field-error-shake'), { once: true });
+        }
+      });
+      showToast('Certains champs sont incomplets — vous pouvez continuer ou les compléter plus tard', 'warning');
+    }
     goToStep(currentStep + 1);
   }
   function prevStep() { goToStep(currentStep - 1); }
@@ -658,11 +676,11 @@
     });
   }
 
-  function showToast(msg) {
+  function showToast(msg, type) {
     const t = document.getElementById('toast');
     t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
+    t.className = 'toast show' + (type ? ' toast-' + type : '');
+    setTimeout(() => t.classList.remove('show'), 3500);
   }
 
   /* ════════════════════════════════════════════════════════════
@@ -893,6 +911,137 @@
     }
   }
 
+  /* ════════════════════════════════════════════════════════════
+     CLAUDE AI FILL
+     ════════════════════════════════════════════════════════════ */
+  async function claudeAIFill() {
+    const btn = document.getElementById('ai-fill-btn');
+    const input = document.getElementById('ai-prompt');
+    if (!input || !btn) return;
+
+    const prompt = input.value.trim();
+    if (!prompt) {
+      input.focus();
+      input.classList.add('field-error-shake');
+      input.addEventListener('animationend', () => input.classList.remove('field-error-shake'), { once: true });
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="ai-bar-btn-text ai-bar-loading"><span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span></span>';
+
+    try {
+      const res = await fetch('https://hook.eu1.make.com/5emqjw5lq3wmc9s2yvwhowipl73ek6d1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      if (!res.ok) throw new Error('Erreur réseau ' + res.status);
+
+      let raw = await res.text();
+      // Extraire le JSON si Claude a ajouté du texte autour
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('Réponse invalide');
+      const data = JSON.parse(match[0]);
+
+      // Mapper les champs vers State.data
+      const mapping = {
+        marque: ['bnw','marquise','autre'],
+        typeDemande: ['campagne','packaging','vitrophanie','autre'],
+        description: null,
+        accroche: null,
+        nomProduit: null,
+        prix: null,
+        mentions: null,
+        dateLancement: null,
+        priorite: ['normal','prioritaire','urgent'],
+      };
+
+      let filled = 0;
+      Object.keys(mapping).forEach(key => {
+        const val = data[key];
+        if (!val || typeof val !== 'string' || !val.trim()) return;
+        const allowed = mapping[key];
+        if (allowed && !allowed.includes(val)) return;
+        State.data[key] = val.trim();
+        filled++;
+      });
+
+      // Supports (tableau)
+      if (Array.isArray(data.supports) && data.supports.length) {
+        const validIds = CONFIG.supports.map(s => s.id);
+        State.data.supportsSelected = data.supports.filter(s => validIds.includes(s));
+        if (State.data.supportsSelected.length) filled++;
+      }
+
+      scheduleSave();
+      renderAll();
+
+      if (filled > 0) {
+        showToast(`✨ ${filled} champ${filled > 1 ? 's' : ''} pré-rempli${filled > 1 ? 's' : ''} — vérifiez et complétez`, 'success');
+        showAIChecklist();
+      } else {
+        showToast("Aucun champ reconnu — essayez d'être plus précis", 'warning');
+      }
+    } catch (e) {
+      console.warn('[AI Fill]', e);
+      showToast("Impossible de contacter l'IA — réessayez dans un instant", 'warning');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="ai-bar-btn-text">✨ Remplir</span>';
+    }
+  }
+
+  // true quand le checklist a été affiché au moins une fois (et pas fermé manuellement)
+  let aiChecklistActive = false;
+
+  function showAIChecklist() {
+    const { blocking } = State.getAllIssues();
+    if (!blocking.length) return;
+    aiChecklistActive = true;
+    updateAIChecklist();
+  }
+
+  function updateAIChecklist() {
+    if (!aiChecklistActive) return;
+
+    const aiBar = document.getElementById('ai-bar');
+    if (!aiBar) return; // pas sur step 1
+
+    const { blocking } = State.getAllIssues();
+    if (!blocking.length) {
+      aiChecklistActive = false;
+      const old = document.getElementById('ai-checklist');
+      if (old) old.remove();
+      return;
+    }
+
+    // Injecter ou mettre à jour
+    let el = document.getElementById('ai-checklist');
+    const chips = blocking.map(({ field }) =>
+      `<button type="button" class="ai-cl-chip" data-goto-field="${field.id}">${field.label || field.id} →</button>`
+    ).join('');
+
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'ai-checklist';
+      el.className = 'ai-checklist';
+      el.innerHTML = `
+        <span class="ai-cl-label">Champs à compléter&nbsp;:</span>
+        <div class="ai-cl-chips">${chips}</div>
+        <button type="button" class="ai-cl-close" id="ai-cl-close" title="Fermer">×</button>`;
+      aiBar.insertAdjacentElement('afterend', el);
+      document.getElementById('ai-cl-close').addEventListener('click', () => {
+        aiChecklistActive = false;
+        el.remove();
+      });
+    } else {
+      const c = el.querySelector('.ai-cl-chips');
+      if (c) c.innerHTML = chips;
+    }
+  }
+
   function init() {
     // Duplication depuis le dashboard (Pépite 3)
     if (new URLSearchParams(location.search).get('dupe') === '1') {
@@ -930,7 +1079,8 @@
     }
 
     const hist = State.getHistory();
-    document.getElementById('hist-count').textContent = hist.length;
+    const histCountEl = document.getElementById('hist-count');
+    if (histCountEl) histCountEl.textContent = hist.length;
 
     renderAll();
     initRTE();
@@ -1515,6 +1665,9 @@ Il restera accessible dans le dashboard.`)) {
     }
   });
 
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => {
+    try { init(); }
+    catch(e) { console.error('INIT ERROR:', e.message, e.stack); }
+  });
 
 })();
