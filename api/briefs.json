@@ -1,7 +1,17 @@
 {
   "ok": true,
-  "count": 0,
-  "updatedAt": "2026-11-17T00:00:00Z",
-  "source": "github-static",
-  "briefs": []
+  "count": 1,
+  "updatedAt": "2026-11-18T10:36:51Z",
+  "source": "github-action",
+  "briefs": [
+    {
+      "briefId": "BW-TEST-DISPATCH",
+      "demandeur": "Test",
+      "departement": "Marketing",
+      "priorite": "normal",
+      "statut": "soumis",
+      "submittedAt": "2026-11-18T12:00:00Z",
+      "typeDemande": "campagne"
+    }
+  ]
 }
