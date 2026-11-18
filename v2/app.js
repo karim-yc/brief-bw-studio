@@ -639,6 +639,23 @@
       }
 
       console.log('[BW Supabase] ✓ Brief inséré —', recap.briefId);
+
+      // Notification email directe (pg_net non fiable sur plan gratuit)
+      const NOTIF_URL = 'https://script.google.com/macros/s/AKfycbxdmDrKFqB6k_ZL3IL1AzSMUJ3PgkSjAx7buacI0SWPMPW_AEDFeFaK7zJR00ocezN9/exec';
+      fetch(NOTIF_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          briefId:     recap.briefId,
+          marque:      recap.marque || '',
+          departement: recap.departement || '',
+          demandeur:   recap.demandeur || '',
+          priorite:    recap.priorite || '',
+          submittedAt: recap.submittedAt || new Date().toISOString()
+        })
+      }).then(() => console.log('[BW Notif] ✓ Email déclenché'))
+        .catch(err => console.warn('[BW Notif] Email non envoyé:', err.message));
+
       return;
     }
 
