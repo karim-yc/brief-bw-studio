@@ -779,6 +779,57 @@ body { overflow-x: hidden; max-width: 100vw; }
 .monday-loading .sk{height:10px;border-radius:4px;background:#f0f0f4;animation:sk-pulse 1.2s infinite}
 .monday-delay-note{padding:8px 18px;background:#fef9c3;border-top:1px solid #fde68a;font-size:10.5px;color:#92400e;display:flex;align-items:center;gap:6px}
 @keyframes sk-pulse{0%,100%{opacity:.6}50%{opacity:.25}}
+
+/* ── Gmail section ─────────────────────────────────────────── */
+.gmail-section{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-card)}
+.gmail-header{padding:12px 18px;background:linear-gradient(135deg,#EA4335,#FBBC04 80%,#EA4335);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gmail-header h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:7px}
+.gmail-refresh-btn{background:rgba(255,255,255,.18);border:none;color:#fff;font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:background .15s}
+.gmail-refresh-btn:hover{background:rgba(255,255,255,.3)}
+.gmail-thread{display:flex;align-items:flex-start;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .12s;text-decoration:none;color:inherit}
+.gmail-thread:last-child{border-bottom:none}
+.gmail-thread:hover{background:var(--hover)}
+.gmail-thread.unread .gmail-thread-subject{font-weight:700;color:var(--text)}
+.gmail-thread.unread .gmail-thread-from{font-weight:600}
+.gmail-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#EA4335,#FBBC04);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;text-transform:uppercase}
+.gmail-thread-body{flex:1;min-width:0}
+.gmail-thread-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px}
+.gmail-thread-from{font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.gmail-thread-date{font-size:10.5px;color:var(--text-tertiary);flex-shrink:0;white-space:nowrap}
+.gmail-thread-subject{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.gmail-thread-snippet{font-size:11px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gmail-thread-badges{display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap}
+.gmail-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap}
+.gb-unread{background:#EEF2FF;color:#4F46E5}
+.gb-attach{background:#F3F4F6;color:#6B7280}
+.gb-cnt{background:#F3F4F6;color:#6B7280}
+.gmail-unread-dot{width:7px;height:7px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:5px}
+.gmail-setup{padding:24px 18px;text-align:center;color:var(--text-tertiary);font-size:12px}
+.gmail-setup i{font-size:28px;display:block;margin-bottom:8px;opacity:.4}
+.gmail-setup-btn{margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--indigo);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none}
+
+/* ── WhatsApp section ──────────────────────────────────────── */
+.wa-section{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-card)}
+.wa-header{padding:12px 18px;background:linear-gradient(135deg,#128C7E,#25D366);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wa-header h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:7px}
+.wa-refresh-btn{background:rgba(255,255,255,.18);border:none;color:#fff;font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:background .15s}
+.wa-refresh-btn:hover{background:rgba(255,255,255,.3)}
+.wa-msg{display:flex;align-items:flex-start;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .12s}
+.wa-msg:last-child{border-bottom:none}
+.wa-msg:hover{background:var(--hover)}
+.wa-msg.unread .wa-msg-name{font-weight:700}
+.wa-msg.unread .wa-msg-text{color:var(--text)}
+.wa-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#128C7E,#25D366);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;text-transform:uppercase}
+.wa-msg-body{flex:1;min-width:0}
+.wa-msg-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}
+.wa-msg-name{font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.wa-msg-time{font-size:10.5px;color:var(--text-tertiary);flex-shrink:0}
+.wa-msg-text{font-size:11.5px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wa-unread-cnt{min-width:18px;height:18px;background:#25D366;color:#fff;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;flex-shrink:0;margin-top:2px}
+.wa-setup{padding:24px 18px;text-align:center;color:var(--text-tertiary);font-size:12px}
+.wa-setup i{font-size:28px;display:block;margin-bottom:8px;opacity:.4;color:#25D366}
+.wa-setup-steps{text-align:left;display:inline-block;margin:8px auto 0;font-size:11px;line-height:2}
+.wa-step-badge{display:inline-block;width:16px;height:16px;border-radius:50%;background:#25D366;color:#fff;font-size:8px;font-weight:700;text-align:center;line-height:16px;margin-right:6px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -958,6 +1009,53 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="monday-delay-note" id="monday-delay-note" style="display:none">
       <i class="ti ti-clock" style="font-size:12px"></i>
       Synchronisation via GitHub Actions · délai ~15 min · dernière mise à jour : <span id="monday-delay-ts">—</span>
+    </div>
+  </div>
+
+  <!-- GMAIL THREADS -->
+  <div class="gmail-section" id="gmail-section">
+    <div class="gmail-header">
+      <h2>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke="white" stroke-width="2" fill="none"/><path d="M2 6L12 13L22 6" stroke="white" stroke-width="2"/></svg>
+        Boîte de réception
+      </h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:10px;color:rgba(255,255,255,.65)" id="gmail-updated">—</span>
+        <button class="gmail-refresh-btn" onclick="fetchGmailThreads()"><i class="ti ti-refresh" style="font-size:12px"></i> Actualiser</button>
+      </div>
+    </div>
+    <div id="gmail-body">
+      <div class="gmail-setup">
+        <i class="ti ti-mail"></i>
+        <strong>Gmail non configuré</strong><br>
+        <span style="font-size:11px;opacity:.7">Configure le Google Apps Script pour voir tes emails ici</span><br>
+        <a class="gmail-setup-btn" href="https://script.google.com" target="_blank"><i class="ti ti-brand-google" style="font-size:12px"></i> Ouvrir Apps Script</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP MESSAGES -->
+  <div class="wa-section" id="wa-section">
+    <div class="wa-header">
+      <h2>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.113.552 4.094 1.516 5.812L.057 23.428a.75.75 0 00.914.916l5.78-1.49A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.655-.49-5.197-1.348l-.37-.214-3.833.987.998-3.74-.232-.381A9.955 9.955 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        WhatsApp Business
+      </h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:10px;color:rgba(255,255,255,.65)" id="wa-updated">—</span>
+        <button class="wa-refresh-btn" onclick="fetchWhatsAppMessages()"><i class="ti ti-refresh" style="font-size:12px"></i> Actualiser</button>
+      </div>
+    </div>
+    <div id="wa-body">
+      <div class="wa-setup">
+        <i class="ti ti-brand-whatsapp"></i>
+        <strong>WhatsApp Business non configuré</strong><br>
+        <div class="wa-setup-steps">
+          <div><span class="wa-step-badge">1</span>Connecte ton numéro à l'API Meta Cloud</div>
+          <div><span class="wa-step-badge">2</span>Configure le webhook Make.com (ou GitHub Action)</div>
+          <div><span class="wa-step-badge">3</span>Ajoute <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px">WA_WEBHOOK_URL</code> dans les secrets GitHub</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2705,6 +2803,129 @@ function requestNotifPermission() {
   }
 }
 
+/* ── Gmail ────────────────────────────────────────────────── */
+// Colle ici l'URL de ton Apps Script une fois déployé
+const GMAIL_SCRIPT_URL = '';
+const GMAIL_RAW_URL = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/gmail-threads.json';
+
+async function fetchGmailThreads() {
+  const body = G('gmail-body');
+  const tsEl = G('gmail-updated');
+  if (!body) return;
+
+  body.innerHTML = '<div style="padding:16px 18px;display:flex;gap:10px;color:var(--text-tertiary);font-size:12px"><div class="sk" style="height:10px;width:200px;border-radius:4px;background:#f0f0f4;animation:sk-pulse 1.2s infinite"></div></div>';
+
+  const url = GMAIL_SCRIPT_URL || GMAIL_RAW_URL + '?t=' + Date.now();
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+
+    if (tsEl) {
+      const ts = d.updatedAt ? new Date(d.updatedAt).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+      tsEl.textContent = ts;
+    }
+
+    if (d.source === 'pending-setup' || !d.threads || d.threads.length === 0) {
+      body.innerHTML = `<div class="gmail-setup"><i class="ti ti-mail"></i><strong>Gmail non configuré</strong><br><span style="font-size:11px;opacity:.7">Configure le Google Apps Script pour voir tes emails ici</span><br><a class="gmail-setup-btn" href="https://script.google.com" target="_blank"><i class="ti ti-brand-google" style="font-size:12px"></i> Ouvrir Apps Script</a></div>`;
+      return;
+    }
+
+    const now = new Date();
+    body.innerHTML = d.threads.slice(0, 10).map(t => {
+      const date = new Date(t.date);
+      const diffH = (now - date) / 36e5;
+      const dateStr = diffH < 24
+        ? date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
+        : diffH < 168
+          ? date.toLocaleDateString('fr-FR',{weekday:'short'})
+          : date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+
+      const initials = (t.fromName||t.fromEmail||'?').split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+      const unreadCls = t.isUnread ? ' unread' : '';
+
+      const badges = [
+        t.isUnread ? '<span class="gmail-badge gb-unread">Non lu</span>' : '',
+        t.hasAttachment ? '<span class="gmail-badge gb-attach"><i class="ti ti-paperclip" style="font-size:9px"></i> PJ</span>' : '',
+        t.messageCount > 1 ? `<span class="gmail-badge gb-cnt">${t.messageCount}</span>` : '',
+      ].filter(Boolean).join('');
+
+      return `<a class="gmail-thread${unreadCls}" href="${t.url}" target="_blank">
+        ${t.isUnread ? '<span class="gmail-unread-dot"></span>' : '<span style="width:7px;flex-shrink:0"></span>'}
+        <div class="gmail-av">${initials}</div>
+        <div class="gmail-thread-body">
+          <div class="gmail-thread-top">
+            <span class="gmail-thread-from">${t.fromName||t.fromEmail}</span>
+            <span class="gmail-thread-date">${dateStr}</span>
+          </div>
+          <div class="gmail-thread-subject">${t.subject||'(sans objet)'}</div>
+          ${t.snippet ? `<div class="gmail-thread-snippet">${t.snippet}</div>` : ''}
+          ${badges ? `<div class="gmail-thread-badges">${badges}</div>` : ''}
+        </div>
+      </a>`;
+    }).join('');
+
+    if (d.threads.length > 10) {
+      body.innerHTML += `<div style="padding:8px 18px;text-align:right;font-size:10.5px;color:var(--text-tertiary)">+ ${d.threads.length-10} thread${d.threads.length-10>1?'s':''} supplémentaire${d.threads.length-10>1?'s':''}</div>`;
+    }
+  } catch(e) {
+    body.innerHTML = '<div class="gmail-setup"><i class="ti ti-wifi-off"></i>Impossible de charger les emails</div>';
+    console.warn('[Gmail] fetch error', e);
+  }
+}
+
+/* ── WhatsApp ──────────────────────────────────────────────── */
+const WA_RAW_URL = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/whatsapp-messages.json';
+
+async function fetchWhatsAppMessages() {
+  const body = G('wa-body');
+  const tsEl = G('wa-updated');
+  if (!body) return;
+
+  try {
+    const r = await fetch(WA_RAW_URL + '?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+
+    if (tsEl) {
+      const ts = d.updatedAt ? new Date(d.updatedAt).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+      tsEl.textContent = ts;
+    }
+
+    if (d.source === 'pending-setup' || !d.messages || d.messages.length === 0) {
+      body.innerHTML = `<div class="wa-setup"><i class="ti ti-brand-whatsapp"></i><strong>WhatsApp Business non configuré</strong><br><div class="wa-setup-steps"><div><span class="wa-step-badge">1</span>Connecte ton numéro à l'API Meta Cloud</div><div><span class="wa-step-badge">2</span>Configure le webhook Make.com (ou GitHub Action)</div><div><span class="wa-step-badge">3</span>Ajoute <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px">WA_WEBHOOK_URL</code> dans les secrets GitHub</div></div></div>`;
+      return;
+    }
+
+    const now = new Date();
+    body.innerHTML = d.messages.slice(0, 10).map(m => {
+      const date = new Date(m.timestamp);
+      const diffH = (now - date) / 36e5;
+      const timeStr = diffH < 24
+        ? date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
+        : date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+
+      const initials = (m.from_name||m.from||'?').split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+      const unreadCls = m.unread ? ' unread' : '';
+
+      return `<div class="wa-msg${unreadCls}">
+        <div class="wa-av">${initials}</div>
+        <div class="wa-msg-body">
+          <div class="wa-msg-top">
+            <span class="wa-msg-name">${m.from_name||m.from||'Inconnu'}</span>
+            <span class="wa-msg-time">${timeStr}</span>
+          </div>
+          <div class="wa-msg-text">${m.body||'—'}</div>
+        </div>
+        ${m.unread_count > 0 ? `<span class="wa-unread-cnt">${m.unread_count}</span>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    body.innerHTML = '<div class="wa-setup"><i class="ti ti-wifi-off"></i>Impossible de charger les messages WhatsApp</div>';
+    console.warn('[WhatsApp] fetch error', e);
+  }
+}
+
 /* ── Monday.com tasks ─────────────────────────────────────── */
 const MONDAY_API = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/monday-tasks.json';
 
@@ -2778,6 +2999,8 @@ async function fetchMondayTasks() {
 }
 
 fetchMondayTasks();
+fetchGmailThreads();
+fetchWhatsAppMessages();
 
 // Init
 loadData();
