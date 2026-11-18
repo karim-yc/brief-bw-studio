@@ -644,7 +644,8 @@
       const NOTIF_URL = 'https://script.google.com/macros/s/AKfycbxdmDrKFqB6k_ZL3IL1AzSMUJ3PgkSjAx7buacI0SWPMPW_AEDFeFaK7zJR00ocezN9/exec';
       fetch(NOTIF_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({
           briefId:     recap.briefId,
           marque:      recap.marque || '',
