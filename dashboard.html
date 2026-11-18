@@ -743,6 +743,42 @@ body { overflow-x: hidden; max-width: 100vw; }
 .ksd-simulation{background:#8b5cf6}
 .ksd-valide{background:#22c55e}
 .ksd-livre{background:#374151}
+
+/* ── Monday.com tasks section ──────────────────────────── */
+.monday-section{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-card)}
+.monday-header{padding:12px 18px;background:linear-gradient(135deg,#F62B54,#FF4D6A);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.monday-header h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:7px}
+.monday-logo{width:18px;height:18px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.monday-logo svg{width:12px;height:12px}
+.monday-meta{font-size:10px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:5px}
+.monday-meta .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5)}
+.monday-status-badge{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;white-space:nowrap}
+.monday-refresh-btn{background:rgba(255,255,255,.18);border:none;color:#fff;font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:background .15s}
+.monday-refresh-btn:hover{background:rgba(255,255,255,.3)}
+.monday-body{padding:0}
+.monday-task{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .12s}
+.monday-task:last-child{border-bottom:none}
+.monday-task:hover{background:var(--hover)}
+.monday-task-status{width:10px;height:10px;border-radius:3px;flex-shrink:0;border:1.5px solid currentColor}
+.mts-done{background:#00C875;border-color:#00C875;color:#00C875}
+.mts-in_progress{background:#FDBC64;border-color:#FDBC64;color:#FDBC64}
+.mts-stuck{background:#E44258;border-color:#E44258;color:#E44258}
+.mts-none{background:transparent;border-color:#C5C7D4}
+.monday-task-name{flex:1;font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.monday-task-board{font-size:10.5px;color:var(--text-secondary);white-space:nowrap}
+.monday-task-deadline{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.mtd-late{background:#fee2e2;color:#991b1b}
+.mtd-soon{background:#fef3c7;color:#92400e}
+.mtd-ok{background:#dcfce7;color:#166534}
+.mtd-none{color:var(--text-tertiary);padding:0;font-weight:400}
+.monday-task-link{color:var(--text-tertiary);font-size:14px;flex-shrink:0;text-decoration:none;opacity:.5;transition:opacity .15s}
+.monday-task-link:hover{opacity:1;color:var(--indigo)}
+.monday-empty{padding:24px 18px;text-align:center;color:var(--text-tertiary);font-size:12px}
+.monday-empty i{font-size:24px;display:block;margin-bottom:6px;opacity:.35}
+.monday-loading{padding:20px 18px;display:flex;align-items:center;gap:10px;color:var(--text-tertiary);font-size:12px}
+.monday-loading .sk{height:10px;border-radius:4px;background:#f0f0f4;animation:sk-pulse 1.2s infinite}
+.monday-delay-note{padding:8px 18px;background:#fef9c3;border-top:1px solid #fde68a;font-size:10.5px;color:#92400e;display:flex;align-items:center;gap:6px}
+@keyframes sk-pulse{0%,100%{opacity:.6}50%{opacity:.25}}
 </style>
 </head>
 <body>
@@ -892,6 +928,36 @@ body { overflow-x: hidden; max-width: 100vw; }
         <div class="pd-bars-hd">Répartition</div>
         <div id="pd-bars"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- MONDAY.COM TASKS -->
+  <div class="monday-section" id="monday-section">
+    <div class="monday-header">
+      <h2>
+        <span class="monday-logo">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="4" cy="12" r="3" fill="#F62B54"/>
+            <circle cx="12" cy="12" r="3" fill="#FDBC64"/>
+            <circle cx="20" cy="12" r="3" fill="#00C875"/>
+          </svg>
+        </span>
+        Mes tâches Monday
+      </h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="monday-meta" id="monday-meta"><span class="dot"></span><span id="monday-updated">—</span></span>
+        <button class="monday-refresh-btn" onclick="fetchMondayTasks()"><i class="ti ti-refresh" style="font-size:12px"></i> Actualiser</button>
+      </div>
+    </div>
+    <div id="monday-body" class="monday-body">
+      <div class="monday-loading">
+        <div class="sk" style="width:220px"></div>
+        <div class="sk" style="width:120px"></div>
+      </div>
+    </div>
+    <div class="monday-delay-note" id="monday-delay-note" style="display:none">
+      <i class="ti ti-clock" style="font-size:12px"></i>
+      Synchronisation via GitHub Actions · délai ~15 min · dernière mise à jour : <span id="monday-delay-ts">—</span>
     </div>
   </div>
 
@@ -2638,6 +2704,80 @@ function requestNotifPermission() {
     Notification.requestPermission();
   }
 }
+
+/* ── Monday.com tasks ─────────────────────────────────────── */
+const MONDAY_API = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/monday-tasks.json';
+
+async function fetchMondayTasks() {
+  const body = G('monday-body');
+  const meta = G('monday-meta');
+  const delayNote = G('monday-delay-note');
+  if (!body) return;
+
+  body.innerHTML = '<div class="monday-loading"><div class="sk" style="width:220px"></div><div class="sk" style="width:120px"></div></div>';
+
+  try {
+    const r = await fetch(MONDAY_API + '?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+
+    const ts = d.updatedAt ? new Date(d.updatedAt).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+    if (meta) {
+      const sp = meta.querySelector('#monday-updated');
+      if (sp) sp.textContent = ts;
+    }
+    if (delayNote) {
+      const dtEl = G('monday-delay-ts');
+      if (dtEl) dtEl.textContent = ts;
+      delayNote.style.display = 'flex';
+    }
+
+    const tasks = d.tasks || [];
+    if (tasks.length === 0) {
+      if (d.source === 'pending-setup') {
+        body.innerHTML = '<div class="monday-empty"><i class="ti ti-brand-monday"></i>En attente de configuration<br><span style="font-size:10.5px;opacity:.7;display:block;margin-top:4px">Ajoute le secret <strong>MONDAY_API_TOKEN</strong> dans GitHub pour activer la sync</span></div>';
+      } else {
+        body.innerHTML = '<div class="monday-empty"><i class="ti ti-checklist"></i>Aucune tâche assignée en cours</div>';
+      }
+      return;
+    }
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const in3d = new Date(today); in3d.setDate(in3d.getDate()+3);
+
+    body.innerHTML = tasks.slice(0, 12).map(t => {
+      const statusClass = { done:'mts-done', in_progress:'mts-in_progress', stuck:'mts-stuck', none:'mts-none' }[t.status_norm] || 'mts-none';
+
+      let deadlineHtml = '<span class="monday-task-deadline mtd-none">—</span>';
+      if (t.deadline) {
+        const d2 = new Date(t.deadline); d2.setHours(0,0,0,0);
+        const dCls = d2 < today ? 'mtd-late' : d2 <= in3d ? 'mtd-soon' : 'mtd-ok';
+        const dLbl = d2 < today ? 'En retard' : d2.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+        deadlineHtml = `<span class="monday-task-deadline ${dCls}">${dLbl}</span>`;
+      }
+
+      const linkHtml = t.url ? `<a class="monday-task-link" href="${t.url}" target="_blank" title="Ouvrir dans Monday"><i class="ti ti-external-link"></i></a>` : '';
+
+      return `<div class="monday-task">
+        <span class="monday-task-status ${statusClass}" title="${t.status||''}"></span>
+        <span class="monday-task-name" title="${t.name||''}">${t.name||'—'}</span>
+        <span class="monday-task-board">${t.board_name||''}</span>
+        ${deadlineHtml}
+        ${linkHtml}
+      </div>`;
+    }).join('');
+
+    if (tasks.length > 12) {
+      body.innerHTML += `<div class="monday-empty" style="padding:8px 18px;text-align:right;font-size:10.5px">+ ${tasks.length-12} tâche${tasks.length-12>1?'s':''} supplémentaire${tasks.length-12>1?'s':''}</div>`;
+    }
+
+  } catch(e) {
+    body.innerHTML = '<div class="monday-empty"><i class="ti ti-wifi-off"></i>Impossible de charger les tâches Monday</div>';
+    console.warn('[Monday] fetch error', e);
+  }
+}
+
+fetchMondayTasks();
 
 // Init
 loadData();

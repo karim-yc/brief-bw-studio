@@ -1,0 +1,206 @@
+name: Sync Monday.com tasks
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # toutes les 15 minutes
+  workflow_dispatch:           # déclenchement manuel
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Monday.com tasks
+        run: |
+          python3 << 'PYEOF'
+          import json, os, urllib.request, urllib.error
+          from datetime import datetime, timezone
+
+          token = os.environ.get('MONDAY_API_TOKEN', '')
+          if not token:
+              print('⚠ MONDAY_API_TOKEN non défini — skip')
+              exit(0)
+
+          query = """
+          {
+            me {
+              id
+              name
+            }
+            boards(limit: 20, order_by: used_at) {
+              id
+              name
+              state
+              items_page(limit: 100) {
+                items {
+                  id
+                  name
+                  state
+                  created_at
+                  updated_at
+                  url
+                  board { id name }
+                  group { id title }
+                  column_values {
+                    id
+                    text
+                    value
+                    type
+                  }
+                  subitems {
+                    id
+                    name
+                    state
+                  }
+                }
+              }
+            }
+          }
+          """
+
+          payload = json.dumps({"query": query}).encode()
+          req = urllib.request.Request(
+              'https://api.monday.com/v2',
+              data=payload,
+              headers={
+                  'Content-Type': 'application/json',
+                  'Authorization': token,
+                  'API-Version': '2024-01',
+              }
+          )
+
+          try:
+              with urllib.request.urlopen(req, timeout=20) as resp:
+                  data = json.loads(resp.read())
+          except urllib.error.URLError as e:
+              print(f'❌ Erreur réseau Monday: {e}')
+              exit(1)
+
+          if 'errors' in data:
+              print(f'❌ Erreur API Monday: {data["errors"]}')
+              exit(1)
+
+          me_id = str(data['data']['me']['id'])
+          me_name = data['data']['me']['name']
+          print(f'✅ Connecté en tant que : {me_name} (id={me_id})')
+
+          boards = data['data'].get('boards', [])
+          tasks = []
+
+          STATUS_COLORS = {
+              'done':       'done',
+              'completed':  'done',
+              'terminé':    'done',
+              'in progress':'in_progress',
+              'en cours':   'in_progress',
+              'stuck':      'stuck',
+              'bloqué':     'stuck',
+              '':           'none',
+          }
+
+          for board in boards:
+              if board.get('state') == 'deleted':
+                  continue
+              board_name = board['name']
+              items = board.get('items_page', {}).get('items', [])
+              for item in items:
+                  if item.get('state') == 'deleted':
+                      continue
+
+                  # Chercher si assigné à moi
+                  assigned_to_me = False
+                  status_text = ''
+                  priority_text = ''
+                  deadline = ''
+                  timeline_end = ''
+
+                  for col in item.get('column_values', []):
+                      col_id   = col.get('id', '').lower()
+                      col_type = col.get('type', '').lower()
+                      col_text = col.get('text', '') or ''
+                      col_val  = col.get('value', '') or ''
+
+                      # Colonne assigné (people)
+                      if col_type == 'multiple-person' or col_id in ('person', 'people', 'owner', 'assigned'):
+                          if me_id in str(col_val):
+                              assigned_to_me = True
+
+                      # Statut
+                      if col_type == 'color' or col_id in ('status', 'statut', 'etat', 'état'):
+                          status_text = col_text
+
+                      # Priorité
+                      if col_id in ('priority', 'priorite', 'priorité', 'prio'):
+                          priority_text = col_text
+
+                      # Date / deadline
+                      if col_type == 'date' or col_id in ('date', 'deadline', 'due_date', 'echeance', 'échéance'):
+                          if col_text:
+                              deadline = col_text
+
+                      # Timeline
+                      if col_type == 'timerange' or col_id in ('timeline', 'planning'):
+                          try:
+                              v = json.loads(col_val)
+                              timeline_end = v.get('to', '')
+                          except Exception:
+                              pass
+
+                  if not assigned_to_me:
+                      continue
+
+                  status_norm = STATUS_COLORS.get(status_text.lower(), 'none')
+
+                  tasks.append({
+                      'id':           item['id'],
+                      'name':         item['name'],
+                      'board_id':     board['id'],
+                      'board_name':   board_name,
+                      'group':        item.get('group', {}).get('title', ''),
+                      'status':       status_text,
+                      'status_norm':  status_norm,
+                      'priority':     priority_text,
+                      'deadline':     deadline or timeline_end,
+                      'url':          item.get('url', ''),
+                      'updated_at':   item.get('updated_at', ''),
+                      'created_at':   item.get('created_at', ''),
+                      'subitems_count': len(item.get('subitems', [])),
+                  })
+
+          # Trier : stuck > in_progress > none > done, puis par deadline
+          order = {'stuck': 0, 'in_progress': 1, 'none': 2, 'done': 3}
+          tasks.sort(key=lambda t: (order.get(t['status_norm'], 2), t['deadline'] or 'zzz'))
+
+          output = {
+              'ok': True,
+              'count': len(tasks),
+              'updatedAt': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+              'source': 'github-action-monday',
+              'user': me_name,
+              'user_id': me_id,
+              'tasks': tasks,
+          }
+
+          with open('api/monday-tasks.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, ensure_ascii=False, indent=2)
+
+          print(f'📋 monday-tasks.json : {len(tasks)} tâches assignées à {me_name}')
+          PYEOF
+        env:
+          MONDAY_API_TOKEN: ${{ secrets.MONDAY_API_TOKEN }}
+
+      - name: Commit and push
+        run: |
+          git config user.email "bw-brief-bot@github.com"
+          git config user.name "BW Brief Bot"
+          git add api/monday-tasks.json
+          if git diff --cached --quiet; then
+            echo "Pas de changement"
+          else
+            git commit -m "auto: sync monday tasks [skip ci]"
+            git push
+          fi
