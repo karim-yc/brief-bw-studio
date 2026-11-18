@@ -1264,7 +1264,11 @@
               console.warn('[BW Hist] rows vide ou invalide:', JSON.stringify(rawRows).slice(0,150));
             }
           } catch(parseErr) { console.error('[BW Hist] Parse erreur:', parseErr.message, text.slice(0,200)); }
-        } else { console.warn('[BW Hist] Make API → réponse HTML ou vide'); sheetStatus = 'html'; }
+        } else {
+          const isHtml = text.trim().startsWith('<');
+          console.warn('[BW Hist] Make API → réponse non-JSON:', JSON.stringify(text.trim().slice(0,80)), '| isHtml:', isHtml);
+          sheetStatus = isHtml ? 'html' : 'network'; // 'html' bloque CSV, 'network' laisse passer
+        }
       }
     } catch(e) { console.warn('[BW Hist] Make API error:', e.message); }
 
