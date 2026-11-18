@@ -708,6 +708,7 @@ body { overflow-x: hidden; max-width: 100vw; }
 .kpi-icon-orange{background:rgba(234,88,12,.1);color:#ea580c}
 .kpi-icon-red{background:rgba(220,38,38,.1);color:var(--urgent)}
 .kpi-icon-green{background:rgba(16,185,129,.1);color:#10b981}
+.bt-complete-badge{display:inline-flex;align-items:center;font-size:9px;font-weight:600;color:#b45309;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;padding:0 4px;height:14px;margin-left:2px}
 .kpi-delta{font-size:11px;font-weight:600;padding:2px 6px;border-radius:20px;white-space:nowrap}
 .kpi-delta-up{background:rgba(220,38,38,.1);color:#dc2626}
 .kpi-delta-down{background:rgba(16,185,129,.1);color:#10b981}
@@ -722,7 +723,8 @@ body { overflow-x: hidden; max-width: 100vw; }
 .page-hdr-search-kbd{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0}
 .page-hdr-icon-btn{width:34px;height:34px;border:1px solid rgba(255,255,255,.18);border-radius:var(--r-sm);background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;font-size:15px;transition:background .15s;flex-shrink:0}
 .page-hdr-icon-btn:hover{background:rgba(255,255,255,.2);color:#fff}
-.notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:#ef4444;border:1.5px solid rgba(255,255,255,.25)}
+.notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:#ef4444;border:1.5px solid rgba(255,255,255,.25);display:none}
+.notif-dot.has-notif{display:block}
 @media(max-width:600px){.page-hdr-search{display:none}.page-hdr-icon-btn{display:none}}
 
 /* ── Charge bar icon ───────────────────────────────────── */
@@ -794,7 +796,7 @@ body { overflow-x: hidden; max-width: 100vw; }
         <input type="text" placeholder="Rechercher un brief, une marque…" id="hdr-search-input" oninput="fSearch=this.value;applyFilters()">
         <span class="page-hdr-search-kbd">⌘K</span>
       </div>
-      <button class="page-hdr-icon-btn" title="Notifications"><i class="ti ti-bell"></i><span class="notif-dot"></span></button>
+      <button class="page-hdr-icon-btn" id="notif-btn" title="Notifications" onclick="requestNotifPermission()"><i class="ti ti-bell"></i><span class="notif-dot" id="notif-dot"></span></button>
       <button class="page-hdr-icon-btn" title="Aide"><i class="ti ti-help"></i></button>
       <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
     </div>
@@ -1077,6 +1079,17 @@ function setSyncState(state, msg) {
 /* ── Chargement données ───────────────────────────────────── */
 let allBriefs=[], filteredBriefs=[], charts={};
 let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fMarque=new Set(), fRetard=false;
+
+// Init brand filter from ?brand= URL param or localStorage (P2 #09 / P3 #14)
+(function initBrandFilter() {
+  const urlBrand = new URLSearchParams(location.search).get('brand');
+  const savedBrand = urlBrand || (() => { try { return localStorage.getItem('bw_last_marque')||''; } catch(e){ return ''; } })();
+  if (savedBrand) {
+    fMarque = new Set([savedBrand]);
+    const sel = document.getElementById('filter-marque');
+    if (sel) sel.value = savedBrand;
+  }
+})();
 const MARQUES_LIST = [{id:'bnw',label:'Black & White Burger'},{id:'marquise',label:'Maison Marquise'},{id:'autre',label:'Autre'}];
 const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',autre:'m-autre'};
 
@@ -1287,7 +1300,11 @@ if(new URLSearchParams(location.search).has('debug')) {
 function onSelPeriode(v){fDays=parseInt(v);applyFilters();}
 function onSelType(v){fType=v?new Set([v]):new Set();applyFilters();}
 function onSelPrio(v){fPrio=v?new Set([v]):new Set();applyFilters();}
-function onSelMarque(v){fMarque=v?new Set([v]):new Set();applyFilters();}
+function onSelMarque(v){
+  fMarque=v?new Set([v]):new Set();
+  try { localStorage.setItem('bw_last_marque', v||''); } catch(e){}
+  applyFilters();
+}
 function onSelStatut(v){fStatut=v?new Set([v]):new Set();applyFilters();}
 
 function _syncResetBtn(){
@@ -1297,6 +1314,7 @@ function _syncResetBtn(){
 }
 function resetFilters(){
   fDays=0;fType=new Set();fPrio=new Set();fStatut=new Set();fMarque=new Set();fSearch='';
+  try { localStorage.removeItem('bw_last_marque'); } catch(e){}
   ['filter-periode','filter-type','filter-prio','filter-marque','filter-statut'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
@@ -1545,6 +1563,11 @@ function renderKPIs(data) {
     subEl.innerHTML = sub;
   }
 
+  // Bell dot + OS notifications
+  updateNotifBell(enRetard, urgent);
+  const retardBriefs = allBriefs.map(b => ({b, c: categorizeBrief(b)})).filter(x => x.c?.cat === 'retard').map(x => x.b);
+  fireOsNotifications(retardBriefs);
+
   // Update tab counts
   const statuts = (() => { try { return JSON.parse(localStorage.getItem('bw_brief_statuts')||'{}'); } catch(e){ return {}; } })();
   const isComplete = b => { const s=(statuts[b.briefId]||'').toLowerCase(); return s==='livre'||s==='valide'; };
@@ -1764,6 +1787,12 @@ function renderBriefs(data) {
       if (open <= 0) return '';
       return `<span class="pd-badge b-clarify" style="margin-left:4px">⚠ ${open}</span>`;
     })();
+    // Field completeness badge
+    const fields = [b.typeDemande, b.contexte, b.marque, b.priorite, b.dateLancement||b.dateRetourSimul];
+    const filled = fields.filter(Boolean).length;
+    const compBadge = filled < fields.length
+      ? `<span class="bt-complete-badge" title="${filled}/${fields.length} champs renseignés">✓ ${filled}/${fields.length}</span>`
+      : '';
     return `<tr onclick="openDrawer('${b.briefId}', ${_i})">
       <td class="bt-demande-wrap">
         <div class="bt-title">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
@@ -1772,6 +1801,7 @@ function renderBriefs(data) {
           ${typeBadge(b.typeDemande)}
           ${marqueBadge(b.marque)}
           ${resBadge}
+          ${compBadge}
         </div>
       </td>
       <td>${prioBadge(b.priorite)}</td>
@@ -2506,6 +2536,42 @@ document.addEventListener('click', e => {
     });
   }
 });
+
+/* ── Notifications (P2 #11) ──────────────────────────────── */
+function updateNotifBell(enRetard, urgent) {
+  const dot = G('notif-dot');
+  const btn = G('notif-btn');
+  const count = enRetard + urgent;
+  if (dot) dot.classList.toggle('has-notif', count > 0);
+  if (btn) {
+    btn.title = count > 0
+      ? `${count} alerte${count>1?'s':''} : ${enRetard} en retard, ${urgent} urgent${urgent>1?'s':''}`
+      : 'Notifications';
+  }
+}
+
+let _notifShownFor = new Set();
+function fireOsNotifications(enRetardBriefs) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  enRetardBriefs.slice(0, 3).forEach(b => {
+    if (_notifShownFor.has(b.briefId)) return;
+    _notifShownFor.add(b.briefId);
+    try {
+      new Notification('⚠ Brief en retard — BW Studio', {
+        body: `${b.briefId} · ${(b.contexte||b.demandeur||'Brief').slice(0,60)}`,
+        tag: 'bw-' + b.briefId,
+        silent: true,
+      });
+    } catch(e) {}
+  });
+}
+
+function requestNotifPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
 
 // Init
 loadData();
