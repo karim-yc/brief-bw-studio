@@ -640,6 +640,9 @@ body { overflow-x: hidden; max-width: 100vw; }
 /* ── KPI 3-cartes ───────────────────────────────────────────── */
 .kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
 @media(max-width:900px){.kpi-grid-3{grid-template-columns:repeat(3,1fr)}}
+.kpi-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:900px){.kpi-grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.kpi-grid-4{grid-template-columns:repeat(2,1fr)}}
 .kpi-card-lg{background:#fff;border-radius:16px;border:1px solid var(--border);padding:22px 20px;box-shadow:var(--shadow-card);cursor:default;transition:transform .2s,box-shadow .2s}
 .kpi-card-lg:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,70,229,.14)}
 .kpi-card-lg.kpi-clickable{cursor:pointer}
@@ -704,6 +707,11 @@ body { overflow-x: hidden; max-width: 100vw; }
 .kpi-icon-indigo{background:rgba(79,70,229,.1);color:var(--indigo)}
 .kpi-icon-orange{background:rgba(234,88,12,.1);color:#ea580c}
 .kpi-icon-red{background:rgba(220,38,38,.1);color:var(--urgent)}
+.kpi-icon-green{background:rgba(16,185,129,.1);color:#10b981}
+.kpi-delta{font-size:11px;font-weight:600;padding:2px 6px;border-radius:20px;white-space:nowrap}
+.kpi-delta-up{background:rgba(220,38,38,.1);color:#dc2626}
+.kpi-delta-down{background:rgba(16,185,129,.1);color:#10b981}
+.kpi-delta-flat{background:rgba(100,116,139,.1);color:#64748b}
 
 /* ── Page header search + icon buttons ─────────────────── */
 .page-hdr-search{position:relative;display:flex;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:var(--r-sm);padding:0 10px;gap:7px;height:34px;min-width:200px;transition:background .15s}
@@ -777,7 +785,7 @@ body { overflow-x: hidden; max-width: 100vw; }
   <!-- En-tête page -->
   <div class="page-header">
     <div>
-      <div class="page-greeting">Bienvenue, Studio</div>
+      <div class="page-greeting" id="page-greeting">Bienvenue, Studio</div>
       <div class="page-sub" id="page-date-range">Dashboard · Briefs actifs</div>
     </div>
     <div class="page-actions">
@@ -810,11 +818,6 @@ body { overflow-x: hidden; max-width: 100vw; }
 <!-- FILTERS (compact bar dans page-body) -->
 <div class="filters-wrap" style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:10px 16px;margin-bottom:16px;box-shadow:var(--shadow-card)">
   <div class="filters-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-    <div class="search-input" style="flex:1;min-width:180px">
-      <i class="ti ti-search"></i>
-      <input type="text" id="search-input" placeholder="Rechercher…" oninput="applyFilters()">
-    </div>
-    <span class="filter-sep"></span>
     <select class="f-select" id="filter-periode" onchange="onSelPeriode(this.value)">
       <option value="0">Toutes périodes</option>
       <option value="7">7 jours</option>
@@ -854,7 +857,8 @@ body { overflow-x: hidden; max-width: 100vw; }
 </div>
 
   <!-- KPIs (3 grandes cartes) -->
-  <div class="kpi-grid kpi-grid-3" id="kpi-grid">
+  <div class="kpi-grid kpi-grid-4" id="kpi-grid">
+    <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
     <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
     <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
     <div class="kpi-card kpi-card-lg"><div class="skeleton" style="height:36px;width:50px;margin-bottom:8px"></div><div class="skeleton" style="height:10px;width:80px"></div></div>
@@ -887,7 +891,7 @@ body { overflow-x: hidden; max-width: 100vw; }
   <!-- TABS + BRIEFS TABLE -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
     <div class="page-tabs" id="page-tabs">
-      <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">Ouvrir <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
+      <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">En cours <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
       <button class="page-tab" data-tab="complete" onclick="setTabFilter(this,'complete')">Complété <span class="tab-badge" id="tab-cnt-complete">—</span></button>
       <button class="page-tab" data-tab="tous" onclick="setTabFilter(this,'tous')">Tous <span class="tab-badge" id="tab-cnt-tous">—</span></button>
     </div>
@@ -1135,7 +1139,7 @@ function isHTML(text) { return text.trim().startsWith('<'); }
 
 async function fetchBriefs() {
   const D = (id, val) => { const e=G('dbg-'+id); if(e) e.textContent=String(val); };
-  const showDbg = () => { const p=G('bw-debug'); if(p) p.classList.add('visible'); };
+  const showDbg = () => { if(!new URLSearchParams(location.search).has('debug')) return; const p=G('bw-debug'); if(p) p.classList.add('visible'); };
   D('build', 'build github-static-api');
   console.log('[BW] ===== fetchBriefs build github-static-api =====');
 
@@ -1296,7 +1300,7 @@ function resetFilters(){
   ['filter-periode','filter-type','filter-prio','filter-marque','filter-statut'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
-  const si=document.getElementById('search-input'); if(si) si.value='';
+  const si=document.getElementById('hdr-search-input'); if(si) si.value='';
   document.getElementById('btn-reset-filters').style.display='none';
   applyFilters();
 }
@@ -1480,22 +1484,66 @@ function renderKPIs(data) {
   const total = allBriefs.length;
   const urgent = data.filter(b=>b.priorite==='urgent').length;
   const enRetard = allBriefs.filter(b=>categorizeBrief(b)?.cat==='retard').length;
+  const onTimePct = total > 0 ? Math.round((total - enRetard) / total * 100) : 100;
+
+  // Trend: compare with saved snapshot
+  const prevSnap = (() => { try { return JSON.parse(localStorage.getItem('bw_kpi_history')||'null'); } catch(e) { return null; } })();
+  const delta = (curr, prev) => {
+    if (prev === null || prev === undefined) return '';
+    const d = curr - prev;
+    if (d === 0) return `<span class="kpi-delta kpi-delta-flat">= 0</span>`;
+    if (d > 0) return `<span class="kpi-delta kpi-delta-up">↑ +${d}</span>`;
+    return `<span class="kpi-delta kpi-delta-down">↓ ${d}</span>`;
+  };
+  const deltaInv = (curr, prev) => { // inverted: up is good (less is good)
+    if (prev === null || prev === undefined) return '';
+    const d = curr - prev;
+    if (d === 0) return `<span class="kpi-delta kpi-delta-flat">= 0</span>`;
+    if (d > 0) return `<span class="kpi-delta kpi-delta-up">↑ +${d}</span>`;
+    return `<span class="kpi-delta kpi-delta-down">↓ ${d}</span>`;
+  };
+  const deltaPct = (curr, prev) => {
+    if (prev === null || prev === undefined) return '';
+    const d = curr - prev;
+    if (d === 0) return `<span class="kpi-delta kpi-delta-flat">= 0%</span>`;
+    if (d > 0) return `<span class="kpi-delta kpi-delta-down">↓ ${d}%</span>`;
+    return `<span class="kpi-delta kpi-delta-up">↑ ${d}%</span>`;
+  };
+
+  // Save snapshot for next session
+  try { localStorage.setItem('bw_kpi_history', JSON.stringify({total, urgent, enRetard, onTimePct})); } catch(e) {}
 
   const layersIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`;
   const zapIcon    = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
   const clockIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+  const checkIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
 
   G('kpi-grid').innerHTML = [
-    {val:total,    lbl:'Total briefs',  color:'', tip:'Nombre total de briefs.', iconCls:'kpi-icon-indigo', icon:layersIcon},
-    {val:urgent,   lbl:'Urgents',       color:urgent>0?'red':'', tip:'Briefs marqués comme urgents.', iconCls:'kpi-icon-orange', icon:zapIcon},
-    {val:enRetard, lbl:'En retard',     color:enRetard>0?'red':'', tip:'Deadlines dépassées, non livrés.', iconCls:'kpi-icon-red', icon:clockIcon, onclick:'toggleRetardFilter()'},
+    {val:total,         lbl:'Total briefs',    color:'',                   tip:'Nombre total de briefs actifs.',     iconCls:'kpi-icon-indigo', icon:layersIcon, d:delta(total,     prevSnap?.total)},
+    {val:urgent,        lbl:'Urgents',          color:urgent>0?'red':'',    tip:'Briefs marqués comme urgents.',      iconCls:'kpi-icon-orange', icon:zapIcon,    d:deltaInv(urgent, prevSnap?.urgent)},
+    {val:enRetard,      lbl:'En retard',        color:enRetard>0?'red':'',  tip:'Deadlines dépassées, non livrés.',   iconCls:'kpi-icon-red',    icon:clockIcon,  d:deltaInv(enRetard, prevSnap?.enRetard), onclick:'toggleRetardFilter()'},
+    {val:onTimePct+'%', lbl:'Dans les délais',  color:onTimePct>=80?'':'red', tip:'% de briefs sans retard.',         iconCls:'kpi-icon-green',  icon:checkIcon,  d:deltaPct(onTimePct, prevSnap?.onTimePct)},
   ].map(k=>`<div class="kpi-card kpi-card-lg${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
     <div class="kpi-top">
       <div class="kpi-icon-wrap ${k.iconCls}">${k.icon}</div>
+      ${k.d}
     </div>
     <div class="kpi-val ${k.color}">${k.val}</div>
     <div class="kpi-lbl">${k.lbl}${tt(k.tip)}</div>
   </div>`).join('');
+
+  // Dynamic page title
+  const greetEl = G('page-greeting');
+  if (greetEl) {
+    const h = new Date().getHours();
+    greetEl.textContent = (h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir') + ', Studio';
+  }
+  const subEl = G('page-date-range');
+  if (subEl) {
+    let sub = `${total} brief${total>1?'s':''} actif${total>1?'s':''}`;
+    if (enRetard > 0) sub += ` · <span style="color:#dc2626;font-weight:600">${enRetard} en retard</span>`;
+    subEl.innerHTML = sub;
+  }
 
   // Update tab counts
   const statuts = (() => { try { return JSON.parse(localStorage.getItem('bw_brief_statuts')||'{}'); } catch(e){ return {}; } })();
@@ -1682,8 +1730,7 @@ function renderBriefs(data) {
   if(cnt) cnt.textContent=data.length+' brief'+(data.length>1?'s':'');
   el.style.display = viewMode === 'list' ? '' : 'none';
   if(!data.length) {
-    const isFiltered = document.querySelector('.filter-btn.active[data-filter]:not([data-filter="all"])') ||
-      document.querySelector('#search-input')?.value?.trim();
+    const isFiltered = document.querySelector('.filter-btn.active[data-filter]:not([data-filter="all"])') || fSearch.trim();
     el.innerHTML = isFiltered
       ? `<div class="empty-state"><i class="ti ti-filter-off"></i><p>Aucun brief ne correspond à ces filtres.<br><a href="#" onclick="resetFilters();return false">Réinitialiser les filtres</a></p></div>`
       : `<div class="empty-state">
