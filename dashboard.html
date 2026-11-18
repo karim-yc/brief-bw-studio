@@ -1256,13 +1256,13 @@ async function loadData() {
   const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   const n = merged.length, s = n > 1 ? 's' : '';
   if (status === 'github') {
-    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub JSON · ${t}`);
+    setSyncState('ok', `${n} brief${s} · GitHub JSON · ${t}`);
   } else if (status === 'apps-script') {
-    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub JSON · ${t}`);
+    setSyncState('ok', `${n} brief${s} · Apps Script · ${t}`);
   } else if (status === 'make-api') {
-    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub JSON · ${t}`);
+    setSyncState('ok', `${n} brief${s} · Make API · ${t}`);
   } else if (status === 'csv') {
-    setSyncState('ok', `${n} brief${s} · synchronisé via GitHub JSON · ${t}`);
+    setSyncState('ok', `${n} brief${s} · Google Sheets CSV · ${t}`);
   } else if (n > 0) {
     setSyncState('ok', `${n} brief${s} · source distante inaccessible — affichage local · ${t}`);
   } else {
@@ -2254,7 +2254,7 @@ function setAssignment(briefId, memberId) {
     else { all[briefId] = memberId; }
     localStorage.setItem(ASSIGN_KEY, JSON.stringify(all));
     if (_currentDrawerBrief && _currentDrawerBrief.briefId === briefId) renderDrawer(_currentDrawerBrief);
-    renderBriefs(_lastBriefs);
+    renderBriefs(filteredBriefs);
   } catch(e) {}
 }
 function getMemberById(id) { return TEAM_MEMBERS.find(m=>m.id===id)||null; }
