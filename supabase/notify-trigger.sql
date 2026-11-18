@@ -21,7 +21,7 @@ SET search_path = public
 AS $$
 DECLARE
   _payload text;
-  _webhook text := 'APPS_SCRIPT_WEBHOOK_URL'; -- ← remplacer
+  _webhook text := 'https://script.google.com/macros/s/AKfycbxdmDrKFqB6k_ZL3IL1AzSMUJ3PgkSjAx7buacI0SWPMPW_AEDFeFaK7zJR00ocezN9/exec';
 BEGIN
   IF _webhook = 'APPS_SCRIPT_WEBHOOK_URL' THEN
     RETURN NEW; -- webhook non configuré, on skip silencieusement
