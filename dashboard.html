@@ -912,6 +912,7 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="snav-item" onclick="setViewMode('list');document.querySelector('.snav-item.cal-nav-item')?.classList.remove('active');this.classList.add('active')"><i class="ti ti-list"></i><span>Demandes</span></div>
     <div class="snav-item cal-nav-item" onclick="setViewMode('calendar');document.querySelectorAll('.snav-item').forEach(e=>e.classList.remove('active'));this.classList.add('active')"><i class="ti ti-calendar-month"></i><span>Calendrier</span></div>
     <div class="snav-item" onclick="document.getElementById('stats-toggle').click()"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
+    <div class="snav-item" id="snav-archived-toggle" onclick="toggleShowArchived()" title="Afficher les briefs archivés"><i class="ti ti-archive"></i><span>Archivés <span id="snav-archived-count" style="display:none;font-size:10px;opacity:.6;margin-left:4px"></span></span></div>
     <div class="snav-sep"></div>
     <div class="snav-section-label" style="display:flex;align-items:center;justify-content:space-between;padding-right:8px"><span>Marques</span><button onclick="openMarqueModal()" title="Gérer les marques" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.35);font-size:14px;padding:0;line-height:1;flex-shrink:0;transition:color .15s" onmouseover="this.style.color='rgba(255,255,255,.8)'" onmouseout="this.style.color='rgba(255,255,255,.35)'"><i class="ti ti-settings-2"></i></button></div>
     <div id="snav-brands-container"></div>
@@ -1481,7 +1482,7 @@ async function fetchBriefs() {
       console.log('[BW] Supabase → SELECT briefs ORDER BY submitted_at DESC');
       const { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, submitted_at')
+        .select('data, statut, submitted_at, archived, archived_at')
         .order('submitted_at', { ascending: false });
 
       if (error) throw new Error(error.message);
@@ -1490,6 +1491,8 @@ async function fetchBriefs() {
       const data = (rows || []).map(row => ({
         ...row.data,
         statut: row.statut || row.data?.statut || 'soumis',
+        archived: row.archived || false,
+        archivedAt: row.archived_at || null,
       })).filter(b => b.briefId);
 
       D('rows', data.length + ' lignes'); D('parsed', data.length + ' briefs');
@@ -1565,17 +1568,24 @@ async function fetchBriefs() {
   return {data:[], status:'error'};
 }
 
+let showArchived = false;
+
 async function loadData() {
   setSyncState('loading', 'Chargement des briefs…');
   const local = getLocalHistory();
 
   const { data: remoteData, status } = await fetchBriefs();
 
-  // Merge : remote prioritaire + local pour les briefs non encore dans la source
+  // IDs supprimés côté Supabase → purger du localStorage
   const remoteIds = new Set(remoteData.map(b => b.briefId));
+  const deletedLocalKey = 'bw_deleted_brief_ids';
+  let deletedIds;
+  try { deletedIds = new Set(JSON.parse(localStorage.getItem(deletedLocalKey)||'[]')); } catch(e) { deletedIds = new Set(); }
+
+  // Merge : remote prioritaire + local pour les briefs non encore dans la source (sauf supprimés)
   const merged = [
     ...remoteData,
-    ...local.filter(b => b.briefId && !remoteIds.has(b.briefId))
+    ...local.filter(b => b.briefId && !remoteIds.has(b.briefId) && !deletedIds.has(b.briefId))
   ].sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
 
   allBriefs = merged;
@@ -1693,6 +1703,9 @@ function setStatutFilter(btn) {
 }
 function applyFilters() {
   let data=[...allBriefs];
+  // Archivage : masquer les archivés sauf si toggle actif
+  data = data.filter(b => showArchived ? b.archived : !b.archived);
+  _syncArchiveToggle();
   if(fDays>0) {
     const cut=new Date(); cut.setDate(cut.getDate()-fDays);
     data=data.filter(b=>!b.submittedAt||new Date(b.submittedAt)>=cut);
@@ -1722,6 +1735,20 @@ function toggleRetardFilter() {
   fRetard = !fRetard;
   document.querySelectorAll('.kpi-clickable').forEach(el => el.classList.toggle('kpi-active', fRetard));
   applyFilters();
+}
+
+function toggleShowArchived() {
+  showArchived = !showArchived;
+  applyFilters();
+}
+
+function _syncArchiveToggle() {
+  const btn = document.getElementById('snav-archived-toggle');
+  const cnt = document.getElementById('snav-archived-count');
+  if (!btn) return;
+  btn.classList.toggle('active', showArchived);
+  const n = allBriefs.filter(b => b.archived).length;
+  if (cnt) { cnt.textContent = n > 0 ? `(${n})` : ''; cnt.style.display = n > 0 ? '' : 'none'; }
 }
 
 /* ── Réserves interactives (Pépite 9) ──────────────────────── */
@@ -2135,6 +2162,7 @@ function renderBriefs(data) {
         <div class="bt-title">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
         <div class="bt-id-row">
           <span class="bt-subid">${b.briefId||'—'}</span>
+          ${b.archived?'<span class="badge-marque" style="background:#78716c;color:#fff">Archivé</span>':''}
           ${typeBadge(b.typeDemande)}
           ${marqueBadge(b.marque)}
           ${resBadge}
@@ -2805,12 +2833,14 @@ function renderDrawer(b) {
     }
   }
 
+  const isArchived = b.archived || false;
   G('drawer-foot').innerHTML=`
     <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Statut ✎</button>
     <button onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text);font-family:'Inter',sans-serif"><i class="ti ti-copy"></i> Dupliquer</button>
     <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
     ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
-    <button onclick="deleteBrief('${b.briefId}')" title="Supprimer définitivement ce brief" style="margin-left:auto;background:none;border:1.5px solid #fca5a5;border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:#ef4444;font-family:'Inter',sans-serif;transition:all .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'"><i class="ti ti-trash"></i> Supprimer</button>
+    <button onclick="archiveBrief('${b.briefId}',${isArchived})" title="${isArchived?'Désarchiver ce brief':'Archiver ce brief (masqué de la vue principale)'}" style="margin-left:auto;background:none;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text-secondary);font-family:'Inter',sans-serif;transition:all .15s"><i class="ti ti-${isArchived?'archive-off':'archive'}"></i> ${isArchived?'Désarchiver':'Archiver'}</button>
+    <button onclick="deleteBrief('${b.briefId}')" title="Supprimer définitivement ce brief" style="background:none;border:1.5px solid #fca5a5;border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:#ef4444;font-family:'Inter',sans-serif;transition:all .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'"><i class="ti ti-trash"></i> Supprimer</button>
   `;
 }
 
@@ -2826,12 +2856,45 @@ function dupliquerBrief(briefId) {
 }
 
 /* ── Suppression brief ────────────────────────────────────── */
+function _purgeLocalBrief(briefId) {
+  // localStorage HIST_KEY
+  try {
+    const hist = JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+    localStorage.setItem(HIST_KEY, JSON.stringify(hist.filter(b => b.briefId !== briefId)));
+  } catch(e) {}
+  // Liste noire des IDs supprimés (pour le merge au rechargement)
+  try {
+    const del = JSON.parse(localStorage.getItem('bw_deleted_brief_ids')||'[]');
+    if (!del.includes(briefId)) del.push(briefId);
+    localStorage.setItem('bw_deleted_brief_ids', JSON.stringify(del));
+  } catch(e) {}
+  // Statuts
+  try { const s=JSON.parse(localStorage.getItem(STATUS_KEY)||'{}'); delete s[briefId]; localStorage.setItem(STATUS_KEY,JSON.stringify(s)); } catch(e){}
+}
+
 async function deleteBrief(briefId) {
   if (!confirm(`Supprimer définitivement le brief ${briefId} ?\n\nCette action est irréversible.`)) return;
   if (!sbClient) { alert('Supabase non disponible.'); return; }
   const { error } = await sbClient.from('briefs').delete().eq('brief_id', briefId);
   if (error) { alert('Erreur suppression : ' + error.message); return; }
+  _purgeLocalBrief(briefId);
   allBriefs = allBriefs.filter(b => b.briefId !== briefId);
+  closeDrawer();
+  applyFilters();
+}
+
+/* ── Archivage brief ──────────────────────────────────────── */
+async function archiveBrief(briefId, currentlyArchived) {
+  const toArchive = !currentlyArchived;
+  const label = toArchive ? 'Archiver' : 'Désarchiver';
+  if (!confirm(`${label} le brief ${briefId} ?`)) return;
+  if (!sbClient) { alert('Supabase non disponible.'); return; }
+  const { error } = await sbClient.from('briefs')
+    .update({ archived: toArchive, archived_at: toArchive ? new Date().toISOString() : null })
+    .eq('brief_id', briefId);
+  if (error) { alert('Erreur archivage : ' + error.message); return; }
+  const idx = allBriefs.findIndex(b => b.briefId === briefId);
+  if (idx !== -1) { allBriefs[idx].archived = toArchive; allBriefs[idx].archivedAt = toArchive ? new Date().toISOString() : null; }
   closeDrawer();
   applyFilters();
 }
