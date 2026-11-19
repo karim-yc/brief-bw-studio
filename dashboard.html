@@ -1471,12 +1471,21 @@ async function loadMarquesFromSupabase() {
 function getAllMarques() { return window._appMarques || MARQUES_FALLBACK; }
 
 /* Normalise une valeur stockée (ID ou ancien label) → ID stable */
+// Labels historiques connus → ID stable. Complété au fur et à mesure des renommages.
+const MARQUE_ALIASES = {
+  'BNW Burger': 'bnw', 'B&W Burger': 'bnw', 'B & W Burger': 'bnw',
+  'Black and White Burger': 'bnw',
+  'Maison Marquise': 'marquise', 'La Marquise': 'marquise',
+};
+
 function resolveMarqueId(val) {
-  if (!val) return 'bnw';
+  if (!val) return '';
   const all = getAllMarques();
-  if (all.find(m => m.id === val)) return val;
+  if (all.find(m => m.id === val)) return val;           // ID stable passthrough
   const byLabel = all.find(m => m.label === val);
-  return byLabel ? byLabel.id : val;
+  if (byLabel) return byLabel.id;                        // label courant → ID
+  if (MARQUE_ALIASES[val]) return MARQUE_ALIASES[val];   // alias historique connu
+  return val;                                            // inconnu — conserve brut, ne reclasse pas
 }
 
 const _BRAND_COLORS_BASE = {bnw:'#111',marquise:'#a84f2a',pokawa:'#16a34a',autre:'#6B7280'};
@@ -1570,15 +1579,17 @@ async function fetchBriefs() {
       console.log('[BW] Supabase → SELECT briefs ORDER BY submitted_at DESC');
       const { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, submitted_at')
+        .select('data, statut, submitted_at, marque')
         .order('submitted_at', { ascending: false });
 
       if (error) throw new Error(error.message);
 
       // Chaque ligne : data = objet brief complet, statut = colonne dédiée
+      // _marqueId = ID stable depuis la colonne briefs.marque (indépendant du label snapshot dans data)
       const data = (rows || []).map(row => ({
         ...row.data,
         statut: row.statut || row.data?.statut || 'soumis',
+        _marqueId: row.marque || null,
       })).filter(b => b.briefId);
 
       D('rows', data.length + ' lignes'); D('parsed', data.length + ' briefs');
@@ -1677,9 +1688,14 @@ async function loadData() {
     ...local.filter(b => b.briefId && !remoteIds.has(b.briefId) && !deletedIds.has(b.briefId))
   ].sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
 
-  // Enrichir avec statut d'archivage localStorage
+  // Enrichir avec statut d'archivage localStorage + normaliser l'ID stable de marque
+  // _marqueId : depuis la colonne Supabase si disponible, sinon résolu depuis le label snapshot
   const archivedIds = getArchivedIds();
-  allBriefs = merged.map(b => ({ ...b, archived: archivedIds.has(b.briefId) }));
+  allBriefs = merged.map(b => ({
+    ...b,
+    archived: archivedIds.has(b.briefId),
+    _marqueId: b._marqueId || resolveMarqueId(b.marque || ''),
+  }));
 
   const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   const n = merged.length, s = n > 1 ? 's' : '';
@@ -1826,7 +1842,7 @@ function applyFilters() {
   if(fType.size) data=data.filter(b=>fType.has(b.typeDemande));
   if(fPrio.size) data=data.filter(b=>fPrio.has(b.priorite));
   if(fStatut.size) data=data.filter(b=>fStatut.has(getStatut(b.briefId)));
-  if(fMarque.size) data=data.filter(b=>fMarque.has(resolveMarqueId(b.marque||'bnw')));
+  if(fMarque.size) data=data.filter(b=>fMarque.has(b._marqueId));
   if(fRetard) data=data.filter(b=>categorizeBrief(b)?.cat==='retard');
   if(fSearch.trim()) {
     const q=fSearch.trim().toLowerCase();
@@ -2307,7 +2323,7 @@ function renderBriefs(data) {
           <span class="bt-subid">${b.briefId||'—'}</span>
           ${b.archived?'<span class="badge-marque" style="background:#78716c;color:#fff">Archivé</span>':''}
           ${typeBadge(b.typeDemande)}
-          ${marqueBadge(b.marque)}
+          ${marqueBadge(b._marqueId)}
           ${resBadge}
           ${compBadge}
         </div>
@@ -2925,7 +2941,7 @@ function renderDrawer(b) {
       </button>
     </div>
   </div>`;
-  html+=`<div class="drawer-section"><div class="drawer-label">Marque</div><div class="drawer-val">${marqueBadge(b.marque)}</div></div>`;
+  html+=`<div class="drawer-section"><div class="drawer-label">Marque</div><div class="drawer-val">${marqueBadge(b._marqueId)}</div></div>`;
   if(b.contexte) html+=`<div class="drawer-section"><div class="drawer-label">Contexte</div><div class="drawer-val">${b.contexte.replace(/\n/g,'<br>')}</div></div>`;
   if(b.genreCampagne) html+=muted('Genre','Campagne '+b.genreCampagne.toLowerCase());
   if(b.typeDemande==='Campagne Marketing' && b.supports) {
