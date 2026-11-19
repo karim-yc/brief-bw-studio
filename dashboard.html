@@ -612,6 +612,22 @@ body { overflow-x: hidden; max-width: 100vw; }
 
   /* Boutons dans la liste priorités */
   .action-cta   { display: none; }          /* masqué sur très petit écran, tap sur la carte suffit */
+
+  /* Espace nav fixe du bas */
+  .main         { padding-bottom: 80px; }
+  .main-content { padding-bottom: 80px; }
+
+  /* Header dashboard : masquer recherche et sous-titre */
+  .hdr-search-bar { display: none !important; }
+  .hdr-sub        { display: none; }
+
+  /* Filtres : limiter la hauteur visible pour prioriser les briefs */
+  .filters-wrap   { padding: 6px 10px; }
+  .filter-chip    { font-size: 9.5px; padding: 2.5px 8px; }
+
+  /* Titres longs dans les briefs */
+  .brief-title    { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .briefs-table td { max-width: 0; }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1300,7 +1316,7 @@ const sbClient = (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'RE
 
 const HIST_KEY   = 'bw_brief_v2_history';
 const SHEET_ID   = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
-const GITHUB_API      = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/briefs.json'; // Fallback — JSON statique GitHub Pages
+const GITHUB_API      = ''; // Désactivé — briefs stockés dans Supabase uniquement (api/briefs.json retiré du dépôt public)
 const MAKE_API        = 'https://hook.eu1.make.com/j6fe7afcbfirw60oarvn3tndmqoah54b'; // Fallback Make (désactivé)
 const APPS_SCRIPT_URL = ''; // Fallback Apps Script (si configuré)
 const STATUS_KEY = 'bw_brief_statuts';

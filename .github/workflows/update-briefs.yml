@@ -7,6 +7,10 @@ on:
 
 jobs:
   update:
+    # Désactivé : les briefs sont stockés dans Supabase (source principale).
+    # Ce workflow écrivait les mêmes données dans api/briefs.json (dépôt public),
+    # exposant des champs nominatifs. Supabase avec RLS est la seule source active.
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
