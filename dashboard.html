@@ -680,8 +680,18 @@ body { overflow-x: hidden; max-width: 100vw; }
 .mm-brand-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:var(--bg)}
 .mm-brand-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .mm-brand-name{font-size:13px;color:var(--text-primary);flex:1}
-.mm-brand-del{background:none;border:none;cursor:pointer;color:var(--text-tertiary);padding:3px 5px;border-radius:4px;font-size:12px;transition:all .15s}
+.mm-brand-del,.mm-brand-edit,.mm-brand-toggle{background:none;border:none;cursor:pointer;color:var(--text-tertiary);padding:3px 5px;border-radius:4px;font-size:12px;transition:all .15s}
 .mm-brand-del:hover{color:#ef4444;background:rgba(239,68,68,.1)}
+.mm-brand-edit:hover{color:var(--indigo);background:var(--indigo-bg)}
+.mm-brand-toggle:hover{background:var(--bg-soft)}
+.mm-disabled{opacity:.45}
+.mm-base-tag{font-size:9px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;background:var(--bg-soft);color:var(--text-tertiary);border-radius:4px;padding:1px 5px;margin-left:6px}
+.mm-btn-save{padding:7px 14px;background:var(--indigo);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+.mm-btn-cancel{padding:7px 14px;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer}
+.mm-edit-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;background:var(--bg-soft);border-radius:8px;margin-top:4px}
+.mm-auth-details summary{font-size:12px;color:var(--text-secondary);cursor:pointer;padding:4px 0}
+.mm-auth-form{display:flex;flex-direction:column;gap:8px;padding:10px 0}
+.mm-auth-logged{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-secondary);padding:4px 0}
 .mm-add-row{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
 .mm-input{padding:8px 11px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text-primary);font-size:13px;outline:none;transition:border-color .15s}
 .mm-input:focus{border-color:#000000}
@@ -1438,20 +1448,41 @@ let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fM
     if (sel) sel.value = savedBrand;
   }
 })();
-const MARQUES_BASE = [
-  {id:'bnw',     label:'Black & White Burger'},
-  {id:'marquise',label:'Maison Marquise'},
-  {id:'pokawa',  label:'Pokawa'},
-  {id:'autre',   label:'Autre'}
+/* ── Marques — source de vérité Supabase, fallback statique ─── */
+const MARQUES_FALLBACK = [
+  {id:'bnw',      label:'Black & White Burger', color:'#1a1a1a', is_active:true, is_base:true, sort_order:1},
+  {id:'marquise', label:'Maison Marquise',       color:'#c8a96e', is_active:true, is_base:true, sort_order:2},
+  {id:'pokawa',   label:'Pokawa',                color:'#00b96b', is_active:true, is_base:true, sort_order:3},
+  {id:'autre',    label:'Autre marque',           color:'#6b7280', is_active:true, is_base:true, sort_order:99}
 ];
 const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',pokawa:'m-pokawa',autre:'m-autre'};
-const MARQUES_LIST = MARQUES_BASE; // alias backward-compat
-function getCustomMarques(){try{return JSON.parse(localStorage.getItem('bw_custom_marques')||'[]');}catch(e){return[];}}
-function saveCustomMarques(arr){try{localStorage.setItem('bw_custom_marques',JSON.stringify(arr));}catch(e){}}
-function getAllMarques(){return[...MARQUES_BASE,...getCustomMarques()];}
+
+let _adminUser = null;
+window._appMarques = [...MARQUES_FALLBACK]; // synchrone dès le départ
+
+async function loadMarquesFromSupabase() {
+  if (!sbClient) return;
+  try {
+    const { data, error } = await sbClient.from('marques').select('*').order('sort_order');
+    if (!error && data && data.length) window._appMarques = data;
+  } catch(e) {}
+}
+
+function getAllMarques() { return window._appMarques || MARQUES_FALLBACK; }
+
+/* Normalise une valeur stockée (ID ou ancien label) → ID stable */
+function resolveMarqueId(val) {
+  if (!val) return 'bnw';
+  const all = getAllMarques();
+  if (all.find(m => m.id === val)) return val;
+  const byLabel = all.find(m => m.label === val);
+  return byLabel ? byLabel.id : val;
+}
+
 const _BRAND_COLORS_BASE = {bnw:'#111',marquise:'#a84f2a',pokawa:'#16a34a',autre:'#6B7280'};
 const _CUSTOM_PALETTES = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#6366f1','#8b5cf6','#ec4899'];
 let _mmSelectedColor = _CUSTOM_PALETTES[0];
+let _mmEditId = null; // ID de la marque en cours d'édition
 
 /* ── Fetch briefs robuste ─────────────────────────────────────
    Ordre : Make API (source primaire, credentials) → /pub CSV
@@ -1795,7 +1826,7 @@ function applyFilters() {
   if(fType.size) data=data.filter(b=>fType.has(b.typeDemande));
   if(fPrio.size) data=data.filter(b=>fPrio.has(b.priorite));
   if(fStatut.size) data=data.filter(b=>fStatut.has(getStatut(b.briefId)));
-  if(fMarque.size) data=data.filter(b=>fMarque.has(b.marque||'bnw'));
+  if(fMarque.size) data=data.filter(b=>fMarque.has(resolveMarqueId(b.marque||'bnw')));
   if(fRetard) data=data.filter(b=>categorizeBrief(b)?.cat==='retard');
   if(fSearch.trim()) {
     const q=fSearch.trim().toLowerCase();
@@ -1903,17 +1934,19 @@ function setMarqueFilter(btn) {
 const fmtDate = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s} };
 
 function marqueBadge(m) {
-  if (!m) m = 'bnw';
+  const id   = resolveMarqueId(m || 'bnw');
   const all  = getAllMarques();
-  const info = all.find(x => x.id === m);
-  const cls  = MARQUE_CLASS[m] || 'm-custom';
-  const lbl  = info ? info.label : m;
-  const style= cls === 'm-custom' && info && info.color ? ` style="background:${info.color}"` : '';
+  const info = all.find(x => x.id === id);
+  const cls  = MARQUE_CLASS[id] || 'm-custom';
+  const lbl  = info ? info.label : (m || id);
+  const col  = info ? info.color : null;
+  const style= cls === 'm-custom' && col ? ` style="background:${col}"` : '';
   return `<span class="badge-marque ${cls}"${style}>${lbl}</span>`;
 }
 function marqueLabel(m) {
   if (!m) return '—';
-  const info = getAllMarques().find(x => x.id === m);
+  const id   = resolveMarqueId(m);
+  const info = getAllMarques().find(x => x.id === id);
   return info ? info.label : m;
 }
 
@@ -3375,9 +3408,11 @@ fetchMondayTasks();
 fetchGmailThreads();
 fetchWhatsAppMessages();
 
-// Init dynamic brand lists
-renderSnavBrands();
-renderMarqueFilter();
+// Init : charger les marques depuis Supabase puis initialiser les listes
+loadMarquesFromSupabase().then(() => {
+  renderSnavBrands();
+  renderMarqueFilter();
+});
 
 // Init
 loadData();
@@ -3447,7 +3482,7 @@ function renderMarqueFilter() {
     getAllMarques().map(m => `<option value="${m.id}"${m.id === cur ? ' selected' : ''}>${m.label}</option>`).join('');
 }
 
-/* ── Modal gestion marques ───────────────────────────────── */
+/* ── Modal gestion marques (admin Supabase) ──────────────── */
 function openMarqueModal() {
   _renderMarqueModal();
   const el = document.getElementById('marque-modal');
@@ -3456,64 +3491,180 @@ function openMarqueModal() {
 function closeMarqueModal() {
   const el = document.getElementById('marque-modal');
   if (el) el.style.display = 'none';
+  _mmEditId = null;
 }
+
 function _renderMarqueModal() {
-  const baseEl = document.getElementById('mm-base-list');
-  if (baseEl) baseEl.innerHTML = MARQUES_BASE.map(m =>
-    `<div class="mm-brand-row"><span class="mm-brand-dot" style="background:${_BRAND_COLORS_BASE[m.id]||'#6366f1'}"></span><span class="mm-brand-name">${m.label}</span></div>`
-  ).join('');
+  const isAdmin = !!_adminUser;
+  const all = getAllMarques();
 
-  const customs = getCustomMarques();
-  const custEl = document.getElementById('mm-custom-list');
-  if (custEl) custEl.innerHTML = customs.length
-    ? customs.map((m,i) => `<div class="mm-brand-row"><span class="mm-brand-dot" style="background:${m.color||'#6366f1'}"></span><span class="mm-brand-name">${m.label}</span><button class="mm-brand-del" onclick="_removeCustomMarque(${i})" title="Supprimer"><i class="ti ti-trash" style="font-size:13px"></i></button></div>`).join('')
-    : '<div style="font-size:12px;color:var(--text-tertiary);padding:4px 0">Aucune marque personnalisée</div>';
+  // Liste de toutes les marques
+  const listEl = document.getElementById('mm-brand-list');
+  if (listEl) listEl.innerHTML = all.map(m => {
+    const color = m.color || '#6366f1';
+    const disabled = !m.is_active;
+    const editBtn = isAdmin
+      ? `<button class="mm-brand-edit" onclick="_mmStartEdit('${m.id}')" title="Modifier"><i class="ti ti-pencil" style="font-size:12px"></i></button>
+         ${!m.is_base ? `<button class="mm-brand-del" onclick="_mmDeleteMarque('${m.id}')" title="Supprimer"><i class="ti ti-trash" style="font-size:12px"></i></button>` : ''}
+         <button class="mm-brand-toggle" onclick="_mmToggleActive('${m.id}',${!disabled})" title="${disabled?'Réactiver':'Désactiver'}" style="color:${disabled?'var(--success)':'var(--text-tertiary)'}"><i class="ti ti-${disabled?'eye':'eye-off'}" style="font-size:12px"></i></button>`
+      : '';
+    return `<div class="mm-brand-row${disabled?' mm-disabled':''}">
+      <span class="mm-brand-dot" style="background:${color}"></span>
+      <span class="mm-brand-name">${m.label}${m.is_base?'<span class="mm-base-tag">base</span>':''}</span>
+      ${editBtn}
+    </div>`;
+  }).join('');
 
+  // Zone d'édition inline
+  const editEl = document.getElementById('mm-edit-zone');
+  if (editEl) {
+    if (isAdmin && _mmEditId) {
+      const m = all.find(x => x.id === _mmEditId);
+      editEl.style.display = 'block';
+      editEl.innerHTML = `<div class="mm-edit-row">
+        <input id="mm-edit-name" class="mm-input" placeholder="Nom" value="${m ? m.label : ''}" style="flex:1">
+        <div class="mm-colors" id="mm-edit-color-picker"></div>
+        <button class="mm-btn-save" onclick="_mmSaveEdit()">Sauvegarder</button>
+        <button class="mm-btn-cancel" onclick="_mmCancelEdit()">Annuler</button>
+      </div>`;
+      const cp = document.getElementById('mm-edit-color-picker');
+      if (cp) cp.innerHTML = _CUSTOM_PALETTES.map(c =>
+        `<span class="mm-color-swatch${(m&&c===m.color)||c===_mmSelectedColor?' selected':''}" style="background:${c}" onclick="_mmPickColor('${c}',this)"></span>`
+      ).join('');
+      if (m) _mmSelectedColor = m.color || _CUSTOM_PALETTES[0];
+    } else {
+      editEl.style.display = 'none';
+    }
+  }
+
+  // Zone d'ajout
+  const addEl = document.getElementById('mm-add-row');
+  if (addEl) addEl.style.display = isAdmin ? 'block' : 'none';
+
+  // Zone couleur dans l'ajout
   const cpEl = document.getElementById('mm-color-picker');
   if (cpEl) cpEl.innerHTML = _CUSTOM_PALETTES.map(c =>
     `<span class="mm-color-swatch${c === _mmSelectedColor ? ' selected' : ''}" style="background:${c}" onclick="_mmPickColor('${c}',this)"></span>`
   ).join('');
+
+  // Auth section
+  const authEl = document.getElementById('mm-auth-section');
+  if (authEl) {
+    if (isAdmin) {
+      authEl.innerHTML = `<div class="mm-auth-logged"><span>Admin connecté</span><button class="mm-btn-cancel" onclick="_mmLogout()">Déconnexion</button></div>`;
+    } else {
+      authEl.innerHTML = `<details class="mm-auth-details">
+        <summary class="mm-auth-summary">Connexion admin</summary>
+        <div class="mm-auth-form">
+          <input id="mm-email" type="email" class="mm-input" placeholder="Email admin">
+          <input id="mm-pwd" type="password" class="mm-input" placeholder="Mot de passe">
+          <button class="mm-btn-add" onclick="_mmLogin()">Se connecter</button>
+          <div id="mm-auth-err" style="color:#ef4444;font-size:12px;min-height:16px"></div>
+        </div>
+      </details>`;
+    }
+  }
 }
+
 function _mmPickColor(color, el) {
   _mmSelectedColor = color;
   document.querySelectorAll('.mm-color-swatch').forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
 }
-function _addCustomMarque() {
+
+function _mmStartEdit(id) { _mmEditId = id; _renderMarqueModal(); }
+function _mmCancelEdit() { _mmEditId = null; _renderMarqueModal(); }
+
+async function _mmSaveEdit() {
+  if (!sbClient || !_adminUser || !_mmEditId) return;
+  const nameEl = document.getElementById('mm-edit-name');
+  if (!nameEl) return;
+  const label = nameEl.value.trim();
+  if (!label) { nameEl.focus(); return; }
+  const { error } = await sbClient.from('marques').update({ label, color: _mmSelectedColor }).eq('id', _mmEditId);
+  if (error) { showToast('Erreur : ' + error.message); return; }
+  await loadMarquesFromSupabase();
+  _mmEditId = null;
+  _renderMarqueModal();
+  renderSnavBrands();
+  renderMarqueFilter();
+  showToast('Marque mise à jour');
+}
+
+async function _mmToggleActive(id, nowActive) {
+  if (!sbClient || !_adminUser) return;
+  const { error } = await sbClient.from('marques').update({ is_active: nowActive }).eq('id', id);
+  if (error) { showToast('Erreur : ' + error.message); return; }
+  await loadMarquesFromSupabase();
+  _renderMarqueModal();
+  renderSnavBrands();
+  renderMarqueFilter();
+}
+
+async function _mmDeleteMarque(id) {
+  if (!sbClient || !_adminUser) return;
+  const m = getAllMarques().find(x => x.id === id);
+  if (!m || m.is_base) return;
+  if (!confirm(`Supprimer "${m.label}" ? Les briefs associés conserveront l'ID "${id}".`)) return;
+  const { error } = await sbClient.from('marques').delete().eq('id', id);
+  if (error) { showToast('Erreur : ' + error.message); return; }
+  if (fMarque.has(id)) { fMarque = new Set(); applyFilters(); }
+  await loadMarquesFromSupabase();
+  _renderMarqueModal();
+  renderSnavBrands();
+  renderMarqueFilter();
+}
+
+async function _addCustomMarque() {
+  if (!sbClient || !_adminUser) return;
   const inp = document.getElementById('mm-new-name');
   if (!inp) return;
-  const name = inp.value.trim();
-  if (!name) { inp.focus(); return; }
-  const id = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'') || 'brand-' + Date.now();
+  const label = inp.value.trim();
+  if (!label) { inp.focus(); return; }
+  const id = label.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'') || 'brand-' + Date.now();
   if (getAllMarques().find(m => m.id === id)) {
     inp.style.borderColor = '#ef4444';
     setTimeout(() => { inp.style.borderColor = ''; }, 1500);
     return;
   }
-  const customs = getCustomMarques();
-  customs.push({id, label: name, color: _mmSelectedColor});
-  saveCustomMarques(customs);
+  const sort = Math.max(...getAllMarques().map(m => m.sort_order || 0)) + 1;
+  const { error } = await sbClient.from('marques').insert({ id, label, color: _mmSelectedColor, is_active: true, is_base: false, sort_order: sort });
+  if (error) { showToast('Erreur : ' + error.message); return; }
   inp.value = '';
   _mmSelectedColor = _CUSTOM_PALETTES[0];
+  await loadMarquesFromSupabase();
   _renderMarqueModal();
   renderSnavBrands();
   renderMarqueFilter();
-  showToast('Marque "' + name + '" ajoutée');
+  showToast('Marque "' + label + '" ajoutée');
 }
-function _removeCustomMarque(idx) {
-  const customs = getCustomMarques();
-  if (idx < 0 || idx >= customs.length) return;
-  const removed = customs[idx];
-  customs.splice(idx, 1);
-  saveCustomMarques(customs);
-  if (removed && fMarque.has(removed.id)) {
-    fMarque = new Set();
-    try { localStorage.setItem('bw_last_marque', ''); } catch(e) {}
-    applyFilters();
+
+async function _mmLogin() {
+  if (!sbClient) return;
+  const email = (document.getElementById('mm-email') || {}).value || '';
+  const pwd   = (document.getElementById('mm-pwd')   || {}).value || '';
+  const errEl = document.getElementById('mm-auth-err');
+  if (errEl) errEl.textContent = '';
+  const { data, error } = await sbClient.auth.signInWithPassword({ email, password: pwd });
+  if (error) {
+    if (errEl) errEl.textContent = 'Identifiants incorrects.';
+    return;
   }
+  // Vérifier que cet user est dans la table admins
+  const { data: adminRow } = await sbClient.from('admins').select('id').eq('user_id', data.user.id).maybeSingle();
+  if (!adminRow) {
+    await sbClient.auth.signOut();
+    if (errEl) errEl.textContent = 'Accès refusé : compte non admin.';
+    return;
+  }
+  _adminUser = data.user;
   _renderMarqueModal();
-  renderSnavBrands();
-  renderMarqueFilter();
+}
+
+async function _mmLogout() {
+  if (sbClient) await sbClient.auth.signOut();
+  _adminUser = null;
+  _renderMarqueModal();
 }
 
 /* ── Notification panel ──────────────────────────────────── */
@@ -3597,17 +3748,18 @@ function showRealtimeToast(msg) {
       <button class="mm-close" onclick="closeMarqueModal()" title="Fermer">×</button>
     </div>
     <div class="mm-body">
-      <div class="mm-section-label">Marques de base</div>
-      <div id="mm-base-list"></div>
-      <div class="mm-section-label">Marques personnalisées</div>
-      <div id="mm-custom-list"></div>
-      <div class="mm-add-row">
+      <div class="mm-section-label">Toutes les marques</div>
+      <div id="mm-brand-list"></div>
+      <div id="mm-edit-zone" style="display:none"></div>
+      <div id="mm-add-row" class="mm-add-row" style="display:none">
+        <div class="mm-section-label" style="margin-top:12px">Ajouter une marque</div>
         <input type="text" id="mm-new-name" class="mm-input" placeholder="Nom de la marque" onkeydown="if(event.key==='Enter')_addCustomMarque()">
         <div class="mm-colors" id="mm-color-picker"></div>
         <div class="mm-row-inline">
           <button class="mm-btn-add" onclick="_addCustomMarque()"><i class="ti ti-plus" style="font-size:12px;margin-right:4px"></i>Ajouter</button>
         </div>
       </div>
+      <div id="mm-auth-section" style="margin-top:12px"></div>
     </div>
   </div>
 </div>

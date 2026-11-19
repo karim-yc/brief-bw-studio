@@ -627,7 +627,7 @@
         brief_id:     recap.briefId,
         submitted_at: recap.submittedAt || new Date().toISOString(),
         statut:       'soumis',
-        marque:       recap.marque || '',
+        marque:       State.data.marque || '',
         departement:  recap.departement || '',
         demandeur:    recap.demandeur || '',
         priorite:     recap.priorite || '',
@@ -861,7 +861,7 @@
   }
 
   function switchMode(mode) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+    document.querySelectorAll('.hdr-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
     document.querySelector('.layout').hidden = mode !== 'form';
     document.getElementById('rapide-wrap').hidden = mode !== 'rapide';
     document.getElementById('mobile-submit').style.display = mode === 'form' ? '' : 'none';
@@ -1155,7 +1155,7 @@
     initRapideMode();
 
     // Tabs
-    document.querySelectorAll('.tab').forEach(tab => {
+    document.querySelectorAll('.hdr-tab').forEach(tab => {
       tab.addEventListener('click', () => switchMode(tab.dataset.mode));
     });
 

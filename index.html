@@ -45,9 +45,12 @@
     <button class="btn-hamburger" id="btn-hamburger" aria-label="Menu" aria-expanded="false">
       <svg viewBox="0 0 20 20" fill="none" width="20" height="20"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
-    <div class="hdr-page-info">
+    <div class="hdr-left">
       <div class="hdr-page-title">Nouvelle demande</div>
-      <div class="hdr-page-sub">Créez une demande complète pour l'équipe créative.</div>
+      <nav class="hdr-tabs" role="tablist">
+        <button class="hdr-tab active" data-mode="form" role="tab">Formulaire</button>
+        <button class="hdr-tab" data-mode="rapide" role="tab">Brief rapide</button>
+      </nav>
     </div>
     <div class="hdr-search-bar">
       <svg viewBox="0 0 20 20" fill="none" class="hdr-search-icon"><circle cx="8.5" cy="8.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -66,12 +69,6 @@
       </button>
     </nav>
   </header>
-
-  <!-- ════════ MODE TABS ════════ -->
-  <nav class="tabs" role="tablist">
-    <button class="tab active" data-mode="form" role="tab">Formulaire</button>
-    <button class="tab" data-mode="rapide" role="tab">Brief rapide</button>
-  </nav>
 
   <!-- ════════ MAIN LAYOUT ════════ -->
   <main class="layout form-pristine" id="app-main" data-wizard-step="1">
@@ -277,14 +274,25 @@
 <script src="supabase-config.js?v=1"></script>
 <script src="config.js?v=4"></script>
 <script>
+// Marques chargées depuis Supabase (async init), fallback CONFIG
+window._appMarques = null;
+(async function() {
+  if (typeof sbClient !== 'undefined' && sbClient) {
+    try {
+      const { data, error } = await sbClient.from('marques').select('*').eq('is_active', true).order('sort_order');
+      if (!error && data && data.length) {
+        window._appMarques = data;
+        if (typeof renderAll === 'function') renderAll();
+        return;
+      }
+    } catch(e) {}
+  }
+  window._appMarques = CONFIG.marques;
+})();
+
 window.getAppMarques = function() {
-  const base = CONFIG.marques.filter(m => m.id !== 'autre');
-  let custom = [];
-  try {
-    custom = JSON.parse(localStorage.getItem('bw_custom_marques') || '[]');
-  } catch(e) {}
-  const autre = CONFIG.marques.find(m => m.id === 'autre');
-  return [...base, ...custom, ...(autre ? [autre] : [])];
+  if (window._appMarques) return window._appMarques;
+  return CONFIG.marques;
 };
 </script>
 <script src="state.js?v=3"></script>
