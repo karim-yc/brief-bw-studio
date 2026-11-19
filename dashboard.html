@@ -63,8 +63,8 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .hdr-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text-secondary);font-size:12px;font-weight:600;letter-spacing:.2px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;transition:all .15s;white-space:nowrap}
 .hdr-btn:hover{border-color:var(--indigo);color:var(--indigo);background:#fff}
 .hdr-btn i{font-size:14px}
-.hdr-btn-primary{background:var(--indigo);border-color:var(--indigo);color:#fff}
-.hdr-btn-primary:hover{background:var(--indigo-dark);border-color:var(--indigo-dark);color:#fff}
+.hdr-btn-primary{background:#DFFF00;border-color:#DFFF00;color:#000;font-weight:700}
+.hdr-btn-primary:hover{background:#c8e800;border-color:#c8e800;color:#000}
 
 /* ── Sync bar ─────────────────────────────────────────────────── */
 .sync-bar{background:#F4F2ED;border-bottom:1px solid #DEDAD3;padding:6px 24px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
@@ -669,7 +669,7 @@ body { overflow-x: hidden; max-width: 100vw; }
 .sidebar-sync-row .sync-btn:hover{color:rgba(255,255,255,.8)}
 
 /* ── Main content ───────────────────────────────────────────── */
-.main-content{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+.main-content{margin-left:220px;min-height:100vh;display:flex;flex-direction:column;flex:1;min-width:0}
 .page-header{padding:22px 28px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;flex-shrink:0}
 .page-greeting{font-size:22px;font-weight:800;color:#000000;letter-spacing:-.5px;line-height:1.2}
 .page-sub{font-size:12px;color:rgba(0,0,0,.45);margin-top:2px}
@@ -967,6 +967,7 @@ body { overflow-x: hidden; max-width: 100vw; }
       </div>
       <button class="page-hdr-icon-btn" title="Aide"><i class="ti ti-help"></i></button>
       <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
+      <a href="index.html" class="hdr-btn hdr-btn-primary"><i class="ti ti-plus"></i><span class="hdr-btn-lbl"> Nouvelle demande</span></a>
     </div>
   </div>
 
@@ -1082,6 +1083,7 @@ body { overflow-x: hidden; max-width: 100vw; }
     <button class="integrations-toggle" id="integrations-toggle" onclick="toggleIntegrations()">
       <i class="ti ti-chevron-down chevron-int"></i>
       Intégrations · Monday · Gmail · WhatsApp
+      <span id="int-overdue-badge" style="display:none;margin-left:auto;background:#fee2e2;color:#b91c1c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0;text-transform:none"></span>
     </button>
     <div class="integrations-body" id="integrations-body">
 
@@ -3257,6 +3259,18 @@ async function fetchMondayTasks() {
 
     if (tasks.length > 12) {
       body.innerHTML += `<div class="monday-empty" style="padding:8px 18px;text-align:right;font-size:10.5px">+ ${tasks.length-12} tâche${tasks.length-12>1?'s':''} supplémentaire${tasks.length-12>1?'s':''}</div>`;
+    }
+
+    // Badge retard sur le toggle fermé
+    const lateCnt = tasks.filter(t => {
+      if (!t.deadline || t.status_norm === 'done') return false;
+      const dl = new Date(t.deadline); dl.setHours(0,0,0,0);
+      return dl < today;
+    }).length;
+    const intBadge = G('int-overdue-badge');
+    if (intBadge) {
+      if (lateCnt > 0) { intBadge.textContent = lateCnt + ' tâche' + (lateCnt > 1 ? 's' : '') + ' en retard'; intBadge.style.display = 'inline'; }
+      else { intBadge.style.display = 'none'; }
     }
 
   } catch(e) {

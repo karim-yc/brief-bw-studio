@@ -1595,14 +1595,14 @@ select:focus { border-bottom-color: var(--indigo); }
   min-height: 48px;
   border: none;
   border-radius: var(--r-btn);
-  background: var(--indigo);
-  color: #fff;
+  background: #DFFF00;
+  color: #000;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all .15s;
 }
-.btn-wz-next:hover { background: var(--indigo-dark); }
+.btn-wz-next:hover { background: #c8e800; }
 .btn-wz-next:disabled { opacity: .5; cursor: not-allowed; }
 
 .wz-step-hint {
@@ -2165,7 +2165,7 @@ select:focus { border-bottom-color: var(--indigo); }
 .ai-bar-btn {
   flex-shrink: 0;
   background: #000000;
-  color: #DFFF00;
+  color: #fff;
   border: none;
   border-radius: 8px;
   padding: 8px 16px;
