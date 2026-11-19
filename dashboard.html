@@ -3460,7 +3460,7 @@ function _syncSnavBrands() {
 /* ── Dynamic brand rendering ────────────────────────────── */
 function _brandDotColor(id) {
   if (_BRAND_COLORS_BASE[id]) return _BRAND_COLORS_BASE[id];
-  const c = getCustomMarques().find(m => m.id === id);
+  const c = getAllMarques().find(m => m.id === id);
   return c ? (c.color || '#6366f1') : '#6366f1';
 }
 
