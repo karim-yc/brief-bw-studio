@@ -3,90 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Statistiques — Studio Graphique Multi-marques</title>
+<title>Statistiques — Studio Créatif Multi-marques</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="style.css">
 <style>
-.placeholder-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  gap: 16px;
-  padding: 60px 24px;
-  text-align: center;
-}
-.placeholder-icon {
-  width: 64px; height: 64px;
-  background: #f1f0ff;
-  border-radius: 20px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px;
-  color: #6366f1;
-}
-.placeholder-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e1b4b;
-  letter-spacing: -0.3px;
-}
-.placeholder-sub {
-  font-size: 13px;
-  color: #9ca3af;
-  max-width: 320px;
-  line-height: 1.6;
-}
-.placeholder-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: #f1f0ff;
-  color: #6366f1;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-.placeholder-kpis {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.placeholder-kpi {
-  width: 120px;
-  padding: 16px 12px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.placeholder-kpi-val {
-  width: 48px; height: 20px;
-  background: #f3f4f6;
-  border-radius: 6px;
-}
-.placeholder-kpi-lbl {
-  width: 72px; height: 10px;
-  background: #f3f4f6;
-  border-radius: 4px;
-}
+/* ── Stat KPI grid ──────────────────────────────────────── */
+.stat-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:860px){.stat-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.stat-kpi-grid{grid-template-columns:1fr 1fr}}
+.stat-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-card)}
+.stat-kpi-val{font-size:32px;font-weight:700;color:var(--text);letter-spacing:-1.5px;line-height:1}
+.stat-kpi-lbl{font-size:12px;color:var(--text-secondary);margin-top:5px}
+.stat-kpi-val.red{color:#dc2626}
+.stat-kpi-val.green{color:#16a34a}
+.stat-kpi-val.indigo{color:#6366f1}
+
+/* ── Stat cards grid ────────────────────────────────────── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:720px){.stat-grid{grid-template-columns:1fr}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-card)}
+.stat-card-full{margin-bottom:16px}
+.stat-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.stat-card-title i{color:var(--indigo);font-size:15px}
+
+/* ── Bar rows ───────────────────────────────────────────── */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-row:last-child{margin-bottom:0}
+.bar-label{font-size:12px;color:var(--text-secondary);min-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-track{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.bar-count{font-size:11.5px;font-weight:600;color:var(--text);min-width:28px;text-align:right;flex-shrink:0}
+
+/* ── Monthly chart ──────────────────────────────────────── */
+.month-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:4px}
+.month-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.month-bar-wrap{flex:1;display:flex;align-items:flex-end;width:100%}
+.month-bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;background:#6366f1;transition:height .5s cubic-bezier(.4,0,.2,1)}
+.month-label{font-size:9.5px;color:var(--text-tertiary);font-weight:500;text-align:center}
+.month-val{font-size:10px;font-weight:700;color:var(--text-secondary)}
+
+/* ── Sync bar ───────────────────────────────────────────── */
+.stat-sync{font-size:11px;color:var(--text-tertiary);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.stat-sync-dot{width:7px;height:7px;border-radius:50%;background:#9ca3af;flex-shrink:0}
+.stat-sync-dot.ok{background:#22c55e}
+.stat-sync-dot.err{background:#ef4444}
+
+/* ── Skeleton ───────────────────────────────────────────── */
+.sk{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:sk-pulse 1.2s infinite}
+@keyframes sk-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
 </style>
 </head>
 <body>
 
 <div class="app-shell">
 
-  <!-- ════════ SIDEBAR GAUCHE ════════ -->
+  <!-- ════════ SIDEBAR ════════ -->
   <div class="sidebar" id="sidebar" role="navigation" aria-label="Navigation principale">
     <div class="sidebar-logo-wrap">
       <div class="sidebar-logo-icon">BW</div>
@@ -104,24 +77,24 @@
       <a class="snav-item active" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
       <div class="snav-sep"></div>
       <div class="snav-section-label">Marques</div>
-      <div class="snav-brand-item"><span class="snav-brand-dot bnw">BW</span><span>Black &amp; White Burger</span></div>
-      <div class="snav-brand-item"><span class="snav-brand-dot mm">M</span><span>Maison Marquise</span></div>
-      <div class="snav-brand-item"><span class="snav-brand-dot autre">···</span><span>Autre / Multi-marques</span></div>
+      <div class="snav-brand-item"><span class="snav-brand-dot bnw"></span><span>Black &amp; White Burger</span></div>
+      <div class="snav-brand-item"><span class="snav-brand-dot mm"></span><span>Maison Marquise</span></div>
+      <div class="snav-brand-item"><span class="snav-brand-dot autre"></span><span>Autre</span></div>
     </nav>
-    <div class="snav-user">
-      <div class="snav-user-av">KY</div>
-      <div class="snav-user-info">
-        <div class="snav-user-name">Karim Y.-Cherif</div>
-        <div class="snav-user-role">Brand Design Lead</div>
+    <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">
+      <div class="snav-user-av" style="width:30px;height:30px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">KY</div>
+      <div class="snav-user-info" style="flex:1;min-width:0">
+        <div class="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Karim Y.-Cherif</div>
+        <div class="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">Brand Design Lead</div>
       </div>
     </div>
   </div>
 
-  <!-- ════════ CONTENU PRINCIPAL ════════ -->
+  <!-- ════════ CONTENU ════════ -->
   <div class="app-content">
 
-  <!-- ════════ HEADER ════════ -->
   <header class="hdr">
+    <button class="btn-hamburger" id="btn-hamburger" onclick="document.getElementById('sidebar').classList.toggle('sidebar-open')" aria-label="Menu"><i class="ti ti-menu-2"></i></button>
     <div class="hdr-brand">
       <div class="hdr-logo-icon">BW</div>
       <div class="hdr-brand-text">
@@ -130,33 +103,53 @@
       </div>
     </div>
     <nav class="hdr-actions">
-      <a href="dashboard.html" class="hdr-btn" title="Voir le dashboard">
-        <svg viewBox="0 0 20 20" fill="none"><path d="M3 13h3v4H3v-4zm5.5-5h3v9h-3V8zM14 4h3v13h-3V4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-        Dashboard
-      </a>
+      <button class="hdr-btn" onclick="loadStats()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
     </nav>
   </header>
 
-  <!-- ════════ CONTENU PLACEHOLDER ════════ -->
-  <div class="placeholder-wrap">
-    <div class="placeholder-icon">
-      <i class="ti ti-chart-bar"></i>
-    </div>
-    <div class="placeholder-badge">
-      <i class="ti ti-clock" style="font-size:10px"></i>
-      Bientôt disponible
-    </div>
-    <p class="placeholder-title">Statistiques du studio</p>
-    <p class="placeholder-sub">Temps moyen de traitement, volume par marque, taux de validation, briefs en retard — toutes les métriques pour piloter l'équipe créative.</p>
-    <div class="placeholder-kpis">
-      <div class="placeholder-kpi"><div class="placeholder-kpi-val"></div><div class="placeholder-kpi-lbl"></div></div>
-      <div class="placeholder-kpi"><div class="placeholder-kpi-val"></div><div class="placeholder-kpi-lbl"></div></div>
-      <div class="placeholder-kpi"><div class="placeholder-kpi-val"></div><div class="placeholder-kpi-lbl"></div></div>
-    </div>
-  </div>
+  <div class="page-body">
 
+    <div class="stat-sync" id="stat-sync">
+      <span class="stat-sync-dot" id="stat-sync-dot"></span>
+      <span id="stat-sync-lbl">Chargement…</span>
+    </div>
+
+    <!-- KPIs -->
+    <div class="stat-kpi-grid" id="kpi-grid">
+      <div class="stat-kpi"><div class="sk" style="height:32px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+      <div class="stat-kpi"><div class="sk" style="height:32px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+      <div class="stat-kpi"><div class="sk" style="height:32px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+      <div class="stat-kpi"><div class="sk" style="height:32px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+    </div>
+
+    <!-- Charts 2-col -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-card-title"><i class="ti ti-brand-angular"></i>Par marque</div>
+        <div id="chart-marque"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title"><i class="ti ti-tag"></i>Par type de demande</div>
+        <div id="chart-type"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title"><i class="ti ti-circle-dot"></i>Par statut</div>
+        <div id="chart-statut"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title"><i class="ti ti-users"></i>Par assigné</div>
+        <div id="chart-assignee"></div>
+      </div>
+    </div>
+
+    <!-- Évolution mensuelle -->
+    <div class="stat-card stat-card-full">
+      <div class="stat-card-title"><i class="ti ti-trending-up"></i>Briefs soumis par mois <span style="font-size:11px;font-weight:400;color:var(--text-tertiary);margin-left:4px">(6 derniers mois)</span></div>
+      <div class="month-chart" id="chart-monthly"></div>
+    </div>
+
+  </div><!-- /.page-body -->
   </div><!-- /.app-content -->
-
 </div><!-- /.app-shell -->
 
 <nav class="mobile-bottom-nav" aria-label="Navigation mobile">
@@ -166,5 +159,251 @@
   <a href="statistiques.html" class="mob-nav-item active"><i class="ti ti-chart-bar"></i><span>Stats</span></a>
 </nav>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ── Config ─────────────────────────────────────────────── */
+const SB_URL  = 'https://zpapoywzilwubjglhsmu.supabase.co';
+const SB_KEY  = 'sb_publishable_PhHq5kbGxyntZ8JlSumImA_pqzR8tKL';
+const GH_API  = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/briefs.json';
+const HIST_KEY    = 'bw_brief_v2_history';
+const STATUS_KEY  = 'bw_brief_statuts';
+const ASSIGN_KEY  = 'bw_brief_assignments_v1';
+
+const sbClient = (typeof window.supabase !== 'undefined')
+  ? window.supabase.createClient(SB_URL, SB_KEY)
+  : null;
+
+const TEAM_MEMBERS = [
+  { id:'unassigned', name:'Non assigné' },
+  { id:'karim',     name:'Karim'   },
+  { id:'heifa',     name:'Heifa'   },
+  { id:'emilie',    name:'Émilie'  },
+  { id:'ndieumbe',  name:'Ndieumbe'},
+];
+
+const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation', valide:'Validé', livre:'Livré' };
+const MARQUE_LABELS = { bnw:'Black & White', marquise:'Maison Marquise', autre:'Autre' };
+const TYPE_LABELS   = {
+  campagne:'Campagne Marketing', packaging:'Packaging',
+  vitrophanie:'Vitrophanie / Travaux', autre:'Autre demande',
+  'Campagne Marketing':'Campagne Marketing', 'Packaging':'Packaging',
+  'Vitrophanie / Travaux':'Vitrophanie / Travaux', 'Autre demande':'Autre demande'
+};
+
+/* ── Helpers ────────────────────────────────────────────── */
+function setSyncState(state, msg) {
+  const dot = document.getElementById('stat-sync-dot');
+  const lbl = document.getElementById('stat-sync-lbl');
+  if (dot) { dot.className = 'stat-sync-dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : ''); }
+  if (lbl) lbl.textContent = msg;
+}
+
+function getStatuts() {
+  try { return JSON.parse(localStorage.getItem(STATUS_KEY)||'{}'); } catch(e) { return {}; }
+}
+function getStatut(id) { return getStatuts()[id] || 'soumis'; }
+function getAssignments() {
+  try { return JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}'); } catch(e) { return {}; }
+}
+
+function getLocalHistory() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+    return Array.isArray(raw) ? raw.filter(b => b.briefId) : [];
+  } catch(e) { return []; }
+}
+
+/* ── Data loading ───────────────────────────────────────── */
+async function fetchBriefs() {
+  if (sbClient) {
+    try {
+      const { data: rows, error } = await sbClient
+        .from('briefs')
+        .select('data, statut, submitted_at')
+        .order('submitted_at', { ascending: false });
+      if (error) throw new Error(error.message);
+      const data = (rows||[]).map(row => ({
+        ...row.data,
+        statut: row.statut || row.data?.statut || 'soumis',
+      })).filter(b => b.briefId);
+      if (data.length > 0) return { data, status: 'supabase' };
+    } catch(e) { console.warn('[Stats] Supabase:', e.message); }
+  }
+  try {
+    const r = await fetch(GH_API + '?t=' + Date.now());
+    const txt = await r.text();
+    if (r.ok && txt.trim() && !txt.trim().startsWith('<')) {
+      const d = JSON.parse(txt);
+      const data = (d.briefs && Array.isArray(d.briefs)) ? d.briefs.filter(b=>b.briefId) : [];
+      if (data.length > 0) return { data, status: 'github' };
+    }
+  } catch(e) {}
+  return { data: [], status: 'local' };
+}
+
+/* ── Stats computation ──────────────────────────────────── */
+function count(arr, key, val) { return arr.filter(b => (b[key]||'') === val).length; }
+
+function computeStats(briefs) {
+  const statuts   = getStatuts();
+  const assigns   = getAssignments();
+  const today     = new Date(); today.setHours(0,0,0,0);
+
+  const getS = id => statuts[id] || 'soumis';
+  const isLivré = b => { const s = getS(b.briefId); return s === 'livre' || s === 'valide'; };
+
+  const total   = briefs.length;
+  const livrés  = briefs.filter(isLivré).length;
+  const actifs  = total - livrés;
+
+  // En retard : deadline dépassée, non livré
+  const enRetard = briefs.filter(b => {
+    if (isLivré(b)) return false;
+    const dates = [b.dateRetourSimul, b.dateLancement, b.dateValidation]
+      .filter(d => d && d !== '—')
+      .map(d => { try { const x = new Date(d); x.setHours(0,0,0,0); return x; } catch(e){ return null; } })
+      .filter(Boolean);
+    return dates.some(d => d < today);
+  }).length;
+
+  // Par marque (normalize: null/undefined → bnw)
+  const marques = { bnw: 0, marquise: 0, autre: 0 };
+  briefs.forEach(b => { const m = b.marque || 'bnw'; if (marques[m] !== undefined) marques[m]++; else marques.autre++; });
+
+  // Par type
+  const types = {};
+  briefs.forEach(b => {
+    const t = b.typeDemande || 'autre';
+    const lbl = TYPE_LABELS[t] || t;
+    types[lbl] = (types[lbl] || 0) + 1;
+  });
+
+  // Par statut
+  const statsByStatut = {};
+  briefs.forEach(b => {
+    const s = getS(b.briefId);
+    const lbl = STATUS_LABELS[s] || s;
+    statsByStatut[lbl] = (statsByStatut[lbl] || 0) + 1;
+  });
+
+  // Par assigné
+  const statsByAssignee = {};
+  briefs.forEach(b => {
+    const memberId = assigns[b.briefId] || 'unassigned';
+    const member = TEAM_MEMBERS.find(m => m.id === memberId);
+    const name = member ? member.name : memberId;
+    statsByAssignee[name] = (statsByAssignee[name] || 0) + 1;
+  });
+
+  // Par mois (6 derniers mois)
+  const now = new Date();
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      label: d.toLocaleDateString('fr-FR', { month: 'short' }),
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      count: 0,
+    });
+  }
+  briefs.forEach(b => {
+    if (!b.submittedAt) return;
+    try {
+      const d = new Date(b.submittedAt);
+      const m = months.find(x => x.year === d.getFullYear() && x.month === d.getMonth());
+      if (m) m.count++;
+    } catch(e) {}
+  });
+
+  return { total, actifs, livrés, enRetard, marques, types, statsByStatut, statsByAssignee, months };
+}
+
+/* ── Render helpers ─────────────────────────────────────── */
+function barChart(container, rows, maxVal, colorFn) {
+  if (!container) return;
+  const max = maxVal || Math.max(...rows.map(r => r.val), 1);
+  container.innerHTML = rows.map(r => `
+    <div class="bar-row">
+      <div class="bar-label" title="${r.label}">${r.label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(r.val/max*100)}%;background:${colorFn(r)}"></div></div>
+      <div class="bar-count">${r.val}</div>
+    </div>`).join('');
+}
+
+function kpiCard(val, lbl, colorClass) {
+  return `<div class="stat-kpi"><div class="stat-kpi-val ${colorClass||''}">${val}</div><div class="stat-kpi-lbl">${lbl}</div></div>`;
+}
+
+/* ── Render stats ───────────────────────────────────────── */
+function renderStats(s) {
+  // KPIs
+  const grid = document.getElementById('kpi-grid');
+  if (grid) grid.innerHTML =
+    kpiCard(s.total,      'Briefs au total',    'indigo') +
+    kpiCard(s.actifs,     'Briefs actifs',       '') +
+    kpiCard(s.livrés,     'Livrés / validés',   'green') +
+    kpiCard(s.enRetard,   'En retard',           s.enRetard > 0 ? 'red' : '');
+
+  // Marques
+  barChart(document.getElementById('chart-marque'), [
+    { label: 'Black & White', val: s.marques.bnw },
+    { label: 'Maison Marquise', val: s.marques.marquise },
+    { label: 'Autre', val: s.marques.autre },
+  ], null, r => r.label === 'Black & White' ? '#6366f1' : r.label === 'Maison Marquise' ? '#b5804e' : '#9ca3af');
+
+  // Types
+  const typeRows = Object.entries(s.types).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
+  barChart(document.getElementById('chart-type'), typeRows, null, ()=>'#6366f1');
+
+  // Statuts
+  const statutColors = { 'Soumis':'#6b7280', 'En cours':'#6366f1', 'Simulation':'#8b5cf6', 'Validé':'#059669', 'Livré':'#16a34a' };
+  const statutRows = Object.entries(s.statsByStatut).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
+  barChart(document.getElementById('chart-statut'), statutRows, null, r => statutColors[r.label] || '#6366f1');
+
+  // Assignés
+  const assigneeRows = Object.entries(s.statsByAssignee).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
+  const assigneeColors = { 'Karim':'#6366f1','Heifa':'#ec4899','Émilie':'#f59e0b','Ndieumbe':'#10b981','Non assigné':'#9ca3af' };
+  barChart(document.getElementById('chart-assignee'), assigneeRows, null, r => assigneeColors[r.label] || '#6366f1');
+
+  // Mensuel
+  const monthly = document.getElementById('chart-monthly');
+  if (monthly) {
+    const maxM = Math.max(...s.months.map(m=>m.count), 1);
+    monthly.innerHTML = s.months.map(m => `
+      <div class="month-col">
+        <div class="month-val">${m.count || ''}</div>
+        <div class="month-bar-wrap">
+          <div class="month-bar" style="height:${Math.round(m.count/maxM*72)+4}px;opacity:${m.count>0?1:.15}"></div>
+        </div>
+        <div class="month-label">${m.label}</div>
+      </div>`).join('');
+  }
+}
+
+/* ── Main ───────────────────────────────────────────────── */
+async function loadStats() {
+  setSyncState('loading', 'Chargement des briefs…');
+
+  const { data: remote, status } = await fetchBriefs();
+  const local = getLocalHistory();
+  const remoteIds = new Set(remote.map(b => b.briefId));
+  const all = [...remote, ...local.filter(b => b.briefId && !remoteIds.has(b.briefId))];
+
+  const src = status === 'supabase' ? 'Supabase' : status === 'github' ? 'GitHub JSON' : 'Local uniquement';
+  const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit',minute:'2-digit'});
+  setSyncState(all.length > 0 ? 'ok' : 'err', `${all.length} brief${all.length>1?'s':''} · ${src} · ${t}`);
+
+  if (all.length === 0) {
+    document.getElementById('kpi-grid').innerHTML =
+      '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-tertiary);font-size:13px"><i class="ti ti-database-off" style="font-size:28px;display:block;margin-bottom:8px;opacity:.4"></i>Aucun brief chargé — vérifiez la connexion.</div>';
+    return;
+  }
+
+  renderStats(computeStats(all));
+}
+
+loadStats();
+</script>
 </body>
 </html>

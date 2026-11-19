@@ -836,6 +836,35 @@ body { overflow-x: hidden; max-width: 100vw; }
 .wa-setup i{font-size:28px;display:block;margin-bottom:8px;opacity:.4;color:#25D366}
 .wa-setup-steps{text-align:left;display:inline-block;margin:8px auto 0;font-size:11px;line-height:2}
 .wa-step-badge{display:inline-block;width:16px;height:16px;border-radius:50%;background:#25D366;color:#fff;font-size:8px;font-weight:700;text-align:center;line-height:16px;margin-right:6px;flex-shrink:0}
+/* ── Sidebar brand filters ──────────────────────────────── */
+.snav-brand-item{cursor:pointer !important}
+.snav-brand-item.active{background:rgba(255,255,255,.12) !important;color:#fff !important}
+/* ── Notification panel ──────────────────────────────────── */
+.notif-panel-wrap{position:relative}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:308px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 32px rgba(0,0,0,.14);z-index:9999;overflow:hidden;display:none}
+.notif-panel-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 9px;border-bottom:1px solid var(--border)}
+.notif-panel-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px}
+.notif-cnt-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:#fef2f2;color:#b91c1c}
+.notif-panel-close{background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px;line-height:1;border-radius:4px}
+.notif-panel-close:hover{background:var(--bg);color:var(--text)}
+.notif-panel-list{max-height:320px;overflow-y:auto}
+.notif-panel-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;width:100%;background:none;border-left:none;border-right:none;border-top:none;font-family:inherit;text-align:left}
+.notif-panel-item:last-child{border-bottom:none}
+.notif-panel-item:hover{background:var(--bg)}
+.np-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.np-dot.red{background:#ef4444}.np-dot.orange{background:#f59e0b}
+.np-item-body{flex:1;min-width:0}
+.np-item-id{font-size:10.5px;font-weight:700;color:var(--text-tertiary);letter-spacing:.3px;margin-bottom:1px}
+.np-item-title{font-size:12.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.np-item-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;display:inline-block}
+.np-item-badge.retard{background:#fef2f2;color:#b91c1c}
+.np-item-badge.urgent{background:#fff7ed;color:#c2410c}
+.np-item-badge.today{background:#fef9c3;color:#854d0e}
+.notif-panel-empty{padding:28px 14px;text-align:center;color:var(--text-tertiary);font-size:12px}
+.notif-panel-empty i{font-size:26px;display:block;margin-bottom:6px;opacity:.35}
+.notif-panel-footer{padding:8px 14px;border-top:1px solid var(--border);text-align:center;display:flex;justify-content:center}
+.notif-perm-btn{font-size:11px;font-weight:600;color:var(--indigo);background:none;border:none;cursor:pointer;padding:3px 8px;border-radius:4px;font-family:inherit}
+.notif-perm-btn:hover{background:var(--indigo-bg)}
 </style>
 </head>
 <body>
@@ -859,9 +888,9 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="snav-item" onclick="document.getElementById('stats-toggle').click()"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
     <div class="snav-sep"></div>
     <div class="snav-section-label">Marques</div>
-    <div class="snav-brand-item"><span class="snav-brand-dot bnw"></span><span>Black &amp; White Burger</span></div>
-    <div class="snav-brand-item"><span class="snav-brand-dot mm"></span><span>Maison Marquise</span></div>
-    <div class="snav-brand-item"><span class="snav-brand-dot autre"></span><span>Autre</span></div>
+    <div class="snav-brand-item" id="snav-brand-bnw" onclick="setSnavMarque('bnw')"><span class="snav-brand-dot bnw"></span><span>Black &amp; White Burger</span></div>
+    <div class="snav-brand-item" id="snav-brand-marquise" onclick="setSnavMarque('marquise')"><span class="snav-brand-dot mm"></span><span>Maison Marquise</span></div>
+    <div class="snav-brand-item" id="snav-brand-autre" onclick="setSnavMarque('autre')"><span class="snav-brand-dot autre"></span><span>Autre</span></div>
   </div>
   <div class="sidebar-bottom">
     <div class="sidebar-sync-row">
@@ -894,7 +923,19 @@ body { overflow-x: hidden; max-width: 100vw; }
         <input type="text" placeholder="Rechercher un brief, une marque…" id="hdr-search-input" oninput="fSearch=this.value;applyFilters()">
         <span class="page-hdr-search-kbd">⌘K</span>
       </div>
-      <button class="page-hdr-icon-btn" id="notif-btn" title="Notifications" onclick="requestNotifPermission()"><i class="ti ti-bell"></i><span class="notif-dot" id="notif-dot"></span></button>
+      <div class="notif-panel-wrap">
+        <button class="page-hdr-icon-btn" id="notif-btn" title="Notifications" onclick="toggleNotifPanel()"><i class="ti ti-bell"></i><span class="notif-dot" id="notif-dot"></span></button>
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-panel-hd">
+            <span class="notif-panel-title">Alertes <span class="notif-cnt-badge" id="notif-cnt-badge" style="display:none"></span></span>
+            <button class="notif-panel-close" onclick="closeNotifPanel()"><i class="ti ti-x"></i></button>
+          </div>
+          <div class="notif-panel-list" id="notif-panel-list"></div>
+          <div class="notif-panel-footer" id="notif-panel-footer" style="display:none">
+            <button class="notif-perm-btn" onclick="Notification.requestPermission().then(()=>updateNotifFooter())"><i class="ti ti-bell"></i> Activer les notifications navigateur</button>
+          </div>
+        </div>
+      </div>
       <button class="page-hdr-icon-btn" title="Aide"><i class="ti ti-help"></i></button>
       <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
     </div>
@@ -1579,6 +1620,7 @@ function resetFilters(){
   });
   const si=document.getElementById('hdr-search-input'); if(si) si.value='';
   document.getElementById('btn-reset-filters').style.display='none';
+  _syncSnavBrands();
   applyFilters();
 }
 function setDayFilter(btn) {
@@ -1638,6 +1680,7 @@ function applyFilters() {
   }
   filteredBriefs=data;
   _syncResetBtn();
+  _syncSnavBrands();
   renderDashboard(data);
 }
 
@@ -3127,6 +3170,80 @@ if (sbClient) {
     .subscribe(status => {
       console.log('[BW Realtime] état :', status);
     });
+}
+
+/* ── Sidebar brand filters ──────────────────────────────── */
+function setSnavMarque(marque) {
+  const v = fMarque.has(marque) ? '' : marque;
+  fMarque = v ? new Set([v]) : new Set();
+  try { localStorage.setItem('bw_last_marque', v); } catch(e){}
+  const sel = document.getElementById('filter-marque');
+  if (sel) sel.value = v;
+  _syncSnavBrands();
+  applyFilters();
+}
+function _syncSnavBrands() {
+  ['bnw','marquise','autre'].forEach(m => {
+    const el = document.getElementById('snav-brand-' + m);
+    if (el) el.classList.toggle('active', fMarque.has(m));
+  });
+}
+
+/* ── Notification panel ──────────────────────────────────── */
+function toggleNotifPanel() {
+  const p = document.getElementById('notif-panel');
+  if (!p) return;
+  p.style.display === 'block' ? closeNotifPanel() : openNotifPanel();
+}
+function openNotifPanel() {
+  renderNotifPanel();
+  const p = document.getElementById('notif-panel');
+  if (p) p.style.display = 'block';
+  setTimeout(() => document.addEventListener('click', _notifOut, {once:true, capture:true}), 20);
+}
+function closeNotifPanel() {
+  const p = document.getElementById('notif-panel');
+  if (p) p.style.display = 'none';
+  document.removeEventListener('click', _notifOut, true);
+}
+function _notifOut(e) {
+  const wrap = document.querySelector('.notif-panel-wrap');
+  if (wrap && wrap.contains(e.target)) {
+    setTimeout(() => document.addEventListener('click', _notifOut, {once:true, capture:true}), 20);
+  } else { closeNotifPanel(); }
+}
+function renderNotifPanel() {
+  const list = document.getElementById('notif-panel-list');
+  const badge = document.getElementById('notif-cnt-badge');
+  if (!list) return;
+  const alerts = allBriefs
+    .map(b => ({ b, c: categorizeBrief(b) }))
+    .filter(x => x.c && ['retard','today','urgent'].includes(x.c.cat))
+    .sort((a, b) => (b.c.score||0) - (a.c.score||0))
+    .slice(0, 8);
+  if (badge) { badge.textContent = alerts.length; badge.style.display = alerts.length > 0 ? 'inline' : 'none'; }
+  if (alerts.length === 0) {
+    list.innerHTML = '<div class="notif-panel-empty"><i class="ti ti-checks"></i>Aucune alerte — tout est à jour !</div>';
+  } else {
+    list.innerHTML = alerts.map(({ b, c }) => {
+      const dotCls = c.cat === 'retard' ? 'red' : 'orange';
+      const badgeTxt = c.cat === 'retard' ? 'En retard' : c.cat === 'today' ? "Aujourd'hui" : 'Urgent';
+      const title = (b.contexte || b.demandeur || '').slice(0, 55) || b.briefId;
+      return `<button class="notif-panel-item" onclick="closeNotifPanel();document.getElementById('${b.briefId}')?.scrollIntoView({behavior:'smooth'})">
+        <div class="np-dot ${dotCls}"></div>
+        <div class="np-item-body">
+          <div class="np-item-id">${b.briefId}</div>
+          <div class="np-item-title">${title}</div>
+          <span class="np-item-badge ${c.cat}">${badgeTxt}</span>
+        </div>
+      </button>`;
+    }).join('');
+  }
+  updateNotifFooter();
+}
+function updateNotifFooter() {
+  const f = document.getElementById('notif-panel-footer');
+  if (f) f.style.display = ('Notification' in window && Notification.permission === 'default') ? 'flex' : 'none';
 }
 
 function showRealtimeToast(msg) {
