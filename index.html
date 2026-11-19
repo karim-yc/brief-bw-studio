@@ -274,6 +274,10 @@
 <script src="supabase-config.js?v=1"></script>
 <script src="config.js?v=4"></script>
 <script>
+// "autre" est une option de saisie ponctuelle — toujours présente dans le formulaire,
+// jamais dans la table Supabase.
+const _AUTRE_OPTION = { id: 'autre', label: 'Autre' };
+
 // Marques chargées depuis Supabase (async init), fallback CONFIG
 window._appMarques = null;
 (async function() {
@@ -281,12 +285,14 @@ window._appMarques = null;
     try {
       const { data, error } = await sbClient.from('marques').select('*').eq('is_active', true).order('sort_order');
       if (!error && data && data.length) {
-        window._appMarques = data;
+        // Ajouter "autre" en fin de liste (option UI uniquement, pas en base)
+        window._appMarques = [...data, _AUTRE_OPTION];
         if (typeof renderAll === 'function') renderAll();
         return;
       }
     } catch(e) {}
   }
+  // Fallback : CONFIG.marques (contient déjà "autre")
   window._appMarques = CONFIG.marques;
 })();
 

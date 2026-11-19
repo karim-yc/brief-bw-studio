@@ -1452,9 +1452,9 @@ let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fM
 const MARQUES_FALLBACK = [
   {id:'bnw',      label:'Black & White Burger', color:'#1a1a1a', is_active:true, is_base:true, sort_order:1},
   {id:'marquise', label:'Maison Marquise',       color:'#c8a96e', is_active:true, is_base:true, sort_order:2},
-  {id:'pokawa',   label:'Pokawa',                color:'#00b96b', is_active:true, is_base:true, sort_order:3},
-  {id:'autre',    label:'Autre marque',           color:'#6b7280', is_active:true, is_base:true, sort_order:99}
+  {id:'pokawa',   label:'Pokawa',                color:'#00b96b', is_active:true, is_base:true, sort_order:3}
 ];
+// "autre" est une option de saisie ponctuelle dans le formulaire, pas une marque permanente.
 const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',pokawa:'m-pokawa',autre:'m-autre'};
 
 let _adminUser = null;
@@ -3505,7 +3505,6 @@ function _renderMarqueModal() {
     const disabled = !m.is_active;
     const editBtn = isAdmin
       ? `<button class="mm-brand-edit" onclick="_mmStartEdit('${m.id}')" title="Modifier"><i class="ti ti-pencil" style="font-size:12px"></i></button>
-         ${!m.is_base ? `<button class="mm-brand-del" onclick="_mmDeleteMarque('${m.id}')" title="Supprimer"><i class="ti ti-trash" style="font-size:12px"></i></button>` : ''}
          <button class="mm-brand-toggle" onclick="_mmToggleActive('${m.id}',${!disabled})" title="${disabled?'Réactiver':'Désactiver'}" style="color:${disabled?'var(--success)':'var(--text-tertiary)'}"><i class="ti ti-${disabled?'eye':'eye-off'}" style="font-size:12px"></i></button>`
       : '';
     return `<div class="mm-brand-row${disabled?' mm-disabled':''}">
@@ -3601,19 +3600,6 @@ async function _mmToggleActive(id, nowActive) {
   renderMarqueFilter();
 }
 
-async function _mmDeleteMarque(id) {
-  if (!sbClient || !_adminUser) return;
-  const m = getAllMarques().find(x => x.id === id);
-  if (!m || m.is_base) return;
-  if (!confirm(`Supprimer "${m.label}" ? Les briefs associés conserveront l'ID "${id}".`)) return;
-  const { error } = await sbClient.from('marques').delete().eq('id', id);
-  if (error) { showToast('Erreur : ' + error.message); return; }
-  if (fMarque.has(id)) { fMarque = new Set(); applyFilters(); }
-  await loadMarquesFromSupabase();
-  _renderMarqueModal();
-  renderSnavBrands();
-  renderMarqueFilter();
-}
 
 async function _addCustomMarque() {
   if (!sbClient || !_adminUser) return;

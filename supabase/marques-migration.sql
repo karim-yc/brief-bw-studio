@@ -1,59 +1,61 @@
 -- ════════════════════════════════════════════════════════════
 -- MIGRATION : table `marques` + table `admins`
--- À exécuter dans le SQL Editor de Supabase
--- Effet : crée les tables, insère les marques de base,
---         configure RLS (lecture publique, écriture admin uniquement)
+-- Projet : zpapoywzilwubjglhsmu
+-- À exécuter dans : Supabase Dashboard → SQL Editor → New query
 -- ════════════════════════════════════════════════════════════
 
--- 1. Table des marques (source de vérité partagée)
+-- ── 1. Table marques ─────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.marques (
-  id          TEXT      PRIMARY KEY,          -- slug stable (bnw, marquise, pokawa, autre)
-  label       TEXT      NOT NULL,             -- nom affiché (modifiable)
-  color       TEXT      NOT NULL DEFAULT '#6366f1',
-  is_active   BOOLEAN   NOT NULL DEFAULT true, -- false = masquée des nouveaux briefs
-  is_base     BOOLEAN   NOT NULL DEFAULT false, -- true = marque native (pas supprimable)
-  sort_order  INTEGER   NOT NULL DEFAULT 99,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+  id          TEXT         PRIMARY KEY,
+  label       TEXT         NOT NULL,
+  color       TEXT         NOT NULL DEFAULT '#6366f1',
+  is_active   BOOLEAN      NOT NULL DEFAULT true,
+  is_base     BOOLEAN      NOT NULL DEFAULT false,
+  sort_order  INTEGER      NOT NULL DEFAULT 99,
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
--- Trigger pour mettre à jour updated_at automatiquement
+-- Trigger updated_at
 CREATE OR REPLACE FUNCTION public.set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = now(); RETURN NEW; END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS marques_updated_at ON public.marques;
 CREATE TRIGGER marques_updated_at
   BEFORE UPDATE ON public.marques
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
--- 2. Données de base (idempotent via ON CONFLICT DO NOTHING)
+-- ── 2. Données initiales ─────────────────────────────────────
+-- "autre" est une option de saisie ponctuelle dans le formulaire,
+-- pas une marque réelle — elle n'est PAS dans cette table.
 INSERT INTO public.marques (id, label, color, is_active, is_base, sort_order) VALUES
   ('bnw',      'Black & White Burger', '#1a1a1a', true, true, 1),
   ('marquise', 'Maison Marquise',      '#c8a96e', true, true, 2),
-  ('pokawa',   'Pokawa',               '#00b96b', true, true, 3),
-  ('autre',    'Autre marque',         '#6b7280', true, true, 99)
+  ('pokawa',   'Pokawa',               '#00b96b', true, true, 3)
 ON CONFLICT (id) DO NOTHING;
 
--- 3. Table des admins (lie un user Supabase Auth à un rôle admin)
+-- ── 3. Table admins ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.admins (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  id         UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID         NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
--- 4. RLS — activer sur les deux tables
+-- ── 4. Row Level Security ────────────────────────────────────
 ALTER TABLE public.marques ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admins  ENABLE ROW LEVEL SECURITY;
 
--- 5. Politiques marques
--- Lecture : tout le monde (y compris anon)
+-- marques : lecture publique
+DROP POLICY IF EXISTS "marques_select_public" ON public.marques;
 CREATE POLICY "marques_select_public"
   ON public.marques FOR SELECT
   TO anon, authenticated
   USING (true);
 
--- Écriture : uniquement les admins authentifiés
+-- marques : INSERT réservé aux admins
+DROP POLICY IF EXISTS "marques_insert_admin" ON public.marques;
 CREATE POLICY "marques_insert_admin"
   ON public.marques FOR INSERT
   TO authenticated
@@ -61,6 +63,8 @@ CREATE POLICY "marques_insert_admin"
     SELECT 1 FROM public.admins WHERE user_id = auth.uid()
   ));
 
+-- marques : UPDATE réservé aux admins
+DROP POLICY IF EXISTS "marques_update_admin" ON public.marques;
 CREATE POLICY "marques_update_admin"
   ON public.marques FOR UPDATE
   TO authenticated
@@ -71,30 +75,16 @@ CREATE POLICY "marques_update_admin"
     SELECT 1 FROM public.admins WHERE user_id = auth.uid()
   ));
 
-CREATE POLICY "marques_delete_admin"
-  ON public.marques FOR DELETE
-  TO authenticated
-  USING (
-    NOT is_base AND EXISTS (
-      SELECT 1 FROM public.admins WHERE user_id = auth.uid()
-    )
-  );
+-- Pas de politique DELETE : la suppression n'est pas exposée.
+-- La désactivation se fait via UPDATE is_active = false.
 
--- 6. Politiques admins
--- Lecture : uniquement les admins eux-mêmes
+-- admins : chaque admin voit sa propre ligne seulement
+DROP POLICY IF EXISTS "admins_select_self" ON public.admins;
 CREATE POLICY "admins_select_self"
   ON public.admins FOR SELECT
   TO authenticated
   USING (user_id = auth.uid());
 
--- Pas de politique INSERT/UPDATE/DELETE sur admins :
--- les admins sont gérés directement via le dashboard Supabase.
-
 -- ════════════════════════════════════════════════════════════
--- APRÈS EXÉCUTION :
--- 1. Allez dans Authentication > Users, créez un compte admin
---    (ex: admin@bnwburger.com + mot de passe sécurisé)
--- 2. Copiez l'UUID de cet utilisateur
--- 3. Exécutez dans le SQL Editor :
---    INSERT INTO public.admins (user_id) VALUES ('<UUID>');
+-- APRÈS EXÉCUTION — procédure admin (voir README ci-dessous)
 -- ════════════════════════════════════════════════════════════
