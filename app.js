@@ -640,6 +640,15 @@
 
       console.log('[BW Supabase] ✓ Brief inséré —', recap.briefId);
 
+      // Monday.com via Make.com webhook (fire & forget)
+      const MAKE_URL = 'https://hook.eu1.make.com/v3nyc7z5x81gk5609ayay78rwuu75krk';
+      fetch(MAKE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recap })
+      }).then(() => console.log('[BW Make] ✓ Monday.com déclenché'))
+        .catch(err => console.warn('[BW Make] Monday.com non joint:', err.message));
+
       // Notification email directe (pg_net non fiable sur plan gratuit)
       const NOTIF_URL = 'https://script.google.com/macros/s/AKfycbxdmDrKFqB6k_ZL3IL1AzSMUJ3PgkSjAx7buacI0SWPMPW_AEDFeFaK7zJR00ocezN9/exec';
       fetch(NOTIF_URL, {
