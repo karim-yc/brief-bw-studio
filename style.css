@@ -354,13 +354,13 @@ svg { display: block; }
    ════════════════════════════════════════════════════════════ */
 .banner {
   display: flex; align-items: center; gap: 10px;
-  padding: 12px 16px;
+  padding: 7px 12px;
   background: var(--success-bg);
   border: 1px solid var(--success-border);
   border-radius: var(--r-btn);
   color: var(--success);
-  font-size: 13px; font-weight: 500;
-  margin-bottom: 20px;
+  font-size: 12px; font-weight: 500;
+  margin-bottom: 10px;
   animation: fadeSlideDown var(--t-med) var(--ease);
 }
 .banner[hidden] { display: none; }
@@ -1680,8 +1680,12 @@ select:focus { border-bottom-color: var(--indigo); }
   .hdr-page-icon { width: 30px; height: 30px; }
   .hdr-page-title { font-size: 13.5px; }
 
-  /* AI bar : empiler input et bouton verticalement */
-  .ai-bar-body { flex-direction: column; align-items: stretch; gap: 8px; }
+  /* AI bar mobile : toggle dépliable */
+  .ai-bar-toggle { display: flex; align-items: center; padding: 3px 6px; background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--text-tertiary); cursor: pointer; font-size: 11px; gap: 4px; white-space: nowrap; }
+  .ai-bar-toggle-chevron { transition: transform .2s; }
+  .ai-bar[data-open="true"] .ai-bar-toggle-chevron { transform: rotate(180deg); }
+  .ai-bar-body { flex-direction: column; align-items: stretch; gap: 8px; display: none !important; margin-top: 8px; }
+  .ai-bar[data-open="true"] .ai-bar-body { display: flex !important; }
   .ai-bar-btn { width: 100%; justify-content: center; }
 }
 

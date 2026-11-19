@@ -954,6 +954,23 @@
   }
 
   /* ════════════════════════════════════════════════════════════
+     AI BAR TOGGLE (mobile)
+     ════════════════════════════════════════════════════════════ */
+  window.toggleAiBar = function() {
+    const bar = document.getElementById('ai-bar');
+    const toggleBtn = document.getElementById('ai-bar-toggle');
+    if (!bar) return;
+    const open = bar.getAttribute('data-open') === 'true';
+    bar.setAttribute('data-open', open ? 'false' : 'true');
+    if (toggleBtn) toggleBtn.textContent = '';
+    if (toggleBtn) {
+      toggleBtn.innerHTML = open
+        ? 'Déplier <i class="ti ti-chevron-down ai-bar-toggle-chevron"></i>'
+        : 'Replier <i class="ti ti-chevron-up ai-bar-toggle-chevron"></i>';
+    }
+  };
+
+  /* ════════════════════════════════════════════════════════════
      CLAUDE AI FILL
      ════════════════════════════════════════════════════════════ */
   async function claudeAIFill() {

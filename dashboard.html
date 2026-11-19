@@ -550,6 +550,9 @@ body { overflow-x: hidden; max-width: 100vw; }
 /* 7. Drawer détail — full width sur mobile */
 .drawer-box { max-width: 100%; }
 
+/* Filter toggle button — desktop: hidden, mobile-only via 480px block */
+.filters-toggle-btn { display: none; }
+
 @media (max-width: 768px) {
   /* Header : compresser */
   .hdr          { padding: 0 12px; height: 48px; }
@@ -621,9 +624,21 @@ body { overflow-x: hidden; max-width: 100vw; }
   .hdr-search-bar { display: none !important; }
   .hdr-sub        { display: none; }
 
-  /* Filtres : limiter la hauteur visible pour prioriser les briefs */
+  /* Filtres : bouton toggle mobile, panneau caché par défaut */
   .filters-wrap   { padding: 6px 10px; }
   .filter-chip    { font-size: 9.5px; padding: 2.5px 8px; }
+  .filters-toggle-btn { display: flex; align-items: center; gap: 7px; padding: 7px 12px; background: none; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text-primary); cursor: pointer; width: 100%; }
+  .filters-active-badge { background: var(--accent); color: #000; border-radius: 10px; padding: 1px 6px; font-size: 10px; font-weight: 700; line-height: 1.4; }
+  .filters-toggle-chevron { margin-left: auto; transition: transform .2s; font-size: 13px; }
+  .filters-toggle-btn[aria-expanded="true"] .filters-toggle-chevron { transform: rotate(180deg); }
+  #filters-body   { display: none !important; margin-top: 8px; }
+  #filters-body.mobile-open { display: flex !important; }
+
+  /* KPI compact mobile : valeur + libellé, sans espace intérieur inutile */
+  .kpi-card-lg    { padding: 10px 12px; }
+  .kpi-card-lg .kpi-top { display: none; }
+  .kpi-card-lg .kpi-val { font-size: 24px; }
+  .kpi-card-lg .kpi-lbl { font-size: 9px; }
 
   /* Titres longs dans les briefs */
   .brief-title    { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
@@ -1003,8 +1018,15 @@ body { overflow-x: hidden; max-width: 100vw; }
   <div class="dbg-row"><span class="dbg-err" id="dbg-error"></span></div>
 </div>
 <!-- FILTERS (compact bar dans page-body) -->
-<div class="filters-wrap" style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:10px 16px;margin-bottom:16px;box-shadow:var(--shadow-card)">
-  <div class="filters-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+<div class="filters-wrap" id="filters-wrap" style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:10px 16px;margin-bottom:16px;box-shadow:var(--shadow-card)">
+  <!-- Toggle visible uniquement sur mobile -->
+  <button class="filters-toggle-btn" id="filters-toggle-btn" onclick="toggleFiltersPanel()" aria-expanded="false" aria-controls="filters-body">
+    <i class="ti ti-adjustments-horizontal" style="font-size:14px"></i>
+    Filtres
+    <span class="filters-active-badge" id="filters-active-badge" style="display:none">0</span>
+    <i class="ti ti-chevron-down filters-toggle-chevron" id="filters-toggle-chevron"></i>
+  </button>
+  <div class="filters-row" id="filters-body" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <select class="f-select" id="filter-periode" onchange="onSelPeriode(this.value)">
       <option value="0">Toutes périodes</option>
       <option value="7">7 jours</option>
@@ -1402,6 +1424,7 @@ function setSyncState(state, msg) {
 
 /* ── Chargement données ───────────────────────────────────── */
 let allBriefs=[], filteredBriefs=[], charts={};
+let lastDataStatus = '';
 let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fMarque=new Set(), fRetard=false;
 
 // Init brand filter from ?brand= URL param or localStorage (P2 #09 / P3 #14)
@@ -1531,7 +1554,8 @@ async function fetchBriefs() {
         console.log('[BW] Supabase OK —', data.length, 'briefs');
         D('status', 'OK'); return { data, status: 'supabase' };
       }
-      console.warn('[BW] Supabase → 0 brief — fallback GitHub JSON');
+      console.warn('[BW] Supabase → 0 brief (RLS ou table vide)');
+      return { data: [], status: 'supabase-empty' };
     } catch(e) {
       console.warn('[BW] Supabase erreur:', e.message);
       D('status', 'ERREUR Supabase: ' + e.message);
@@ -1626,8 +1650,11 @@ async function loadData() {
 
   const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   const n = merged.length, s = n > 1 ? 's' : '';
+  lastDataStatus = status;
   if (status === 'supabase') {
     setSyncState('ok', `${n} brief${s} · Supabase · ${t}`);
+  } else if (status === 'supabase-empty') {
+    setSyncState('ok', `Supabase connecté · 0 brief · ${t}`);
   } else if (status === 'github') {
     setSyncState('ok', `${n} brief${s} · GitHub JSON · ${t}`);
   } else if (status === 'apps-script') {
@@ -1689,6 +1716,24 @@ function _syncResetBtn(){
   const active=fDays>0||fType.size||fPrio.size||fStatut.size||fMarque.size;
   const btn=document.getElementById('btn-reset-filters');
   if(btn) btn.style.display=active?'flex':'none';
+  updateFilterBadge();
+}
+
+function updateFilterBadge() {
+  const count=(fDays>0?1:0)+fType.size+fPrio.size+fStatut.size+fMarque.size;
+  const badge=document.getElementById('filters-active-badge');
+  if(!badge) return;
+  badge.textContent=count;
+  badge.style.display=count>0?'inline-block':'none';
+}
+
+function toggleFiltersPanel() {
+  const body=document.getElementById('filters-body');
+  const btn=document.getElementById('filters-toggle-btn');
+  if(!body||!btn) return;
+  const open=btn.getAttribute('aria-expanded')==='true';
+  btn.setAttribute('aria-expanded', open?'false':'true');
+  body.classList.toggle('mobile-open', !open);
 }
 function resetFilters(){
   fDays=0;fType=new Set();fPrio=new Set();fStatut=new Set();fMarque=new Set();fSearch='';
@@ -2068,7 +2113,7 @@ function renderPriorities(data) {
   const pills = G('pd-pills');
   if (pills) {
     if (!total) {
-      pills.innerHTML = '<span class="pd-pill p-ok">✓ Tout à jour</span>';
+      pills.innerHTML = '<span class="pd-pill p-ok">✓ Aucun brief en retard</span>';
     } else {
       let h = '';
       if (counts.retard) h += `<span class="pd-pill p-retard" onclick="if(!fRetard){fRetard=true;document.querySelectorAll('.kpi-clickable').forEach(el=>el.classList.add('kpi-active'));applyFilters();}" title="Filtrer par retard" style="cursor:pointer">${counts.retard} En retard</span>`;
@@ -2152,16 +2197,37 @@ function renderBriefs(data) {
   el.style.display = viewMode === 'list' ? '' : 'none';
   if(!data.length) {
     const isFiltered = document.querySelector('.filter-btn.active[data-filter]:not([data-filter="all"])') || fSearch.trim();
-    el.innerHTML = isFiltered
-      ? `<div class="empty-state"><i class="ti ti-filter-off"></i><p>Aucun brief ne correspond à ces filtres.<br><a href="#" onclick="resetFilters();return false">Réinitialiser les filtres</a></p></div>`
-      : `<div class="empty-state">
-           <i class="ti ti-file-plus" style="font-size:48px;opacity:.25;margin-bottom:16px"></i>
-           <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Aucun brief en cours</p>
-           <p style="margin-bottom:20px">Créez votre première demande et elle apparaîtra ici.</p>
-           <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--indigo);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px">
-             <i class="ti ti-plus"></i> Nouvelle demande
-           </a>
-         </div>`;
+    if (isFiltered) {
+      el.innerHTML = `<div class="empty-state"><i class="ti ti-filter-off"></i><p>Aucun brief ne correspond à ces filtres.<br><a href="#" onclick="resetFilters();return false">Réinitialiser les filtres</a></p></div>`;
+    } else if (lastDataStatus === 'supabase-empty') {
+      el.innerHTML = `<div class="empty-state">
+        <i class="ti ti-database" style="font-size:40px;opacity:.25;margin-bottom:14px"></i>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Tableau vide</p>
+        <p style="margin-bottom:6px;font-size:13px">Supabase est connecté mais ne contient aucun brief.</p>
+        <p style="margin-bottom:20px;font-size:12px;color:var(--text-tertiary)">Les briefs soumis via le formulaire apparaîtront ici. Si des briefs existaient, vérifiez les droits RLS sur la table <code>briefs</code>.</p>
+        <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--indigo);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px">
+          <i class="ti ti-plus"></i> Nouvelle demande
+        </a>
+      </div>`;
+    } else if (lastDataStatus === 'error') {
+      el.innerHTML = `<div class="empty-state">
+        <i class="ti ti-wifi-off" style="font-size:40px;opacity:.25;margin-bottom:14px;color:var(--urgent)"></i>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Données inaccessibles</p>
+        <p style="margin-bottom:20px;font-size:13px">La connexion à Supabase a échoué et aucune source de secours n'est disponible.<br>Vérifiez la connexion réseau ou la configuration Supabase.</p>
+        <button onclick="loadData()" style="background:var(--indigo);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px">
+          <i class="ti ti-refresh"></i> Réessayer
+        </button>
+      </div>`;
+    } else {
+      el.innerHTML = `<div class="empty-state">
+        <i class="ti ti-file-plus" style="font-size:48px;opacity:.25;margin-bottom:16px"></i>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Aucun brief en cours</p>
+        <p style="margin-bottom:20px">Créez votre première demande et elle apparaîtra ici.</p>
+        <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--indigo);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px">
+          <i class="ti ti-plus"></i> Nouvelle demande
+        </a>
+      </div>`;
+    }
     return;
   }
   const rows = data.map((b,_i)=>{

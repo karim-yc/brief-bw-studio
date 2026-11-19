@@ -665,7 +665,7 @@ ${Recap.toHtml(r)}
 
   aiAssistBar() {
     return `
-      <div class="ai-bar" id="ai-bar">
+      <div class="ai-bar" id="ai-bar" data-open="false">
         <div class="ai-bar-left">
           <div class="ai-bar-icon">
             <svg viewBox="0 0 20 20" fill="none" width="20" height="20"><path d="M10 2l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11l-3.7 2.5 1.4-4.3L4 6.5h4.5L10 2z" fill="currentColor"/></svg>
@@ -674,8 +674,11 @@ ${Recap.toHtml(r)}
             <div class="ai-bar-label">Remplissage IA</div>
             <div class="ai-bar-sub">Décrivez votre besoin, l'IA remplit le formulaire.</div>
           </div>
+          <button class="ai-bar-toggle" id="ai-bar-toggle" onclick="toggleAiBar()" aria-label="Déplier l'assistance IA">
+            Déplier <i class="ti ti-chevron-down ai-bar-toggle-chevron"></i>
+          </button>
         </div>
-        <div class="ai-bar-body">
+        <div class="ai-bar-body" id="ai-bar-body">
           <input type="text" class="ai-bar-input" id="ai-prompt" placeholder="Ex : Post Instagram lancement B&W Smash Burger, 12,90€, mi-juin, urgent…" autocomplete="off">
           <button class="ai-bar-btn" id="ai-fill-btn" title="Remplir le formulaire avec l'IA">
             <span class="ai-bar-btn-text">✦ Remplir avec l'IA</span>
