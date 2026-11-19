@@ -11,16 +11,19 @@
 /* ── Reset & base ─────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* Palette indigo/violet — inspirée Northwind */
-  --indigo:#4F46E5;--indigo-dark:#3730A3;--indigo-light:#818CF8;
-  --indigo-bg:#EEF2FF;--indigo-border:#C7D2FE;
+  /* STUDIO Brand */
+  --acid:#DFFF00;--black:#000000;--chalk:#F4F2ED;
 
-  --black:#1E1B4B;--white:#fff;
-  --bg:#F8F7FF;--surface:#fff;
-  --border:#E5E7EB;--border-light:#F3F4F6;
-  --hover:#F9FAFB;
-  --text:#111827;--text-secondary:#6B7280;--text-tertiary:#6B7280;
-  --text-primary:#111827;
+  /* Accent — garder --indigo vars pour compatibilité */
+  --indigo:#000000;--indigo-dark:#1a1a1a;--indigo-light:#444444;
+  --indigo-bg:rgba(0,0,0,0.05);--indigo-border:rgba(0,0,0,0.12);
+
+  --white:#fff;
+  --bg:#F4F2ED;--surface:#fff;
+  --border:#DEDAD3;--border-light:#EAE6DF;
+  --hover:#EDEAE3;
+  --text:#000000;--text-secondary:#3D3A34;--text-tertiary:rgba(0,0,0,0.45);
+  --text-primary:#000000;
 
   --urgent:#DC2626;--urgent-bg:#FEF2F2;--urgent-border:#FECACA;
   --prio:#EA580C;--prio-bg:#FFF7ED;--prio-border:#FED7AA;
@@ -43,16 +46,15 @@
   --shadow-card:0 1px 2px rgba(0,0,0,.04),0 2px 8px rgba(79,70,229,.06);
 }
 
-/* Fond app : gradient violet/indigo comme la référence */
+/* Fond app : STUDIO chalk */
 html{
-  background:linear-gradient(135deg,#4338CA 0%,#6366F1 50%,#818CF8 100%);
-  background-attachment:fixed;
+  background:#F4F2ED;
   min-height:100%
 }
 body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
 
 /* ── Header ───────────────────────────────────────────────────── */
-.hdr{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.5);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.hdr{background:#ffffff;border-bottom:1px solid #DEDAD3;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 rgba(0,0,0,.04)}
 .hdr-brand{display:flex;align-items:center;gap:12px}
 .hdr-logo{width:34px;height:34px;background:var(--indigo);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:14px;letter-spacing:1px;color:#fff;flex-shrink:0}
 .hdr-title{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.3px;color:var(--text);text-transform:none}
@@ -65,7 +67,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .hdr-btn-primary:hover{background:var(--indigo-dark);border-color:var(--indigo-dark);color:#fff}
 
 /* ── Sync bar ─────────────────────────────────────────────────── */
-.sync-bar{background:rgba(255,255,255,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.5);padding:6px 24px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sync-bar{background:#F4F2ED;border-bottom:1px solid #DEDAD3;padding:6px 24px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .sync-info{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:7px}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;transition:background .3s}
 .sync-dot.loading{background:#f59e0b;animation:pulse .8s infinite}
@@ -75,7 +77,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .sync-refresh:hover{color:var(--indigo)}
 
 /* ── Filters ──────────────────────────────────────────────────── */
-.filters-wrap{background:rgba(255,255,255,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.5);padding:10px 24px;display:flex;flex-direction:column;gap:8px}
+.filters-wrap{background:#ffffff;border-bottom:1px solid #DEDAD3;padding:10px 24px;display:flex;flex-direction:column;gap:8px}
 .filters-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search-input{flex:1;min-width:180px;max-width:260px;position:relative}
 .search-input input{width:100%;padding:7px 10px 7px 32px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:12px;font-family:'Inter',sans-serif;color:var(--text);background:#fff;outline:none;transition:border-color .15s;box-shadow:0 1px 2px rgba(0,0,0,.04)}
@@ -283,11 +285,11 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .chart-wrap{padding:14px 16px;height:200px}
 
 /* ── Detail drawer ────────────────────────────────────────────── */
-.drawer-overlay{position:fixed;inset:0;background:rgba(79,70,229,.2);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
 .drawer-overlay.open{opacity:1;pointer-events:all}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:480px;max-width:100vw;background:#fff;z-index:201;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.12)}
 .drawer.open{transform:translateX(0)}
-.drawer-head{background:linear-gradient(135deg,var(--indigo-dark),var(--indigo));padding:20px 20px 0;display:flex;flex-direction:column;gap:0;flex-shrink:0}
+.drawer-head{background:#000000;padding:20px 20px 0;display:flex;flex-direction:column;gap:0;flex-shrink:0}
 .drawer-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:14px}
 .drawer-id{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.65);margin-bottom:4px;text-transform:uppercase}
 .drawer-type{font-size:15px;color:#fff;font-weight:600;line-height:1.3}
@@ -355,10 +357,10 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .activity-time{font-size:10.5px;color:var(--text-tertiary);margin-top:2px}
 
 /* ── Status modal ─────────────────────────────────────────────── */
-.status-modal{position:fixed;inset:0;background:rgba(79,70,229,.2);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.status-modal{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
 .status-modal.open{display:flex}
 .status-modal-box{background:#fff;border-radius:var(--r);width:100%;max-width:340px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18)}
-.status-modal-head{background:linear-gradient(135deg,var(--indigo-dark),var(--indigo));padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.status-modal-head{background:#000000;padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
 .status-modal-head h3{font-size:13px;font-weight:700;color:#fff}
 .status-modal-close{width:28px;height:28px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center}
 .status-options{padding:14px;display:flex;flex-direction:column;gap:6px}
@@ -610,15 +612,13 @@ body { overflow-x: hidden; max-width: 100vw; }
 .app-shell{display:flex;min-height:100vh}
 
 /* ── Sidebar ────────────────────────────────────────────────── */
-.sidebar{width:220px;background:rgba(20,17,60,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow:hidden}
-.sidebar-logo-wrap{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
-.sidebar-logo-icon{width:36px;height:36px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:14px;color:#3730A3;flex-shrink:0}
-.sidebar-logo-name{font-size:14px;font-weight:700;color:#fff;line-height:1.2}
-.sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,.45);line-height:1}
+.sidebar{width:220px;background:#000000;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow:hidden}
+.sidebar-logo-wrap{padding:20px 16px 16px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.sidebar-logo-img{width:100%;max-width:148px;height:auto;display:block;filter:invert(1);opacity:.9}
 .sidebar-nav{flex:1;padding:10px 8px;overflow-y:auto}
 .snav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.58);font-size:13px;font-weight:500;transition:all .15s;text-decoration:none;margin-bottom:1px;user-select:none}
 .snav-item:hover{background:rgba(255,255,255,.09);color:#fff}
-.snav-item.active{background:rgba(255,255,255,.16);color:#fff}
+.snav-item.active{background:#DFFF00;color:#000000}
 .snav-item i{font-size:16px;flex-shrink:0}
 .snav-sep{height:1px;background:rgba(255,255,255,.07);margin:8px 4px}
 .snav-section-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:14px 11px 6px}
@@ -663,8 +663,8 @@ body { overflow-x: hidden; max-width: 100vw; }
 /* ── Main content ───────────────────────────────────────────── */
 .main-content{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
 .page-header{padding:22px 28px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;flex-shrink:0}
-.page-greeting{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.2}
-.page-sub{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px}
+.page-greeting{font-size:22px;font-weight:800;color:#000000;letter-spacing:-.5px;line-height:1.2}
+.page-sub{font-size:12px;color:rgba(0,0,0,.45);margin-top:2px}
 .page-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .page-body{background:var(--bg);border-radius:20px 20px 0 0;margin-top:18px;flex:1;padding:24px 28px 72px;min-width:0}
 
@@ -720,10 +720,10 @@ body { overflow-x: hidden; max-width: 100vw; }
   .page-body{padding:16px 16px 60px}
 }
 /* Mobile bottom navigation */
-.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:rgba(20,17,60,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.1);z-index:200;flex-direction:row;justify-content:space-around;align-items:center}
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#000000;border-top:1px solid rgba(255,255,255,.1);z-index:200;flex-direction:row;justify-content:space-around;align-items:center}
 .mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.4);text-decoration:none;font-size:10px;font-weight:500;padding:8px 14px;transition:color .15s;line-height:1}
 .mob-nav-item i{font-size:20px}
-.mob-nav-item.active,.mob-nav-item:hover{color:#818cf8}
+.mob-nav-item.active,.mob-nav-item:hover{color:#DFFF00}
 @media(max-width:600px){
   .sidebar{display:none}
   .main-content{margin-left:0}
@@ -899,11 +899,7 @@ body { overflow-x: hidden; max-width: 100vw; }
 <!-- ═══ SIDEBAR ══════════════════════════════════════════════ -->
 <nav class="sidebar">
   <div class="sidebar-logo-wrap">
-    <div class="sidebar-logo-icon">BW</div>
-    <div>
-      <div class="sidebar-logo-name">Studio Créatif</div>
-      <div class="sidebar-logo-sub">Multi-marques</div>
-    </div>
+    <img src="assets/logo-brief-studio.png" alt="Brief Studio" class="sidebar-logo-img">
   </div>
   <div class="sidebar-nav">
     <a class="snav-item active" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
@@ -925,7 +921,7 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
   </div>
   <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">
-    <div class="snav-user-av" style="width:30px;height:30px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">KY</div>
+    <div class="snav-user-av" style="width:30px;height:30px;background:#1a1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">KY</div>
     <div class="snav-user-info" style="flex:1;min-width:0">
       <div class="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Karim Y.-Cherif</div>
       <div class="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">Brand Design Lead</div>

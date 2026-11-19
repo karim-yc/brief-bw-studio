@@ -1,25 +1,30 @@
 /* ════════════════════════════════════════════════════════════
-   BRIEF CRÉATIF — STUDIO B&W
-   Design system aligné avec dashboard.html
+   BRIEF STUDIO — Système de design
+   Palette : Noir · Craie · Blanc · Jaune Acide
    ════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Couleurs — système indigo (identique au dashboard) */
-  --indigo: #4F46E5;
-  --indigo-dark: #3730A3;
-  --indigo-light: #818CF8;
-  --indigo-bg: #EEF2FF;
-  --indigo-border: #C7D2FE;
+  /* STUDIO Brand */
+  --acid: #DFFF00;
+  --black: #000000;
+  --chalk: #F4F2ED;
 
-  --bg: #F8F7FF;
-  --bg-soft: #F3F4F6;
+  /* Accent — garder --indigo pour compatibilité descendante */
+  --indigo: #000000;
+  --indigo-dark: #1a1a1a;
+  --indigo-light: #444444;
+  --indigo-bg: rgba(0,0,0,0.05);
+  --indigo-border: rgba(0,0,0,0.12);
+
+  --bg: #F4F2ED;
+  --bg-soft: #E8E5DF;
   --surface: #ffffff;
-  --border: #E5E7EB;
-  --border-light: #F3F4F6;
+  --border: #DEDAD3;
+  --border-light: #EAE6DF;
 
-  --text: #111827;
-  --text-secondary: #6B7280;
-  --text-tertiary: #6B7280;
+  --text: #000000;
+  --text-secondary: #3D3A34;
+  --text-tertiary: rgba(0,0,0,0.45);
 
   --success: #1e8e4a;
   --success-bg: #f0faf3;
@@ -69,8 +74,7 @@
    ════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html {
-  background: linear-gradient(135deg, #4338CA 0%, #6366F1 50%, #818CF8 100%);
-  background-attachment: fixed;
+  background: #F4F2ED;
   min-height: 100%;
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
@@ -109,7 +113,7 @@ svg { display: block; }
 /* ── Accessibilité — focus visible global (WCAG 2.4.7) ── */
 :focus { outline: none; }
 :focus-visible {
-  outline: 2px solid var(--indigo);
+  outline: 2px solid #000000;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -127,10 +131,8 @@ svg { display: block; }
    ════════════════════════════════════════════════════════════ */
 .sidebar {
   width: var(--left-sidebar-width);
-  background: rgba(20,17,60,.82);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255,255,255,.1);
+  background: #000000;
+  border-right: none;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -139,28 +141,19 @@ svg { display: block; }
 }
 
 .sidebar-logo-wrap {
-  padding: 18px 16px 14px;
+  padding: 20px 16px 16px;
   display: flex;
   align-items: center;
-  gap: 10px;
   border-bottom: 1px solid rgba(255,255,255,.08);
   flex-shrink: 0;
 }
-.sidebar-logo-icon {
-  width: 36px; height: 36px;
-  background: #fff;
-  border-radius: 10px;
-  font-family: var(--font-display);
-  font-size: 14px;
-  color: #3730A3;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.sidebar-logo-name {
-  font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2;
-}
-.sidebar-logo-sub {
-  font-size: 10px; color: rgba(255,255,255,.45); line-height: 1.2;
+.sidebar-logo-img {
+  width: 100%;
+  max-width: 148px;
+  height: auto;
+  display: block;
+  filter: invert(1);
+  opacity: 0.9;
 }
 
 .sidebar-nav {
@@ -191,7 +184,7 @@ svg { display: block; }
 .snav-item:not([href]):not(.active) { opacity: .35; cursor: default; }
 .snav-item:not([href]):not(.active):hover { background: transparent; color: rgba(255,255,255,.6); }
 .snav-item:hover { background: rgba(255,255,255,.09); color: #fff; }
-.snav-item.active { background: var(--indigo); color: #fff; }
+.snav-item.active { background: #DFFF00; color: #000000; }
 .snav-item i { font-size: 18px; flex-shrink: 0; }
 
 /* ════════════════════════════════════════════════════════════
@@ -211,11 +204,8 @@ svg { display: block; }
    HEADER — barre de titre légère (remplace barre noire)
    ════════════════════════════════════════════════════════════ */
 .hdr {
-  background: rgba(255,255,255,.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,.5);
-  box-shadow: 0 1px 0 rgba(0,0,0,.04);
+  background: #ffffff;
+  border-bottom: 1px solid #DEDAD3;
   height: 60px;
   display: flex;
   align-items: center;
@@ -234,12 +224,12 @@ svg { display: block; }
   flex-shrink: 0;
   width: 36px;
   height: 36px;
-  background: var(--indigo-bg);
+  background: rgba(0,0,0,0.05);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--indigo);
+  color: #000000;
 }
 .hdr-page-info > div:not(.hdr-page-icon) { display: flex; flex-direction: column; gap: 1px; }
 .hdr-page-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; line-height: 1.2; }
