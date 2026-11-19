@@ -1458,17 +1458,21 @@ const MARQUES_FALLBACK = [
 const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',pokawa:'m-pokawa',autre:'m-autre'};
 
 let _adminUser = null;
-window._appMarques = [...MARQUES_FALLBACK]; // synchrone dès le départ
+window._appMarques = [...MARQUES_FALLBACK]; // actives uniquement (formulaire)
+window._allMarques = [...MARQUES_FALLBACK]; // référentiel complet (dashboard)
 
 async function loadMarquesFromSupabase() {
   if (!sbClient) return;
   try {
     const { data, error } = await sbClient.from('marques').select('*').order('sort_order');
-    if (!error && data && data.length) window._appMarques = data;
+    if (!error && data && data.length) {
+      window._allMarques = data;                           // toutes, y compris inactives
+      window._appMarques = data.filter(m => m.is_active); // actives uniquement
+    }
   } catch(e) {}
 }
 
-function getAllMarques() { return window._appMarques || MARQUES_FALLBACK; }
+function getAllMarques() { return window._allMarques || MARQUES_FALLBACK; }
 
 /* Normalise une valeur stockée (ID ou ancien label) → ID stable */
 // Labels historiques connus → ID stable. Complété au fur et à mesure des renommages.
@@ -1846,7 +1850,10 @@ function applyFilters() {
   if(fRetard) data=data.filter(b=>categorizeBrief(b)?.cat==='retard');
   if(fSearch.trim()) {
     const q=fSearch.trim().toLowerCase();
-    data=data.filter(b=>(b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q));
+    data=data.filter(b=>{
+      const mLabel=(getAllMarques().find(m=>m.id===b._marqueId)?.label||'').toLowerCase();
+      return (b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q)||mLabel.includes(q);
+    });
   }
   // Tab filter (Ouvrir / Complété / Tous)
   if(tabFilter==='ouvert') {
@@ -3499,7 +3506,10 @@ function renderMarqueFilter() {
   if (!sel) return;
   const cur = [...fMarque][0] || '';
   sel.innerHTML = '<option value="">Toutes marques</option>' +
-    getAllMarques().map(m => `<option value="${m.id}"${m.id === cur ? ' selected' : ''}>${m.label}</option>`).join('');
+    getAllMarques().map(m => {
+      const label = m.is_active !== false ? m.label : `${m.label} (inactif)`;
+      return `<option value="${m.id}"${m.id === cur ? ' selected' : ''}>${label}</option>`;
+    }).join('');
 }
 
 /* ── Modal gestion marques (admin Supabase) ──────────────── */
