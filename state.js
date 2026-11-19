@@ -11,6 +11,7 @@ const State = {
   data: {
     dept: '', ref: '', restaurant: '', deptAutrePrecision: '',
     marque: '',
+    marqueNom: '',
     typeDemande: '', description: '',
     genreCampagne: '', phasePackaging: '', typeVitrophanie: '',
     // Champs dynamiques étape 3 — remplis par clé selon config
@@ -143,7 +144,10 @@ const State = {
       return this.data.packagingProducts.some(p => p.nom && p.nom.trim());
     }
     const val = this.data[field.id];
-    if (field.type === 'pills') return !!val;
+    if (field.type === 'pills') {
+      if (field.id === 'marque' && val === 'autre') return !!(this.data.marqueNom || '').trim();
+      return !!val;
+    }
     if (Array.isArray(val)) return val.length > 0;
     if (field.minLength) return typeof val === 'string' && val.trim().length >= field.minLength;
     return val !== undefined && val !== null && String(val).trim() !== '';

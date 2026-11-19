@@ -506,24 +506,20 @@ ${Recap.toHtml(r)}
     const fResto = fields.find(f => f.id === 'restaurant');
     const fAlt   = fields.find(f => f.id === 'deptAutrePrecision');
 
+    const marqueList = (window.getAppMarques ? window.getAppMarques() : CONFIG.marques);
+    const checkSvg = `<span class="marque-check"><svg viewBox="0 0 12 12" fill="none" width="10" height="10"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
     const marqueHtml = `
       <div class="field" data-field-wrap="marque">
         <div class="field-label-row">
           <label class="field-label">Marque concernée<span class="req">*</span></label>
         </div>
         <div class="marque-pill-group">
-          <button type="button" class="marque-pill ${marque === 'bnw' ? 'active' : ''}" data-field="marque" data-value="bnw">
-            <span class="marque-badge marque-bnw">BW</span>Black &amp; White Burger
-            <span class="marque-check"><svg viewBox="0 0 12 12" fill="none" width="10" height="10"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </button>
-          <button type="button" class="marque-pill ${marque === 'mm' ? 'active' : ''}" data-field="marque" data-value="mm">
-            <span class="marque-badge marque-mm">M</span>Maison Marquise
-            <span class="marque-check"><svg viewBox="0 0 12 12" fill="none" width="10" height="10"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </button>
-          <button type="button" class="marque-pill ${marque === 'autre' ? 'active' : ''}" data-field="marque" data-value="autre">
-            <span class="marque-badge marque-autre">···</span>Autre
-            <span class="marque-check"><svg viewBox="0 0 12 12" fill="none" width="10" height="10"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </button>
+          ${marqueList.map(m => `<button type="button" class="marque-pill ${marque === m.id ? 'active' : ''}" data-field="marque" data-value="${m.id}">${this.esc(m.label)}${checkSvg}</button>`).join('')}
+        </div>
+        <div class="marque-nom-wrap" id="marque-nom-wrap" style="${marque === 'autre' ? '' : 'display:none'}">
+          <input type="text" class="marque-nom-input" id="marque-nom-input" data-field="marqueNom"
+            placeholder="Nom de la marque…" autocomplete="off" required
+            value="${this.esc(State.data.marqueNom || '')}">
         </div>
       </div>`;
 

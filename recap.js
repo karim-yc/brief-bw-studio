@@ -63,6 +63,7 @@ const Recap = {
       submittedAt: d.submittedAt || null,
 
       marque: (() => {
+        if (d.marque === 'autre') return d.marqueNom || 'Autre marque';
         const m = CONFIG.marques.find(x => x.id === d.marque);
         return m ? m.label : (d.marque || '');
       })(),

@@ -438,11 +438,20 @@
       // Toggle off si déjà actif (sauf priorité qui doit rester choisie)
       if (State.data[field] === value) {
         State.data[field] = '';
+        if (field === 'marque') State.data.marqueNom = '';
       } else {
         State.data[field] = value;
+        if (field === 'marque' && value !== 'autre') State.data.marqueNom = '';
       }
       scheduleSave();
       renderAll();
+      // Focus l'input nom si "autre marque" vient d'être sélectionné
+      if (field === 'marque' && State.data.marque === 'autre') {
+        setTimeout(() => {
+          const nomInput = document.getElementById('marque-nom-input');
+          if (nomInput) nomInput.focus();
+        }, 30);
+      }
       return;
     }
 
@@ -1190,24 +1199,38 @@
     }).catch(() => {});
 
     // Hamburger mobile
-    const hamburger = document.getElementById('btn-hamburger');
-    const sidebar   = document.getElementById('sidebar');
-    const overlay   = document.getElementById('sidebar-overlay');
+    const hamburger   = document.getElementById('btn-hamburger');
+    const sidebar     = document.getElementById('sidebar');
+    const overlay     = document.getElementById('sidebar-overlay');
+    const closeBtn    = document.getElementById('sidebar-close-btn');
     if (hamburger && sidebar && overlay) {
       function openSidebar() {
         sidebar.classList.add('is-open');
         overlay.classList.add('is-open');
         hamburger.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+        // Focus on first nav link
+        const firstLink = sidebar.querySelector('a, button:not(#sidebar-close-btn)');
+        if (firstLink) setTimeout(() => firstLink.focus(), 50);
       }
       function closeSidebar() {
         sidebar.classList.remove('is-open');
         overlay.classList.remove('is-open');
         hamburger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        hamburger.focus();
       }
       hamburger.addEventListener('click', () => {
         sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
       });
       overlay.addEventListener('click', closeSidebar);
+      if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+      // Escape key
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && sidebar.classList.contains('is-open')) closeSidebar();
+      });
+      // Close on nav link click
+      sidebar.querySelectorAll('a[href]').forEach(a => a.addEventListener('click', closeSidebar));
     }
 
     // Date min = aujourd'hui sur tous les champs date

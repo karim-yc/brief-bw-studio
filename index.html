@@ -17,6 +17,9 @@
   <div class="sidebar" id="sidebar" role="navigation" aria-label="Navigation principale">
     <div class="sidebar-logo-wrap">
       <img src="assets/logo-brief-studio.png" alt="Brief Studio" class="sidebar-logo-img">
+      <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Fermer le menu">
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
     </div>
     <nav class="sidebar-nav">
       <a class="snav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
@@ -43,9 +46,6 @@
       <svg viewBox="0 0 20 20" fill="none" width="20" height="20"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
     <div class="hdr-page-info">
-      <div class="hdr-page-icon">
-        <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      </div>
       <div class="hdr-page-title">Nouvelle demande</div>
       <div class="hdr-page-sub">Créez une demande complète pour l'équipe créative.</div>
     </div>
@@ -276,6 +276,17 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.6/dist/umd/supabase.js"></script>
 <script src="supabase-config.js?v=1"></script>
 <script src="config.js?v=4"></script>
+<script>
+window.getAppMarques = function() {
+  const base = CONFIG.marques.filter(m => m.id !== 'autre');
+  let custom = [];
+  try {
+    custom = JSON.parse(localStorage.getItem('bw_custom_marques') || '[]');
+  } catch(e) {}
+  const autre = CONFIG.marques.find(m => m.id === 'autre');
+  return [...base, ...custom, ...(autre ? [autre] : [])];
+};
+</script>
 <script src="state.js?v=3"></script>
 <script src="recap.js?v=2"></script>
 <script src="render.js?v=7"></script>
