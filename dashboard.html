@@ -496,6 +496,8 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .badge-marque.m-bnw{background:#111;color:#fff}
 .badge-marque.m-marquise{background:#a84f2a;color:#fff}
 .badge-marque.m-autre{background:var(--bg);color:var(--text-tertiary);border:1px solid var(--border)}
+.badge-marque.m-pokawa{background:#16a34a;color:#fff}
+.badge-marque.m-custom{background:#6366f1;color:#fff}
 
 /* ══════════════════════════════════════════════════════════════
    RESPONSIVE — Mobile-first corrections
@@ -626,6 +628,30 @@ body { overflow-x: hidden; max-width: 100vw; }
 .snav-brand-dot.bnw{background:#111;border-color:rgba(255,255,255,.4)}
 .snav-brand-dot.mm{background:#b5804e;border-color:rgba(255,255,255,.25)}
 .snav-brand-dot.autre{background:#6B7280;border-color:rgba(255,255,255,.2)}
+.snav-brand-dot.pokawa{background:#16a34a;border-color:rgba(255,255,255,.25)}
+/* ── Modal gestion marques ──────────────────────────────── */
+#marque-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center}
+.mm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.mm-panel{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:14px;width:360px;max-width:calc(100vw - 32px);max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.mm-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mm-title{font-size:14px;font-weight:700;color:var(--text-primary)}
+.mm-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-tertiary);line-height:1;padding:0 2px}
+.mm-body{padding:16px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.mm-section-label{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-tertiary);margin-top:8px;margin-bottom:4px}
+.mm-brand-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:var(--bg)}
+.mm-brand-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.mm-brand-name{font-size:13px;color:var(--text-primary);flex:1}
+.mm-brand-del{background:none;border:none;cursor:pointer;color:var(--text-tertiary);padding:3px 5px;border-radius:4px;font-size:12px;transition:all .15s}
+.mm-brand-del:hover{color:#ef4444;background:rgba(239,68,68,.1)}
+.mm-add-row{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.mm-input{padding:8px 11px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text-primary);font-size:13px;outline:none;transition:border-color .15s}
+.mm-input:focus{border-color:#6366f1}
+.mm-row-inline{display:flex;align-items:center;gap:8px}
+.mm-btn-add{padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
+.mm-btn-add:hover{background:#4f46e5}
+.mm-colors{display:flex;gap:6px;flex-wrap:wrap}
+.mm-color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+.mm-color-swatch.selected{border-color:rgba(255,255,255,.8);box-shadow:0 0 0 2px #6366f1}
 @media(max-width:900px){.snav-section-label,.snav-brand-item span,.snav-user-info{display:none}.snav-brand-item{justify-content:center}}
 .sidebar-bottom{flex-shrink:0}
 .sidebar-sync-row{padding:10px 14px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:7px}
@@ -887,10 +913,8 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="snav-item cal-nav-item" onclick="setViewMode('calendar');document.querySelectorAll('.snav-item').forEach(e=>e.classList.remove('active'));this.classList.add('active')"><i class="ti ti-calendar-month"></i><span>Calendrier</span></div>
     <div class="snav-item" onclick="document.getElementById('stats-toggle').click()"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
     <div class="snav-sep"></div>
-    <div class="snav-section-label">Marques</div>
-    <div class="snav-brand-item" id="snav-brand-bnw" onclick="setSnavMarque('bnw')"><span class="snav-brand-dot bnw"></span><span>Black &amp; White Burger</span></div>
-    <div class="snav-brand-item" id="snav-brand-marquise" onclick="setSnavMarque('marquise')"><span class="snav-brand-dot mm"></span><span>Maison Marquise</span></div>
-    <div class="snav-brand-item" id="snav-brand-autre" onclick="setSnavMarque('autre')"><span class="snav-brand-dot autre"></span><span>Autre</span></div>
+    <div class="snav-section-label" style="display:flex;align-items:center;justify-content:space-between;padding-right:8px"><span>Marques</span><button onclick="openMarqueModal()" title="Gérer les marques" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.35);font-size:14px;padding:0;line-height:1;flex-shrink:0;transition:color .15s" onmouseover="this.style.color='rgba(255,255,255,.8)'" onmouseout="this.style.color='rgba(255,255,255,.35)'"><i class="ti ti-settings-2"></i></button></div>
+    <div id="snav-brands-container"></div>
   </div>
   <div class="sidebar-bottom">
     <div class="sidebar-sync-row">
@@ -980,8 +1004,6 @@ body { overflow-x: hidden; max-width: 100vw; }
     </select>
     <select class="f-select" id="filter-marque" onchange="onSelMarque(this.value)">
       <option value="">Toutes marques</option>
-      <option value="bnw">B&amp;W</option>
-      <option value="marquise">Marquise</option>
     </select>
     <select class="f-select" id="filter-statut" onchange="onSelStatut(this.value)">
       <option value="">Tous statuts</option>
@@ -1358,8 +1380,17 @@ let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fM
     if (sel) sel.value = savedBrand;
   }
 })();
-const MARQUES_LIST = [{id:'bnw',label:'Black & White Burger'},{id:'marquise',label:'Maison Marquise'},{id:'autre',label:'Autre'}];
-const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',autre:'m-autre'};
+const MARQUES_BASE = [
+  {id:'bnw',     label:'Black & White Burger'},
+  {id:'marquise',label:'Maison Marquise'},
+  {id:'pokawa',  label:'Pokawa'},
+  {id:'autre',   label:'Autre'}
+];
+const MARQUE_CLASS = {bnw:'m-bnw',marquise:'m-marquise',pokawa:'m-pokawa',autre:'m-autre'};
+const MARQUES_LIST = MARQUES_BASE; // alias backward-compat
+function getCustomMarques(){try{return JSON.parse(localStorage.getItem('bw_custom_marques')||'[]');}catch(e){return[];}}
+function saveCustomMarques(arr){try{localStorage.setItem('bw_custom_marques',JSON.stringify(arr));}catch(e){}}
+function getAllMarques(){return[...MARQUES_BASE,...getCustomMarques()];}
 
 /* ── Fetch briefs robuste ─────────────────────────────────────
    Ordre : Make API (source primaire, credentials) → /pub CSV
@@ -1760,15 +1791,17 @@ function setMarqueFilter(btn) {
 const fmtDate = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s} };
 
 function marqueBadge(m) {
-  if (!m) m = 'bnw'; // anciens briefs → Black & White Burger par défaut
-  const info = MARQUES_LIST.find(x => x.id === m);
-  const cls  = MARQUE_CLASS[m] || 'm-autre';
+  if (!m) m = 'bnw';
+  const all  = getAllMarques();
+  const info = all.find(x => x.id === m);
+  const cls  = MARQUE_CLASS[m] || 'm-custom';
   const lbl  = info ? info.label : m;
-  return `<span class="badge-marque ${cls}">${lbl}</span>`;
+  const style= cls === 'm-custom' && info && info.color ? ` style="background:${info.color}"` : '';
+  return `<span class="badge-marque ${cls}"${style}>${lbl}</span>`;
 }
 function marqueLabel(m) {
   if (!m) return '—';
-  const info = MARQUES_LIST.find(x => x.id === m);
+  const info = getAllMarques().find(x => x.id === m);
   return info ? info.label : m;
 }
 
@@ -3146,6 +3179,10 @@ fetchMondayTasks();
 fetchGmailThreads();
 fetchWhatsAppMessages();
 
+// Init dynamic brand lists
+renderSnavBrands();
+renderMarqueFilter();
+
 // Init
 loadData();
 
@@ -3183,10 +3220,108 @@ function setSnavMarque(marque) {
   applyFilters();
 }
 function _syncSnavBrands() {
-  ['bnw','marquise','autre'].forEach(m => {
-    const el = document.getElementById('snav-brand-' + m);
-    if (el) el.classList.toggle('active', fMarque.has(m));
+  getAllMarques().forEach(m => {
+    const el = document.getElementById('snav-brand-' + m.id);
+    if (el) el.classList.toggle('active', fMarque.has(m.id));
   });
+}
+
+/* ── Dynamic brand rendering ────────────────────────────── */
+const _BRAND_COLORS_BASE = {bnw:'#111',marquise:'#a84f2a',pokawa:'#16a34a',autre:'#6B7280'};
+const _CUSTOM_PALETTES = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#6366f1','#8b5cf6','#ec4899'];
+let _mmSelectedColor = _CUSTOM_PALETTES[0];
+
+function _brandDotColor(id) {
+  if (_BRAND_COLORS_BASE[id]) return _BRAND_COLORS_BASE[id];
+  const c = getCustomMarques().find(m => m.id === id);
+  return c ? (c.color || '#6366f1') : '#6366f1';
+}
+
+function renderSnavBrands() {
+  const container = document.getElementById('snav-brands-container');
+  if (!container) return;
+  container.innerHTML = getAllMarques().map(m => {
+    const color = _brandDotColor(m.id);
+    const active = fMarque.has(m.id) ? ' active' : '';
+    return `<div class="snav-brand-item${active}" id="snav-brand-${m.id}" onclick="setSnavMarque('${m.id}')"><span class="snav-brand-dot" style="background:${color};border-color:rgba(255,255,255,.25)"></span><span>${m.label}</span></div>`;
+  }).join('');
+}
+
+function renderMarqueFilter() {
+  const sel = document.getElementById('filter-marque');
+  if (!sel) return;
+  const cur = [...fMarque][0] || '';
+  sel.innerHTML = '<option value="">Toutes marques</option>' +
+    getAllMarques().map(m => `<option value="${m.id}"${m.id === cur ? ' selected' : ''}>${m.label}</option>`).join('');
+}
+
+/* ── Modal gestion marques ───────────────────────────────── */
+function openMarqueModal() {
+  _renderMarqueModal();
+  const el = document.getElementById('marque-modal');
+  if (el) el.style.display = 'flex';
+}
+function closeMarqueModal() {
+  const el = document.getElementById('marque-modal');
+  if (el) el.style.display = 'none';
+}
+function _renderMarqueModal() {
+  const baseEl = document.getElementById('mm-base-list');
+  if (baseEl) baseEl.innerHTML = MARQUES_BASE.map(m =>
+    `<div class="mm-brand-row"><span class="mm-brand-dot" style="background:${_BRAND_COLORS_BASE[m.id]||'#6366f1'}"></span><span class="mm-brand-name">${m.label}</span></div>`
+  ).join('');
+
+  const customs = getCustomMarques();
+  const custEl = document.getElementById('mm-custom-list');
+  if (custEl) custEl.innerHTML = customs.length
+    ? customs.map((m,i) => `<div class="mm-brand-row"><span class="mm-brand-dot" style="background:${m.color||'#6366f1'}"></span><span class="mm-brand-name">${m.label}</span><button class="mm-brand-del" onclick="_removeCustomMarque(${i})" title="Supprimer"><i class="ti ti-trash" style="font-size:13px"></i></button></div>`).join('')
+    : '<div style="font-size:12px;color:var(--text-tertiary);padding:4px 0">Aucune marque personnalisée</div>';
+
+  const cpEl = document.getElementById('mm-color-picker');
+  if (cpEl) cpEl.innerHTML = _CUSTOM_PALETTES.map(c =>
+    `<span class="mm-color-swatch${c === _mmSelectedColor ? ' selected' : ''}" style="background:${c}" onclick="_mmPickColor('${c}',this)"></span>`
+  ).join('');
+}
+function _mmPickColor(color, el) {
+  _mmSelectedColor = color;
+  document.querySelectorAll('.mm-color-swatch').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function _addCustomMarque() {
+  const inp = document.getElementById('mm-new-name');
+  if (!inp) return;
+  const name = inp.value.trim();
+  if (!name) { inp.focus(); return; }
+  const id = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'') || 'brand-' + Date.now();
+  if (getAllMarques().find(m => m.id === id)) {
+    inp.style.borderColor = '#ef4444';
+    setTimeout(() => { inp.style.borderColor = ''; }, 1500);
+    return;
+  }
+  const customs = getCustomMarques();
+  customs.push({id, label: name, color: _mmSelectedColor});
+  saveCustomMarques(customs);
+  inp.value = '';
+  _mmSelectedColor = _CUSTOM_PALETTES[0];
+  _renderMarqueModal();
+  renderSnavBrands();
+  renderMarqueFilter();
+  showToast('Marque "' + name + '" ajoutée');
+}
+function _removeCustomMarque(idx) {
+  const customs = getCustomMarques();
+  if (idx < 0 || idx >= customs.length) return;
+  const removed = customs[idx];
+  customs.splice(idx, 1);
+  saveCustomMarques(customs);
+  if (removed && fMarque.has(removed.id)) {
+    fMarque = new Set();
+    try { localStorage.setItem('bw_last_marque', ''); } catch(e) {}
+    applyFilters();
+  }
+  _renderMarqueModal();
+  renderSnavBrands();
+  renderMarqueFilter();
 }
 
 /* ── Notification panel ──────────────────────────────────── */
@@ -3260,5 +3395,29 @@ function showRealtimeToast(msg) {
   t._timer = setTimeout(() => { t.style.opacity = '0'; }, 4000);
 }
 </script>
+
+<!-- ═══ MODAL GESTION MARQUES ════════════════════════════= -->
+<div id="marque-modal" style="display:none">
+  <div class="mm-backdrop" onclick="closeMarqueModal()"></div>
+  <div class="mm-panel">
+    <div class="mm-header">
+      <span class="mm-title">Gérer les marques</span>
+      <button class="mm-close" onclick="closeMarqueModal()" title="Fermer">×</button>
+    </div>
+    <div class="mm-body">
+      <div class="mm-section-label">Marques de base</div>
+      <div id="mm-base-list"></div>
+      <div class="mm-section-label">Marques personnalisées</div>
+      <div id="mm-custom-list"></div>
+      <div class="mm-add-row">
+        <input type="text" id="mm-new-name" class="mm-input" placeholder="Nom de la marque" onkeydown="if(event.key==='Enter')_addCustomMarque()">
+        <div class="mm-colors" id="mm-color-picker"></div>
+        <div class="mm-row-inline">
+          <button class="mm-btn-add" onclick="_addCustomMarque()"><i class="ti ti-plus" style="font-size:12px;margin-right:4px"></i>Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

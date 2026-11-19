@@ -10,6 +10,7 @@ const CONFIG = {
   marques: [
     { id: 'bnw',      label: 'Black & White Burger' },
     { id: 'marquise', label: 'Maison Marquise'       },
+    { id: 'pokawa',   label: 'Pokawa'                },
     { id: 'autre',    label: 'Autre'                 },
   ],
 

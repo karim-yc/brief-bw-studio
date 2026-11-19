@@ -88,7 +88,10 @@ const Render = {
       ).join('');
       inputHtml = `<select id="field-${f.id}" data-field="${f.id}"><option value="" disabled ${!val ? 'selected' : ''}>Choisir…</option>${opts}</select>`;
     } else if (f.type === 'pills') {
-      const pillOpts = Array.isArray(f.options) ? f.options : (CONFIG[f.options] || []);
+      let pillOpts = Array.isArray(f.options) ? f.options : (CONFIG[f.options] || []);
+      if (f.options === 'marques') {
+        try { const c = JSON.parse(localStorage.getItem('bw_custom_marques')||'[]'); if(c.length) pillOpts=[...pillOpts,...c]; } catch(e){}
+      }
       inputHtml = `<div class="pill-group" data-field-group="${f.id}">` +
         pillOpts.map(o => `<button type="button" class="pill ${val === o.id ? 'active' : ''}" data-field="${f.id}" data-value="${o.id}">${o.label}</button>`).join('') +
         `</div>`;

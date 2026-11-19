@@ -989,7 +989,7 @@
 
       // Mapper les champs vers State.data
       const mapping = {
-        marque: ['bnw','marquise','autre'],
+        marque: (() => { try { return ['bnw','marquise','pokawa','autre',...JSON.parse(localStorage.getItem('bw_custom_marques')||'[]').map(m=>m.id)]; } catch(e) { return ['bnw','marquise','pokawa','autre']; } })(),
         typeDemande: ['campagne','packaging','vitrophanie','autre'],
         description: null,
         accroche: null,
