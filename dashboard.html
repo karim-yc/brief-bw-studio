@@ -1482,7 +1482,7 @@ async function fetchBriefs() {
       console.log('[BW] Supabase → SELECT briefs ORDER BY submitted_at DESC');
       const { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, submitted_at, archived, archived_at')
+        .select('data, statut, submitted_at')
         .order('submitted_at', { ascending: false });
 
       if (error) throw new Error(error.message);
@@ -1491,8 +1491,6 @@ async function fetchBriefs() {
       const data = (rows || []).map(row => ({
         ...row.data,
         statut: row.statut || row.data?.statut || 'soumis',
-        archived: row.archived || false,
-        archivedAt: row.archived_at || null,
       })).filter(b => b.briefId);
 
       D('rows', data.length + ' lignes'); D('parsed', data.length + ' briefs');
@@ -1576,19 +1574,22 @@ async function loadData() {
 
   const { data: remoteData, status } = await fetchBriefs();
 
-  // IDs supprimés côté Supabase → purger du localStorage
-  const remoteIds = new Set(remoteData.map(b => b.briefId));
+  // IDs supprimés → blacklist locale (filtre toutes les sources)
   const deletedLocalKey = 'bw_deleted_brief_ids';
   let deletedIds;
   try { deletedIds = new Set(JSON.parse(localStorage.getItem(deletedLocalKey)||'[]')); } catch(e) { deletedIds = new Set(); }
 
-  // Merge : remote prioritaire + local pour les briefs non encore dans la source (sauf supprimés)
+  // Merge : remote prioritaire + local pour les briefs non encore dans la source (sauf blacklistés)
+  const remoteFiltered = remoteData.filter(b => !deletedIds.has(b.briefId));
+  const remoteIds = new Set(remoteFiltered.map(b => b.briefId));
   const merged = [
-    ...remoteData,
+    ...remoteFiltered,
     ...local.filter(b => b.briefId && !remoteIds.has(b.briefId) && !deletedIds.has(b.briefId))
   ].sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
 
-  allBriefs = merged;
+  // Enrichir avec statut d'archivage localStorage
+  const archivedIds = getArchivedIds();
+  allBriefs = merged.map(b => ({ ...b, archived: archivedIds.has(b.briefId) }));
 
   const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   const n = merged.length, s = n > 1 ? 's' : '';
@@ -2833,7 +2834,7 @@ function renderDrawer(b) {
     }
   }
 
-  const isArchived = b.archived || false;
+  const isArchived = isBriefArchived(b.briefId);
   G('drawer-foot').innerHTML=`
     <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Statut ✎</button>
     <button onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text);font-family:'Inter',sans-serif"><i class="ti ti-copy"></i> Dupliquer</button>
@@ -2883,18 +2884,21 @@ async function deleteBrief(briefId) {
   applyFilters();
 }
 
-/* ── Archivage brief ──────────────────────────────────────── */
+/* ── Archivage brief (stocké en localStorage, migrable vers Supabase) ── */
+const ARCHIVE_KEY = 'bw_brief_archived_v1';
+function getArchivedIds() { try { return new Set(JSON.parse(localStorage.getItem(ARCHIVE_KEY)||'[]')); } catch(e) { return new Set(); } }
+function saveArchivedIds(set) { try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify([...set])); } catch(e) {} }
+function isBriefArchived(briefId) { return getArchivedIds().has(briefId); }
+
 async function archiveBrief(briefId, currentlyArchived) {
   const toArchive = !currentlyArchived;
   const label = toArchive ? 'Archiver' : 'Désarchiver';
   if (!confirm(`${label} le brief ${briefId} ?`)) return;
-  if (!sbClient) { alert('Supabase non disponible.'); return; }
-  const { error } = await sbClient.from('briefs')
-    .update({ archived: toArchive, archived_at: toArchive ? new Date().toISOString() : null })
-    .eq('brief_id', briefId);
-  if (error) { alert('Erreur archivage : ' + error.message); return; }
+  const ids = getArchivedIds();
+  if (toArchive) ids.add(briefId); else ids.delete(briefId);
+  saveArchivedIds(ids);
   const idx = allBriefs.findIndex(b => b.briefId === briefId);
-  if (idx !== -1) { allBriefs[idx].archived = toArchive; allBriefs[idx].archivedAt = toArchive ? new Date().toISOString() : null; }
+  if (idx !== -1) allBriefs[idx].archived = toArchive;
   closeDrawer();
   applyFilters();
 }
