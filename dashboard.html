@@ -1391,6 +1391,9 @@ const MARQUES_LIST = MARQUES_BASE; // alias backward-compat
 function getCustomMarques(){try{return JSON.parse(localStorage.getItem('bw_custom_marques')||'[]');}catch(e){return[];}}
 function saveCustomMarques(arr){try{localStorage.setItem('bw_custom_marques',JSON.stringify(arr));}catch(e){}}
 function getAllMarques(){return[...MARQUES_BASE,...getCustomMarques()];}
+const _BRAND_COLORS_BASE = {bnw:'#111',marquise:'#a84f2a',pokawa:'#16a34a',autre:'#6B7280'};
+const _CUSTOM_PALETTES = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#6366f1','#8b5cf6','#ec4899'];
+let _mmSelectedColor = _CUSTOM_PALETTES[0];
 
 /* ── Fetch briefs robuste ─────────────────────────────────────
    Ordre : Make API (source primaire, credentials) → /pub CSV
@@ -3227,10 +3230,6 @@ function _syncSnavBrands() {
 }
 
 /* ── Dynamic brand rendering ────────────────────────────── */
-const _BRAND_COLORS_BASE = {bnw:'#111',marquise:'#a84f2a',pokawa:'#16a34a',autre:'#6B7280'};
-const _CUSTOM_PALETTES = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#6366f1','#8b5cf6','#ec4899'];
-let _mmSelectedColor = _CUSTOM_PALETTES[0];
-
 function _brandDotColor(id) {
   if (_BRAND_COLORS_BASE[id]) return _BRAND_COLORS_BASE[id];
   const c = getCustomMarques().find(m => m.id === id);
