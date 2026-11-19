@@ -962,8 +962,8 @@
     if (!bar) return;
     const open = bar.getAttribute('data-open') === 'true';
     bar.setAttribute('data-open', open ? 'false' : 'true');
-    if (toggleBtn) toggleBtn.textContent = '';
     if (toggleBtn) {
+      toggleBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
       toggleBtn.innerHTML = open
         ? 'Déplier <i class="ti ti-chevron-down ai-bar-toggle-chevron"></i>'
         : 'Replier <i class="ti ti-chevron-up ai-bar-toggle-chevron"></i>';

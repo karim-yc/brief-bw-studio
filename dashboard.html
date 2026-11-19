@@ -635,10 +635,10 @@ body { overflow-x: hidden; max-width: 100vw; }
   #filters-body.mobile-open { display: flex !important; }
 
   /* KPI compact mobile : valeur + libellé, sans espace intérieur inutile */
-  .kpi-card-lg    { padding: 10px 12px; }
+  .kpi-card-lg    { padding: 8px 10px; }
   .kpi-card-lg .kpi-top { display: none; }
-  .kpi-card-lg .kpi-val { font-size: 24px; }
-  .kpi-card-lg .kpi-lbl { font-size: 9px; }
+  .kpi-card-lg .kpi-val { font-size: 24px; line-height: 1.1; margin-bottom: 2px; }
+  .kpi-card-lg .kpi-lbl { font-size: 11.5px; }
 
   /* Titres longs dans les briefs */
   .brief-title    { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
@@ -1425,6 +1425,7 @@ function setSyncState(state, msg) {
 /* ── Chargement données ───────────────────────────────────── */
 let allBriefs=[], filteredBriefs=[], charts={};
 let lastDataStatus = '';
+let isLoadingData = true;
 let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fMarque=new Set(), fRetard=false;
 
 // Init brand filter from ?brand= URL param or localStorage (P2 #09 / P3 #14)
@@ -1626,6 +1627,7 @@ async function fetchBriefs() {
 let showArchived = false;
 
 async function loadData() {
+  isLoadingData = true;
   setSyncState('loading', 'Chargement des briefs…');
   const local = getLocalHistory();
 
@@ -1650,6 +1652,7 @@ async function loadData() {
 
   const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit', minute:'2-digit'});
   const n = merged.length, s = n > 1 ? 's' : '';
+  isLoadingData = false;
   lastDataStatus = status;
   if (status === 'supabase') {
     setSyncState('ok', `${n} brief${s} · Supabase · ${t}`);
@@ -2196,15 +2199,22 @@ function renderBriefs(data) {
   if(cnt) cnt.textContent=data.length+' brief'+(data.length>1?'s':'');
   el.style.display = viewMode === 'list' ? '' : 'none';
   if(!data.length) {
-    const isFiltered = document.querySelector('.filter-btn.active[data-filter]:not([data-filter="all"])') || fSearch.trim();
+    if (isLoadingData) {
+      el.innerHTML = `<div class="empty-state">
+        <i class="ti ti-loader-2" style="font-size:36px;opacity:.3;margin-bottom:12px;animation:spin 1s linear infinite"></i>
+        <p style="font-size:14px;color:var(--text-tertiary)">Chargement des briefs…</p>
+      </div>`;
+      return;
+    }
+    const isFiltered = fDays > 0 || fType.size || fPrio.size || fStatut.size || fMarque.size || fSearch.trim() ||
+      document.querySelector('.filter-btn.active[data-filter]:not([data-filter="all"])');
     if (isFiltered) {
       el.innerHTML = `<div class="empty-state"><i class="ti ti-filter-off"></i><p>Aucun brief ne correspond à ces filtres.<br><a href="#" onclick="resetFilters();return false">Réinitialiser les filtres</a></p></div>`;
     } else if (lastDataStatus === 'supabase-empty') {
       el.innerHTML = `<div class="empty-state">
         <i class="ti ti-database" style="font-size:40px;opacity:.25;margin-bottom:14px"></i>
-        <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Tableau vide</p>
-        <p style="margin-bottom:6px;font-size:13px">Supabase est connecté mais ne contient aucun brief.</p>
-        <p style="margin-bottom:20px;font-size:12px;color:var(--text-tertiary)">Les briefs soumis via le formulaire apparaîtront ici. Si des briefs existaient, vérifiez les droits RLS sur la table <code>briefs</code>.</p>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Aucun brief enregistré</p>
+        <p style="margin-bottom:20px;font-size:13px">La base de données ne contient aucun brief pour le moment.<br>Les briefs soumis via le formulaire apparaîtront ici.</p>
         <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--indigo);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px">
           <i class="ti ti-plus"></i> Nouvelle demande
         </a>
@@ -2213,7 +2223,7 @@ function renderBriefs(data) {
       el.innerHTML = `<div class="empty-state">
         <i class="ti ti-wifi-off" style="font-size:40px;opacity:.25;margin-bottom:14px;color:var(--urgent)"></i>
         <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Données inaccessibles</p>
-        <p style="margin-bottom:20px;font-size:13px">La connexion à Supabase a échoué et aucune source de secours n'est disponible.<br>Vérifiez la connexion réseau ou la configuration Supabase.</p>
+        <p style="margin-bottom:20px;font-size:13px">Les briefs n'ont pas pu être récupérés.<br>Vérifiez votre connexion réseau, puis réessayez.</p>
         <button onclick="loadData()" style="background:var(--indigo);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px">
           <i class="ti ti-refresh"></i> Réessayer
         </button>

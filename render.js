@@ -674,7 +674,7 @@ ${Recap.toHtml(r)}
             <div class="ai-bar-label">Remplissage IA</div>
             <div class="ai-bar-sub">Décrivez votre besoin, l'IA remplit le formulaire.</div>
           </div>
-          <button class="ai-bar-toggle" id="ai-bar-toggle" onclick="toggleAiBar()" aria-label="Déplier l'assistance IA">
+          <button class="ai-bar-toggle" id="ai-bar-toggle" onclick="toggleAiBar()" aria-expanded="false" aria-controls="ai-bar-body" aria-label="Assistance IA">
             Déplier <i class="ti ti-chevron-down ai-bar-toggle-chevron"></i>
           </button>
         </div>
