@@ -3505,7 +3505,7 @@ function _renderMarqueModal() {
     const disabled = !m.is_active;
     const editBtn = isAdmin
       ? `<button class="mm-brand-edit" onclick="_mmStartEdit('${m.id}')" title="Modifier"><i class="ti ti-pencil" style="font-size:12px"></i></button>
-         <button class="mm-brand-toggle" onclick="_mmToggleActive('${m.id}',${!disabled})" title="${disabled?'Réactiver':'Désactiver'}" style="color:${disabled?'var(--success)':'var(--text-tertiary)'}"><i class="ti ti-${disabled?'eye':'eye-off'}" style="font-size:12px"></i></button>`
+         <button class="mm-brand-toggle" onclick="_mmToggleActive('${m.id}',${disabled})" title="${disabled?'Réactiver':'Désactiver'}" style="color:${disabled?'var(--success)':'var(--text-tertiary)'}"><i class="ti ti-${disabled?'eye':'eye-off'}" style="font-size:12px"></i></button>`
       : '';
     return `<div class="mm-brand-row${disabled?' mm-disabled':''}">
       <span class="mm-brand-dot" style="background:${color}"></span>
