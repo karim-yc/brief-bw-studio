@@ -130,7 +130,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 
 /* ── Actions urgentes ─────────────────────────────────────────── */
 .urgency-bar{background:#fff;border-radius:var(--r);border:1px solid var(--border);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-card)}
-.urgency-head{padding:12px 18px;background:linear-gradient(135deg,#991B1B,#DC2626);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.urgency-head{padding:12px 18px;background:#000000;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
 .urgency-head h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:7px}
 .urgency-count{font-size:11px;color:rgba(255,255,255,.85);background:rgba(255,255,255,.2);padding:2px 8px;border-radius:var(--r-pill)}
 .urgency-body{display:none}
@@ -263,6 +263,14 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .empty-state a{color:var(--indigo);font-weight:700;text-decoration:none}
 
 /* ── Stats section (secondaire) ───────────────────────────────── */
+.integrations-section{margin-top:0}
+.integrations-toggle{display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer;user-select:none;color:var(--text-secondary);font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:none;background:none;font-family:'Inter',sans-serif;width:100%}
+.integrations-toggle:hover{color:var(--text-primary)}
+.integrations-toggle i{font-size:14px;transition:transform .2s}
+.integrations-toggle.open i.chevron-int{transform:rotate(180deg)}
+.integrations-body{display:none}
+.integrations-body.open{display:block}
+
 .stats-section{margin-top:24px}
 .stats-toggle{display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer;user-select:none;color:var(--text-secondary);font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:none;background:none;font-family:'Inter',sans-serif}
 .stats-toggle:hover{color:var(--indigo)}
@@ -463,7 +471,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-stripe.s-today{background:#fdba74}
 .pd-stripe.s-week{background:#fcd34d}
 .pd-stripe.s-urgent{background:#dc2626}
-.pd-stripe.s-prio{background:#6366f1}
+.pd-stripe.s-prio{background:#374151}
 .pd-stripe.s-later,.pd-stripe.s-nodate{background:var(--border)}
 .pd-item-body{flex:1;min-width:0}
 .pd-item-top{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -475,7 +483,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-badge.b-week{background:#fef3c7;color:#92400e}
 .pd-badge.b-urgent{background:#fee2e2;color:#b91c1c}
 .pd-badge.b-clarify{background:#fff7ed;color:#c2410c}
-.pd-badge.b-prio{background:#ede9fe;color:#5b21b6}
+.pd-badge.b-prio{background:rgba(0,0,0,.07);color:#000;border:1px solid rgba(0,0,0,.15)}
 .pd-badge.b-nodate{background:var(--bg);color:var(--text-tertiary);border:1px solid var(--border)}
 .pd-date{font-size:10.5px;color:var(--text-secondary)}
 .pd-empty{padding:16px;font-size:12px;color:var(--text-tertiary);text-align:center}
@@ -488,7 +496,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .pd-bar-fill.f-retard{background:#fca5a5}
 .pd-bar-fill.f-today{background:#fdba74}
 .pd-bar-fill.f-week{background:#fcd34d}
-.pd-bar-fill.f-prio{background:#6366f1}
+.pd-bar-fill.f-prio{background:#374151}
 .pd-bar-fill.f-later{background:#9ca3af}
 .pd-bar-fill.f-nodate{background:#d1d5db}
 .pd-bar-n{font-size:10px;color:var(--text-tertiary);min-width:14px;text-align:right}
@@ -499,7 +507,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .badge-marque.m-marquise{background:#a84f2a;color:#fff}
 .badge-marque.m-autre{background:var(--bg);color:var(--text-tertiary);border:1px solid var(--border)}
 .badge-marque.m-pokawa{background:#16a34a;color:#fff}
-.badge-marque.m-custom{background:#6366f1;color:#fff}
+.badge-marque.m-custom{background:#374151;color:#fff}
 
 /* ══════════════════════════════════════════════════════════════
    RESPONSIVE — Mobile-first corrections
@@ -618,7 +626,7 @@ body { overflow-x: hidden; max-width: 100vw; }
 .sidebar-nav{flex:1;padding:10px 8px;overflow-y:auto}
 .snav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.58);font-size:13px;font-weight:500;transition:all .15s;text-decoration:none;margin-bottom:1px;user-select:none}
 .snav-item:hover{background:rgba(255,255,255,.09);color:#fff}
-.snav-item.active{background:#DFFF00;color:#000000}
+.snav-item.active{background:rgba(223,255,0,.12);color:#fff;box-shadow:inset 3px 0 0 #DFFF00}
 .snav-item i{font-size:16px;flex-shrink:0}
 .snav-sep{height:1px;background:rgba(255,255,255,.07);margin:8px 4px}
 .snav-section-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.28);padding:14px 11px 6px}
@@ -645,13 +653,13 @@ body { overflow-x: hidden; max-width: 100vw; }
 .mm-brand-del:hover{color:#ef4444;background:rgba(239,68,68,.1)}
 .mm-add-row{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
 .mm-input{padding:8px 11px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text-primary);font-size:13px;outline:none;transition:border-color .15s}
-.mm-input:focus{border-color:#6366f1}
+.mm-input:focus{border-color:#000000}
 .mm-row-inline{display:flex;align-items:center;gap:8px}
-.mm-btn-add{padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
-.mm-btn-add:hover{background:#4f46e5}
+.mm-btn-add{padding:8px 16px;background:#000000;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
+.mm-btn-add:hover{background:#1a1a1a}
 .mm-colors{display:flex;gap:6px;flex-wrap:wrap}
 .mm-color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
-.mm-color-swatch.selected{border-color:rgba(255,255,255,.8);box-shadow:0 0 0 2px #6366f1}
+.mm-color-swatch.selected{border-color:rgba(255,255,255,.8);box-shadow:0 0 0 2px #000000}
 @media(max-width:900px){.snav-section-label,.snav-brand-item span,.snav-user-info{display:none}.snav-brand-item{justify-content:center}}
 .sidebar-bottom{flex-shrink:0}
 .sidebar-sync-row{padding:10px 14px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:7px}
@@ -752,15 +760,15 @@ body { overflow-x: hidden; max-width: 100vw; }
 .kpi-delta-flat{background:rgba(100,116,139,.1);color:#64748b}
 
 /* ── Page header search + icon buttons ─────────────────── */
-.page-hdr-search{position:relative;display:flex;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:var(--r-sm);padding:0 10px;gap:7px;height:34px;min-width:200px;transition:background .15s}
-.page-hdr-search:hover,.page-hdr-search:focus-within{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.35)}
-.page-hdr-search input{background:none;border:none;outline:none;font-size:12px;color:#fff;font-family:'Inter',sans-serif;flex:1;min-width:0}
-.page-hdr-search input::placeholder{color:rgba(255,255,255,.45)}
-.page-hdr-search i{color:rgba(255,255,255,.5);font-size:13px;flex-shrink:0}
-.page-hdr-search-kbd{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0}
-.page-hdr-icon-btn{width:34px;height:34px;border:1px solid rgba(255,255,255,.18);border-radius:var(--r-sm);background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;font-size:15px;transition:background .15s;flex-shrink:0}
-.page-hdr-icon-btn:hover{background:rgba(255,255,255,.2);color:#fff}
-.notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:#ef4444;border:1.5px solid rgba(255,255,255,.25);display:none}
+.page-hdr-search{position:relative;display:flex;align-items:center;background:#fff;border:1px solid #DEDAD3;border-radius:var(--r-sm);padding:0 10px;gap:7px;height:34px;min-width:200px;transition:background .15s}
+.page-hdr-search:hover,.page-hdr-search:focus-within{background:#fff;border-color:#C4BFB6;box-shadow:0 0 0 3px rgba(0,0,0,.06)}
+.page-hdr-search input{background:none;border:none;outline:none;font-size:12px;color:#000;font-family:'Inter',sans-serif;flex:1;min-width:0}
+.page-hdr-search input::placeholder{color:rgba(0,0,0,.35)}
+.page-hdr-search i{color:rgba(0,0,0,.35);font-size:13px;flex-shrink:0}
+.page-hdr-search-kbd{font-size:10px;font-weight:700;color:rgba(0,0,0,.3);background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+.page-hdr-icon-btn{width:34px;height:34px;border:1px solid #DEDAD3;border-radius:var(--r-sm);background:#fff;color:rgba(0,0,0,.55);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;font-size:15px;transition:all .15s;flex-shrink:0}
+.page-hdr-icon-btn:hover{background:#F4F2ED;color:#000;border-color:#C4BFB6}
+.notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:#ef4444;border:1.5px solid #fff;display:none}
 .notif-dot.has-notif{display:block}
 @media(max-width:600px){.page-hdr-search{display:none}.page-hdr-icon-btn{display:none}}
 
@@ -772,13 +780,13 @@ body { overflow-x: hidden; max-width: 100vw; }
 .kanban-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;margin-right:4px;vertical-align:middle}
 .ksd-soumis{background:#3b82f6}
 .ksd-encours{background:#f59e0b}
-.ksd-simulation{background:#8b5cf6}
+.ksd-simulation{background:#374151}
 .ksd-valide{background:#22c55e}
 .ksd-livre{background:#374151}
 
 /* ── Monday.com tasks section ──────────────────────────── */
 .monday-section{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-card)}
-.monday-header{padding:12px 18px;background:linear-gradient(135deg,#F62B54,#FF4D6A);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.monday-header{padding:12px 18px;background:#000000;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .monday-header h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:7px}
 .monday-logo{width:18px;height:18px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .monday-logo svg{width:12px;height:12px}
@@ -814,7 +822,7 @@ body { overflow-x: hidden; max-width: 100vw; }
 
 /* ── Gmail section ─────────────────────────────────────────── */
 .gmail-section{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-card)}
-.gmail-header{padding:12px 18px;background:linear-gradient(135deg,#EA4335,#FBBC04 80%,#EA4335);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gmail-header{padding:12px 18px;background:#000000;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .gmail-header h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:7px}
 .gmail-refresh-btn{background:rgba(255,255,255,.18);border:none;color:#fff;font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:background .15s}
 .gmail-refresh-btn:hover{background:rgba(255,255,255,.3)}
@@ -832,17 +840,17 @@ body { overflow-x: hidden; max-width: 100vw; }
 .gmail-thread-snippet{font-size:11px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gmail-thread-badges{display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap}
 .gmail-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap}
-.gb-unread{background:#EEF2FF;color:#4F46E5}
+.gb-unread{background:#f4f2ed;color:#000}
 .gb-attach{background:#F3F4F6;color:#6B7280}
 .gb-cnt{background:#F3F4F6;color:#6B7280}
-.gmail-unread-dot{width:7px;height:7px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:5px}
+.gmail-unread-dot{width:7px;height:7px;border-radius:50%;background:#000000;flex-shrink:0;margin-top:5px}
 .gmail-setup{padding:24px 18px;text-align:center;color:var(--text-tertiary);font-size:12px}
 .gmail-setup i{font-size:28px;display:block;margin-bottom:8px;opacity:.4}
 .gmail-setup-btn{margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--indigo);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none}
 
 /* ── WhatsApp section ──────────────────────────────────────── */
 .wa-section{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-card)}
-.wa-header{padding:12px 18px;background:linear-gradient(135deg,#128C7E,#25D366);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wa-header{padding:12px 18px;background:#000000;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .wa-header h2{font-size:11px;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:7px}
 .wa-refresh-btn{background:rgba(255,255,255,.18);border:none;color:#fff;font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:background .15s}
 .wa-refresh-btn:hover{background:rgba(255,255,255,.3)}
@@ -1048,6 +1056,35 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
   </div>
 
+  <!-- TABS + BRIEFS TABLE -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div class="page-tabs" id="page-tabs">
+      <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">Briefs en cours <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
+      <button class="page-tab" data-tab="complete" onclick="setTabFilter(this,'complete')">Complétés <span class="tab-badge" id="tab-cnt-complete">—</span></button>
+      <button class="page-tab" data-tab="tous" onclick="setTabFilter(this,'tous')">Tous les briefs <span class="tab-badge" id="tab-cnt-tous">—</span></button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="briefs-count" style="font-size:12px;color:var(--text-tertiary)"></span>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-list"   onclick="setViewMode('list')"     title="Vue liste"><i class="ti ti-list"></i></button>
+        <button class="view-btn"        id="btn-kanban" onclick="setViewMode('kanban')"   title="Vue kanban"><i class="ti ti-layout-columns"></i></button>
+        <button class="view-btn"        id="btn-cal"    onclick="setViewMode('calendar')" title="Vue calendrier"><i class="ti ti-calendar-month"></i></button>
+      </div>
+      <button class="hdr-btn" onclick="exportCSV()" title="Exporter en CSV" style="margin-left:4px"><i class="ti ti-download"></i> CSV</button>
+    </div>
+  </div>
+  <div id="briefs-list" class="briefs-list"></div>
+  <div id="briefs-kanban" style="display:none"></div>
+  <div id="briefs-calendar" class="briefs-calendar" style="display:none"></div>
+
+  <!-- INTÉGRATIONS (secondaire, collapsible) -->
+  <div class="integrations-section" id="integrations-section">
+    <button class="integrations-toggle" id="integrations-toggle" onclick="toggleIntegrations()">
+      <i class="ti ti-chevron-down chevron-int"></i>
+      Intégrations · Monday · Gmail · WhatsApp
+    </button>
+    <div class="integrations-body" id="integrations-body">
+
   <!-- MONDAY.COM TASKS -->
   <div class="monday-section" id="monday-section">
     <div class="monday-header">
@@ -1059,7 +1096,7 @@ body { overflow-x: hidden; max-width: 100vw; }
             <circle cx="20" cy="12" r="3" fill="#00C875"/>
           </svg>
         </span>
-        Mes tâches Monday
+        Tâches Monday <span style="font-size:9px;font-weight:400;opacity:.6;margin-left:4px">(outil de gestion de projet — distinct des briefs)</span>
       </h2>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="monday-meta" id="monday-meta"><span class="dot"></span><span id="monday-updated">—</span></span>
@@ -1083,7 +1120,7 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="gmail-header">
       <h2>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke="white" stroke-width="2" fill="none"/><path d="M2 6L12 13L22 6" stroke="white" stroke-width="2"/></svg>
-        Boîte de réception
+        Boîte de réception Gmail
       </h2>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:10px;color:rgba(255,255,255,.65)" id="gmail-updated">—</span>
@@ -1125,26 +1162,8 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
   </div>
 
-  <!-- TABS + BRIEFS TABLE -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-    <div class="page-tabs" id="page-tabs">
-      <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">En cours <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
-      <button class="page-tab" data-tab="complete" onclick="setTabFilter(this,'complete')">Complété <span class="tab-badge" id="tab-cnt-complete">—</span></button>
-      <button class="page-tab" data-tab="tous" onclick="setTabFilter(this,'tous')">Tous <span class="tab-badge" id="tab-cnt-tous">—</span></button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span id="briefs-count" style="font-size:12px;color:var(--text-tertiary)"></span>
-      <div class="view-toggle">
-        <button class="view-btn active" id="btn-list"   onclick="setViewMode('list')"     title="Vue liste"><i class="ti ti-list"></i></button>
-        <button class="view-btn"        id="btn-kanban" onclick="setViewMode('kanban')"   title="Vue kanban"><i class="ti ti-layout-columns"></i></button>
-        <button class="view-btn"        id="btn-cal"    onclick="setViewMode('calendar')" title="Vue calendrier"><i class="ti ti-calendar-month"></i></button>
-      </div>
-      <button class="hdr-btn" onclick="exportCSV()" title="Exporter en CSV" style="margin-left:4px"><i class="ti ti-download"></i> CSV</button>
-    </div>
-  </div>
-  <div id="briefs-list" class="briefs-list"></div>
-  <div id="briefs-kanban" style="display:none"></div>
-  <div id="briefs-calendar" class="briefs-calendar" style="display:none"></div>
+    </div><!-- /integrations-body -->
+  </div><!-- /integrations-section -->
 
   <!-- STATS (secondaire, collapsible) -->
   <div class="stats-section">
@@ -1863,7 +1882,7 @@ function renderKPIs(data) {
   const total = allBriefs.length;
   const urgent = data.filter(b=>b.priorite==='urgent').length;
   const enRetard = allBriefs.filter(b=>categorizeBrief(b)?.cat==='retard').length;
-  const onTimePct = total > 0 ? Math.round((total - enRetard) / total * 100) : 100;
+  const onTimePct = total > 0 ? Math.round((total - enRetard) / total * 100) : null;
 
   // Trend: compare with saved snapshot
   const prevSnap = (() => { try { return JSON.parse(localStorage.getItem('bw_kpi_history')||'null'); } catch(e) { return null; } })();
@@ -1901,7 +1920,7 @@ function renderKPIs(data) {
     {val:total,         lbl:'Total briefs',    color:'',                   tip:'Nombre total de briefs actifs.',     iconCls:'kpi-icon-indigo', icon:layersIcon, d:delta(total,     prevSnap?.total)},
     {val:urgent,        lbl:'Urgents',          color:urgent>0?'red':'',    tip:'Briefs marqués comme urgents.',      iconCls:'kpi-icon-orange', icon:zapIcon,    d:deltaInv(urgent, prevSnap?.urgent)},
     {val:enRetard,      lbl:'En retard',        color:enRetard>0?'red':'',  tip:'Deadlines dépassées, non livrés.',   iconCls:'kpi-icon-red',    icon:clockIcon,  d:deltaInv(enRetard, prevSnap?.enRetard), onclick:'toggleRetardFilter()'},
-    {val:onTimePct+'%', lbl:'Dans les délais',  color:onTimePct>=80?'':'red', tip:'% de briefs sans retard.',         iconCls:'kpi-icon-green',  icon:checkIcon,  d:deltaPct(onTimePct, prevSnap?.onTimePct)},
+    {val: onTimePct !== null ? onTimePct+'%' : '—', lbl:'Dans les délais', color: onTimePct !== null && onTimePct < 80 ? 'red' : '', tip:'% de briefs sans retard. Affiché uniquement avec au moins 1 brief.', iconCls:'kpi-icon-green', icon:checkIcon, d: onTimePct !== null ? deltaPct(onTimePct, prevSnap?.onTimePct) : ''},
   ].map(k=>`<div class="kpi-card kpi-card-lg${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
     <div class="kpi-top">
       <div class="kpi-icon-wrap ${k.iconCls}">${k.icon}</div>
@@ -2971,6 +2990,11 @@ function printBrief(briefId) {
 function toggleStats() {
   const grid=G('stats-grid'), btn=G('stats-toggle');
   grid.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+function toggleIntegrations() {
+  const body=G('integrations-body'), btn=G('integrations-toggle');
+  body.classList.toggle('open');
   btn.classList.toggle('open');
 }
 // Fermer drawer avec Escape
