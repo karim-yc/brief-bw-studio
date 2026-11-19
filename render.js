@@ -75,12 +75,12 @@ const Render = {
           <button type="button" class="att-remove" data-att-idx="${i}" title="Supprimer">×</button>
         </div>`).join('') : '';
       inputHtml = `
-        <label class="att-dropzone" id="att-dropzone">
+        <div class="att-dropzone" id="att-dropzone">
           <input type="file" id="att-input" multiple accept="image/*,.pdf,.doc,.docx,.pptx,.xlsx,.zip" style="display:none">
           <span class="att-icon-add">＋</span>
           <span class="att-label">Glisser des fichiers ici ou <u>parcourir</u></span>
           <span class="att-hint">Max 3 fichiers · 5 Mo chacun</span>
-        </label>
+        </div>
         <div class="att-list" id="att-list">${listHtml}</div>`;
     } else if (f.type === 'select') {
       const opts = (CONFIG[f.options] || []).map(o =>
