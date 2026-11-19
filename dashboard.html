@@ -2595,7 +2595,11 @@ function renderList(id, data, keyFn) {
 function renderStats(data) {
   renderList('dept-list',     data, b=>b.departement);
   renderList('types-list',    data, b=>b.typeDemande);
-  renderList('supports-list', data, b=>(b.supports||'').split(',').map(s=>s.trim()).filter(Boolean));
+  renderList('supports-list', data, b=>{
+    const s = b.supports;
+    if (Array.isArray(s)) return s.map(x => (typeof x === 'object' ? (x.label||x.id||'') : String(x))).filter(Boolean);
+    return (s||'').split(',').map(x=>x.trim()).filter(Boolean);
+  });
   renderActivityChart(data);
   renderPrioChart(data);
 }
