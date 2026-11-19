@@ -1312,6 +1312,31 @@ body { overflow-x: hidden; max-width: 100vw; }
   </div>
 </div>
 
+<!-- ═══ MODAL MOT DE PASSE ═══════════════════════════════= -->
+<div id="bw-auth-modal" style="position:fixed;inset:0;z-index:9999;background:#1E1B4B;display:flex;align-items:center;justify-content:center;font-family:Inter,sans-serif">
+  <div style="background:#fff;border-radius:16px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.35)">
+    <div style="font-size:28px;margin-bottom:8px">🔒</div>
+    <div style="font-size:17px;font-weight:700;color:#1E1B4B;margin-bottom:4px">BW Studio</div>
+    <div style="font-size:13px;color:#64748b;margin-bottom:20px">Dashboard créatif</div>
+    <input id="bw-auth-input" type="password" placeholder="Mot de passe" autocomplete="current-password"
+      style="width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;text-align:center;margin-bottom:8px">
+    <div id="bw-auth-error" style="color:#ef4444;font-size:12px;min-height:18px;margin-bottom:8px"></div>
+    <button id="bw-auth-btn" style="width:100%;padding:11px;background:#1E1B4B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Accéder</button>
+  </div>
+</div>
+
+<!-- ═══ MODAL DIALOGUE GÉNÉRIQUE (confirm / prompt / alert) ══ -->
+<div id="bw-dlg" style="display:none;position:fixed;inset:0;z-index:8900;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:14px;padding:24px 26px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.22)">
+    <div id="bw-dlg-msg" style="font-size:14px;color:#1e1b4b;margin-bottom:16px;line-height:1.6;white-space:pre-line"></div>
+    <input id="bw-dlg-input" type="text" style="display:none;width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:14px;margin-bottom:16px;outline:none">
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="bw-dlg-cancel" style="padding:8px 16px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:13px;color:#64748b">Annuler</button>
+      <button id="bw-dlg-ok" style="padding:8px 18px;border-radius:8px;border:none;background:#1e1b4b;color:#fff;cursor:pointer;font-size:13px;font-weight:600">OK</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.6/dist/umd/supabase.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════════
@@ -1324,16 +1349,12 @@ body { overflow-x: hidden; max-width: 100vw; }
    Mot de passe modifiable ici : constante DASH_PASS.
    ─────────────────────────────────────────────────────────── */
 (function() {
-  const DASH_PASS = 'BW2026';
   const SK = 'bw_dash_v1_auth';
-  if (sessionStorage.getItem(SK) === '1') return;
-  const p = prompt('🔒 BW Studio — Mot de passe dashboard');
-  if (p !== DASH_PASS) {
-    document.body.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;background:#1E1B4B;color:rgba(255,255,255,.5);font-size:14px';
-    document.body.innerHTML = '<div>Accès non autorisé.</div>';
-    throw new Error('bw:unauthorized');
+  window._bwAuthOk = sessionStorage.getItem(SK) === '1';
+  if (window._bwAuthOk) {
+    const m = document.getElementById('bw-auth-modal');
+    if (m) m.style.display = 'none';
   }
-  sessionStorage.setItem(SK, '1');
 })();
 
 const G = id => document.getElementById(id);
@@ -1846,12 +1867,12 @@ function applyFilters() {
   if(fType.size) data=data.filter(b=>fType.has(b.typeDemande));
   if(fPrio.size) data=data.filter(b=>fPrio.has(b.priorite));
   if(fStatut.size) data=data.filter(b=>fStatut.has(getStatut(b.briefId)));
-  if(fMarque.size) data=data.filter(b=>fMarque.has(b._marqueId));
+  if(fMarque.size) data=data.filter(b=>fMarque.has(b._marqueId)||(fMarque.has('bnw')&&!b._marqueId));
   if(fRetard) data=data.filter(b=>categorizeBrief(b)?.cat==='retard');
   if(fSearch.trim()) {
     const q=fSearch.trim().toLowerCase();
     data=data.filter(b=>{
-      const mLabel=(getAllMarques().find(m=>m.id===b._marqueId)?.label||'').toLowerCase();
+      const mLabel=(getAllMarques().find(m=>m.id===(b._marqueId||'bnw'))?.label||'').toLowerCase();
       return (b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q)||mLabel.includes(q);
     });
   }
@@ -2492,7 +2513,7 @@ function kDrop(e, colId) {
 /* ── Export CSV ──────────────────────────────────────────── */
 function exportCSV() {
   const data = filteredBriefs.length ? filteredBriefs : allBriefs;
-  if (!data.length) { alert('Aucun brief à exporter.'); return; }
+  if (!data.length) { showRealtimeToast('Aucun brief à exporter.'); return; }
 
   const fields = [
     ['briefId',       'ID'],
@@ -2690,11 +2711,11 @@ function renderCharge(data) {
     <span class="charge-bar-cap" title="Modifier la capacité" onclick="editChargeCap()">cap. ${cap}</span>`;
 }
 
-function editChargeCap() {
+async function editChargeCap() {
   const CAP_KEY = 'bw_charge_cap';
   const cur = parseInt(localStorage.getItem(CAP_KEY)||'8', 10);
-  const val = prompt('Capacité hebdomadaire du studio (nombre de briefs) :', cur);
-  if (val === null) return;
+  const val = await bwPrompt('Capacité hebdomadaire du studio (nombre de briefs) :', cur);
+  if (val === null || val === '') return;
   const n = parseInt(val, 10);
   if (!n || n < 1) return;
   localStorage.setItem(CAP_KEY, String(n));
@@ -3043,10 +3064,10 @@ function _purgeLocalBrief(briefId) {
 }
 
 async function deleteBrief(briefId) {
-  if (!confirm(`Supprimer définitivement le brief ${briefId} ?\n\nCette action est irréversible.`)) return;
-  if (!sbClient) { alert('Supabase non disponible.'); return; }
+  if (!await bwConfirm(`Supprimer définitivement le brief ${briefId} ?\n\nCette action est irréversible.`)) return;
+  if (!sbClient) { showRealtimeToast('Supabase non disponible.'); return; }
   const { error } = await sbClient.from('briefs').delete().eq('brief_id', briefId);
-  if (error) { alert('Erreur suppression : ' + error.message); return; }
+  if (error) { showRealtimeToast('Erreur suppression : ' + error.message); return; }
   _purgeLocalBrief(briefId);
   allBriefs = allBriefs.filter(b => b.briefId !== briefId);
   closeDrawer();
@@ -3062,7 +3083,7 @@ function isBriefArchived(briefId) { return getArchivedIds().has(briefId); }
 async function archiveBrief(briefId, currentlyArchived) {
   const toArchive = !currentlyArchived;
   const label = toArchive ? 'Archiver' : 'Désarchiver';
-  if (!confirm(`${label} le brief ${briefId} ?`)) return;
+  if (!await bwConfirm(`${label} le brief ${briefId} ?`)) return;
   const ids = getArchivedIds();
   if (toArchive) ids.add(briefId); else ids.delete(briefId);
   saveArchivedIds(ids);
@@ -3431,41 +3452,66 @@ async function fetchMondayTasks() {
   }
 }
 
-fetchMondayTasks();
-fetchGmailThreads();
-fetchWhatsAppMessages();
-
-// Init : charger les marques depuis Supabase puis initialiser les listes
-loadMarquesFromSupabase().then(() => {
-  renderSnavBrands();
-  renderMarqueFilter();
-});
-
-// Init
-loadData();
-
-setInterval(loadData, 5*60*1000);
-
-/* ── Supabase Realtime — mise à jour automatique ─────────────
-   INSERT  → recharge les données + toast notification
-   UPDATE  → recharge les données (changement de statut)
-   ─────────────────────────────────────────────────────────── */
-if (sbClient) {
-  sbClient.channel('bw-briefs-live')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'briefs' },
-      payload => {
-        console.log('[BW Realtime] Nouveau brief →', payload.new?.brief_id);
-        loadData();
-        showRealtimeToast(`📋 Nouveau brief — ${payload.new?.brief_id || ''}`);
+(async function _initDashboard() {
+  /* ── Auth modale si session non authentifiée ─────────────── */
+  if (!window._bwAuthOk) {
+    await new Promise(resolve => {
+      const inp = document.getElementById('bw-auth-input');
+      const btn = document.getElementById('bw-auth-btn');
+      const err = document.getElementById('bw-auth-error');
+      function tryAuth() {
+        if (inp && inp.value === 'BW2026') {
+          sessionStorage.setItem('bw_dash_v1_auth', '1');
+          const m = document.getElementById('bw-auth-modal');
+          if (m) m.style.display = 'none';
+          resolve();
+        } else {
+          if (err) err.textContent = 'Mot de passe incorrect';
+          if (inp) { inp.value = ''; inp.focus(); }
+        }
       }
-    )
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'briefs' },
-      () => loadData()
-    )
-    .subscribe(status => {
-      console.log('[BW Realtime] état :', status);
+      if (btn) btn.addEventListener('click', tryAuth);
+      if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') tryAuth(); });
+      setTimeout(() => inp && inp.focus(), 80);
     });
-}
+  }
+
+  fetchMondayTasks();
+  fetchGmailThreads();
+  fetchWhatsAppMessages();
+
+  // Init : charger les marques depuis Supabase puis initialiser les listes
+  loadMarquesFromSupabase().then(() => {
+    renderSnavBrands();
+    renderMarqueFilter();
+  });
+
+  // Init
+  loadData();
+
+  setInterval(loadData, 5*60*1000);
+
+  /* ── Supabase Realtime — mise à jour automatique ─────────────
+     INSERT  → recharge les données + toast notification
+     UPDATE  → recharge les données (changement de statut)
+     ─────────────────────────────────────────────────────────── */
+  if (sbClient) {
+    sbClient.channel('bw-briefs-live')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'briefs' },
+        payload => {
+          console.log('[BW Realtime] Nouveau brief →', payload.new?.brief_id);
+          loadData();
+          showRealtimeToast(`📋 Nouveau brief — ${payload.new?.brief_id || ''}`);
+        }
+      )
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'briefs' },
+        () => loadData()
+      )
+      .subscribe(status => {
+        console.log('[BW Realtime] état :', status);
+      });
+  }
+})();
 
 /* ── Sidebar brand filters ──────────────────────────────── */
 function setSnavMarque(marque) {
@@ -3753,6 +3799,41 @@ function showRealtimeToast(msg) {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => { t.style.opacity = '0'; }, 4000);
 }
+
+/* ── Dialogues personnalisés (remplace prompt / confirm / alert) ── */
+function _bwDlg(type, message, defaultVal) {
+  return new Promise(resolve => {
+    const overlay  = document.getElementById('bw-dlg');
+    const msgEl    = document.getElementById('bw-dlg-msg');
+    const inputEl  = document.getElementById('bw-dlg-input');
+    const okBtn    = document.getElementById('bw-dlg-ok');
+    const cancelBtn= document.getElementById('bw-dlg-cancel');
+    if (!overlay) { resolve(type === 'confirm' ? false : null); return; }
+    msgEl.textContent = message;
+    inputEl.style.display = type === 'prompt' ? 'block' : 'none';
+    if (type === 'prompt') inputEl.value = (defaultVal !== undefined && defaultVal !== null) ? String(defaultVal) : '';
+    cancelBtn.style.display = type === 'alert' ? 'none' : 'block';
+    okBtn.textContent = type === 'confirm' ? 'Confirmer' : 'OK';
+    overlay.style.display = 'flex';
+    function cleanup(result) {
+      overlay.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      inputEl.removeEventListener('keydown', onKey);
+      resolve(result);
+    }
+    function onOk() { cleanup(type === 'prompt' ? inputEl.value : (type === 'alert' ? undefined : true)); }
+    function onCancel() { cleanup(type === 'confirm' ? false : null); }
+    function onKey(e) { if (e.key === 'Enter') onOk(); if (e.key === 'Escape' && type !== 'alert') onCancel(); }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    inputEl.addEventListener('keydown', onKey);
+    if (type === 'prompt') setTimeout(() => inputEl.focus(), 50);
+  });
+}
+function bwConfirm(msg) { return _bwDlg('confirm', msg); }
+function bwPrompt(msg, def) { return _bwDlg('prompt', msg, def); }
+function bwAlert(msg) { return _bwDlg('alert', msg); }
 </script>
 
 <!-- ═══ MODAL GESTION MARQUES ════════════════════════════= -->
