@@ -2491,12 +2491,11 @@ const CHECKLISTS = {
 const CL_KEY = 'bw_checklists_v1';
 const ASSIGN_KEY = 'bw_brief_assignments_v1';
 const TEAM_MEMBERS = [
-  { id: 'unassigned', name: '—', initials: '—', color: '#6b7280' },
-  { id: 'karim',     name: 'Karim',    initials: 'K',  color: '#6366f1' },
-  { id: 'sarah',     name: 'Sarah',    initials: 'S',  color: '#ec4899' },
-  { id: 'thomas',    name: 'Thomas',   initials: 'T',  color: '#f59e0b' },
-  { id: 'lea',       name: 'Léa',      initials: 'L',  color: '#10b981' },
-  { id: 'autre',     name: 'Autre',    initials: 'A',  color: '#94a3b8' },
+  { id: 'unassigned', name: '—',       initials: '—',  color: '#6b7280' },
+  { id: 'karim',      name: 'Karim',   initials: 'K',  color: '#6366f1' },
+  { id: 'heifa',      name: 'Heifa',   initials: 'H',  color: '#ec4899' },
+  { id: 'emilie',     name: 'Émilie',  initials: 'É',  color: '#f59e0b' },
+  { id: 'ndieumbe',   name: 'Ndieumbe',initials: 'N',  color: '#10b981' },
 ];
 function getAssignment(briefId) {
   try { return JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}')[briefId]||null; } catch(e){ return null; }
