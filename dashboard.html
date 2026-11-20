@@ -1318,6 +1318,8 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div style="font-size:28px;margin-bottom:8px">🔒</div>
     <div style="font-size:17px;font-weight:700;color:#1E1B4B;margin-bottom:4px">BW Studio</div>
     <div style="font-size:13px;color:#64748b;margin-bottom:20px">Dashboard créatif</div>
+    <input id="bw-auth-email" type="email" placeholder="Email" autocomplete="email"
+      style="width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;text-align:center;margin-bottom:8px">
     <input id="bw-auth-input" type="password" placeholder="Mot de passe" autocomplete="current-password"
       style="width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;text-align:center;margin-bottom:8px">
     <div id="bw-auth-error" style="color:#ef4444;font-size:12px;min-height:18px;margin-bottom:8px"></div>
@@ -1356,6 +1358,19 @@ body { overflow-x: hidden; max-width: 100vw; }
     if (m) m.style.display = 'none';
   }
 })();
+/* Vérifie si une session Supabase Auth est déjà active au chargement */
+async function _checkExistingSession() {
+  if (!sbClient) return false;
+  const { data: { session } } = await sbClient.auth.getSession();
+  if (session) {
+    sessionStorage.setItem('bw_dash_v1_auth', '1');
+    window._bwAuthOk = true;
+    const m = document.getElementById('bw-auth-modal');
+    if (m) m.style.display = 'none';
+    return true;
+  }
+  return false;
+}
 
 const G = id => document.getElementById(id);
 
@@ -3279,7 +3294,6 @@ function requestNotifPermission() {
 /* ── Gmail ────────────────────────────────────────────────── */
 // Colle ici l'URL de ton Apps Script une fois déployé
 const GMAIL_SCRIPT_URL = 'https://script.google.com/a/macros/bnwburger.com/s/AKfycbxyyXtqJ_HrdlPoJHlxP_-IB6G6C4_2TtnRndY3zm0f2Kx462teN2AeuXaADiy2Gbd1/exec';
-const GMAIL_RAW_URL = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/gmail-threads.json';
 
 async function fetchGmailThreads() {
   const body = G('gmail-body');
@@ -3288,7 +3302,7 @@ async function fetchGmailThreads() {
 
   body.innerHTML = '<div style="padding:16px 18px;display:flex;gap:10px;color:var(--text-tertiary);font-size:12px"><div class="sk" style="height:10px;width:200px;border-radius:4px;background:#f0f0f4;animation:sk-pulse 1.2s infinite"></div></div>';
 
-  // Essaie Apps Script en premier (live) ; si CORS bloqué ou timeout → fallback statique
+  // Essaie Apps Script uniquement — aucun fallback vers le fichier statique public
   let _gmailResponse = null;
   if (GMAIL_SCRIPT_URL) {
     try {
@@ -3297,11 +3311,6 @@ async function fetchGmailThreads() {
       const probe = await fetch(GMAIL_SCRIPT_URL, { signal: ctrl.signal });
       if (probe.ok) _gmailResponse = probe;
     } catch(e) { /* CORS bloqué ou timeout */ }
-  }
-  if (!_gmailResponse) {
-    try {
-      _gmailResponse = await fetch(GMAIL_RAW_URL + '?t=' + Date.now());
-    } catch(e) { /* fallback également indisponible */ }
   }
   try {
     const r = _gmailResponse;
@@ -3500,25 +3509,44 @@ async function fetchMondayTasks() {
 (async function _initDashboard() {
   /* ── Auth modale si session non authentifiée ─────────────── */
   if (!window._bwAuthOk) {
-    await new Promise(resolve => {
-      const inp = document.getElementById('bw-auth-input');
-      const btn = document.getElementById('bw-auth-btn');
-      const err = document.getElementById('bw-auth-error');
-      function tryAuth() {
-        if (inp && inp.value === 'BW2026') {
-          sessionStorage.setItem('bw_dash_v1_auth', '1');
-          const m = document.getElementById('bw-auth-modal');
-          if (m) m.style.display = 'none';
-          resolve();
-        } else {
-          if (err) err.textContent = 'Mot de passe incorrect';
-          if (inp) { inp.value = ''; inp.focus(); }
+    if (!(await _checkExistingSession())) {
+      await new Promise(resolve => {
+        const emailInp = document.getElementById('bw-auth-email');
+        const inp = document.getElementById('bw-auth-input');
+        const btn = document.getElementById('bw-auth-btn');
+        const err = document.getElementById('bw-auth-error');
+        async function tryAuth() {
+          if (sbClient) {
+            const email = emailInp ? emailInp.value.trim() : '';
+            const pwd   = inp ? inp.value : '';
+            if (!email || !pwd) {
+              if (err) err.textContent = 'Email et mot de passe requis';
+              return;
+            }
+            if (err) err.textContent = '';
+            if (btn) btn.disabled = true;
+            const { error } = await sbClient.auth.signInWithPassword({ email, password: pwd });
+            if (btn) btn.disabled = false;
+            if (error) {
+              if (err) err.textContent = 'Identifiants incorrects';
+              if (inp) { inp.value = ''; inp.focus(); }
+            } else {
+              sessionStorage.setItem('bw_dash_v1_auth', '1');
+              window._bwAuthOk = true;
+              const m = document.getElementById('bw-auth-modal');
+              if (m) m.style.display = 'none';
+              resolve();
+            }
+          } else {
+            if (err) err.textContent = 'Service indisponible';
+          }
         }
-      }
-      if (btn) btn.addEventListener('click', tryAuth);
-      if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') tryAuth(); });
-      setTimeout(() => inp && inp.focus(), 80);
-    });
+        if (btn) btn.addEventListener('click', tryAuth);
+        if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') tryAuth(); });
+        if (emailInp) emailInp.addEventListener('keydown', e => { if (e.key === 'Enter') inp && inp.focus(); });
+        setTimeout(() => emailInp && emailInp.focus(), 80);
+      });
+    }
   }
 
   fetchMondayTasks();
