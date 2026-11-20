@@ -1437,7 +1437,8 @@ function normalizeLocalV2(b) {
     genreCampagne:GENRE_LABELS[b.genreCampagne]||b.genreCampagne||'',
     restaurant:b.restaurant||b.adresse||'',
     totalDeclinaisons:String(decli), supports:supStr, packagingProduits:produits,
-    nbBloquants:'0', mailSubject:b.mailSubject||''
+    nbBloquants:'0', mailSubject:b.mailSubject||'',
+    marque: b.marque||'',
   };
 }
 
