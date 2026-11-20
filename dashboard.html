@@ -1402,17 +1402,21 @@ function openStatusModal(briefId, e) {
 function closeStatusModal() { G('status-modal').classList.remove('open'); _statusTarget=null; }
 function selectStatus(opt) {
   if(!_statusTarget) return;
+  const target = _statusTarget;
   const newStatus = opt.dataset.status;
-  setStatut(_statusTarget, newStatus);
+  setStatut(target, newStatus);
   closeStatusModal();
   applyFilters();
-  if(_currentDrawerBrief && _currentDrawerBrief.briefId === _statusTarget) renderDrawer(_currentDrawerBrief);
-  // Sync → Supabase (nécessite politique UPDATE RLS : voir supabase/update-policies.sql)
+  if(_currentDrawerBrief && _currentDrawerBrief.briefId === target) renderDrawer(_currentDrawerBrief);
   if(sbClient) {
-    sbClient.from('briefs').update({ statut: newStatus }).eq('brief_id', _statusTarget)
+    sbClient.from('briefs').update({ statut: newStatus }).eq('brief_id', target)
       .then(({ error }) => {
-        if (error) console.warn('[BW Supabase] statut non synchronisé (politique UPDATE manquante ?):', error.message);
-        else console.log('[BW Supabase] statut →', _statusTarget, newStatus);
+        if (error) {
+          console.error('[BW Supabase] statut non synchronisé:', error.message);
+          showRealtimeToast('⚠ Statut non synchronisé avec le serveur');
+        } else {
+          console.log('[BW Supabase] statut →', target, newStatus);
+        }
       });
   }
 }
@@ -1605,7 +1609,7 @@ async function fetchBriefs() {
       console.log('[BW] Supabase → SELECT briefs ORDER BY submitted_at DESC');
       const { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, submitted_at, marque')
+        .select('data, statut, archived, submitted_at, marque')
         .order('submitted_at', { ascending: false });
 
       if (error) throw new Error(error.message);
@@ -1615,7 +1619,9 @@ async function fetchBriefs() {
       const data = (rows || []).map(row => ({
         ...row.data,
         statut: row.statut || row.data?.statut || 'soumis',
+        archived: row.archived ?? false,
         _marqueId: row.marque || null,
+        _fromSupabase: true,
       })).filter(b => b.briefId);
 
       D('rows', data.length + ' lignes'); D('parsed', data.length + ' briefs');
@@ -1714,12 +1720,14 @@ async function loadData() {
     ...local.filter(b => b.briefId && !remoteIds.has(b.briefId) && !deletedIds.has(b.briefId))
   ].sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
 
-  // Enrichir avec statut d'archivage localStorage + normaliser l'ID stable de marque
-  // _marqueId : depuis la colonne Supabase si disponible, sinon résolu depuis le label snapshot
+  // Sync statuts Supabase → localStorage (source de vérité serveur prime sur localStorage)
+  merged.filter(b => b._fromSupabase).forEach(b => setStatut(b.briefId, b.statut));
+
+  // Enrichir : serveur pour les briefs Supabase (archived + _marqueId), localStorage pour les autres
   const archivedIds = getArchivedIds();
   allBriefs = merged.map(b => ({
     ...b,
-    archived: archivedIds.has(b.briefId),
+    archived: b._fromSupabase ? (b.archived ?? false) : archivedIds.has(b.briefId),
     _marqueId: b._marqueId || resolveMarqueId(b.marque || ''),
   }));
 
@@ -2531,14 +2539,23 @@ function exportCSV() {
     ['supports',      'Supports'],
   ];
 
+  const resolveMarqueLabel = id => {
+    if (!id) return 'Non renseignée';
+    const m = getAllMarques().find(m => m.id === id);
+    return m ? m.label : id;
+  };
+
   const esc = v => '"' + String(v || '').replace(/"/g, '""') + '"';
-  const header = fields.map(([,l]) => esc(l)).join(',');
+  const header = fields.map(([,l]) => esc(l)).join(',') + ',' + esc('Marque') + ',' + esc('Statut');
   const rows = data.map(b => {
     const st = getStatut(b.briefId);
-    return [...fields.map(([k]) => esc(b[k] || '')), esc(STATUS_LABELS[st] || st)].join(',');
+    return [
+      ...fields.map(([k]) => esc(b[k] || '')),
+      esc(resolveMarqueLabel(b._marqueId)),
+      esc(STATUS_LABELS[st] || st),
+    ].join(',');
   });
-  const extra = esc('Statut');
-  const csv = [header + ',' + extra, ...rows].join('\n');
+  const csv = [header, ...rows].join('\n');
 
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
@@ -3093,6 +3110,18 @@ async function archiveBrief(briefId, currentlyArchived) {
   if (idx !== -1) allBriefs[idx].archived = toArchive;
   closeDrawer();
   applyFilters();
+  if (sbClient) {
+    const payload = { archived: toArchive, archived_at: toArchive ? new Date().toISOString() : null };
+    sbClient.from('briefs').update(payload).eq('brief_id', briefId)
+      .then(({ error }) => {
+        if (error) {
+          console.error('[BW Supabase] archivage non synchronisé:', error.message);
+          showRealtimeToast('⚠ Archivage non synchronisé avec le serveur');
+        } else {
+          console.log('[BW Supabase] archived →', briefId, toArchive);
+        }
+      });
+  }
 }
 
 /* ── Impression PDF ───────────────────────────────────────── */
@@ -3259,10 +3288,24 @@ async function fetchGmailThreads() {
 
   body.innerHTML = '<div style="padding:16px 18px;display:flex;gap:10px;color:var(--text-tertiary);font-size:12px"><div class="sk" style="height:10px;width:200px;border-radius:4px;background:#f0f0f4;animation:sk-pulse 1.2s infinite"></div></div>';
 
-  const url = GMAIL_SCRIPT_URL || GMAIL_RAW_URL + '?t=' + Date.now();
+  // Essaie Apps Script en premier (live) ; si CORS bloqué ou timeout → fallback statique
+  let _gmailResponse = null;
+  if (GMAIL_SCRIPT_URL) {
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 4000);
+      const probe = await fetch(GMAIL_SCRIPT_URL, { signal: ctrl.signal });
+      if (probe.ok) _gmailResponse = probe;
+    } catch(e) { /* CORS bloqué ou timeout */ }
+  }
+  if (!_gmailResponse) {
+    try {
+      _gmailResponse = await fetch(GMAIL_RAW_URL + '?t=' + Date.now());
+    } catch(e) { /* fallback également indisponible */ }
+  }
   try {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const r = _gmailResponse;
+    if (!r || !r.ok) throw new Error(r ? 'HTTP ' + r.status : 'Aucune source disponible');
     const d = await r.json();
 
     if (tsEl) {
