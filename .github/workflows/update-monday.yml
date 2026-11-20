@@ -8,21 +8,23 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Fetch Monday.com tasks
+      - name: Fetch Monday.com tasks and push to Supabase
         run: |
           python3 << 'PYEOF'
           import json, os, urllib.request, urllib.error
           from datetime import datetime, timezone
 
           token = os.environ.get('MONDAY_API_TOKEN', '')
+          supabase_url = os.environ.get('SUPABASE_URL', '')
+          supabase_key = os.environ.get('SUPABASE_SERVICE_KEY', '')
+
           if not token:
               print('⚠ MONDAY_API_TOKEN non défini — skip')
+              exit(0)
+          if not supabase_url or not supabase_key:
+              print('⚠ SUPABASE_URL ou SUPABASE_SERVICE_KEY non défini — skip')
               exit(0)
 
           query = """
@@ -92,14 +94,12 @@ jobs:
           tasks = []
 
           STATUS_COLORS = {
-              # Anglais
               'done':                 'done',
               'completed':            'done',
               'finished':             'done',
               'working on it':        'in_progress',
               'in progress':          'in_progress',
               'stuck':                'stuck',
-              # Français Monday.com
               'fait':                 'done',
               'terminé':              'done',
               'terminée':             'done',
@@ -125,7 +125,6 @@ jobs:
                   if item.get('state') == 'deleted':
                       continue
 
-                  # Chercher si assigné à moi
                   assigned_to_me = False
                   status_text = ''
                   priority_text = ''
@@ -138,25 +137,20 @@ jobs:
                       col_text = col.get('text', '') or ''
                       col_val  = col.get('value', '') or ''
 
-                      # Colonne assigné — Monday retourne type='people', ids variés
                       if col_type == 'people' or col_id in ('person', 'people', 'owner', 'assigned') or col_id.startswith('multiple_person') or col_id.startswith('person'):
                           if me_id in str(col_val):
                               assigned_to_me = True
 
-                      # Statut — Monday retourne type='status' (pas 'color')
                       if col_type == 'status' or col_id in ('status', 'statut', 'etat', 'état'):
                           status_text = col_text
 
-                      # Priorité
                       if col_id in ('priority', 'priorite', 'priorité', 'prio'):
                           priority_text = col_text
 
-                      # Date / deadline
                       if col_type == 'date' or col_id in ('date', 'deadline', 'due_date', 'echeance', 'échéance'):
                           if col_text:
                               deadline = col_text
 
-                      # Timeline
                       if col_type == 'timerange' or col_id in ('timeline', 'planning'):
                           try:
                               v = json.loads(col_val)
@@ -185,7 +179,6 @@ jobs:
                       'subitems_count': len(item.get('subitems', [])),
                   })
 
-          # Trier : stuck > in_progress > none > done, puis par deadline
           order = {'stuck': 0, 'in_progress': 1, 'none': 2, 'done': 3}
           tasks.sort(key=lambda t: (order.get(t['status_norm'], 2), t['deadline'] or 'zzz'))
 
@@ -194,27 +187,33 @@ jobs:
               'count': len(tasks),
               'updatedAt': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
               'source': 'github-action-monday',
-              'user': me_name,
-              'user_id': me_id,
               'tasks': tasks,
           }
 
-          with open('api/monday-tasks.json', 'w', encoding='utf-8') as f:
-              json.dump(output, f, ensure_ascii=False, indent=2)
+          # Upsert vers Supabase (id=1 fixe)
+          row = json.dumps({'id': 1, 'data': output, 'updated_at': output['updatedAt']}).encode()
+          sb_req = urllib.request.Request(
+              supabase_url.rstrip('/') + '/rest/v1/monday_tasks',
+              data=row,
+              headers={
+                  'apikey':        supabase_key,
+                  'Authorization': 'Bearer ' + supabase_key,
+                  'Content-Type':  'application/json',
+                  'Prefer':        'resolution=merge-duplicates',
+              },
+              method='POST'
+          )
+          try:
+              with urllib.request.urlopen(sb_req, timeout=15) as sb_resp:
+                  print(f'✅ Supabase upsert HTTP {sb_resp.status}')
+          except urllib.error.HTTPError as e:
+              body = e.read().decode()
+              print(f'❌ Supabase upsert error {e.code}: {body}')
+              exit(1)
 
-          print(f'📋 monday-tasks.json : {len(tasks)} tâches assignées à {me_name}')
+          print(f'📋 monday_tasks : {len(tasks)} tâches stockées (privé)')
           PYEOF
         env:
-          MONDAY_API_TOKEN: ${{ secrets.MONDAY_API_TOKEN }}
-
-      - name: Commit and push
-        run: |
-          git config user.email "bw-brief-bot@github.com"
-          git config user.name "BW Brief Bot"
-          git add api/monday-tasks.json
-          if git diff --cached --quiet; then
-            echo "Pas de changement"
-          else
-            git commit -m "auto: sync monday tasks [skip ci]"
-            git push
-          fi
+          MONDAY_API_TOKEN:      ${{ secrets.MONDAY_API_TOKEN }}
+          SUPABASE_URL:          ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY:  ${{ secrets.SUPABASE_SERVICE_KEY }}

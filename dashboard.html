@@ -3430,8 +3430,6 @@ async function fetchWhatsAppMessages() {
 }
 
 /* ── Monday.com tasks ─────────────────────────────────────── */
-const MONDAY_API = 'https://raw.githubusercontent.com/karim-yc/brief-bw-studio/main/api/monday-tasks.json';
-
 async function fetchMondayTasks() {
   const body = G('monday-body');
   const meta = G('monday-meta');
@@ -3441,9 +3439,20 @@ async function fetchMondayTasks() {
   body.innerHTML = '<div class="monday-loading"><div class="sk" style="width:220px"></div><div class="sk" style="width:120px"></div></div>';
 
   try {
-    const r = await fetch(MONDAY_API + '?t=' + Date.now());
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
+    if (!sbClient) throw new Error('client indisponible');
+    const { data: row, error: sbErr } = await sbClient
+      .from('monday_tasks')
+      .select('data')
+      .eq('id', 1)
+      .single();
+    if (sbErr) {
+      if (sbErr.code === 'PGRST301' || sbErr.message?.includes('JWT')) {
+        body.innerHTML = '<div class="monday-empty"><i class="ti ti-lock"></i>Connexion requise pour afficher les tâches</div>';
+        return;
+      }
+      throw new Error(sbErr.message);
+    }
+    const d = row?.data || {};
 
     const ts = d.updatedAt ? new Date(d.updatedAt).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
     if (meta) {
