@@ -1867,12 +1867,12 @@ function applyFilters() {
   if(fType.size) data=data.filter(b=>fType.has(b.typeDemande));
   if(fPrio.size) data=data.filter(b=>fPrio.has(b.priorite));
   if(fStatut.size) data=data.filter(b=>fStatut.has(getStatut(b.briefId)));
-  if(fMarque.size) data=data.filter(b=>fMarque.has(b._marqueId)||(fMarque.has('bnw')&&!b._marqueId));
+  if(fMarque.size) data=data.filter(b=>fMarque.has(b._marqueId));
   if(fRetard) data=data.filter(b=>categorizeBrief(b)?.cat==='retard');
   if(fSearch.trim()) {
     const q=fSearch.trim().toLowerCase();
     data=data.filter(b=>{
-      const mLabel=(getAllMarques().find(m=>m.id===(b._marqueId||'bnw'))?.label||'').toLowerCase();
+      const mLabel=(getAllMarques().find(m=>m.id===b._marqueId)?.label||'').toLowerCase();
       return (b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q)||mLabel.includes(q);
     });
   }
@@ -1978,7 +1978,8 @@ function setMarqueFilter(btn) {
 const fmtDate = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s} };
 
 function marqueBadge(m) {
-  const id   = resolveMarqueId(m || 'bnw');
+  if (!m) return `<span class="badge-marque" style="background:#9ca3af;color:#fff;opacity:.8">Non renseignée</span>`;
+  const id   = resolveMarqueId(m);
   const all  = getAllMarques();
   const info = all.find(x => x.id === id);
   const cls  = MARQUE_CLASS[id] || 'm-custom';
