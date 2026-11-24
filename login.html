@@ -155,6 +155,32 @@
       <div class="spinner" id="spinner"></div>
       <span id="btn-label">Se connecter</span>
     </button>
+    <div style="text-align:center;margin-top:4px">
+      <button onclick="toggleForgot()" style="background:none;border:none;color:#888;font-size:12px;font-family:inherit;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:2px">
+        Mot de passe oublié ?
+      </button>
+    </div>
+  </div>
+
+  <!-- Forgot password section (hidden by default) -->
+  <div class="card" id="forgot-card" style="display:none">
+    <div style="font-size:14px;font-weight:600;color:#ccc;margin-bottom:-8px">Réinitialiser le mot de passe</div>
+    <div class="field">
+      <label for="forgot-email">Adresse email</label>
+      <input type="email" id="forgot-email" placeholder="vous@bnwburger.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter')doForgot()">
+    </div>
+    <div class="error-msg" id="forgot-error"></div>
+    <div id="forgot-success" style="display:none;background:#0a2a0a;border:1px solid #1a5a1a;border-radius:8px;padding:10px 14px;font-size:13px;color:#4caf50"></div>
+    <button class="btn-submit" id="btn-forgot" onclick="doForgot()">
+      <div class="spinner" id="forgot-spinner"></div>
+      <span id="forgot-label">Envoyer le lien</span>
+    </button>
+    <div style="text-align:center;margin-top:-8px">
+      <button onclick="toggleForgot()" style="background:none;border:none;color:#888;font-size:12px;font-family:inherit;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:2px">
+        ← Retour à la connexion
+      </button>
+    </div>
   </div>
 
   <p class="footer-note">Pas encore de compte ? Contactez l'équipe studio.</p>
@@ -183,6 +209,35 @@
 
   passEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
   emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') passEl.focus(); });
+
+  function toggleForgot() {
+    const card = document.getElementById('forgot-card');
+    const loginCard = card.previousElementSibling;
+    const showing = card.style.display !== 'none';
+    card.style.display = showing ? 'none' : 'flex';
+    loginCard.style.display = showing ? 'flex' : 'none';
+    if (!showing) document.getElementById('forgot-email').focus();
+  }
+
+  async function doForgot() {
+    const email = document.getElementById('forgot-email').value.trim();
+    const errEl = document.getElementById('forgot-error');
+    const sucEl = document.getElementById('forgot-success');
+    if (!email) { errEl.textContent = 'Saisis ton adresse email.'; errEl.classList.add('show'); return; }
+    errEl.classList.remove('show');
+    sucEl.style.display = 'none';
+    const btn = document.getElementById('btn-forgot');
+    const sp  = document.getElementById('forgot-spinner');
+    const lbl = document.getElementById('forgot-label');
+    btn.disabled = true; sp.style.display = 'block'; lbl.textContent = 'Envoi…';
+    const { error } = await sbClient.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://karim-yc.github.io/brief-bw-studio/dashboard.html'
+    });
+    btn.disabled = false; sp.style.display = 'none'; lbl.textContent = 'Envoyer le lien';
+    if (error) { errEl.textContent = error.message; errEl.classList.add('show'); return; }
+    sucEl.style.display = 'block';
+    sucEl.textContent = '✓ Email envoyé ! Vérifie ta boîte mail et clique sur le lien pour définir ton mot de passe.';
+  }
 
   async function doLogin() {
     const email    = emailEl.value.trim();

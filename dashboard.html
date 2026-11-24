@@ -1486,6 +1486,15 @@ const sbClient = (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'RE
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
+/* ── Détection session recovery (invitation / reset mot de passe) ── */
+if (sbClient) {
+  sbClient.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      setTimeout(() => showSetPasswordModal(), 400);
+    }
+  });
+}
+
 /* ── Auth globals ─────────────────────────────────────────── */
 let currentUser = null;
 let currentRole = null; // 'studio' | 'demandeur'
@@ -1636,10 +1645,14 @@ async function submitInvite() {
     errEl.textContent = error.message || 'Erreur lors de l\'invitation.';
     return;
   }
+  // Envoyer un lien pour définir le mot de passe (arrive après la confirmation d'email)
+  await tmpClient.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://karim-yc.github.io/brief-bw-studio/dashboard.html'
+  });
   sucEl.style.display = 'block';
-  sucEl.textContent = `✓ Invitation envoyée à ${email}. Ils recevront un email de confirmation pour activer leur compte.`;
+  sucEl.textContent = `✓ Invitation envoyée à ${email}. Ils recevront un email pour confirmer leur adresse, puis un second email pour définir leur mot de passe.`;
   btn.textContent = 'Envoyé ✓';
-  setTimeout(() => closeInviteModal(), 3200);
+  setTimeout(() => closeInviteModal(), 4000);
 }
 
 /* ── Profile Drawer ──────────────────────────────────────── */
@@ -4384,5 +4397,50 @@ function bwAlert(msg) { return _bwDlg('alert', msg); }
     </div>
   </div>
 </div>
+
+<!-- SET PASSWORD MODAL (invitation / reset mot de passe) -->
+<div id="set-pwd-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);align-items:center;justify-content:center;font-family:Inter,sans-serif">
+  <div style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:32px 28px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.5)">
+    <div style="font-size:22px;font-weight:800;color:#f0f0f0;margin-bottom:6px;letter-spacing:-.3px">Définir votre mot de passe</div>
+    <div style="font-size:13px;color:#888;margin-bottom:24px;line-height:1.5">Choisissez un mot de passe pour accéder au Brief Studio.</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <input id="set-pwd-input" type="password" placeholder="Nouveau mot de passe (min. 8 car.)" autocomplete="new-password"
+        style="background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:8px;padding:11px 14px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;width:100%;box-sizing:border-box"
+        onkeydown="if(event.key==='Enter')document.getElementById('set-pwd-input2').focus()">
+      <input id="set-pwd-input2" type="password" placeholder="Confirmer le mot de passe" autocomplete="new-password"
+        style="background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:8px;padding:11px 14px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;width:100%;box-sizing:border-box"
+        onkeydown="if(event.key==='Enter')submitSetPassword()">
+    </div>
+    <div id="set-pwd-error" style="color:#ff4d4d;font-size:12px;min-height:16px;margin-top:8px"></div>
+    <button id="set-pwd-btn" onclick="submitSetPassword()"
+      style="margin-top:16px;width:100%;padding:12px;background:#DFFF00;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#000;cursor:pointer;font-family:inherit">
+      Enregistrer le mot de passe
+    </button>
+  </div>
+</div>
+
+<script>
+function showSetPasswordModal() {
+  const m = document.getElementById('set-pwd-modal');
+  if (m) { m.style.display = 'flex'; }
+}
+async function submitSetPassword() {
+  const pwd  = document.getElementById('set-pwd-input').value;
+  const pwd2 = document.getElementById('set-pwd-input2').value;
+  const errEl = document.getElementById('set-pwd-error');
+  if (!pwd || pwd.length < 8) { errEl.textContent = 'Minimum 8 caractères.'; return; }
+  if (pwd !== pwd2) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
+  errEl.textContent = '';
+  const btn = document.getElementById('set-pwd-btn');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  const { error } = await sbClient.auth.updateUser({ password: pwd });
+  if (error) {
+    btn.disabled = false; btn.textContent = 'Enregistrer le mot de passe';
+    errEl.textContent = error.message; return;
+  }
+  document.getElementById('set-pwd-modal').style.display = 'none';
+  if (typeof showRealtimeToast === 'function') showRealtimeToast('✓ Mot de passe défini — bienvenue !');
+}
+</script>
 </body>
 </html>
