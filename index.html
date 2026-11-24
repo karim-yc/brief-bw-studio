@@ -26,6 +26,10 @@
     <nav class="sidebar-nav">
       <a class="snav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
       <a class="snav-item active" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
+      <div class="snav-sep"></div>
+      <a class="snav-item" href="dashboard.html"><i class="ti ti-list"></i><span>Demandes</span></a>
+      <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
+      <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
     </nav>
     <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px">
       <div id="snav-user-row" style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border-radius:8px;padding:4px;margin:-4px;transition:background .15s" onclick="openProfileDrawer()" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'" title="Mon profil">
@@ -372,6 +376,13 @@ window.getAppMarques = function() {
     <button id="pf-save-btn" onclick="saveProfile()" style="width:100%;padding:12px;background:#DFFF00;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Enregistrer</button>
   </div>
 </div>
+
+<nav class="mobile-bottom-nav" aria-label="Navigation mobile">
+  <a href="index.html" class="mob-nav-item active"><i class="ti ti-plus-circle"></i><span>Nouveau</span></a>
+  <a href="dashboard.html" class="mob-nav-item"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></a>
+  <a href="calendrier.html" class="mob-nav-item"><i class="ti ti-calendar-month"></i><span>Agenda</span></a>
+  <a href="statistiques.html" class="mob-nav-item"><i class="ti ti-chart-bar"></i><span>Stats</span></a>
+</nav>
 
 </body>
 </html>
