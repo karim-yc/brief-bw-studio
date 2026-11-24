@@ -1176,7 +1176,7 @@
         const { data: { user } } = await sbClient.auth.getUser();
         if (!user) {
           const nameEl = document.getElementById('snav-user-name');
-          if (nameEl) nameEl.textContent = 'Se connecter';
+          if (nameEl) nameEl.textContent = '';
           const roleEl = document.getElementById('snav-user-role');
           if (roleEl) roleEl.textContent = '';
           const avEl = document.getElementById('snav-user-av');
