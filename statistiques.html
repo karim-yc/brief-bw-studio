@@ -81,13 +81,14 @@
       <div class="snav-section-label">Marques</div>
       <div class="snav-brand-item"><span class="snav-brand-dot bnw"></span><span>Black &amp; White Burger</span></div>
       <div class="snav-brand-item"><span class="snav-brand-dot mm"></span><span>Maison Marquise</span></div>
+      <div class="snav-brand-item"><span class="snav-brand-dot pokawa"></span><span>Pokawa</span></div>
       <div class="snav-brand-item"><span class="snav-brand-dot autre"></span><span>Autre</span></div>
     </nav>
     <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">
-      <div class="snav-user-av" style="width:30px;height:30px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">KY</div>
+      <div id="snav-user-av" style="width:30px;height:30px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">—</div>
       <div class="snav-user-info" style="flex:1;min-width:0">
-        <div class="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Karim Y.-Cherif</div>
-        <div class="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">Brand Design Lead</div>
+        <div id="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chargement…</div>
+        <div id="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">—</div>
       </div>
     </div>
   </div>
@@ -184,7 +185,7 @@ const TEAM_MEMBERS = [
 ];
 
 const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation', valide:'Validé', livre:'Livré' };
-const MARQUE_LABELS = { bnw:'Black & White', marquise:'Maison Marquise', autre:'Autre' };
+const MARQUE_LABELS = { bnw:'Black & White', marquise:'Maison Marquise', pokawa:'Pokawa', autre:'Autre' };
 const TYPE_LABELS   = {
   campagne:'Campagne Marketing', packaging:'Packaging',
   vitrophanie:'Vitrophanie / Travaux', autre:'Autre demande',
@@ -410,7 +411,39 @@ async function loadStats() {
   renderStats(computeStats(all));
 }
 
-loadStats();
+async function loadUserProfile() {
+  if (!sbClient) return;
+  const { data: { user } } = await sbClient.auth.getUser();
+  if (!user) { window.location.href = 'login.html'; return; }
+  const { data: profile } = await sbClient
+    .from('bw_profiles')
+    .select('role,nom,avatar_url')
+    .eq('id', user.id)
+    .single();
+  const nom = (profile?.nom) || user.email?.split('@')[0] || '—';
+  const initials = nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const avEl = document.getElementById('snav-user-av');
+  if (avEl) {
+    if (profile?.avatar_url) {
+      avEl.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    } else {
+      avEl.textContent = initials;
+    }
+  }
+  const nameEl = document.getElementById('snav-user-name');
+  const roleEl = document.getElementById('snav-user-role');
+  if (nameEl) nameEl.textContent = nom;
+  if (roleEl) roleEl.textContent = profile?.role === 'studio' ? 'Studio Admin' : 'Demandeur';
+}
+
+(async () => {
+  if (sbClient) {
+    const { data: { session } } = await sbClient.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    loadUserProfile();
+  }
+  loadStats();
+})();
 </script>
 </body>
 </html>
