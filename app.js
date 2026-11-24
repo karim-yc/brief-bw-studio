@@ -145,6 +145,17 @@
       el.addEventListener('change', onFieldInput);
     });
 
+    // Verrouiller le champ Demandeur si l'utilisateur est connecté via bw_profiles
+    if (window._bwLinkedUser) {
+      const refInput = root.querySelector('[data-field="ref"]');
+      if (refInput) {
+        refInput.disabled = true;
+        refInput.style.opacity = '0.65';
+        refInput.style.cursor = 'not-allowed';
+        refInput.title = 'Défini automatiquement depuis votre compte BW Studio';
+      }
+    }
+
     // Pépite 4 — assistant IA préventif : hint doux au blur si contexte court
     root.addEventListener('blur', e => {
       const el = e.target;
@@ -623,6 +634,7 @@
     if (typeof sbClient !== 'undefined' && sbClient) {
       console.log('[BW Supabase] Envoi brief →', recap.briefId);
 
+      const { data: { user: _sbUser } } = await sbClient.auth.getUser();
       const row = {
         brief_id:     recap.briefId,
         submitted_at: recap.submittedAt || new Date().toISOString(),
@@ -631,6 +643,7 @@
         departement:  recap.departement || '',
         demandeur:    recap.demandeur || '',
         priorite:     recap.priorite || '',
+        user_id:      _sbUser ? _sbUser.id : null,
         data: {
           ...recap,
           fichiers,
@@ -1156,6 +1169,44 @@
     renderAll();
     initRTE();
     initRapideMode();
+
+    // Chargement profil : sidebar + auto-fill demandeur
+    if (typeof sbClient !== 'undefined' && sbClient) {
+      (async () => {
+        const { data: { user } } = await sbClient.auth.getUser();
+        if (!user) {
+          const nameEl = document.getElementById('snav-user-name');
+          if (nameEl) nameEl.textContent = 'Non connecté';
+          const avEl = document.getElementById('snav-user-av');
+          if (avEl) avEl.textContent = '?';
+          return;
+        }
+        window._bwCurrentUser = user;
+        const { data: prof } = await sbClient.from('bw_profiles').select('nom,avatar_url,poste').eq('id', user.id).single();
+        if (prof && prof.nom) {
+          window._bwLinkedUser = { id: user.id, nom: prof.nom };
+          if (!State.data.ref) {
+            State.data.ref = prof.nom;
+            renderAll();
+          }
+          // Mise à jour sidebar
+          const nameEl = document.getElementById('snav-user-name');
+          if (nameEl) nameEl.textContent = prof.nom;
+          const roleEl = document.getElementById('snav-user-role');
+          if (roleEl) roleEl.textContent = prof.poste || '';
+          const avEl = document.getElementById('snav-user-av');
+          if (avEl) {
+            if (prof.avatar_url) {
+              avEl.innerHTML = `<img src="${prof.avatar_url}" style="width:100%;height:100%;object-fit:cover">`;
+            } else {
+              avEl.textContent = prof.nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+            }
+          }
+          const logoutEl = document.getElementById('snav-user-logout');
+          if (logoutEl) logoutEl.style.display = 'block';
+        }
+      })();
+    }
 
     // Tabs
     document.querySelectorAll('.hdr-tab').forEach(tab => {
@@ -1760,3 +1811,163 @@ Il restera accessible dans le dashboard.`)) {
   });
 
 })();
+
+/* ════════════════════════════════════════════════════════════
+   PROFIL DRAWER — fonctions globales pour index.html
+   (dashboard.html a ses propres versions inline)
+   ════════════════════════════════════════════════════════════ */
+
+function openProfileDrawer() {
+  const overlay = document.getElementById('profile-drawer-overlay');
+  const drawer  = document.getElementById('profile-drawer');
+  if (!overlay || !drawer) return;
+  const user = window._bwCurrentUser;
+  if (user) {
+    const emailEl = document.getElementById('pf-email');
+    if (emailEl) emailEl.value = user.email || '';
+  }
+  if (typeof sbClient !== 'undefined' && sbClient && user) {
+    sbClient.from('bw_profiles').select('nom,telephone,poste,avatar_url').eq('id', user.id).single()
+      .then(({ data }) => {
+        if (data) {
+          const n = document.getElementById('pf-nom');   if (n) n.value = data.nom       || '';
+          const t = document.getElementById('pf-tel');   if (t) t.value = data.telephone  || '';
+          const p = document.getElementById('pf-poste'); if (p) p.value = data.poste      || '';
+          _pfAvatarDisplay(data.avatar_url, data.nom);
+        }
+      });
+  }
+  const pwd  = document.getElementById('pf-pwd');
+  const pwd2 = document.getElementById('pf-pwd2');
+  if (pwd)  pwd.value  = '';
+  if (pwd2) pwd2.value = '';
+  const errEl = document.getElementById('pf-error');
+  const sucEl = document.getElementById('pf-success');
+  if (errEl) errEl.style.display = 'none';
+  if (sucEl) sucEl.style.display = 'none';
+  const stEl = document.getElementById('pf-avatar-status');
+  if (stEl) stEl.textContent = '';
+  overlay.style.display = 'block';
+  drawer.style.display  = 'block';
+  setTimeout(() => { drawer.style.transform = 'translateX(0)'; }, 10);
+}
+
+function closeProfileDrawer() {
+  const overlay = document.getElementById('profile-drawer-overlay');
+  const drawer  = document.getElementById('profile-drawer');
+  if (!drawer) return;
+  drawer.style.transform = 'translateX(100%)';
+  setTimeout(() => {
+    drawer.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
+  }, 260);
+}
+
+function _pfAvatarDisplay(avatarUrl, nom) {
+  const avEl = document.getElementById('pf-avatar-display');
+  if (!avEl) return;
+  if (avatarUrl) {
+    avEl.innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover">`;
+  } else {
+    const ini = (nom || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    avEl.textContent = ini;
+  }
+}
+
+async function handleAvatarChange(input) {
+  const file = input.files[0];
+  if (!file || typeof sbClient === 'undefined' || !sbClient) return;
+  const statusEl = document.getElementById('pf-avatar-status');
+  const user = window._bwCurrentUser;
+  if (!user) return;
+  if (file.size > 2 * 1024 * 1024) {
+    if (statusEl) { statusEl.textContent = 'Image trop lourde (max 2 Mo).'; statusEl.style.color = '#ff4d4d'; }
+    return;
+  }
+  if (statusEl) { statusEl.textContent = 'Upload en cours…'; statusEl.style.color = '#888'; }
+  const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
+  const path = `${user.id}/avatar.${ext}`;
+  const { error: upErr } = await sbClient.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
+  if (upErr) { if (statusEl) { statusEl.textContent = `Erreur : ${upErr.message}`; statusEl.style.color = '#ff4d4d'; } return; }
+  const { data: { publicUrl } } = sbClient.storage.from('avatars').getPublicUrl(path);
+  await sbClient.from('bw_profiles').update({ avatar_url: publicUrl }).eq('id', user.id);
+  _pfAvatarDisplay(publicUrl, null);
+  const avSide = document.getElementById('snav-user-av');
+  if (avSide) avSide.innerHTML = `<img src="${publicUrl}" style="width:100%;height:100%;object-fit:cover">`;
+  if (statusEl) { statusEl.textContent = 'Photo mise à jour ✓'; statusEl.style.color = '#4ade80'; }
+}
+
+async function saveProfile() {
+  const nom   = (document.getElementById('pf-nom')?.value   || '').trim();
+  const email = (document.getElementById('pf-email')?.value || '').trim();
+  const tel   = (document.getElementById('pf-tel')?.value   || '').trim();
+  const poste = (document.getElementById('pf-poste')?.value || '').trim();
+  const pwd   = document.getElementById('pf-pwd')?.value  || '';
+  const pwd2  = document.getElementById('pf-pwd2')?.value || '';
+  const errEl = document.getElementById('pf-error');
+  const sucEl = document.getElementById('pf-success');
+  const btn   = document.getElementById('pf-save-btn');
+  const user  = window._bwCurrentUser;
+  if (errEl) errEl.style.display = 'none';
+  if (sucEl) sucEl.style.display = 'none';
+  if (!nom) { if (errEl) { errEl.textContent = 'Le nom est requis.'; errEl.style.display = 'block'; } return; }
+  if (pwd && pwd.length < 8) { if (errEl) { errEl.textContent = 'Mot de passe trop court (8 car. min.).'; errEl.style.display = 'block'; } return; }
+  if (pwd && pwd !== pwd2)   { if (errEl) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.style.display = 'block'; } return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  const { error: pfErr } = await sbClient.from('bw_profiles').update({ nom, telephone: tel || null, poste: poste || null }).eq('id', user.id);
+  if (pfErr) {
+    if (errEl) { errEl.textContent = pfErr.message; errEl.style.display = 'block'; }
+    if (btn)   { btn.disabled = false; btn.textContent = 'Enregistrer'; }
+    return;
+  }
+  let emailChanged = false;
+  if (email && user && email !== user.email) {
+    const { error: authErr } = await sbClient.auth.updateUser({ email });
+    if (authErr) {
+      if (errEl) { errEl.textContent = authErr.message; errEl.style.display = 'block'; }
+      if (btn)   { btn.disabled = false; btn.textContent = 'Enregistrer'; }
+      return;
+    }
+    await sbClient.from('bw_profiles').update({ email }).eq('id', user.id);
+    emailChanged = true;
+  }
+  if (pwd) {
+    const { error: pwdErr } = await sbClient.auth.updateUser({ password: pwd });
+    if (pwdErr) {
+      if (errEl) { errEl.textContent = pwdErr.message; errEl.style.display = 'block'; }
+      if (btn)   { btn.disabled = false; btn.textContent = 'Enregistrer'; }
+      return;
+    }
+    const p = document.getElementById('pf-pwd');  if (p) p.value = '';
+    const p2= document.getElementById('pf-pwd2'); if (p2) p2.value = '';
+  }
+  // Mise à jour sidebar
+  const nameEl = document.getElementById('snav-user-name');
+  if (nameEl) nameEl.textContent = nom;
+  const roleEl = document.getElementById('snav-user-role');
+  if (roleEl && poste) roleEl.textContent = poste;
+  const avSide = document.getElementById('snav-user-av');
+  if (avSide && !avSide.querySelector('img')) {
+    avSide.textContent = nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+  // Mise à jour champ demandeur dans le formulaire
+  if (window._bwLinkedUser) window._bwLinkedUser.nom = nom;
+  if (typeof State !== 'undefined') {
+    State.data.ref = nom;
+    if (typeof renderAll === 'function') renderAll();
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer'; }
+  if (sucEl) {
+    sucEl.textContent = emailChanged
+      ? 'Profil mis à jour. Vérifie ta boite mail pour confirmer le nouvel email ✓'
+      : 'Profil mis à jour ✓';
+    sucEl.style.display = 'block';
+  }
+}
+
+async function signOutUser() {
+  if (typeof sbClient !== 'undefined' && sbClient) {
+    await sbClient.auth.signOut();
+    window.location.href = 'login.html';
+  }
+}

@@ -27,11 +27,16 @@
       <a class="snav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
       <a class="snav-item active" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
     </nav>
-    <div class="snav-user">
-      <div class="snav-user-av">KY</div>
-      <div class="snav-user-info">
-        <div class="snav-user-name">Karim Y.-Cherif</div>
-        <div class="snav-user-role">Brand Design Lead</div>
+    <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border-radius:8px;padding:4px;margin:-4px;transition:background .15s" onclick="openProfileDrawer()" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'" title="Mon profil">
+        <div id="snav-user-av" style="width:30px;height:30px;background:#1a1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">—</div>
+        <div class="snav-user-info" style="flex:1;min-width:0">
+          <div id="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chargement…</div>
+          <div id="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">—</div>
+        </div>
+      </div>
+      <div id="snav-user-logout" style="display:none">
+        <button onclick="signOutUser()" style="width:100%;padding:5px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit">Déconnexion</button>
       </div>
     </div>
   </div>
@@ -307,6 +312,66 @@ window.getAppMarques = function() {
 <script src="recap.js?v=2"></script>
 <script src="render.js?v=7"></script>
 <script src="gcal-sync.js?v=2"></script>
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
+
+<!-- ═══ DRAWER PROFIL ══════════════════════════════════════= -->
+<div id="profile-drawer-overlay" onclick="closeProfileDrawer()" style="display:none;position:fixed;inset:0;z-index:8800;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)"></div>
+<div id="profile-drawer" style="display:none;position:fixed;top:0;right:0;width:360px;height:100vh;z-index:8850;background:#111;border-left:1px solid #222;overflow-y:auto;font-family:Inter,sans-serif;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1)">
+  <div style="padding:18px 24px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#111;z-index:1">
+    <div style="font-size:15px;font-weight:700;color:#f0f0f0">Mon profil</div>
+    <button onclick="closeProfileDrawer()" style="background:none;border:none;color:#555;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;transition:color .15s" onmouseover="this.style.color='#f0f0f0'" onmouseout="this.style.color='#555'">×</button>
+  </div>
+  <!-- Avatar -->
+  <div style="padding:28px 24px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;border-bottom:1px solid #1a1a1a">
+    <div style="position:relative">
+      <div id="pf-avatar-display" style="width:80px;height:80px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;overflow:hidden;border:2px solid #2a2a2a"></div>
+      <label for="pf-avatar-input" style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:#DFFF00;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #111" title="Changer la photo">
+        <i class="ti ti-camera" style="font-size:12px;color:#000"></i>
+      </label>
+      <input type="file" id="pf-avatar-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="handleAvatarChange(this)">
+    </div>
+    <div id="pf-avatar-status" style="font-size:11.5px;color:#555;min-height:14px;text-align:center"></div>
+  </div>
+  <!-- Identité -->
+  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #1a1a1a">
+    <div style="font-size:10.5px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:.07em">Identité</div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Nom complet</label>
+      <input id="pf-nom" type="text" placeholder="Prénom Nom" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Adresse email</label>
+      <input id="pf-email" type="email" placeholder="vous@bnwburger.com" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+      <div style="font-size:11px;color:#444;margin-top:4px">Un email de confirmation sera envoyé en cas de changement.</div>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Téléphone</label>
+      <input id="pf-tel" type="tel" placeholder="+33 6 00 00 00 00" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Poste</label>
+      <input id="pf-poste" type="text" placeholder="Ex : Responsable Marketing" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+  </div>
+  <!-- Mot de passe -->
+  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #1a1a1a">
+    <div style="font-size:10.5px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:.07em">Mot de passe</div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Nouveau mot de passe</label>
+      <input id="pf-pwd" type="password" placeholder="Laisser vide pour ne pas modifier" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Confirmer</label>
+      <input id="pf-pwd2" type="password" placeholder="••••••••" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+  </div>
+  <!-- Save -->
+  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:10px">
+    <div id="pf-error"   style="color:#ff4d4d;font-size:12.5px;display:none;line-height:1.5"></div>
+    <div id="pf-success" style="color:#4ade80;font-size:12.5px;display:none;line-height:1.5"></div>
+    <button id="pf-save-btn" onclick="saveProfile()" style="width:100%;padding:12px;background:#DFFF00;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Enregistrer</button>
+  </div>
+</div>
+
 </body>
 </html>

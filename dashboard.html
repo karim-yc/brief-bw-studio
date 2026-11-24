@@ -341,6 +341,17 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .checklist-progress-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
 .checklist-progress-fill{height:100%;background:var(--indigo);border-radius:3px;transition:width .3s}
 .checklist-progress-txt{font-size:11px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
+/* Fichiers panel */
+.fichiers-list{display:flex;flex-direction:column;gap:10px}
+.fichier-card{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff}
+.fichier-thumb{width:100%;max-height:160px;object-fit:cover;display:block;border-bottom:1px solid var(--border)}
+.fichier-info{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.fichier-icon{font-size:20px;color:var(--text-secondary);flex-shrink:0}
+.fichier-meta{flex:1;min-width:0}
+.fichier-name{font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fichier-size{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+.fichier-dl{background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:5px 9px;cursor:pointer;color:var(--text-secondary);font-size:14px;display:flex;align-items:center;transition:all .15s;flex-shrink:0}
+.fichier-dl:hover{background:var(--indigo);border-color:var(--indigo);color:#fff}
 /* Activity log */
 .assignee-avatar{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;cursor:pointer;vertical-align:middle}
 .assignee-empty{width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-tertiary);cursor:pointer;vertical-align:middle}
@@ -971,11 +982,20 @@ body { overflow-x: hidden; max-width: 100vw; }
       <button class="sync-btn" onclick="loadData()" title="Actualiser"><i class="ti ti-refresh"></i></button>
     </div>
   </div>
-  <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">
-    <div class="snav-user-av" style="width:30px;height:30px;background:#1a1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">KY</div>
-    <div class="snav-user-info" style="flex:1;min-width:0">
-      <div class="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Karim Y.-Cherif</div>
-      <div class="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">Brand Design Lead</div>
+  <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border-radius:8px;padding:4px;margin:-4px;transition:background .15s" onclick="openProfileDrawer()" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'" title="Mon profil">
+      <div id="snav-user-av" style="width:30px;height:30px;background:#1a1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">—</div>
+      <div class="snav-user-info" style="flex:1;min-width:0">
+        <div id="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chargement…</div>
+        <div id="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">—</div>
+      </div>
+    </div>
+    <div id="snav-studio-actions" style="display:none;display:flex;gap:6px">
+      <button onclick="openInviteModal()" style="flex:1;padding:5px 8px;background:rgba(223,255,0,.12);border:1px solid rgba(223,255,0,.25);border-radius:7px;font-size:11px;font-weight:600;color:#DFFF00;cursor:pointer;font-family:inherit">+ Inviter</button>
+      <button onclick="signOutUser()" style="flex:1;padding:5px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit">Déconnexion</button>
+    </div>
+    <div id="snav-demandeur-actions" style="display:none">
+      <button onclick="signOutUser()" style="width:100%;padding:5px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit">Déconnexion</button>
     </div>
   </div>
 </nav>
@@ -1287,12 +1307,14 @@ body { overflow-x: hidden; max-width: 100vw; }
       <button class="drawer-tab active" data-panel="details" onclick="switchDrawerTab(this,'details')"><i class="ti ti-file-text"></i> Détails</button>
       <button class="drawer-tab" data-panel="checklist" onclick="switchDrawerTab(this,'checklist')"><i class="ti ti-checklist"></i> Checklist <span class="drawer-tab-badge" id="d-cl-badge">—</span></button>
       <button class="drawer-tab" data-panel="activity" onclick="switchDrawerTab(this,'activity')"><i class="ti ti-history"></i> Activité</button>
+      <button class="drawer-tab" data-panel="fichiers" onclick="switchDrawerTab(this,'fichiers')"><i class="ti ti-paperclip"></i> Fichiers <span class="drawer-tab-badge" id="d-files-badge" style="display:none"></span></button>
     </div>
   </div>
   <div class="drawer-body" id="drawer-body">
     <div class="drawer-tab-panel active" id="panel-details"></div>
     <div class="drawer-tab-panel" id="panel-checklist"></div>
     <div class="drawer-tab-panel" id="panel-activity"></div>
+    <div class="drawer-tab-panel" id="panel-fichiers"></div>
   </div>
   <div class="drawer-foot" id="drawer-foot"></div>
 </div>
@@ -1314,25 +1336,90 @@ body { overflow-x: hidden; max-width: 100vw; }
   </div>
 </div>
 
-<!-- ═══ MODAL MOT DE PASSE ═══════════════════════════════= -->
-<div id="bw-auth-modal" style="position:fixed;inset:0;z-index:9999;background:rgba(30,27,75,0.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-family:Inter,sans-serif">
-  <div style="background:#fff;border-radius:16px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.45)">
-    <div style="font-size:28px;margin-bottom:8px">🔒</div>
-    <div style="font-size:17px;font-weight:700;color:#1E1B4B;margin-bottom:4px">BW Studio</div>
-    <div style="font-size:13px;color:#64748b;margin-bottom:20px">Dashboard créatif</div>
-    <input id="bw-auth-email" type="email" placeholder="Email" autocomplete="email" value="karim.yc@bnwburger.com"
-      style="width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;text-align:center;margin-bottom:8px">
-    <input id="bw-auth-input" type="password" placeholder="Mot de passe" autocomplete="current-password"
-      style="width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;text-align:center;margin-bottom:8px">
-    <div id="bw-auth-error" style="color:#ef4444;font-size:12px;min-height:18px;margin-bottom:8px"></div>
-    <button id="bw-auth-btn" style="width:100%;padding:11px;background:#1E1B4B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Accéder</button>
-    <div style="margin:16px 0 10px;display:flex;align-items:center;gap:8px">
-      <div style="flex:1;height:1px;background:#e2e8f0"></div>
-      <span style="font-size:11px;color:#94a3b8">ou</span>
-      <div style="flex:1;height:1px;background:#e2e8f0"></div>
+<!-- ═══ MODAL INVITATION ══════════════════════════════════= -->
+<div id="bw-invite-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;font-family:Inter,sans-serif">
+  <div style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:28px;width:340px;box-shadow:0 24px 64px rgba(0,0,0,.7)">
+    <div style="font-size:15px;font-weight:700;color:#f0f0f0;margin-bottom:4px">Inviter un demandeur</div>
+    <div style="font-size:12.5px;color:#666;margin-bottom:20px">Un email d'invitation sera envoyé pour créer un compte.</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Nom</label>
+        <input id="invite-nom" type="text" placeholder="Prénom Nom" style="width:100%;box-sizing:border-box;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Email</label>
+        <input id="invite-email" type="email" placeholder="contact@restaurant.com" style="width:100%;box-sizing:border-box;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit">
+      </div>
     </div>
-    <button id="bw-auth-otp-btn" style="width:100%;padding:10px;background:#fff;color:#1E1B4B;border:1.5px solid #1E1B4B;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Connexion sans mot de passe</button>
-    <div id="bw-auth-otp-msg" style="display:none;color:#22c55e;font-size:12px;margin-top:10px;line-height:1.4"></div>
+    <div id="invite-error" style="color:#ff4d4d;font-size:12px;min-height:16px;margin-top:10px"></div>
+    <div id="invite-success" style="display:none;color:#4ade80;font-size:12.5px;margin-top:10px;line-height:1.5"></div>
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button onclick="closeInviteModal()" style="flex:1;padding:10px;background:transparent;border:1.5px solid #2a2a2a;border-radius:8px;font-size:13.5px;color:#888;cursor:pointer;font-family:inherit">Annuler</button>
+      <button id="invite-btn" onclick="submitInvite()" style="flex:2;padding:10px;background:#DFFF00;border:none;border-radius:8px;font-size:13.5px;font-weight:700;color:#000;cursor:pointer;font-family:inherit">Envoyer l'invitation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DRAWER PROFIL ══════════════════════════════════════= -->
+<div id="profile-drawer-overlay" onclick="closeProfileDrawer()" style="display:none;position:fixed;inset:0;z-index:8800;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)"></div>
+<div id="profile-drawer" style="display:none;position:fixed;top:0;right:0;width:360px;height:100vh;z-index:8850;background:#111;border-left:1px solid #222;overflow-y:auto;font-family:Inter,sans-serif;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1)">
+  <div style="padding:18px 24px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#111;z-index:1">
+    <div style="font-size:15px;font-weight:700;color:#f0f0f0">Mon profil</div>
+    <button onclick="closeProfileDrawer()" style="background:none;border:none;color:#555;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;transition:color .15s" onmouseover="this.style.color='#f0f0f0'" onmouseout="this.style.color='#555'">×</button>
+  </div>
+
+  <!-- Avatar -->
+  <div style="padding:28px 24px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;border-bottom:1px solid #1a1a1a">
+    <div style="position:relative">
+      <div id="pf-avatar-display" style="width:80px;height:80px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;overflow:hidden;border:2px solid #2a2a2a"></div>
+      <label for="pf-avatar-input" style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:#DFFF00;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #111" title="Changer la photo">
+        <i class="ti ti-camera" style="font-size:12px;color:#000"></i>
+      </label>
+      <input type="file" id="pf-avatar-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="handleAvatarChange(this)">
+    </div>
+    <div id="pf-avatar-status" style="font-size:11.5px;color:#555;min-height:14px;text-align:center"></div>
+  </div>
+
+  <!-- Identité -->
+  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #1a1a1a">
+    <div style="font-size:10.5px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:.07em">Identité</div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Nom complet</label>
+      <input id="pf-nom" type="text" placeholder="Prénom Nom" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Adresse email</label>
+      <input id="pf-email" type="email" placeholder="vous@bnwburger.com" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+      <div style="font-size:11px;color:#444;margin-top:4px">Un email de confirmation sera envoyé en cas de changement.</div>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Téléphone</label>
+      <input id="pf-tel" type="tel" placeholder="+33 6 00 00 00 00" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Poste</label>
+      <input id="pf-poste" type="text" placeholder="Ex : Responsable Marketing" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+  </div>
+
+  <!-- Mot de passe -->
+  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #1a1a1a">
+    <div style="font-size:10.5px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:.07em">Mot de passe</div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Nouveau mot de passe</label>
+      <input id="pf-pwd" type="password" placeholder="Laisser vide pour ne pas modifier" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Confirmer</label>
+      <input id="pf-pwd2" type="password" placeholder="••••••••" style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit;transition:border-color .15s" onfocus="this.style.borderColor='#DFFF00'" onblur="this.style.borderColor='#2a2a2a'">
+    </div>
+  </div>
+
+  <!-- Save -->
+  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:10px">
+    <div id="pf-error"   style="color:#ff4d4d;font-size:12.5px;display:none;line-height:1.5"></div>
+    <div id="pf-success" style="color:#4ade80;font-size:12.5px;display:none;line-height:1.5"></div>
+    <button id="pf-save-btn" onclick="saveProfile()" style="width:100%;padding:12px;background:#DFFF00;border:none;border-radius:8px;font-size:14px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Enregistrer</button>
   </div>
 </div>
 
@@ -1359,23 +1446,13 @@ body { overflow-x: hidden; max-width: 100vw; }
    Protection basique côté JS (sessionStorage).
    Mot de passe modifiable ici : constante DASH_PASS.
    ─────────────────────────────────────────────────────────── */
-(function() {
-  const SK = 'bw_dash_v1_auth';
-  window._bwAuthOk = sessionStorage.getItem(SK) === '1';
-  if (window._bwAuthOk) {
-    const m = document.getElementById('bw-auth-modal');
-    if (m) m.style.display = 'none';
-  }
-})();
-/* Vérifie si une session Supabase Auth est déjà active au chargement */
+/* Vérifie si une session Supabase Auth est active */
 async function _checkExistingSession() {
   if (!sbClient) return false;
   const { data: { session } } = await sbClient.auth.getSession();
   if (session) {
     sessionStorage.setItem('bw_dash_v1_auth', '1');
     window._bwAuthOk = true;
-    const m = document.getElementById('bw-auth-modal');
-    if (m) m.style.display = 'none';
     return true;
   }
   return false;
@@ -1390,6 +1467,244 @@ const SUPABASE_ANON_KEY = 'sb_publishable_PhHq5kbGxyntZ8JlSumImA_pqzR8tKL';
 const sbClient = (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'REMPLACER_PAR_PROJECT_URL')
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
+
+/* ── Auth globals ─────────────────────────────────────────── */
+let currentUser = null;
+let currentRole = null; // 'studio' | 'demandeur'
+
+async function loadCurrentUserProfile() {
+  if (!sbClient) return;
+  const { data: { user } } = await sbClient.auth.getUser();
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  const { data: profile } = await sbClient.from('bw_profiles').select('role,nom,email,telephone,avatar_url').eq('id', user.id).single();
+  if (profile) {
+    currentRole = profile.role;
+    const nom   = profile.nom || user.email.split('@')[0];
+    const initials = nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    const avEl   = G('snav-user-av');
+    const nameEl = G('snav-user-name');
+    const roleEl = G('snav-user-role');
+    if (avEl) {
+      if (profile.avatar_url) {
+        avEl.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover">`;
+      } else {
+        avEl.textContent = initials;
+      }
+    }
+    if (nameEl) nameEl.textContent = nom;
+    if (roleEl) roleEl.textContent = currentRole === 'studio' ? 'Studio Admin' : 'Demandeur';
+    const studioActions   = G('snav-studio-actions');
+    const demandeurActions = G('snav-demandeur-actions');
+    if (currentRole === 'studio') {
+      if (studioActions)   studioActions.style.display   = 'flex';
+      if (demandeurActions) demandeurActions.style.display = 'none';
+    } else {
+      if (studioActions)   studioActions.style.display   = 'none';
+      if (demandeurActions) demandeurActions.style.display = 'block';
+    }
+  }
+}
+
+async function signOutUser() {
+  if (sbClient) await sbClient.auth.signOut();
+  sessionStorage.removeItem('bw_dash_v1_auth');
+  window.location.href = 'login.html';
+}
+
+function openInviteModal() {
+  const m = G('bw-invite-modal');
+  if (!m) return;
+  G('invite-nom').value = '';
+  G('invite-email').value = '';
+  G('invite-error').textContent = '';
+  G('invite-success').style.display = 'none';
+  G('invite-btn').disabled = false;
+  G('invite-btn').textContent = "Envoyer l'invitation";
+  m.style.display = 'flex';
+}
+function closeInviteModal() {
+  const m = G('bw-invite-modal');
+  if (m) m.style.display = 'none';
+}
+
+async function submitInvite() {
+  const nom   = G('invite-nom').value.trim();
+  const email = G('invite-email').value.trim();
+  const errEl = G('invite-error');
+  const sucEl = G('invite-success');
+  if (!nom || !email) { errEl.textContent = 'Remplis tous les champs.'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Email invalide.'; return; }
+  errEl.textContent = '';
+  const btn = G('invite-btn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+  // Client temporaire pour ne pas écraser la session studio
+  const tmpClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { storageKey: 'bw_tmp_invite', persistSession: false }
+  });
+  const { error } = await tmpClient.auth.signUp({
+    email,
+    password: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2).toUpperCase() + '!9',
+    options: { data: { role: 'demandeur', nom } }
+  });
+  if (error) {
+    btn.disabled = false;
+    btn.textContent = "Envoyer l'invitation";
+    errEl.textContent = error.message || 'Erreur lors de l\'invitation.';
+    return;
+  }
+  sucEl.style.display = 'block';
+  sucEl.textContent = `✓ Invitation envoyée à ${email}. Ils recevront un email de confirmation pour activer leur compte.`;
+  btn.textContent = 'Envoyé ✓';
+  setTimeout(() => closeInviteModal(), 3200);
+}
+
+/* ── Profile Drawer ──────────────────────────────────────── */
+function openProfileDrawer() {
+  const overlay = G('profile-drawer-overlay');
+  const drawer  = G('profile-drawer');
+  if (!overlay || !drawer) return;
+  if (currentUser) G('pf-email').value = currentUser.email || '';
+  if (sbClient && currentUser) {
+    sbClient.from('bw_profiles').select('nom,telephone,poste,avatar_url').eq('id', currentUser.id).single()
+      .then(({ data }) => {
+        if (data) {
+          G('pf-nom').value   = data.nom       || '';
+          G('pf-tel').value   = data.telephone  || '';
+          G('pf-poste').value = data.poste      || '';
+          _pfAvatarDisplay(data.avatar_url, data.nom);
+        }
+      });
+  }
+  G('pf-pwd').value = G('pf-pwd2').value = '';
+  G('pf-error').style.display = G('pf-success').style.display = 'none';
+  G('pf-avatar-status').textContent = '';
+  overlay.style.display = 'block';
+  drawer.style.display  = 'block';
+  setTimeout(() => { drawer.style.transform = 'translateX(0)'; }, 10);
+}
+
+function closeProfileDrawer() {
+  const overlay = G('profile-drawer-overlay');
+  const drawer  = G('profile-drawer');
+  if (!drawer) return;
+  drawer.style.transform = 'translateX(100%)';
+  setTimeout(() => {
+    drawer.style.display  = 'none';
+    overlay.style.display = 'none';
+  }, 260);
+}
+
+function _pfAvatarDisplay(avatarUrl, nom) {
+  const avEl = G('pf-avatar-display');
+  if (!avEl) return;
+  if (avatarUrl) {
+    avEl.innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover">`;
+  } else {
+    const ini = (nom || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    avEl.textContent = ini;
+  }
+}
+
+async function handleAvatarChange(input) {
+  const file = input.files[0];
+  if (!file || !sbClient) return;
+  const statusEl = G('pf-avatar-status');
+  if (file.size > 2 * 1024 * 1024) {
+    statusEl.textContent = 'Image trop lourde (max 2 Mo).';
+    statusEl.style.color = '#ff4d4d';
+    return;
+  }
+  statusEl.textContent = 'Upload en cours…';
+  statusEl.style.color = '#888';
+  const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
+  const path = `${currentUser.id}/avatar.${ext}`;
+  const { error: upErr } = await sbClient.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
+  if (upErr) { statusEl.textContent = `Erreur : ${upErr.message}`; statusEl.style.color = '#ff4d4d'; return; }
+  const { data: { publicUrl } } = sbClient.storage.from('avatars').getPublicUrl(path);
+  await sbClient.from('bw_profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
+  _pfAvatarDisplay(publicUrl, null);
+  const avSide = G('snav-user-av');
+  if (avSide) avSide.innerHTML = `<img src="${publicUrl}" style="width:100%;height:100%;object-fit:cover">`;
+  statusEl.textContent = 'Photo mise à jour ✓';
+  statusEl.style.color = '#4ade80';
+}
+
+async function saveProfile() {
+  const nom   = (G('pf-nom').value   || '').trim();
+  const email = (G('pf-email').value || '').trim();
+  const tel   = (G('pf-tel').value   || '').trim();
+  const poste = (G('pf-poste').value || '').trim();
+  const pwd   = G('pf-pwd').value;
+  const pwd2  = G('pf-pwd2').value;
+  const errEl = G('pf-error');
+  const sucEl = G('pf-success');
+  const btn   = G('pf-save-btn');
+  errEl.style.display = sucEl.style.display = 'none';
+  if (!nom) { errEl.textContent = 'Le nom est requis.'; errEl.style.display = 'block'; return; }
+  if (pwd && pwd.length < 8) { errEl.textContent = 'Mot de passe trop court (8 car. min.).'; errEl.style.display = 'block'; return; }
+  if (pwd && pwd !== pwd2)   { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  const { error: pfErr } = await sbClient.from('bw_profiles').update({ nom, telephone: tel || null, poste: poste || null }).eq('id', currentUser.id);
+  if (pfErr) { errEl.textContent = pfErr.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enregistrer'; return; }
+  let emailChanged = false;
+  if (email && email !== currentUser.email) {
+    const { error: authErr } = await sbClient.auth.updateUser({ email });
+    if (authErr) { errEl.textContent = authErr.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enregistrer'; return; }
+    await sbClient.from('bw_profiles').update({ email }).eq('id', currentUser.id);
+    emailChanged = true;
+  }
+  if (pwd) {
+    const { error: pwdErr } = await sbClient.auth.updateUser({ password: pwd });
+    if (pwdErr) { errEl.textContent = pwdErr.message; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enregistrer'; return; }
+    G('pf-pwd').value = G('pf-pwd2').value = '';
+  }
+  const nameEl = G('snav-user-name');
+  if (nameEl) nameEl.textContent = nom;
+  const avSide = G('snav-user-av');
+  if (avSide && !avSide.querySelector('img')) {
+    avSide.textContent = nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  }
+  btn.disabled = false; btn.textContent = 'Enregistrer';
+  sucEl.textContent = emailChanged
+    ? 'Profil mis à jour. Vérifie ta boite mail pour confirmer le nouvel email ✓'
+    : 'Profil mis à jour ✓';
+  sucEl.style.display = 'block';
+}
+
+/* ── Liaison brief → compte bw_profiles ────────────────────── */
+let _bwProfilesCache = null;
+
+async function _loadBwProfiles() {
+  if (_bwProfilesCache) return _bwProfilesCache;
+  if (!sbClient) return [];
+  const { data } = await sbClient.from('bw_profiles').select('id,nom,email,role').order('nom');
+  _bwProfilesCache = data || [];
+  return _bwProfilesCache;
+}
+
+async function assignBriefToUser(briefId, userId) {
+  if (!sbClient) return;
+  const val = userId === '' ? null : userId;
+  const { error } = await sbClient.from('briefs').update({ user_id: val }).eq('brief_id', briefId);
+  if (error) { console.error('[BW] assignBriefToUser', error.message); return; }
+  const b = allBriefs.find(x => x.briefId === briefId);
+  if (b) { b.user_id = val; renderDrawer(b); }
+}
+
+async function _renderLinkedUserDropdown(b) {
+  const container = document.getElementById(`d-link-user-${b.briefId}`);
+  if (!container) return;
+  const profiles = await _loadBwProfiles();
+  const opts = profiles.map(p =>
+    `<option value="${p.id}"${b.user_id === p.id ? ' selected' : ''}>${p.nom || p.email}</option>`
+  ).join('');
+  container.innerHTML = `<select onchange="assignBriefToUser('${b.briefId}', this.value)" style="background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:6px;padding:6px 10px;font-size:13px;color:#f0f0f0;outline:none;font-family:inherit;width:100%;cursor:pointer">
+    <option value="">— Non lié —</option>
+    ${opts}
+  </select>`;
+}
 
 const HIST_KEY   = 'bw_brief_v2_history';
 const SHEET_ID   = '1bBp5Cgmjdq-EPWrYQ_Pp40GJs-ss82I-4anLpT83yDw';
@@ -1633,7 +1948,7 @@ async function fetchBriefs() {
       console.log('[BW] Supabase → SELECT briefs ORDER BY submitted_at DESC');
       const { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, archived, submitted_at, marque')
+        .select('data, statut, archived, submitted_at, marque, user_id')
         .order('submitted_at', { ascending: false });
 
       if (error) throw new Error(error.message);
@@ -1645,6 +1960,7 @@ async function fetchBriefs() {
         statut: row.statut || row.data?.statut || 'soumis',
         archived: row.archived ?? false,
         _marqueId: row.marque || null,
+        user_id: row.user_id || null,
         _fromSupabase: true,
       })).filter(b => b.briefId);
 
@@ -2981,6 +3297,57 @@ function renderChecklistPanel(b) {
   `;
 }
 
+function renderFichiersPanel(b) {
+  const el = G('panel-fichiers');
+  if (!el) return;
+  const files = b.fichiers || [];
+
+  const badge = G('d-files-badge');
+  if (badge) {
+    if (files.length > 0) { badge.textContent = files.length; badge.style.display = ''; }
+    else { badge.style.display = 'none'; }
+  }
+
+  if (!files.length) {
+    el.innerHTML = '<div style="color:var(--text-tertiary);font-size:13px;padding:8px 0">Aucun fichier joint.</div>';
+    return;
+  }
+
+  el.innerHTML = `<div class="fichiers-list">${files.map((f, i) => {
+    const isImg = f.type && f.type.startsWith('image/');
+    const icon = isImg ? 'ti-photo' : f.type === 'application/pdf' ? 'ti-file-type-pdf' : 'ti-file';
+    const sizeKb = f.size ? Math.round(f.size / 1024) : '?';
+    const preview = isImg ? `<img class="fichier-thumb" src="data:${f.type};base64,${f.data}" alt="${f.name}" loading="lazy">` : '';
+    return `<div class="fichier-card">
+      ${preview}
+      <div class="fichier-info">
+        <i class="ti ${icon} fichier-icon"></i>
+        <div class="fichier-meta">
+          <div class="fichier-name" title="${f.name}">${f.name}</div>
+          <div class="fichier-size">${sizeKb} Ko</div>
+        </div>
+        <button class="fichier-dl" data-idx="${i}" onclick="downloadFichier(${i})" title="Télécharger ${f.name}"><i class="ti ti-download"></i></button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function downloadFichier(idx) {
+  const b = _currentDrawerBrief;
+  if (!b) return;
+  const files = b.fichiers || [];
+  const f = files[idx];
+  if (!f || !f.data) return;
+  const bytes = atob(f.data);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  const blob = new Blob([arr], { type: f.type || 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = f.name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
 function renderDrawer(b) {
   G('d-id').textContent=b.briefId;
   G('d-type').textContent=b.typeDemande||'—';
@@ -2999,6 +3366,15 @@ function renderDrawer(b) {
     <div class="drawer-label">Demandeur</div>
     <div class="drawer-val">${b.demandeur||'—'} <span style="color:var(--text-tertiary)">— ${b.departement||'—'}</span></div>
   </div>`;
+  if (currentRole === 'studio') {
+    const linkedLabel = b.user_id
+      ? `<span style="color:var(--text-tertiary);font-size:11.5px">ID lié — chargement…</span>`
+      : `<span style="color:var(--text-tertiary);font-size:12px">Chargement…</span>`;
+    html += `<div class="drawer-section">
+      <div class="drawer-label">Compte lié</div>
+      <div class="drawer-val" id="d-link-user-${b.briefId}">${linkedLabel}</div>
+    </div>`;
+  }
   const assignId = getAssignment(b.briefId);
   const assignMember = assignId ? getMemberById(assignId) : null;
   html+=`<div class="drawer-section">
@@ -3041,9 +3417,13 @@ function renderDrawer(b) {
 
   const detailPanel = G('panel-details');
   if (detailPanel) detailPanel.innerHTML = html;
+  if (currentRole === 'studio') _renderLinkedUserDropdown(b);
 
   /* ── Onglet Checklist ── */
   renderChecklistPanel(b);
+
+  /* ── Onglet Fichiers ── */
+  renderFichiersPanel(b);
 
   /* ── Onglet Activité ── */
   const actPanel = G('panel-activity');
@@ -3068,14 +3448,20 @@ function renderDrawer(b) {
   }
 
   const isArchived = isBriefArchived(b.briefId);
-  G('drawer-foot').innerHTML=`
-    <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Statut ✎</button>
-    <button onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text);font-family:'Inter',sans-serif"><i class="ti ti-copy"></i> Dupliquer</button>
-    <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
-    ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
-    <button onclick="archiveBrief('${b.briefId}',${isArchived})" title="${isArchived?'Désarchiver ce brief':'Archiver ce brief (masqué de la vue principale)'}" style="margin-left:auto;background:none;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text-secondary);font-family:'Inter',sans-serif;transition:all .15s"><i class="ti ti-${isArchived?'archive-off':'archive'}"></i> ${isArchived?'Désarchiver':'Archiver'}</button>
-    <button onclick="deleteBrief('${b.briefId}')" title="Supprimer définitivement ce brief" style="background:none;border:1.5px solid #fca5a5;border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:#ef4444;font-family:'Inter',sans-serif;transition:all .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'"><i class="ti ti-trash"></i> Supprimer</button>
-  `;
+  if (currentRole === 'demandeur') {
+    G('drawer-foot').innerHTML=`
+      <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
+    `;
+  } else {
+    G('drawer-foot').innerHTML=`
+      <button class="status-pill st-soumis" style="font-size:11px;padding:6px 14px;cursor:pointer" onclick="openStatusModal('${b.briefId}',event)">Statut ✎</button>
+      <button onclick="dupliquerBrief('${b.briefId}')" title="Pré-remplir le formulaire avec ce brief" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text);font-family:'Inter',sans-serif"><i class="ti ti-copy"></i> Dupliquer</button>
+      <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
+      ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
+      <button onclick="archiveBrief('${b.briefId}',${isArchived})" title="${isArchived?'Désarchiver ce brief':'Archiver ce brief (masqué de la vue principale)'}" style="margin-left:auto;background:none;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text-secondary);font-family:'Inter',sans-serif;transition:all .15s"><i class="ti ti-${isArchived?'archive-off':'archive'}"></i> ${isArchived?'Désarchiver':'Archiver'}</button>
+      <button onclick="deleteBrief('${b.briefId}')" title="Supprimer définitivement ce brief" style="background:none;border:1.5px solid #fca5a5;border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:#ef4444;font-family:'Inter',sans-serif;transition:all .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'"><i class="ti ti-trash"></i> Supprimer</button>
+    `;
+  }
 }
 
 
@@ -3525,64 +3911,12 @@ async function fetchMondayTasks() {
 }
 
 (async function _initDashboard() {
-  /* ── Auth modale si session non authentifiée ─────────────── */
-  if (!window._bwAuthOk) {
-    if (!(await _checkExistingSession())) {
-      await new Promise(resolve => {
-        const emailInp = document.getElementById('bw-auth-email');
-        const inp = document.getElementById('bw-auth-input');
-        const btn = document.getElementById('bw-auth-btn');
-        const err = document.getElementById('bw-auth-error');
-        async function tryAuth() {
-          if (sbClient) {
-            const email = emailInp ? emailInp.value.trim() : '';
-            const pwd   = inp ? inp.value : '';
-            if (!email || !pwd) {
-              if (err) err.textContent = 'Email et mot de passe requis';
-              return;
-            }
-            if (err) err.textContent = '';
-            if (btn) btn.disabled = true;
-            const { error } = await sbClient.auth.signInWithPassword({ email, password: pwd });
-            if (btn) btn.disabled = false;
-            if (error) {
-              if (err) err.textContent = 'Identifiants incorrects';
-              if (inp) { inp.value = ''; inp.focus(); }
-            } else {
-              sessionStorage.setItem('bw_dash_v1_auth', '1');
-              window._bwAuthOk = true;
-              const m = document.getElementById('bw-auth-modal');
-              if (m) m.style.display = 'none';
-              resolve();
-            }
-          } else {
-            if (err) err.textContent = 'Service indisponible';
-          }
-        }
-        if (btn) btn.addEventListener('click', tryAuth);
-        if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') tryAuth(); });
-        if (emailInp) emailInp.addEventListener('keydown', e => { if (e.key === 'Enter') inp && inp.focus(); });
-        const otpBtn = document.getElementById('bw-auth-otp-btn');
-        const otpMsg = document.getElementById('bw-auth-otp-msg');
-        if (otpBtn) otpBtn.addEventListener('click', async () => {
-          const email = emailInp ? emailInp.value.trim() : '';
-          if (!email) { if (err) err.textContent = 'Email requis'; return; }
-          if (err) err.textContent = '';
-          otpBtn.disabled = true;
-          otpBtn.textContent = 'Envoi en cours…';
-          const { error: otpErr } = await sbClient.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
-          otpBtn.disabled = false;
-          otpBtn.textContent = 'Connexion sans mot de passe';
-          if (otpErr) {
-            if (err) err.textContent = otpErr.message || 'Erreur envoi lien';
-          } else {
-            if (otpMsg) { otpMsg.style.display = 'block'; otpMsg.textContent = 'Lien envoyé ✓ Vérifiez votre email et cliquez sur le lien.'; }
-          }
-        });
-        setTimeout(() => inp && inp.focus(), 80);
-      });
-    }
+  /* ── Auth — redirection vers login.html si non connecté ─── */
+  if (!(await _checkExistingSession())) {
+    window.location.href = 'login.html';
+    return;
   }
+  await loadCurrentUserProfile();
 
   fetchMondayTasks();
   fetchGmailThreads();
