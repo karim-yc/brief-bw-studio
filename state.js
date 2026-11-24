@@ -17,7 +17,7 @@ const State = {
     // Champs dynamiques étape 3 — remplis par clé selon config
     accroche: '', nomProduit: '', prix: '', texteExact: '', mentions: '', shooting: '', drive: '',
     texteExactPack: '', logoVersion: '', formatPack: '', matierePack: '', fournisseur: '', gabaritDispo: '', declinaisonsPack: '', driveP: '',
-    adresse: '', mesures: '', photosDevanture: '', planVectoriel: '', contraintesPose: '', matiereVitro: '', driveV: '',
+    adresse: '', emailRestaurant: '', mesures: '', photosDevanture: '', planVectoriel: '', contraintesPose: '', matiereVitro: '', driveV: '',
     descriptionDetaillee: '', driveA: '',
     // Étape 4
     supportsSelected: [],

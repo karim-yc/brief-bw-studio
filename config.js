@@ -221,6 +221,8 @@ const CONFIG = {
     vitrophanie: [
       { id: 'adresse', label: 'Adresse du restaurant', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : Rue de la Montagne 6, 1000 Bruxelles' },
+      { id: 'emailRestaurant', label: 'Adresse e-mail du restaurant', type: 'text', gravity: 'recommended',
+        placeholder: 'Ex : contact@restaurant.com' },
       { id: 'mesures', label: 'Mesures exactes', type: 'text', gravity: 'blocking',
         placeholder: 'Ex : Largeur 3,20 m × Hauteur 2,40 m' },
       { id: 'photosDevanture', label: 'Photos de la devanture disponibles', type: 'pills', gravity: 'blocking',
@@ -234,8 +236,8 @@ const CONFIG = {
           { id: 'non', label: 'Non, à fournir' }
         ],
         showIf: d => d.typeVitrophanie === 'permanente' },
-      { id: 'contraintesPose', label: 'Contraintes de pose', type: 'text', gravity: 'optional',
-        placeholder: 'Ex : Accès uniquement le matin avant 9h' },
+      { id: 'contraintesPose', label: 'Contraintes techniques et particularités de la vitrine', type: 'text', gravity: 'optional',
+        placeholder: 'Ex : Vitres en biais, zone centrale à masquer, surface non exploitable en bas…' },
       { id: 'matiereVitro', label: 'Matière / support', type: 'pills-text', gravity: 'recommended',
         options: 'matiereVitroOptions',
         showIf: d => d.typeVitrophanie === 'permanente' },

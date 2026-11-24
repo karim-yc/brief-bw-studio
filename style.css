@@ -596,7 +596,7 @@ select:focus { border-bottom-color: var(--indigo); }
   transition: all var(--t-fast) var(--ease);
 }
 .pill:hover { border-color: var(--indigo-border); color: var(--indigo); background: var(--indigo-bg); }
-.pill.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+.pill.active { background: var(--acid); border-color: var(--acid); color: #000; }
 .pill.urgent.active { background: var(--danger); border-color: var(--danger); }
 
 /* Multi-select support cards */
@@ -617,15 +617,15 @@ select:focus { border-bottom-color: var(--indigo); }
   transition: all var(--t-fast);
 }
 .support-card:hover { border-color: var(--indigo-border); background: var(--indigo-bg); }
-.support-card.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+.support-card.active { background: var(--acid); border-color: var(--acid); color: #000; }
 .support-card .chk-dot {
   width: 14px; height: 14px; border-radius: 4px;
   border: 1.5px solid var(--text-tertiary);
   flex-shrink: 0; display: flex; align-items: center; justify-content: center;
   transition: all var(--t-fast);
 }
-.support-card.active .chk-dot { background: #fff; border-color: #fff; }
-.support-card.active .chk-dot svg { width: 9px; height: 9px; color: var(--indigo); }
+.support-card.active .chk-dot { background: rgba(0,0,0,.15); border-color: rgba(0,0,0,.3); }
+.support-card.active .chk-dot svg { width: 9px; height: 9px; color: #000; }
 
 /* ════════════════════════════════════════════════════════════
    SUB-CARDS (Supports & deadlines split)
@@ -1902,8 +1902,8 @@ select:focus { border-bottom-color: var(--indigo); }
   box-shadow: 0 4px 16px rgba(0,0,0,.1);
 }
 .type-card.active {
-  background: var(--indigo);
-  border-color: var(--indigo);
+  background: var(--acid);
+  border-color: var(--acid);
 }
 .type-card-icon {
   width: 36px; height: 36px;
@@ -1915,8 +1915,8 @@ select:focus { border-bottom-color: var(--indigo); }
 }
 .type-card-icon svg { width: 20px; height: 20px; color: var(--indigo); transition: color var(--t-fast); }
 .type-card:hover .type-card-icon { background: rgba(0,0,0,.08); }
-.type-card.active .type-card-icon { background: rgba(255,255,255,.2); }
-.type-card.active .type-card-icon svg { color: #fff; }
+.type-card.active .type-card-icon { background: rgba(0,0,0,.12); }
+.type-card.active .type-card-icon svg { color: #000; }
 .type-card-title {
   font-size: 12px; font-weight: 600; color: var(--text);
   transition: color var(--t-fast);
@@ -1928,7 +1928,7 @@ select:focus { border-bottom-color: var(--indigo); }
   transition: color var(--t-fast);
 }
 .type-card.active .type-card-title,
-.type-card.active .type-card-desc { color: rgba(255,255,255,.9); }
+.type-card.active .type-card-desc { color: #000; }
 .type-card-check {
   position: absolute;
   top: 12px; right: 12px;
