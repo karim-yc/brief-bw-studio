@@ -1950,6 +1950,7 @@ let allBriefs=[], filteredBriefs=[], charts={};
 let lastDataStatus = '';
 let isLoadingData = true;
 let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fMarque=new Set(), fRetard=false;
+let _sortCol='', _sortDir=1; // 1=asc, -1=desc
 
 // Init brand filter from ?brand= URL param or localStorage (P2 #09 / P3 #14)
 (function initBrandFilter() {
@@ -2767,6 +2768,13 @@ function avatarInitials(name) {
   return (name||'?')[0].toUpperCase();
 }
 
+/* ── Sort colonne tableau ────────────────────────────────── */
+function _setSort(col) {
+  if (_sortCol === col) { _sortDir *= -1; }
+  else { _sortCol = col; _sortDir = 1; }
+  renderBriefs(filteredBriefs);
+}
+
 /* ── Render briefs table ─────────────────────────────────── */
 function renderBriefs(data) {
   const el=G('briefs-list'), cnt=G('briefs-count');
@@ -2815,6 +2823,22 @@ function renderBriefs(data) {
     }
     return;
   }
+  // Sort
+  const PRIO_ORD = {urgent:0,prioritaire:1,normal:2};
+  const STAT_ORD = {soumis:0,encours:1,simulation:2,valide:3,livre:4};
+  if (_sortCol) {
+    data = [...data].sort((a,b) => {
+      let va, vb;
+      if (_sortCol==='demande')   { va=(a.contexte||a.typeDemande||'').toLowerCase(); vb=(b.contexte||b.typeDemande||'').toLowerCase(); }
+      if (_sortCol==='priorite')  { va=PRIO_ORD[a.priorite]??9; vb=PRIO_ORD[b.priorite]??9; }
+      if (_sortCol==='statut')    { va=STAT_ORD[getStatut(a.briefId)]??9; vb=STAT_ORD[getStatut(b.briefId)]??9; }
+      if (_sortCol==='date')      { va=a.dateLancement?new Date(a.dateLancement).getTime():Infinity; vb=b.dateLancement?new Date(b.dateLancement).getTime():Infinity; }
+      if (va < vb) return -1 * _sortDir;
+      if (va > vb) return  1 * _sortDir;
+      return 0;
+    });
+  }
+
   const rows = data.map((b,_i)=>{
     const cat=categorizeBrief(b);
     // Date column
@@ -2865,13 +2889,15 @@ function renderBriefs(data) {
     </tr>`;
   }).join('');
 
+  const _sIco = col => _sortCol===col ? (_sortDir===1?'▲':'▼') : '';
+  const _sTh  = (col,lbl) => `<th style="cursor:pointer;user-select:none;white-space:nowrap" onclick="_setSort('${col}')" title="Trier par ${lbl}">${lbl} <span style="font-size:9px;opacity:${_sortCol===col?.9:.35}">${_sortCol===col?(_sortDir===1?'▲':'▼'):'↕'}</span></th>`;
   el.innerHTML=`<div class="briefs-table-wrap">
     <table class="briefs-table">
       <thead><tr>
-        <th>DEMANDE</th>
-        <th>PRIORITÉ</th>
-        <th>STATUT</th>
-        <th>DATE D'ÉCHÉANCE</th>
+        ${_sTh('demande',"DEMANDE")}
+        ${_sTh('priorite',"PRIORITÉ")}
+        ${_sTh('statut',"STATUT")}
+        ${_sTh('date',"DATE D'ÉCHÉANCE")}
         <th>ATTRIBUÉ</th>
       </tr></thead>
       <tbody>${rows}</tbody>
