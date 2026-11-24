@@ -2257,6 +2257,7 @@ async function loadData() {
     setSyncState('error', '⚠ Source distante inaccessible et aucun brief local.');
   }
 
+  renderSnavBrands();
   applyFilters();
 }
 
@@ -3738,6 +3739,7 @@ function _purgeLocalBrief(briefId) {
   } catch(e) {}
   // Statuts
   try { const s=JSON.parse(localStorage.getItem(STATUS_KEY)||'{}'); delete s[briefId]; localStorage.setItem(STATUS_KEY,JSON.stringify(s)); } catch(e){}
+  try { const h=JSON.parse(localStorage.getItem(STATUS_HIST_KEY)||'{}'); delete h[briefId]; localStorage.setItem(STATUS_HIST_KEY,JSON.stringify(h)); } catch(e){}
 }
 
 async function deleteBrief(briefId) {
@@ -3862,7 +3864,16 @@ function toggleIntegrations() {
   btn.classList.toggle('open');
 }
 // Fermer drawer avec Escape
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeDrawer();closeStatusModal();closeInviteModal();closeAccessModal();} });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeDrawer();closeStatusModal();closeInviteModal();closeAccessModal();}
+  // N → nouvelle demande (hors focus input/textarea)
+  if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    const tag=(document.activeElement||{}).tagName||'';
+    if(tag!=='INPUT'&&tag!=='TEXTAREA'&&!document.activeElement?.isContentEditable){
+      window.location.href='index.html';
+    }
+  }
+});
 
 // ── Tooltips — tap mobile + flip automatique ──────────────
 function positionTooltip(tt_el) {
@@ -4230,10 +4241,15 @@ function _brandDotColor(id) {
 function renderSnavBrands() {
   const container = document.getElementById('snav-brands-container');
   if (!container) return;
+  const src = allBriefs.length ? allBriefs : [];
   container.innerHTML = getAllMarques().map(m => {
     const color = _brandDotColor(m.id);
     const active = fMarque.has(m.id) ? ' active' : '';
-    return `<div class="snav-brand-item${active}" id="snav-brand-${m.id}" onclick="setSnavMarque('${m.id}')"><span class="snav-brand-dot" style="background:${color};border-color:rgba(255,255,255,.25)"></span><span>${m.label}</span></div>`;
+    const cnt = src.filter(b => b._marqueId === m.id && !b.archived).length;
+    const cntBadge = cnt > 0
+      ? `<span style="margin-left:auto;font-size:10px;opacity:.5;font-weight:600">${cnt}</span>`
+      : '';
+    return `<div class="snav-brand-item${active}" id="snav-brand-${m.id}" onclick="setSnavMarque('${m.id}')" style="justify-content:flex-start"><span class="snav-brand-dot" style="background:${color};border-color:rgba(255,255,255,.25)"></span><span style="flex:1">${m.label}</span>${cntBadge}</div>`;
   }).join('');
 }
 
