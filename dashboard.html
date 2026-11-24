@@ -971,6 +971,7 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="snav-item cal-nav-item" onclick="setViewMode('calendar');document.querySelectorAll('.snav-item').forEach(e=>e.classList.remove('active'));this.classList.add('active')"><i class="ti ti-calendar-month"></i><span>Calendrier</span></div>
     <div class="snav-item" onclick="document.getElementById('stats-toggle').click()"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
     <div class="snav-item" id="snav-archived-toggle" onclick="toggleShowArchived()" title="Afficher les briefs archivés"><i class="ti ti-archive"></i><span>Archivés <span id="snav-archived-count" style="display:none;font-size:10px;opacity:.6;margin-left:4px"></span></span></div>
+    <div class="snav-item" id="snav-manage-access" style="display:none" onclick="openAccessModal()"><i class="ti ti-shield-lock"></i><span>Gestion des accès</span></div>
     <div class="snav-sep"></div>
     <div class="snav-section-label" style="display:flex;align-items:center;justify-content:space-between;padding-right:8px"><span>Marques</span><button onclick="openMarqueModal()" title="Gérer les marques" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.35);font-size:14px;padding:0;line-height:1;flex-shrink:0;transition:color .15s" onmouseover="this.style.color='rgba(255,255,255,.8)'" onmouseout="this.style.color='rgba(255,255,255,.35)'"><i class="ti ti-settings-2"></i></button></div>
     <div id="snav-brands-container"></div>
@@ -1337,6 +1338,23 @@ body { overflow-x: hidden; max-width: 100vw; }
 </div>
 
 <!-- ═══ MODAL INVITATION ══════════════════════════════════= -->
+<!-- ═══ MODAL GESTION DES ACCÈS ════════════════════════════= -->
+<div id="bw-access-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;font-family:Inter,sans-serif">
+  <div style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:0;width:420px;max-height:80vh;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.7);display:flex;flex-direction:column">
+    <div style="padding:22px 24px 18px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#f0f0f0">Gestion des accès</div>
+        <div style="font-size:12px;color:#555;margin-top:2px">Modifier les rôles des membres de l'équipe</div>
+      </div>
+      <button onclick="closeAccessModal()" style="background:none;border:none;color:#555;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;transition:color .15s" onmouseover="this.style.color='#f0f0f0'" onmouseout="this.style.color='#555'">×</button>
+    </div>
+    <div id="access-list" style="overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-height:80px">
+      <div style="text-align:center;color:#444;font-size:13px;padding:20px">Chargement…</div>
+    </div>
+    <div id="access-feedback" style="padding:0 24px 14px;font-size:12.5px;min-height:16px;color:#4ade80;flex-shrink:0"></div>
+  </div>
+</div>
+
 <div id="bw-invite-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;font-family:Inter,sans-serif">
   <div style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:28px;width:340px;box-shadow:0 24px 64px rgba(0,0,0,.7)">
     <div style="font-size:15px;font-weight:700;color:#f0f0f0;margin-bottom:4px">Inviter un demandeur</div>
@@ -1496,12 +1514,15 @@ async function loadCurrentUserProfile() {
     if (roleEl) roleEl.textContent = currentRole === 'studio' ? 'Studio Admin' : 'Demandeur';
     const studioActions   = G('snav-studio-actions');
     const demandeurActions = G('snav-demandeur-actions');
+    const accessNav = G('snav-manage-access');
     if (currentRole === 'studio') {
       if (studioActions)   studioActions.style.display   = 'flex';
       if (demandeurActions) demandeurActions.style.display = 'none';
+      if (accessNav) accessNav.style.display = 'flex';
     } else {
       if (studioActions)   studioActions.style.display   = 'none';
       if (demandeurActions) demandeurActions.style.display = 'block';
+      if (accessNav) accessNav.style.display = 'none';
     }
   }
 }
@@ -1526,6 +1547,67 @@ function openInviteModal() {
 function closeInviteModal() {
   const m = G('bw-invite-modal');
   if (m) m.style.display = 'none';
+}
+
+/* ── Gestion des accès ───────────────────────────────────── */
+function openAccessModal() {
+  const m = G('bw-access-modal');
+  if (!m) return;
+  m.style.display = 'flex';
+  loadAccessList();
+}
+function closeAccessModal() {
+  const m = G('bw-access-modal');
+  if (m) m.style.display = 'none';
+}
+
+async function loadAccessList() {
+  const container = G('access-list');
+  if (!container || !sbClient) return;
+  container.innerHTML = '<div style="text-align:center;color:#444;font-size:13px;padding:20px">Chargement…</div>';
+  _bwProfilesCache = null;
+  const profiles = await _loadBwProfiles();
+  if (!profiles.length) {
+    container.innerHTML = '<div style="text-align:center;color:#444;font-size:13px;padding:20px">Aucun utilisateur trouvé.</div>';
+    return;
+  }
+  container.innerHTML = profiles.map(p => {
+    const isStudio = p.role === 'studio';
+    const isSelf   = currentUser && p.id === currentUser.id;
+    const name     = p.nom || p.email || '—';
+    const initials = name.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+    const selfBadge = isSelf ? ' <span style="font-size:10px;color:#444;font-weight:400">(vous)</span>' : '';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:#181818;border-radius:10px;border:1px solid #222">
+      <div style="width:34px;height:34px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${selfBadge}</div>
+        <div style="font-size:11px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.email || ''}</div>
+      </div>
+      <button onclick="toggleUserRole('${p.id}','${p.role}',this)"
+        ${isSelf ? 'disabled title="Impossible de modifier son propre rôle"' : ''}
+        style="flex-shrink:0;padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:${isSelf ? 'not-allowed' : 'pointer'};font-family:inherit;transition:all .15s;${isSelf ? 'opacity:.35;' : ''}${isStudio ? 'background:rgba(223,255,0,.12);border:1px solid rgba(223,255,0,.3);color:#DFFF00' : 'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#888'}">
+        ${isStudio ? 'Studio' : 'Demandeur'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+async function toggleUserRole(userId, currentRoleVal, btn) {
+  if (!sbClient) return;
+  const newRole = currentRoleVal === 'studio' ? 'demandeur' : 'studio';
+  btn.disabled = true;
+  btn.textContent = '…';
+  const { error } = await sbClient.from('bw_profiles').update({ role: newRole }).eq('id', userId);
+  const fb = G('access-feedback');
+  if (error) {
+    if (fb) { fb.textContent = '⚠ ' + (error.message || 'Impossible de modifier le rôle'); fb.style.color = '#ff4d4d'; }
+    btn.disabled = false;
+    btn.textContent = currentRoleVal === 'studio' ? 'Studio' : 'Demandeur';
+    return;
+  }
+  _bwProfilesCache = null;
+  if (fb) { fb.textContent = '✓ Rôle mis à jour'; fb.style.color = '#4ade80'; setTimeout(() => { if (fb) fb.textContent = ''; }, 2500); }
+  loadAccessList();
 }
 
 async function submitInvite() {
