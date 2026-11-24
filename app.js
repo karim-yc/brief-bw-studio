@@ -64,9 +64,14 @@
         wzSubmit.disabled = !(ready && confirmed);
         wzSubmit.classList.toggle('ready', ready && confirmed);
         if (wzNote) {
-          wzNote.textContent = !ready ? 'Complétez les champs requis pour soumettre' :
-            !confirmed ? 'Cochez la case de confirmation pour soumettre' :
-            'Brief prêt à envoyer ✓';
+          if (!ready) {
+            const { blocking } = State.getAllIssues();
+            wzNote.textContent = blocking.length > 0
+              ? `${blocking.length} champ${blocking.length > 1 ? 's' : ''} requis manquant${blocking.length > 1 ? 's' : ''}`
+              : 'Complétez les champs requis pour soumettre';
+          } else {
+            wzNote.textContent = !confirmed ? 'Cochez la case de confirmation pour soumettre' : 'Brief prêt à envoyer ✓';
+          }
         }
       }
     }
@@ -280,6 +285,11 @@
       }
     }
 
+    // QW#10 — Deadlines suggérées quand priorité change
+    if (id === 'priorite' && !State.data.dateLancement) {
+      suggestDeadline(e.target.value);
+    }
+
     // Si le champ impacte l'affichage conditionnel → re-render complet
     const reactiveFields = ['dept', 'typeDemande', 'genreCampagne', 'phasePackaging', 'typeVitrophanie', 'priorite'];
     if (reactiveFields.includes(id)) {
@@ -290,6 +300,46 @@
       updateCardStatus(sectionMap[id] || guessSection(id));
       renderSidebarOnly();
     }
+  }
+
+  function addWorkingDays(d, n) {
+    const date = new Date(d);
+    let added = 0;
+    while (added < n) {
+      date.setDate(date.getDate() + 1);
+      const day = date.getDay();
+      if (day !== 0 && day !== 6) added++;
+    }
+    return date;
+  }
+
+  function suggestDeadline(priorite) {
+    const days = priorite === 'urgent' ? 5 : priorite === 'prioritaire' ? 10 : 15;
+    const suggested = addWorkingDays(new Date(), days);
+    const isoDate = suggested.toISOString().split('T')[0];
+    const fmtD = suggested.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+
+    // Try to find the dateLancement input (may not be rendered yet if on another step)
+    const input = document.querySelector('input[data-field="dateLancement"]');
+    if (!input) return;
+
+    // Remove old suggestion if any
+    const old = document.getElementById('bw-deadline-suggest');
+    if (old) old.remove();
+
+    const hint = document.createElement('div');
+    hint.id = 'bw-deadline-suggest';
+    hint.style.cssText = 'font-size:11px;color:#4f46e5;margin-top:4px;display:flex;align-items:center;gap:6px';
+    hint.innerHTML = `<i class="ti ti-calendar-check" style="font-size:12px"></i> Suggestion : <strong>${fmtD}</strong> (J+${days} ouvrés) <button type="button" style="background:#eef2ff;border:none;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;color:#4f46e5;cursor:pointer;font-family:Inter,sans-serif">Appliquer</button>`;
+    hint.querySelector('button').addEventListener('click', () => {
+      input.value = isoDate;
+      State.data.dateLancement = isoDate;
+      scheduleSave();
+      hint.remove();
+      renderSidebarOnly();
+    });
+    input.parentNode?.appendChild(hint);
+    setTimeout(() => { if (hint.parentNode) hint.remove(); }, 12000);
   }
 
   function guessSection(fieldId) {
@@ -611,9 +661,8 @@
       const gcCreated = await GCalSync.syncBrief(State.data);
       State.files = [];
       const gcMsg = gcCreated ? ` · ${gcCreated} date${gcCreated > 1 ? 's' : ''} → Google Calendar` : '';
-      showToast(`Brief ${State.data.briefId} soumis avec succès ✓${gcMsg}`);
       localStorage.removeItem(STORAGE_KEY);
-      setTimeout(() => location.reload(), 2200);
+      showSuccessState(State.data.briefId, gcMsg);
     } catch (err) {
       console.error('[BW Submit] Échec envoi:', err.message);
       submitBtns.forEach((b, i) => {
@@ -621,6 +670,27 @@
       });
       showToast('Échec d\'envoi — brouillon conservé. Vérifiez votre connexion et réessayez.');
     }
+  }
+
+  function showSuccessState(briefId, gcMsg) {
+    const root = document.getElementById('sections-root');
+    const sidebar = document.querySelector('.sb-sidebar');
+    if (root) root.style.display = 'none';
+    if (sidebar) sidebar.style.display = 'none';
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;gap:16px;min-height:60vh';
+    wrap.innerHTML = `
+      <div style="width:64px;height:64px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:28px">✓</div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--text,#111);margin:0">Brief ${briefId} envoyé !</h2>
+      <p style="font-size:14px;color:var(--text-secondary,#6b7280);margin:0;max-width:360px">Votre demande a bien été transmise au studio.${gcMsg ? '<br><span style="color:#16a34a">'+gcMsg+'</span>' : ''}</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+        <a href="dashboard.html" style="padding:10px 20px;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">Voir le dashboard</a>
+        <button onclick="location.reload()" style="padding:10px 20px;background:#fff;color:#111;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Nouveau brief</button>
+      </div>
+    `;
+    const main = document.querySelector('.main-layout') || document.querySelector('main') || document.body;
+    main.appendChild(wrap);
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function sendWebhook(data, extraFiles) {

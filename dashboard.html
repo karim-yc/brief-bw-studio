@@ -99,8 +99,29 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .f-select{height:30px;padding:0 28px 0 10px;border:1.5px solid var(--border);border-radius:var(--r-pill);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;color:var(--text-secondary);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E") no-repeat right 9px center;appearance:none;cursor:pointer;transition:border-color .15s;white-space:nowrap}
 .f-select:focus{outline:none;border-color:var(--indigo)}
 .f-select:hover{border-color:var(--indigo)}
+.f-select.f-active{border-color:var(--indigo);background-color:#eef2ff;color:var(--indigo)}
 .f-reset{width:28px;height:28px;border:1.5px solid var(--border);border-radius:var(--r-pill);background:#fff;color:var(--text-tertiary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;flex-shrink:0}
 .f-reset:hover{border-color:#ef4444;color:#ef4444;background:#fef2f2}
+/* Chip Mes briefs */
+.chip-mybriefs{height:28px;padding:0 12px;border:1.5px solid var(--border);border-radius:var(--r-pill);background:#fff;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;flex-shrink:0}
+.chip-mybriefs:hover{border-color:var(--indigo);color:var(--indigo)}
+.chip-mybriefs.active{border-color:var(--indigo);background:#eef2ff;color:var(--indigo)}
+/* Undo toast */
+#bw-undo-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 8px 10px 18px;border-radius:50px;font-size:13px;font-family:Inter,sans-serif;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .3s;display:flex;align-items:center;gap:10px;white-space:nowrap}
+#bw-undo-toast.show{opacity:1;pointer-events:auto}
+#bw-undo-toast button{background:rgba(255,255,255,.18);border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:Inter,sans-serif}
+#bw-undo-toast button:hover{background:rgba(255,255,255,.3)}
+/* Séparateur dans footer drawer */
+.drawer-foot-sep{width:1px;height:20px;background:var(--border);align-self:center;flex-shrink:0}
+/* Modal raccourcis clavier */
+#shortcut-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center}
+#shortcut-modal.open{display:flex}
+.shortcut-box{background:#fff;border-radius:16px;padding:28px 32px;width:min(480px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.2);font-family:Inter,sans-serif}
+.shortcut-box h3{font-size:16px;font-weight:700;margin:0 0 20px;color:var(--text)}
+.shortcut-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.shortcut-row:last-child{border-bottom:none}
+.shortcut-row span{font-size:13px;color:var(--text-secondary)}
+.shortcut-row kbd{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;color:var(--text);font-family:Inter,sans-serif;min-width:28px;text-align:center}
 .filter-sep{width:1px;height:16px;background:var(--border);flex-shrink:0}
 
 /* ── Layout principal ─────────────────────────────────────────── */
@@ -1148,10 +1169,13 @@ body { overflow-x: hidden; max-width: 100vw; }
 
   <!-- TABS + BRIEFS TABLE -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-    <div class="page-tabs" id="page-tabs">
-      <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">Briefs en cours <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
-      <button class="page-tab" data-tab="complete" onclick="setTabFilter(this,'complete')">Complétés <span class="tab-badge" id="tab-cnt-complete">—</span></button>
-      <button class="page-tab" data-tab="tous" onclick="setTabFilter(this,'tous')">Tous les briefs <span class="tab-badge" id="tab-cnt-tous">—</span></button>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="page-tabs" id="page-tabs">
+        <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">Briefs en cours <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
+        <button class="page-tab" data-tab="complete" onclick="setTabFilter(this,'complete')">Complétés <span class="tab-badge" id="tab-cnt-complete">—</span></button>
+        <button class="page-tab" data-tab="tous" onclick="setTabFilter(this,'tous')">Tous les briefs <span class="tab-badge" id="tab-cnt-tous">—</span></button>
+      </div>
+      <button class="chip-mybriefs" id="chip-mybriefs" onclick="toggleMyBriefs()" title="Afficher uniquement mes briefs"><i class="ti ti-user"></i> Mes briefs</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <span id="briefs-count" style="font-size:12px;color:var(--text-tertiary)"></span>
@@ -1909,21 +1933,26 @@ function selectStatus(opt) {
   if(!_statusTarget) return;
   const target = _statusTarget;
   const newStatus = opt.dataset.status;
-  setStatut(target, newStatus);
+  const prevStatus = getStatut(target);
+  const _applyStatus = (st) => {
+    setStatut(target, st);
+    applyFilters();
+    if(_currentDrawerBrief && _currentDrawerBrief.briefId === target) renderDrawer(_currentDrawerBrief);
+    if(sbClient) {
+      sbClient.from('briefs').update({ statut: st }).eq('brief_id', target)
+        .then(({ error }) => {
+          if (error) {
+            console.error('[BW Supabase] statut non synchronisé:', error.message);
+            showRealtimeToast('⚠ Statut non synchronisé avec le serveur', 'error');
+          }
+        });
+    }
+  };
   logStatusChange(target, newStatus);
   closeStatusModal();
-  applyFilters();
-  if(_currentDrawerBrief && _currentDrawerBrief.briefId === target) renderDrawer(_currentDrawerBrief);
-  if(sbClient) {
-    sbClient.from('briefs').update({ statut: newStatus }).eq('brief_id', target)
-      .then(({ error }) => {
-        if (error) {
-          console.error('[BW Supabase] statut non synchronisé:', error.message);
-          showRealtimeToast('⚠ Statut non synchronisé avec le serveur');
-        } else {
-          console.log('[BW Supabase] statut →', target, newStatus);
-        }
-      });
+  _applyStatus(newStatus);
+  if(prevStatus !== newStatus) {
+    showUndoToast(`Statut → ${STATUS_LABELS[newStatus]||newStatus}`, () => _applyStatus(prevStatus));
   }
 }
 function statusPill(briefId, e_stopper) {
@@ -1968,7 +1997,7 @@ function setSyncState(state, msg) {
 let allBriefs=[], filteredBriefs=[], charts={};
 let lastDataStatus = '';
 let isLoadingData = true;
-let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fMarque=new Set(), fRetard=false;
+let fDays=0, fType=new Set(), fPrio=new Set(), fStatut=new Set(), fSearch='', fMarque=new Set(), fRetard=false, _myBriefs=false;
 let _sortCol='', _sortDir=1; // 1=asc, -1=desc
 let _searchDebounceTimer = null;
 function debouncedSearch(val) {
@@ -2301,15 +2330,37 @@ if(new URLSearchParams(location.search).has('debug')) {
 
 /* ── Filtres ──────────────────────────────────────────────── */
 /* les onchange inline ne voient pas les `let` → fonctions nommées */
-function onSelPeriode(v){fDays=parseInt(v);applyFilters();}
-function onSelType(v){fType=v?new Set([v]):new Set();applyFilters();}
-function onSelPrio(v){fPrio=v?new Set([v]):new Set();applyFilters();}
+function _fActiveSel(id,active){const el=document.getElementById(id);if(el)el.classList.toggle('f-active',active);}
+function onSelPeriode(v){fDays=parseInt(v);_fActiveSel('filter-periode',fDays>0);applyFilters();}
+function onSelType(v){fType=v?new Set([v]):new Set();_fActiveSel('filter-type',!!v);applyFilters();}
+function onSelPrio(v){fPrio=v?new Set([v]):new Set();_fActiveSel('filter-prio',!!v);applyFilters();}
 function onSelMarque(v){
   fMarque=v?new Set([v]):new Set();
+  _fActiveSel('filter-marque',!!v);
   try { localStorage.setItem('bw_last_marque', v||''); } catch(e){}
   applyFilters();
 }
-function onSelStatut(v){fStatut=v?new Set([v]):new Set();applyFilters();}
+function onSelStatut(v){fStatut=v?new Set([v]):new Set();_fActiveSel('filter-statut',!!v);applyFilters();}
+function toggleMyBriefs(){
+  _myBriefs=!_myBriefs;
+  const btn=document.getElementById('chip-mybriefs');
+  if(btn)btn.classList.toggle('active',_myBriefs);
+  applyFilters();
+}
+function openShortcutsModal(){document.getElementById('shortcut-modal').classList.add('open');}
+function closeShortcutsModal(){document.getElementById('shortcut-modal').classList.remove('open');}
+let _bwUndoFn=null, _bwUndoTimer=null;
+function showUndoToast(msg,undoFn,duration=5000){
+  _bwUndoFn=undoFn;
+  const t=document.getElementById('bw-undo-toast');
+  document.getElementById('bw-undo-msg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(_bwUndoTimer);
+  _bwUndoTimer=setTimeout(()=>{t.classList.remove('show');_bwUndoFn=null;},duration);
+}
+function bwUndoAction(){
+  if(_bwUndoFn){clearTimeout(_bwUndoTimer);_bwUndoFn();_bwUndoFn=null;document.getElementById('bw-undo-toast').classList.remove('show');}
+}
 
 function _syncResetBtn(){
   const active=fDays>0||fType.size||fPrio.size||fStatut.size||fMarque.size||!!fSearch.trim();
@@ -2338,7 +2389,7 @@ function resetFilters(){
   fDays=0;fType=new Set();fPrio=new Set();fStatut=new Set();fMarque=new Set();fSearch='';
   try { localStorage.removeItem('bw_last_marque'); } catch(e){}
   ['filter-periode','filter-type','filter-prio','filter-marque','filter-statut'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
+    const el=document.getElementById(id); if(el){el.value='';el.classList.remove('f-active');}
   });
   const si=document.getElementById('hdr-search-input'); if(si) si.value='';
   document.getElementById('btn-reset-filters').style.display='none';
@@ -2393,6 +2444,10 @@ function applyFilters() {
   if(fStatut.size) data=data.filter(b=>fStatut.has(getStatut(b.briefId)));
   if(fMarque.size) data=data.filter(b=>fMarque.has(b._marqueId));
   if(fRetard) data=data.filter(b=>categorizeBrief(b)?.cat==='retard');
+  if(_myBriefs && currentUser) {
+    const me = currentUser.email || '';
+    data = data.filter(b => (b.demandeur||'').toLowerCase()===me.toLowerCase() || b.userId===currentUser.id);
+  }
   if(fSearch.trim()) {
     const q=fSearch.trim().toLowerCase();
     data=data.filter(b=>{
@@ -3062,7 +3117,7 @@ function kDrop(e, colId) {
       .then(({ error }) => {
         if (error) {
           console.error('[BW Supabase] kDrop statut non synchronisé:', error.message);
-          showRealtimeToast('⚠ Statut non synchronisé avec le serveur');
+          showRealtimeToast('⚠ Statut non synchronisé avec le serveur', 'error');
         }
       });
   }
@@ -3725,6 +3780,7 @@ function renderDrawer(b) {
       <button class="btn-pdf" onclick="printBrief('${b.briefId}')"><i class="ti ti-file-download"></i> PDF</button>
       ${b.mailSubject?`<span style="font-size:10px;color:var(--text-tertiary);padding:6px 0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.mailSubject}">✉ ${b.mailSubject}</span>`:''}
       <button onclick="archiveBrief('${b.briefId}',${isArchived})" title="${isArchived?'Désarchiver ce brief':'Archiver ce brief (masqué de la vue principale)'}" style="margin-left:auto;background:none;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text-secondary);font-family:'Inter',sans-serif;transition:all .15s"><i class="ti ti-${isArchived?'archive-off':'archive'}"></i> ${isArchived?'Désarchiver':'Archiver'}</button>
+      <div class="drawer-foot-sep"></div>
       <button onclick="deleteBrief('${b.briefId}')" title="Supprimer définitivement ce brief" style="background:none;border:1.5px solid #fca5a5;border-radius:var(--r-sm);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;color:#ef4444;font-family:'Inter',sans-serif;transition:all .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'"><i class="ti ti-trash"></i> Supprimer</button>
     `;
   }
@@ -3776,29 +3832,30 @@ function getArchivedIds() { try { return new Set(JSON.parse(localStorage.getItem
 function saveArchivedIds(set) { try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify([...set])); } catch(e) {} }
 function isBriefArchived(briefId) { return getArchivedIds().has(briefId); }
 
-async function archiveBrief(briefId, currentlyArchived) {
+function archiveBrief(briefId, currentlyArchived) {
   const toArchive = !currentlyArchived;
-  const label = toArchive ? 'Archiver' : 'Désarchiver';
-  if (!await bwConfirm(`${label} le brief ${briefId} ?`)) return;
-  const ids = getArchivedIds();
-  if (toArchive) ids.add(briefId); else ids.delete(briefId);
-  saveArchivedIds(ids);
-  const idx = allBriefs.findIndex(b => b.briefId === briefId);
-  if (idx !== -1) allBriefs[idx].archived = toArchive;
+  const _doArchive = (archive) => {
+    const ids = getArchivedIds();
+    if (archive) ids.add(briefId); else ids.delete(briefId);
+    saveArchivedIds(ids);
+    const idx = allBriefs.findIndex(b => b.briefId === briefId);
+    if (idx !== -1) allBriefs[idx].archived = archive;
+    applyFilters();
+    if (sbClient) {
+      const payload = { archived: archive, archived_at: archive ? new Date().toISOString() : null };
+      sbClient.from('briefs').update(payload).eq('brief_id', briefId)
+        .then(({ error }) => {
+          if (error) {
+            console.error('[BW Supabase] archivage non synchronisé:', error.message);
+            showRealtimeToast('⚠ Archivage non synchronisé avec le serveur', 'error');
+          }
+        });
+    }
+  };
+  _doArchive(toArchive);
   closeDrawer();
-  applyFilters();
-  if (sbClient) {
-    const payload = { archived: toArchive, archived_at: toArchive ? new Date().toISOString() : null };
-    sbClient.from('briefs').update(payload).eq('brief_id', briefId)
-      .then(({ error }) => {
-        if (error) {
-          console.error('[BW Supabase] archivage non synchronisé:', error.message);
-          showRealtimeToast('⚠ Archivage non synchronisé avec le serveur');
-        } else {
-          console.log('[BW Supabase] archived →', briefId, toArchive);
-        }
-      });
-  }
+  const label = toArchive ? `Brief ${briefId} archivé` : `Brief ${briefId} désarchivé`;
+  showUndoToast(label, () => _doArchive(!toArchive));
 }
 
 /* ── Impression PDF ───────────────────────────────────────── */
@@ -3892,6 +3949,8 @@ document.addEventListener('keydown',e=>{
     if(e.key==='/'){e.preventDefault();const si=G('hdr-search-input');if(si)si.focus();}
     // L → basculer list/kanban
     if(e.key==='l'){setViewMode(viewMode==='list'?'kanban':'list');}
+    // ? → panel raccourcis
+    if(e.key==='?'){e.preventDefault();openShortcutsModal();}
     // J / K → brief suivant / précédent dans le drawer
     if((e.key==='j'||e.key==='k')&&_currentDrawerBrief){
       const src=filteredBriefs.length?filteredBriefs:allBriefs;
@@ -4520,18 +4579,25 @@ function updateNotifFooter() {
   if (f) f.style.display = ('Notification' in window && Notification.permission === 'default') ? 'flex' : 'none';
 }
 
-function showRealtimeToast(msg) {
+function showRealtimeToast(msg, type) {
   let t = document.getElementById('bw-rt-toast');
   if (!t) {
     t = document.createElement('div');
     t.id = 'bw-rt-toast';
-    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1E1B4B;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-family:Inter,sans-serif;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);pointer-events:none;opacity:0;transition:opacity .3s';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:50px;font-size:13px;font-family:Inter,sans-serif;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);opacity:0;transition:opacity .3s';
     document.body.appendChild(t);
   }
+  const isError = type === 'error';
+  t.style.background = isError ? '#7f1d1d' : '#1E1B4B';
+  t.style.color = '#fff';
+  t.style.pointerEvents = isError ? 'auto' : 'none';
+  t.style.cursor = isError ? 'pointer' : 'default';
   t.textContent = msg;
   t.style.opacity = '1';
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 4000);
+  const delay = isError ? 8000 : 4000;
+  t._timer = setTimeout(() => { t.style.opacity = '0'; t.style.pointerEvents = 'none'; }, delay);
+  if (isError) t.onclick = () => { clearTimeout(t._timer); t.style.opacity = '0'; t.style.pointerEvents = 'none'; };
 }
 
 /* ── Dialogues personnalisés (remplace prompt / confirm / alert) ── */
@@ -4649,5 +4715,23 @@ async function submitSetPassword() {
   if (typeof showRealtimeToast === 'function') showRealtimeToast('✓ Mot de passe défini — bienvenue !');
 }
 </script>
+
+<!-- Modal raccourcis clavier -->
+<div id="shortcut-modal" onclick="if(event.target===this)closeShortcutsModal()">
+  <div class="shortcut-box">
+    <h3>Raccourcis clavier <span style="float:right;cursor:pointer;font-size:18px;color:var(--text-tertiary)" onclick="closeShortcutsModal()">×</span></h3>
+    <div class="shortcut-row"><span>Nouveau brief</span><kbd>N</kbd></div>
+    <div class="shortcut-row"><span>Focus recherche</span><kbd>/</kbd></div>
+    <div class="shortcut-row"><span>Basculer liste / kanban</span><kbd>L</kbd></div>
+    <div class="shortcut-row"><span>Brief suivant (drawer ouvert)</span><kbd>J</kbd></div>
+    <div class="shortcut-row"><span>Brief précédent (drawer ouvert)</span><kbd>K</kbd></div>
+    <div class="shortcut-row"><span>Fermer / Annuler</span><kbd>Esc</kbd></div>
+    <div class="shortcut-row"><span>Afficher ces raccourcis</span><kbd>?</kbd></div>
+  </div>
+</div>
+
+<!-- Undo toast -->
+<div id="bw-undo-toast"><span id="bw-undo-msg"></span><button onclick="bwUndoAction()">Annuler</button></div>
+
 </body>
 </html>
