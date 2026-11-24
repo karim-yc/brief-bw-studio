@@ -1031,8 +1031,8 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div class="page-actions">
       <div class="page-hdr-search">
         <i class="ti ti-search"></i>
-        <input type="text" placeholder="Rechercher un brief, une marque…" id="hdr-search-input" oninput="fSearch=this.value;applyFilters()">
-        <span class="page-hdr-search-kbd">⌘K</span>
+        <input type="text" placeholder="Rechercher un brief, une marque…" id="hdr-search-input" oninput="fSearch=this.value;applyFilters()" onkeydown="if(event.key==='Escape'){this.value='';fSearch='';applyFilters();this.blur();}">
+        <span class="page-hdr-search-kbd">/</span>
       </div>
       <div class="notif-panel-wrap">
         <button class="page-hdr-icon-btn" id="notif-btn" title="Notifications" onclick="toggleNotifPanel()"><i class="ti ti-bell"></i><span class="notif-dot" id="notif-dot"></span></button>
@@ -1320,7 +1320,11 @@ body { overflow-x: hidden; max-width: 100vw; }
         <div class="drawer-id" id="d-id"></div>
         <div class="drawer-type" id="d-type"></div>
       </div>
-      <button class="drawer-close" onclick="closeDrawer()">×</button>
+      <div style="display:flex;align-items:center;gap:4px">
+        <button class="drawer-close" onclick="if(filteredBriefs.length){const i=filteredBriefs.findIndex(b=>b.briefId===_currentDrawerBrief?.briefId);if(i>0)openDrawer(filteredBriefs[i-1].briefId,i-1);}" title="Brief précédent (K)" style="font-size:14px;width:28px">‹</button>
+        <button class="drawer-close" onclick="if(filteredBriefs.length){const i=filteredBriefs.findIndex(b=>b.briefId===_currentDrawerBrief?.briefId);if(i<filteredBriefs.length-1)openDrawer(filteredBriefs[i+1].briefId,i+1);}" title="Brief suivant (J)" style="font-size:14px;width:28px">›</button>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+      </div>
     </div>
     <div class="drawer-tabs" id="drawer-tabs">
       <button class="drawer-tab active" data-panel="details" onclick="switchDrawerTab(this,'details')"><i class="ti ti-file-text"></i> Détails</button>
@@ -3866,11 +3870,22 @@ function toggleIntegrations() {
 // Fermer drawer avec Escape
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeDrawer();closeStatusModal();closeInviteModal();closeAccessModal();}
-  // N → nouvelle demande (hors focus input/textarea)
-  if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
-    const tag=(document.activeElement||{}).tagName||'';
-    if(tag!=='INPUT'&&tag!=='TEXTAREA'&&!document.activeElement?.isContentEditable){
-      window.location.href='index.html';
+  const tag=(document.activeElement||{}).tagName||'';
+  const inInput=tag==='INPUT'||tag==='TEXTAREA'||document.activeElement?.isContentEditable;
+  if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&!inInput){
+    // N → nouvelle demande
+    if(e.key==='n'){window.location.href='index.html';}
+    // / → focus recherche
+    if(e.key==='/'){e.preventDefault();const si=G('hdr-search-input');if(si)si.focus();}
+    // L → basculer list/kanban
+    if(e.key==='l'){setViewMode(viewMode==='list'?'kanban':'list');}
+    // J / K → brief suivant / précédent dans le drawer
+    if((e.key==='j'||e.key==='k')&&_currentDrawerBrief){
+      const src=filteredBriefs.length?filteredBriefs:allBriefs;
+      const idx=src.findIndex(b=>b.briefId===_currentDrawerBrief.briefId);
+      if(idx===-1)return;
+      const next=e.key==='j'?idx+1:idx-1;
+      if(next>=0&&next<src.length)openDrawer(src[next].briefId,next);
     }
   }
 });
