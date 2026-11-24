@@ -1877,6 +1877,20 @@ function getStatuts() { try{return JSON.parse(localStorage.getItem(STATUS_KEY)||
 function setStatut(id, st) { const s=getStatuts(); s[id]=st; localStorage.setItem(STATUS_KEY,JSON.stringify(s)); }
 function getStatut(id) { return getStatuts()[id] || 'soumis'; }
 
+const STATUS_HIST_KEY = 'bw_status_hist_v1';
+function getStatusHistory(briefId) {
+  try { return (JSON.parse(localStorage.getItem(STATUS_HIST_KEY)||'{}')[briefId])||[]; } catch(e) { return []; }
+}
+function logStatusChange(briefId, newSt) {
+  try {
+    const all = JSON.parse(localStorage.getItem(STATUS_HIST_KEY)||'{}');
+    if (!all[briefId]) all[briefId] = [];
+    all[briefId].push({ st: newSt, ts: Date.now() });
+    if (all[briefId].length > 30) all[briefId] = all[briefId].slice(-30);
+    localStorage.setItem(STATUS_HIST_KEY, JSON.stringify(all));
+  } catch(e) {}
+}
+
 let _statusTarget = null;
 function openStatusModal(briefId, e) {
   if(e) e.stopPropagation();
@@ -1892,6 +1906,7 @@ function selectStatus(opt) {
   const target = _statusTarget;
   const newStatus = opt.dataset.status;
   setStatut(target, newStatus);
+  logStatusChange(target, newStatus);
   closeStatusModal();
   applyFilters();
   if(_currentDrawerBrief && _currentDrawerBrief.briefId === target) renderDrawer(_currentDrawerBrief);
@@ -3028,6 +3043,7 @@ function kDrop(e, colId) {
   if (!briefId || !colId) return;
   if (getStatut(briefId) === colId) return; // no-op
   setStatut(briefId, colId);
+  logStatusChange(briefId, colId);
   // Re-render kanban + KPI counts without full reload
   const src = filteredBriefs.length ? filteredBriefs : allBriefs;
   renderKanban(src);
@@ -3404,10 +3420,17 @@ function getActivityLog(b) {
     const d = new Date(b.submittedAt);
     log.push({ type:'create', text:`Brief soumis par <strong>${b.demandeur||'—'}</strong>`, time: d });
   }
-  // Statuts sauvegardés (simulés depuis localStorage — on affiche le statut courant)
-  const st = getStatut(b.briefId);
-  if (st && st !== 'soumis') {
-    log.push({ type:'status', text:`Statut mis à jour : <strong>${STATUS_LABELS[st]||st}</strong>`, time: null });
+  // Historique des changements de statut
+  const hist = getStatusHistory(b.briefId);
+  hist.forEach(h => {
+    log.push({ type:'status', text:`Statut → <strong>${STATUS_LABELS[h.st]||h.st}</strong>`, time: new Date(h.ts) });
+  });
+  // Si pas d'historique mais statut != soumis, affiche au moins le statut courant sans timestamp
+  if (!hist.length) {
+    const st = getStatut(b.briefId);
+    if (st && st !== 'soumis') {
+      log.push({ type:'status', text:`Statut mis à jour : <strong>${STATUS_LABELS[st]||st}</strong>`, time: null });
+    }
   }
   // Réserves résolues
   const resItems = (b.reserves||'').split('\n').map(s=>s.trim()).filter(Boolean);
@@ -3421,7 +3444,7 @@ function getActivityLog(b) {
       log.push({ type:'comment', text:`${openCount} info${openCount>1?'s':''} en attente de confirmation`, time: null });
     }
   }
-  return log.reverse();
+  return log.sort((a,b) => (a.time||0) - (b.time||0)).reverse();
 }
 
 function renderChecklistPanel(b) {
@@ -3574,7 +3597,7 @@ function closeFichierPreview() {
 function _fpmKeyClose(e) { if (e.key === 'Escape') closeFichierPreview(); }
 
 function renderDrawer(b) {
-  G('d-id').textContent=b.briefId;
+  G('d-id').innerHTML=`<span style="cursor:pointer;border-bottom:1px dashed var(--text-tertiary)" title="Cliquer pour copier" onclick="navigator.clipboard.writeText('${b.briefId}').then(()=>showRealtimeToast('ID copié ✓')).catch(()=>{const r=document.createRange();r.selectNode(this);window.getSelection().removeAllRanges();window.getSelection().addRange(r)})">${b.briefId}</span>`;
   G('d-type').textContent=b.typeDemande||'—';
 
   const row=(label,val)=>val&&val!=='—'?`<div class="drawer-section"><div class="drawer-label">${label}</div><div class="drawer-val">${val}</div></div>`:'';
