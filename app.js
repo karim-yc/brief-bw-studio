@@ -665,12 +665,15 @@
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({
-          briefId:     recap.briefId,
-          marque:      recap.marque || '',
-          departement: recap.departement || '',
-          demandeur:   recap.demandeur || '',
-          priorite:    recap.priorite || '',
-          submittedAt: recap.submittedAt || new Date().toISOString()
+          briefId:        recap.briefId,
+          marque:         recap.marque || '',
+          departement:    recap.departement || '',
+          demandeur:      recap.demandeur || '',
+          priorite:       recap.priorite || '',
+          submittedAt:    recap.submittedAt || new Date().toISOString(),
+          mailHtml:       Recap.toMailHtml(recap),
+          emailRestaurant: recap.emailRestaurant || '',
+          confirmHtml:    recap.emailRestaurant ? Recap.toConfirmHtml(recap) : ''
         })
       }).then(() => console.log('[BW Notif] ✓ Email déclenché'))
         .catch(err => console.warn('[BW Notif] Email non envoyé:', err.message));
