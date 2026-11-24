@@ -1357,8 +1357,8 @@ body { overflow-x: hidden; max-width: 100vw; }
 
 <!-- ═══ MODAL INVITATION ══════════════════════════════════= -->
 <!-- ═══ MODAL GESTION DES ACCÈS ════════════════════════════= -->
-<div id="bw-access-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;font-family:Inter,sans-serif">
-  <div style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:0;width:420px;max-height:80vh;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.7);display:flex;flex-direction:column">
+<div id="bw-access-modal" onclick="closeAccessModal()" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;font-family:Inter,sans-serif">
+  <div onclick="event.stopPropagation()" style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:0;width:420px;max-height:80vh;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.7);display:flex;flex-direction:column">
     <div style="padding:22px 24px 18px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
       <div>
         <div style="font-size:15px;font-weight:700;color:#f0f0f0">Gestion des accès</div>
@@ -2285,14 +2285,14 @@ function onSelMarque(v){
 function onSelStatut(v){fStatut=v?new Set([v]):new Set();applyFilters();}
 
 function _syncResetBtn(){
-  const active=fDays>0||fType.size||fPrio.size||fStatut.size||fMarque.size;
+  const active=fDays>0||fType.size||fPrio.size||fStatut.size||fMarque.size||!!fSearch.trim();
   const btn=document.getElementById('btn-reset-filters');
   if(btn) btn.style.display=active?'flex':'none';
   updateFilterBadge();
 }
 
 function updateFilterBadge() {
-  const count=(fDays>0?1:0)+fType.size+fPrio.size+fStatut.size+fMarque.size;
+  const count=(fDays>0?1:0)+fType.size+fPrio.size+fStatut.size+fMarque.size+(fSearch.trim()?1:0);
   const badge=document.getElementById('filters-active-badge');
   if(!badge) return;
   badge.textContent=count;
@@ -2370,7 +2370,7 @@ function applyFilters() {
     const q=fSearch.trim().toLowerCase();
     data=data.filter(b=>{
       const mLabel=(getAllMarques().find(m=>m.id===b._marqueId)?.label||'').toLowerCase();
-      return (b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q)||mLabel.includes(q);
+      return (b.briefId||'').toLowerCase().includes(q)||(b.demandeur||'').toLowerCase().includes(q)||(b.contexte||'').toLowerCase().includes(q)||(b.departement||'').toLowerCase().includes(q)||mLabel.includes(q)||(b.typeDemande||'').toLowerCase().includes(q);
     });
   }
   // Tab filter (Ouvrir / Complété / Tous)
@@ -3813,7 +3813,7 @@ function toggleIntegrations() {
   btn.classList.toggle('open');
 }
 // Fermer drawer avec Escape
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeDrawer();closeStatusModal();closeInviteModal();} });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeDrawer();closeStatusModal();closeInviteModal();closeAccessModal();} });
 
 // ── Tooltips — tap mobile + flip automatique ──────────────
 function positionTooltip(tt_el) {
