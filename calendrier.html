@@ -11,48 +11,340 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="style.css">
 <style>
-.placeholder-wrap {
+/* ── Calendar layout ───────────────────────────────────── */
+.cal-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px 24px;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* ── Toolbar ───────────────────────────────────────────── */
+.cal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.cal-nav-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cal-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text);
+  min-width: 160px;
+  text-align: center;
+}
+.cal-btn {
+  width: 30px; height: 30px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  transition: all .15s;
+}
+.cal-btn:hover { border-color: #000; color: #000; }
+
+.cal-today-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all .15s;
+}
+.cal-today-btn:hover { border-color: #000; color: #000; }
+
+/* Date mode toggle */
+.cal-mode-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--hover);
+  border-radius: 8px;
+  padding: 3px;
+}
+.cal-mode-btn {
+  padding: 5px 10px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.cal-mode-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+/* Legend */
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.cal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.cal-legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Grid ──────────────────────────────────────────────── */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-day-hd {
+  font-size: 9.5px; font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-tertiary);
+  padding: 4px 0;
+}
+.cal-day {
+  min-height: 90px;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-sm);
+  padding: 5px;
+  overflow: hidden;
+  transition: border-color .15s;
+  cursor: default;
+}
+.cal-day:hover { border-color: rgba(0,0,0,.2); }
+.cal-day.cal-today { border-color: #000; border-width: 2px; }
+.cal-day.cal-other-month { opacity: .3; pointer-events: none; }
+.cal-day-num {
+  font-size: 9.5px; font-weight: 700;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+  line-height: 1;
+}
+.cal-day.cal-today .cal-day-num { color: #000; }
+
+/* ── Brief chips ───────────────────────────────────────── */
+.cal-brief {
+  font-size: 9px; font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+  transition: opacity .15s;
+}
+.cal-brief:hover { opacity: .75; }
+.cal-brief.cb-later  { background: #dcfce7; color: #166534; }
+.cal-brief.cb-soon   { background: #fef3c7; color: #92400e; }
+.cal-brief.cb-urgent { background: #fee2e2; color: #991b1b; }
+.cal-brief.cb-retard { background: #dc2626; color: #fff; }
+
+.cal-more {
+  font-size: 8.5px;
+  color: var(--text-tertiary);
+  padding: 1px 2px;
+  cursor: pointer;
+}
+.cal-more:hover { color: var(--text); }
+
+/* ── Drawer ────────────────────────────────────────────── */
+.brief-drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 360px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 24px rgba(0,0,0,.12);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  transform: translateX(100%);
+  transition: transform .22s cubic-bezier(.4,0,.2,1);
+}
+.brief-drawer.open { transform: translateX(0); }
+
+.drawer-head {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.drawer-head-left { flex: 1; min-width: 0; }
+.drawer-id {
+  font-size: 11px; font-weight: 700;
+  color: var(--text-tertiary);
+  letter-spacing: .3px;
+  margin-bottom: 4px;
+}
+.drawer-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.drawer-close {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.drawer-close:hover { border-color: #000; color: #000; }
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.drawer-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.drawer-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-tertiary);
+}
+.drawer-val {
+  font-size: 13px; color: var(--text);
+}
+.drawer-val.muted { color: var(--text-secondary); }
+
+.drawer-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.drawer-sep {
+  border: none;
+  border-top: 1px solid var(--border-light);
+  margin: 4px 0;
+}
+
+/* Overlay */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.2);
+  z-index: 199;
+  display: none;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.drawer-overlay.open { display: block; opacity: 1; }
+
+/* ── Status pill mini ──────────────────────────────────── */
+.st-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  border: 1px solid;
+}
+.st-soumis    { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
+.st-encours   { background: #EFF6FF; color: #2563EB; border-color: #BFDBFE; }
+.st-simulation{ background: #F5F3FF; color: #7C3AED; border-color: #DDD6FE; }
+.st-valide    { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+.st-livre     { background: #F0FDF4; color: #15803D; border-color: #86EFAC; }
+
+/* Priority badge mini */
+.prio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+}
+.prio-urgent    { background: #FEF2F2; color: #DC2626; }
+.prio-prio      { background: #FFF7ED; color: #EA580C; }
+.prio-normal    { background: #F3F4F6; color: #6B7280; }
+
+/* Loading / empty */
+.cal-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex: 1;
-  gap: 16px;
+  gap: 12px;
   padding: 60px 24px;
-  text-align: center;
-}
-.placeholder-icon {
-  width: 64px; height: 64px;
-  background: #f1f0ff;
-  border-radius: 20px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px;
-  color: #6366f1;
-}
-.placeholder-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e1b4b;
-  letter-spacing: -0.3px;
-}
-.placeholder-sub {
+  color: var(--text-tertiary);
   font-size: 13px;
-  color: #9ca3af;
-  max-width: 320px;
-  line-height: 1.6;
 }
-.placeholder-badge {
-  display: inline-flex;
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Sync indicator ───────────────────────────────────── */
+.sync-row {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  background: #f1f0ff;
-  color: #6366f1;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.sync-dot-mini {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+.sync-dot-mini.loading { background: #f59e0b; animation: pulse .8s infinite; }
+.sync-dot-mini.error   { background: #dc2626; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* ── Mobile ────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .cal-wrap { padding: 12px 12px 80px; }
+  .cal-toolbar { gap: 8px; }
+  .cal-legend { display: none; }
+  .cal-day { min-height: 52px; padding: 4px; }
+  .cal-brief { font-size: 8px; padding: 1px 3px; }
+  .brief-drawer { width: 100%; border-left: none; border-top: 1px solid var(--border); bottom: 0; top: auto; transform: translateY(100%); height: 85vh; border-radius: 16px 16px 0 0; }
+  .brief-drawer.open { transform: translateY(0); }
 }
 </style>
 </head>
@@ -76,17 +368,12 @@
       <a class="snav-item" href="dashboard.html"><i class="ti ti-list"></i><span>Demandes</span></a>
       <a class="snav-item active" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
       <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
-      <div class="snav-sep"></div>
-      <div class="snav-section-label">Marques</div>
-      <div class="snav-brand-item"><span class="snav-brand-dot bnw">BW</span><span>Black &amp; White Burger</span></div>
-      <div class="snav-brand-item"><span class="snav-brand-dot mm">M</span><span>Maison Marquise</span></div>
-      <div class="snav-brand-item"><span class="snav-brand-dot autre">···</span><span>Autre / Multi-marques</span></div>
     </nav>
     <div class="snav-user">
-      <div class="snav-user-av">KY</div>
+      <div class="snav-user-av" id="snav-user-av">KY</div>
       <div class="snav-user-info">
-        <div class="snav-user-name">Karim Y.-Cherif</div>
-        <div class="snav-user-role">Brand Design Lead</div>
+        <div class="snav-user-name" id="snav-user-name">—</div>
+        <div class="snav-user-role" id="snav-user-role">Chargement…</div>
       </div>
     </div>
   </div>
@@ -100,34 +387,85 @@
       <div class="hdr-logo-icon">BW</div>
       <div class="hdr-brand-text">
         <span class="hdr-title">Calendrier</span>
-        <span class="hdr-sub">Planification créative</span>
+        <span class="hdr-sub" id="cal-sync-label">Chargement…</span>
       </div>
     </div>
     <nav class="hdr-actions">
-      <a href="dashboard.html" class="hdr-btn" title="Voir le dashboard">
-        <svg viewBox="0 0 20 20" fill="none"><path d="M3 13h3v4H3v-4zm5.5-5h3v9h-3V8zM14 4h3v13h-3V4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <a href="dashboard.html" class="hdr-btn">
+        <i class="ti ti-layout-dashboard"></i>
         Dashboard
       </a>
     </nav>
   </header>
 
-  <!-- ════════ CONTENU PLACEHOLDER ════════ -->
-  <div class="placeholder-wrap">
-    <div class="placeholder-icon">
-      <i class="ti ti-calendar-month"></i>
+  <!-- ════════ CALENDRIER ════════ -->
+  <div class="cal-wrap" id="cal-wrap">
+
+    <!-- Loading state -->
+    <div class="cal-loading" id="cal-loading">
+      <i class="ti ti-loader-2" style="font-size:32px;animation:spin 1s linear infinite;opacity:.4"></i>
+      <span>Chargement des briefs…</span>
     </div>
-    <div class="placeholder-badge">
-      <i class="ti ti-clock" style="font-size:10px"></i>
-      Bientôt disponible
-    </div>
-    <p class="placeholder-title">Calendrier créatif</p>
-    <p class="placeholder-sub">Visualisez tous vos briefs sur une vue mensuelle ou hebdomadaire — dates de lancement, échéances de validation, et charge de travail de l'équipe.</p>
-  </div>
+
+    <!-- Calendar (hidden until loaded) -->
+    <div id="cal-main" style="display:none;flex:1;display:none;flex-direction:column">
+
+      <!-- Toolbar -->
+      <div class="cal-toolbar">
+        <!-- Navigation mois -->
+        <div class="cal-nav-ctrl">
+          <button class="cal-btn" onclick="calNav(-1)" title="Mois précédent"><i class="ti ti-chevron-left"></i></button>
+          <span class="cal-title" id="cal-title">—</span>
+          <button class="cal-btn" onclick="calNav(1)"  title="Mois suivant"><i class="ti ti-chevron-right"></i></button>
+          <button class="cal-today-btn" onclick="goToday()">Aujourd'hui</button>
+        </div>
+
+        <!-- Mode date + légende -->
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="cal-mode-toggle">
+            <button class="cal-mode-btn active" id="mode-lancement" onclick="setMode('lancement')">Lancement</button>
+            <button class="cal-mode-btn" id="mode-validation" onclick="setMode('validation')">Validation</button>
+            <button class="cal-mode-btn" id="mode-simul" onclick="setMode('simul')">Simulation</button>
+            <button class="cal-mode-btn" id="mode-all" onclick="setMode('all')">Toutes dates</button>
+          </div>
+          <div class="cal-legend">
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#dc2626"></div>En retard</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fee2e2"></div>Urgent (≤1j)</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fef3c7"></div>Proche (≤3j)</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#dcfce7"></div>À venir</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sync row -->
+      <div class="sync-row">
+        <div class="sync-dot-mini" id="sync-dot"></div>
+        <span id="sync-label">—</span>
+      </div>
+
+      <!-- Grid -->
+      <div class="cal-grid" id="cal-grid"></div>
+
+    </div><!-- /#cal-main -->
+  </div><!-- /.cal-wrap -->
 
   </div><!-- /.app-content -->
-
 </div><!-- /.app-shell -->
 
+<!-- ════════ DRAWER DÉTAIL BRIEF ════════ -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="brief-drawer" id="brief-drawer" role="dialog" aria-label="Détail du brief">
+  <div class="drawer-head">
+    <div class="drawer-head-left">
+      <div class="drawer-id" id="dr-id">—</div>
+      <div class="drawer-title" id="dr-title">Brief</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()" title="Fermer"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="drawer-body" id="dr-body"></div>
+</div>
+
+<!-- ════════ MOBILE NAV ════════ -->
 <nav class="mobile-bottom-nav" aria-label="Navigation mobile">
   <a href="index.html" class="mob-nav-item"><i class="ti ti-plus-circle"></i><span>Nouveau</span></a>
   <a href="dashboard.html" class="mob-nav-item"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></a>
@@ -135,5 +473,312 @@
   <a href="statistiques.html" class="mob-nav-item"><i class="ti ti-chart-bar"></i><span>Stats</span></a>
 </nav>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.6/dist/umd/supabase.js"></script>
+<script>
+'use strict';
+
+const G = id => document.getElementById(id);
+
+const SUPABASE_URL      = 'https://zpapoywzilwubjglhsmu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_PhHq5kbGxyntZ8JlSumImA_pqzR8tKL';
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation envoyée', valide:'Validé', livre:'Livré' };
+const STATUS_CSS    = { soumis:'st-soumis', encours:'st-encours', simulation:'st-simulation', valide:'st-valide', livre:'st-livre' };
+
+let allBriefs  = [];
+let calYear    = new Date().getFullYear();
+let calMonth   = new Date().getMonth();
+let dateMode   = 'lancement'; // 'lancement' | 'validation' | 'simul' | 'all'
+
+/* ── Helpers ─────────────────────────────────────────────── */
+function fmtDate(s) {
+  if (!s || s === '—') return '—';
+  try { const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; } catch(e) { return s; }
+}
+
+function getStatutLocal(briefId) {
+  try {
+    const s = JSON.parse(localStorage.getItem('bw_brief_v2_statuses') || '{}');
+    return s[briefId] || 'soumis';
+  } catch(e) { return 'soumis'; }
+}
+
+function getDatesForBrief(b) {
+  // Returns list of YYYY-MM-DD strings to index this brief on
+  const dates = [];
+  if (dateMode === 'lancement' || dateMode === 'all') {
+    if (b.dateLancement && b.dateLancement !== '—') dates.push({ date: b.dateLancement, type: 'lancement' });
+  }
+  if (dateMode === 'validation' || dateMode === 'all') {
+    if (b.dateValidation && b.dateValidation !== '—') dates.push({ date: b.dateValidation, type: 'validation' });
+  }
+  if (dateMode === 'simul' || dateMode === 'all') {
+    if (b.dateRetourSimul && b.dateRetourSimul !== '—') dates.push({ date: b.dateRetourSimul, type: 'simul' });
+  }
+  // Fallback for 'lancement' mode: use dateRetourSimul if dateLancement missing
+  if (dateMode === 'lancement' && !b.dateLancement) {
+    if (b.dateRetourSimul && b.dateRetourSimul !== '—') dates.push({ date: b.dateRetourSimul, type: 'simul' });
+  }
+  return dates;
+}
+
+/* ── Calendar render ─────────────────────────────────────── */
+const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const DAYS   = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+
+function renderCalendar() {
+  const grid = G('cal-grid');
+  if (!grid) return;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Index briefs by date key
+  const byDay = {};
+  allBriefs.forEach(b => {
+    getDatesForBrief(b).forEach(({ date, type }) => {
+      if (!byDay[date]) byDay[date] = [];
+      byDay[date].push({ ...b, _dateType: type });
+    });
+  });
+
+  const yr = calYear, mo = calMonth;
+  const firstDay = new Date(yr, mo, 1);
+  const lastDay  = new Date(yr, mo + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7; // lundi=0
+
+  G('cal-title').textContent = `${MONTHS[mo]} ${yr}`;
+
+  const briefChip = (b) => {
+    const dStr = b.dateLancement || b.dateRetourSimul || b.dateValidation;
+    const dLaunch = new Date(dStr); dLaunch.setHours(0,0,0,0);
+    const diff = Math.round((dLaunch - today) / 86400000);
+    const cls = diff < 0 ? 'cb-retard' : diff <= 1 ? 'cb-urgent' : diff <= 3 ? 'cb-soon' : 'cb-later';
+    const lbl = (b.demandeur || b.departement || b.briefId || '—').slice(0, 22);
+    const typeIcon = b._dateType === 'validation' ? '✓' : b._dateType === 'simul' ? '◎' : '';
+    return `<div class="cal-brief ${cls}"
+      onclick="event.stopPropagation();openDrawer('${b.briefId}')"
+      title="${(b.contexte || b.typeDemande || '').replace(/"/g,'&quot;')}"
+    >${typeIcon ? typeIcon + ' ' : ''}${lbl}</div>`;
+  };
+
+  // Build cells
+  const dayHds = DAYS.map(d => `<div class="cal-day-hd">${d}</div>`).join('');
+  let cells = '';
+
+  // leading empty
+  for (let i = 0; i < startDow; i++) cells += `<div class="cal-day cal-other-month"></div>`;
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const key = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = today.getFullYear() === yr && today.getMonth() === mo && today.getDate() === d;
+    const briefs = byDay[key] || [];
+    const chips = briefs.slice(0, 3).map(briefChip).join('');
+    const more  = briefs.length > 3
+      ? `<div class="cal-more" onclick="openDayModal('${key}')" title="${briefs.length} briefs ce jour">+${briefs.length - 3} autre${briefs.length - 3 > 1 ? 's' : ''}</div>`
+      : '';
+    cells += `<div class="cal-day${isToday ? ' cal-today' : ''}">
+      <div class="cal-day-num">${d}</div>
+      ${chips}${more}
+    </div>`;
+  }
+
+  // trailing empty
+  const totalCells = startDow + lastDay.getDate();
+  const trailing = totalCells % 7 ? 7 - (totalCells % 7) : 0;
+  for (let i = 0; i < trailing; i++) cells += `<div class="cal-day cal-other-month"></div>`;
+
+  grid.innerHTML = dayHds + cells;
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0;  calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function goToday() {
+  calYear  = new Date().getFullYear();
+  calMonth = new Date().getMonth();
+  renderCalendar();
+}
+
+function setMode(mode) {
+  dateMode = mode;
+  document.querySelectorAll('.cal-mode-btn').forEach(btn => btn.classList.remove('active'));
+  G('mode-' + mode)?.classList.add('active');
+  renderCalendar();
+}
+
+/* ── Brief drawer ─────────────────────────────────────────── */
+function openDrawer(briefId) {
+  const b = allBriefs.find(x => x.briefId === briefId);
+  if (!b) return;
+
+  G('dr-id').textContent    = b.briefId || '—';
+  G('dr-title').textContent = b.contexte || b.typeDemande || 'Brief sans titre';
+
+  const statut = b.statut || getStatutLocal(b.briefId);
+  const statusHtml = `<span class="st-pill ${STATUS_CSS[statut] || 'st-soumis'}">${STATUS_LABELS[statut] || statut}</span>`;
+
+  const prioCls = b.priorite === 'urgent' ? 'prio-urgent' : b.priorite === 'prioritaire' ? 'prio-prio' : 'prio-normal';
+  const prioLabel = b.priorite === 'urgent' ? '⚑ Urgent' : b.priorite === 'prioritaire' ? '↑ Prioritaire' : 'Normal';
+  const prioHtml = `<span class="prio-pill ${prioCls}">${prioLabel}</span>`;
+
+  const row = (label, val, muted) =>
+    val && val !== '—' && val !== '' ? `
+    <div class="drawer-row">
+      <div class="drawer-label">${label}</div>
+      <div class="drawer-val${muted ? ' muted' : ''}">${val}</div>
+    </div>` : '';
+
+  const dateRow = (label, val) => {
+    if (!val || val === '—') return '';
+    const today = new Date(); today.setHours(0,0,0,0);
+    const d = new Date(val); d.setHours(0,0,0,0);
+    const diff = Math.round((d - today) / 86400000);
+    let badge = '';
+    if (diff < 0) badge = ` <span style="color:#b91c1c;font-size:11px">(${Math.abs(diff)}j retard)</span>`;
+    else if (diff === 0) badge = ` <span style="color:#c2410c;font-size:11px">(Aujourd'hui)</span>`;
+    else if (diff <= 7) badge = ` <span style="color:#92400e;font-size:11px">(J-${diff})</span>`;
+    return `<div class="drawer-row">
+      <div class="drawer-label">${label}</div>
+      <div class="drawer-val">${fmtDate(val)}${badge}</div>
+    </div>`;
+  };
+
+  G('dr-body').innerHTML = `
+    <div class="drawer-badges">${statusHtml}${prioHtml}</div>
+    <hr class="drawer-sep">
+    ${row('Demandeur',   b.demandeur || b.departement)}
+    ${row('Département', b.departement && b.demandeur ? b.departement : '')}
+    ${row('Type',        b.typeDemande, true)}
+    ${row('Marque',      b.marque || b._marqueId, true)}
+    <hr class="drawer-sep">
+    ${dateRow('Date de lancement',    b.dateLancement)}
+    ${dateRow('Date de validation',   b.dateValidation)}
+    ${dateRow('Retour simulation',    b.dateRetourSimul)}
+    ${b.contexte ? `<hr class="drawer-sep"><div class="drawer-row">
+      <div class="drawer-label">Contexte</div>
+      <div class="drawer-val muted" style="font-size:12px;line-height:1.5">${b.contexte}</div>
+    </div>` : ''}
+    ${row('Supports',  b.supports, true)}
+    ${b.submittedAt ? `<hr class="drawer-sep">${row('Soumis le', new Date(b.submittedAt).toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'}), true)}` : ''}
+    <hr class="drawer-sep">
+    <div>
+      <a href="dashboard.html?open=${encodeURIComponent(b.briefId)}"
+         style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#4F46E5;text-decoration:none">
+        <i class="ti ti-external-link" style="font-size:13px"></i>Voir dans le dashboard
+      </a>
+    </div>
+  `;
+
+  G('brief-drawer').classList.add('open');
+  G('drawer-overlay').classList.add('open');
+}
+
+function closeDrawer() {
+  G('brief-drawer').classList.remove('open');
+  G('drawer-overlay').classList.remove('open');
+}
+
+/* ── Data loading ─────────────────────────────────────────── */
+function setSyncState(state, label) {
+  const dot   = G('sync-dot');
+  const lbl   = G('sync-label');
+  const hdrLbl = G('cal-sync-label');
+  if (dot) dot.className = 'sync-dot-mini ' + (state === 'loading' ? 'loading' : state === 'error' ? 'error' : '');
+  if (lbl) lbl.textContent = label;
+  if (hdrLbl) hdrLbl.textContent = label;
+}
+
+async function loadBriefs() {
+  setSyncState('loading', 'Chargement…');
+
+  try {
+    const { data: rows, error } = await sbClient
+      .from('briefs')
+      .select('data, statut, archived, submitted_at, marque')
+      .order('submitted_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    allBriefs = (rows || []).map(row => ({
+      ...row.data,
+      statut: row.statut || row.data?.statut || 'soumis',
+      archived: row.archived ?? false,
+      _marqueId: row.marque || null,
+      _fromSupabase: true,
+    })).filter(b => b && b.briefId);
+
+    const n = allBriefs.length;
+    const t = new Date().toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
+    setSyncState('ok', `${n} brief${n > 1 ? 's' : ''} · ${t}`);
+  } catch(e) {
+    console.warn('[Calendrier] Supabase erreur:', e.message);
+    setSyncState('error', '⚠ Données inaccessibles');
+    allBriefs = [];
+  }
+}
+
+async function loadUserProfile() {
+  if (!sbClient) return;
+  const { data: { user } } = await sbClient.auth.getUser();
+  if (!user) return;
+  const { data: profile } = await sbClient
+    .from('bw_profiles')
+    .select('role,nom,avatar_url')
+    .eq('id', user.id)
+    .single();
+  if (profile) {
+    const nom = profile.nom || user.email?.split('@')[0] || '—';
+    const initials = nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const avEl = G('snav-user-av');
+    if (avEl) {
+      if (profile.avatar_url) {
+        avEl.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+      } else {
+        avEl.textContent = initials;
+      }
+    }
+    const nameEl = G('snav-user-name');
+    const roleEl = G('snav-user-role');
+    if (nameEl) nameEl.textContent = nom;
+    if (roleEl) roleEl.textContent = profile.role === 'studio' ? 'Studio Admin' : 'Demandeur';
+  }
+}
+
+/* ── Init ────────────────────────────────────────────────── */
+(async () => {
+  // Auth check
+  const { data: { session } } = await sbClient.auth.getSession();
+  if (!session) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // Load user profile (async, non-blocking for calendar)
+  loadUserProfile();
+
+  // Load briefs
+  await loadBriefs();
+
+  // Show calendar
+  G('cal-loading').style.display = 'none';
+  const main = G('cal-main');
+  main.style.display = 'flex';
+  main.style.flexDirection = 'column';
+  main.style.flex = '1';
+
+  renderCalendar();
+
+  // Auto-refresh every 5 min
+  setInterval(async () => {
+    await loadBriefs();
+    renderCalendar();
+  }, 5 * 60 * 1000);
+})();
+</script>
 </body>
 </html>
