@@ -1375,8 +1375,8 @@ body { overflow-x: hidden; max-width: 100vw; }
 
 <div id="bw-invite-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;font-family:Inter,sans-serif">
   <div style="background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:28px;width:340px;box-shadow:0 24px 64px rgba(0,0,0,.7)">
-    <div style="font-size:15px;font-weight:700;color:#f0f0f0;margin-bottom:4px">Inviter un demandeur</div>
-    <div style="font-size:12.5px;color:#666;margin-bottom:20px">Un email d'invitation sera envoyé pour créer un compte.</div>
+    <div style="font-size:15px;font-weight:700;color:#f0f0f0;margin-bottom:4px">Inviter un membre</div>
+    <div style="font-size:12.5px;color:#666;margin-bottom:20px">Un email d'invitation sera envoyé pour créer le compte.</div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div>
         <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Nom</label>
@@ -1385,6 +1385,25 @@ body { overflow-x: hidden; max-width: 100vw; }
       <div>
         <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Email</label>
         <input id="invite-email" type="email" placeholder="contact@restaurant.com" style="width:100%;box-sizing:border-box;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:8px;padding:10px 13px;font-size:14px;color:#f0f0f0;outline:none;font-family:inherit">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:500;color:#aaa;display:block;margin-bottom:5px">Rôle</label>
+        <div style="display:flex;gap:8px">
+          <label style="flex:1;display:flex;align-items:center;gap:8px;padding:9px 13px;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:8px;cursor:pointer;transition:border-color .15s" id="invite-role-label-d">
+            <input type="radio" id="invite-role" name="invite-role" value="demandeur" checked style="accent-color:#DFFF00;width:14px;height:14px;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#f0f0f0">Demandeur</div>
+              <div style="font-size:10px;color:#555">Soumet des briefs</div>
+            </div>
+          </label>
+          <label style="flex:1;display:flex;align-items:center;gap:8px;padding:9px 13px;background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:8px;cursor:pointer;transition:border-color .15s" id="invite-role-label-s">
+            <input type="radio" name="invite-role" value="studio" style="accent-color:#DFFF00;width:14px;height:14px;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#f0f0f0">Studio</div>
+              <div style="font-size:10px;color:#555">Admin & gestion</div>
+            </div>
+          </label>
+        </div>
       </div>
     </div>
     <div id="invite-error" style="color:#ff4d4d;font-size:12px;min-height:16px;margin-top:10px"></div>
@@ -1640,6 +1659,8 @@ async function toggleUserRole(userId, currentRoleVal, btn) {
 async function submitInvite() {
   const nom   = G('invite-nom').value.trim();
   const email = G('invite-email').value.trim();
+  const roleEl = document.querySelector('input[name="invite-role"]:checked');
+  const role  = roleEl ? roleEl.value : 'demandeur';
   const errEl = G('invite-error');
   const sucEl = G('invite-success');
   if (!nom || !email) { errEl.textContent = 'Remplis tous les champs.'; return; }
@@ -1655,7 +1676,7 @@ async function submitInvite() {
   const { error } = await tmpClient.auth.signUp({
     email,
     password: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2).toUpperCase() + '!9',
-    options: { data: { role: 'demandeur', nom } }
+    options: { data: { role, nom } }
   });
   if (error) {
     btn.disabled = false;
@@ -1665,10 +1686,10 @@ async function submitInvite() {
   }
   // Envoyer un lien pour définir le mot de passe (arrive après la confirmation d'email)
   await tmpClient.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://karim-yc.github.io/brief-bw-studio/dashboard.html'
+    redirectTo: 'https://karim-yc.github.io/brief-bw-studio/login.html'
   });
   sucEl.style.display = 'block';
-  sucEl.textContent = `✓ Invitation envoyée à ${email}. Ils recevront un email pour confirmer leur adresse, puis un second email pour définir leur mot de passe.`;
+  sucEl.textContent = `✓ Invitation envoyée à ${email}. Ils recevront un email pour confirmer leur adresse, puis un lien pour définir leur mot de passe.`;
   btn.textContent = 'Envoyé ✓';
   setTimeout(() => closeInviteModal(), 4000);
 }
