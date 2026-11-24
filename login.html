@@ -166,10 +166,12 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_PhHq5kbGxyntZ8JlSumImA_pqzR8tKL';
   const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  const _nextPage = new URLSearchParams(location.search).get('next') || 'dashboard.html';
+
   // Si déjà connecté, redirect direct
   (async () => {
     const { data: { session } } = await sbClient.auth.getSession();
-    if (session) window.location.href = 'dashboard.html';
+    if (session) window.location.href = _nextPage;
   })();
 
   const emailEl    = document.getElementById('email');
@@ -196,7 +198,7 @@
       showError(friendlyError(error.message));
       return;
     }
-    window.location.href = 'dashboard.html';
+    window.location.href = _nextPage;
   }
 
   function setLoading(on) {
