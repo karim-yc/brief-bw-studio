@@ -28,7 +28,7 @@
       <a class="snav-item active" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
     </nav>
     <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px">
-      <div style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border-radius:8px;padding:4px;margin:-4px;transition:background .15s" onclick="openProfileDrawer()" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'" title="Mon profil">
+      <div id="snav-user-row" style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border-radius:8px;padding:4px;margin:-4px;transition:background .15s" onclick="openProfileDrawer()" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'" title="Mon profil">
         <div id="snav-user-av" style="width:30px;height:30px;background:#1a1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">—</div>
         <div class="snav-user-info" style="flex:1;min-width:0">
           <div id="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chargement…</div>
@@ -312,7 +312,7 @@ window.getAppMarques = function() {
 <script src="recap.js?v=2"></script>
 <script src="render.js?v=7"></script>
 <script src="gcal-sync.js?v=2"></script>
-<script src="app.js?v=14"></script>
+<script src="app.js?v=15"></script>
 
 <!-- ═══ DRAWER PROFIL ══════════════════════════════════════= -->
 <div id="profile-drawer-overlay" onclick="closeProfileDrawer()" style="display:none;position:fixed;inset:0;z-index:8800;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)"></div>

@@ -1175,16 +1175,12 @@
       (async () => {
         const { data: { user } } = await sbClient.auth.getUser();
         if (!user) {
-          const nameEl = document.getElementById('snav-user-name');
-          if (nameEl) nameEl.textContent = '';
-          const roleEl = document.getElementById('snav-user-role');
-          if (roleEl) roleEl.textContent = '';
-          const avEl = document.getElementById('snav-user-av');
-          if (avEl) avEl.innerHTML = '<i class="ti ti-login" style="font-size:14px"></i>';
+          const rowEl = document.getElementById('snav-user-row');
+          if (rowEl) rowEl.style.display = 'none';
           const logoutEl = document.getElementById('snav-user-logout');
           if (logoutEl) {
             logoutEl.style.display = 'block';
-            logoutEl.innerHTML = `<a href="login.html" style="display:block;padding:5px 8px;background:rgba(223,255,0,.12);border:1px solid rgba(223,255,0,.25);border-radius:7px;font-size:11px;font-weight:600;color:#DFFF00;text-align:center;text-decoration:none;box-sizing:border-box">Se connecter</a>`;
+            logoutEl.innerHTML = `<a href="login.html" style="display:block;padding:7px 10px;background:rgba(223,255,0,.12);border:1px solid rgba(223,255,0,.25);border-radius:7px;font-size:12px;font-weight:600;color:#DFFF00;text-align:center;text-decoration:none;box-sizing:border-box">Se connecter</a>`;
           }
           return;
         }
