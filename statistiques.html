@@ -221,12 +221,13 @@ async function fetchBriefs() {
     try {
       const { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, submitted_at')
+        .select('data, statut, submitted_at, marque')
         .order('submitted_at', { ascending: false });
       if (error) throw new Error(error.message);
       const data = (rows||[]).map(row => ({
         ...row.data,
         statut: row.statut || row.data?.statut || 'soumis',
+        _marqueId: row.marque || null,
       })).filter(b => b.briefId);
       if (data.length > 0) return { data, status: 'supabase' };
     } catch(e) { console.warn('[Stats] Supabase:', e.message); }
@@ -268,9 +269,9 @@ function computeStats(briefs) {
     return dates.some(d => d < today);
   }).length;
 
-  // Par marque (normalize: null/undefined → bnw)
-  const marques = { bnw: 0, marquise: 0, autre: 0 };
-  briefs.forEach(b => { const m = b.marque || 'bnw'; if (marques[m] !== undefined) marques[m]++; else marques.autre++; });
+  // Par marque — utilise _marqueId (slug depuis colonne Supabase)
+  const marques = { bnw: 0, marquise: 0, pokawa: 0, autre: 0 };
+  briefs.forEach(b => { const m = b._marqueId || 'autre'; if (marques[m] !== undefined) marques[m]++; else marques.autre++; });
 
   // Par type
   const types = {};
@@ -351,8 +352,12 @@ function renderStats(s) {
   barChart(document.getElementById('chart-marque'), [
     { label: 'Black & White', val: s.marques.bnw },
     { label: 'Maison Marquise', val: s.marques.marquise },
+    { label: 'Pokawa', val: s.marques.pokawa },
     { label: 'Autre', val: s.marques.autre },
-  ], null, r => r.label === 'Black & White' ? '#6366f1' : r.label === 'Maison Marquise' ? '#b5804e' : '#9ca3af');
+  ].filter(r => r.val > 0), null, r =>
+    r.label === 'Black & White' ? '#111' :
+    r.label === 'Maison Marquise' ? '#a84f2a' :
+    r.label === 'Pokawa' ? '#16a34a' : '#6B7280');
 
   // Types
   const typeRows = Object.entries(s.types).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
