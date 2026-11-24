@@ -986,8 +986,8 @@ body { overflow-x: hidden; max-width: 100vw; }
     <a class="snav-item" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
     <div class="snav-sep"></div>
     <div class="snav-item" onclick="setViewMode('list');document.querySelector('.snav-item.cal-nav-item')?.classList.remove('active');this.classList.add('active')"><i class="ti ti-list"></i><span>Demandes</span></div>
-    <div class="snav-item cal-nav-item" onclick="setViewMode('calendar');document.querySelectorAll('.snav-item').forEach(e=>e.classList.remove('active'));this.classList.add('active')"><i class="ti ti-calendar-month"></i><span>Calendrier</span></div>
-    <div class="snav-item" onclick="document.getElementById('stats-toggle').click()"><i class="ti ti-chart-bar"></i><span>Statistiques</span></div>
+    <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
+    <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
     <div class="snav-item" id="snav-archived-toggle" onclick="toggleShowArchived()" title="Afficher les briefs archivés"><i class="ti ti-archive"></i><span>Archivés <span id="snav-archived-count" style="display:none;font-size:10px;opacity:.6;margin-left:4px"></span></span></div>
     <div class="snav-item" id="snav-manage-access" style="display:none" onclick="openAccessModal()"><i class="ti ti-shield-lock"></i><span>Gestion des accès</span></div>
     <div class="snav-sep"></div>
