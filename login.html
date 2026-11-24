@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BW Brief Studio — Connexion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a0a0a;
+    --surface:#141414;
+    --border:#2a2a2a;
+    --accent:#DFFF00;
+    --text:#f0f0f0;
+    --text-sec:#888;
+    --radius:12px;
+    --err:#ff4d4d;
+  }
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+
+  .login-wrap{
+    width:100%;
+    max-width:400px;
+    display:flex;
+    flex-direction:column;
+    gap:32px;
+  }
+
+  .brand{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    text-align:center;
+  }
+  .brand-logo{
+    width:52px;height:52px;
+    background:var(--accent);
+    border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:20px;color:#000;letter-spacing:-0.5px;
+  }
+  .brand h1{
+    font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.4px;
+  }
+  .brand p{
+    font-size:13px;color:var(--text-sec);
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field label{
+    font-size:12.5px;font-weight:500;color:#ccc;
+  }
+  .field input{
+    background:#1e1e1e;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    padding:11px 14px;
+    font-size:14px;font-family:inherit;
+    color:var(--text);
+    outline:none;
+    transition:border-color .15s;
+    width:100%;
+  }
+  .field input:focus{border-color:var(--accent);}
+  .field input::placeholder{color:#555;}
+
+  .btn-submit{
+    background:var(--accent);
+    color:#000;
+    border:none;
+    border-radius:8px;
+    padding:12px 20px;
+    font-size:14px;font-weight:600;font-family:inherit;
+    cursor:pointer;
+    width:100%;
+    transition:opacity .15s;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .btn-submit:hover{opacity:.88;}
+  .btn-submit:disabled{opacity:.4;cursor:not-allowed;}
+
+  .error-msg{
+    background:#2a0a0a;
+    border:1px solid #5a1a1a;
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13px;color:var(--err);
+    display:none;
+  }
+  .error-msg.show{display:block;}
+
+  .footer-note{
+    text-align:center;
+    font-size:12px;color:var(--text-sec);
+  }
+
+  .spinner{
+    width:16px;height:16px;
+    border:2px solid rgba(0,0,0,.3);
+    border-top-color:#000;
+    border-radius:50%;
+    animation:spin .6s linear infinite;
+    display:none;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="brand">
+    <div class="brand-logo">BW</div>
+    <h1>Brief Studio</h1>
+    <p>Accès réservé à l'équipe BW</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label for="email">Adresse email</label>
+      <input type="email" id="email" placeholder="vous@bnwburger.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+    <button class="btn-submit" id="btn-login" onclick="doLogin()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-label">Se connecter</span>
+    </button>
+  </div>
+
+  <p class="footer-note">Pas encore de compte ? Contactez l'équipe studio.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.6/dist/umd/supabase.js"></script>
+<script>
+  const SUPABASE_URL = 'https://zpapoywzilwubjglhsmu.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_PhHq5kbGxyntZ8JlSumImA_pqzR8tKL';
+  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Si déjà connecté, redirect direct
+  (async () => {
+    const { data: { session } } = await sbClient.auth.getSession();
+    if (session) window.location.href = 'dashboard.html';
+  })();
+
+  const emailEl    = document.getElementById('email');
+  const passEl     = document.getElementById('password');
+  const btnLogin   = document.getElementById('btn-login');
+  const errorMsg   = document.getElementById('error-msg');
+  const spinner    = document.getElementById('spinner');
+  const btnLabel   = document.getElementById('btn-label');
+
+  passEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') passEl.focus(); });
+
+  async function doLogin() {
+    const email    = emailEl.value.trim();
+    const password = passEl.value;
+    if (!email || !password) { showError('Remplis tous les champs.'); return; }
+
+    setLoading(true);
+    hideError();
+
+    const { error } = await sbClient.auth.signInWithPassword({ email, password });
+    if (error) {
+      setLoading(false);
+      showError(friendlyError(error.message));
+      return;
+    }
+    window.location.href = 'dashboard.html';
+  }
+
+  function setLoading(on) {
+    btnLogin.disabled = on;
+    spinner.style.display   = on ? 'block' : 'none';
+    btnLabel.textContent = on ? 'Connexion…' : 'Se connecter';
+  }
+  function showError(msg) { errorMsg.textContent = msg; errorMsg.classList.add('show'); }
+  function hideError()    { errorMsg.classList.remove('show'); }
+
+  function friendlyError(msg) {
+    if (/invalid login/i.test(msg))   return 'Email ou mot de passe incorrect.';
+    if (/email not confirmed/i.test(msg)) return 'Confirme d\'abord ton adresse email (vérifie ta boite mail).';
+    if (/too many/i.test(msg))        return 'Trop de tentatives. Réessaie dans quelques minutes.';
+    return msg;
+  }
+</script>
+</body>
+</html>
