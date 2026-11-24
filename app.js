@@ -1176,9 +1176,16 @@
         const { data: { user } } = await sbClient.auth.getUser();
         if (!user) {
           const nameEl = document.getElementById('snav-user-name');
-          if (nameEl) nameEl.textContent = 'Non connecté';
+          if (nameEl) nameEl.textContent = 'Se connecter';
+          const roleEl = document.getElementById('snav-user-role');
+          if (roleEl) roleEl.textContent = '';
           const avEl = document.getElementById('snav-user-av');
-          if (avEl) avEl.textContent = '?';
+          if (avEl) avEl.innerHTML = '<i class="ti ti-login" style="font-size:14px"></i>';
+          const logoutEl = document.getElementById('snav-user-logout');
+          if (logoutEl) {
+            logoutEl.style.display = 'block';
+            logoutEl.innerHTML = `<a href="login.html" style="display:block;padding:5px 8px;background:rgba(223,255,0,.12);border:1px solid rgba(223,255,0,.25);border-radius:7px;font-size:11px;font-weight:600;color:#DFFF00;text-align:center;text-decoration:none;box-sizing:border-box">Se connecter</a>`;
+          }
           return;
         }
         window._bwCurrentUser = user;
@@ -1818,6 +1825,10 @@ Il restera accessible dans le dashboard.`)) {
    ════════════════════════════════════════════════════════════ */
 
 function openProfileDrawer() {
+  if (!window._bwCurrentUser) {
+    window.location.href = 'login.html';
+    return;
+  }
   const overlay = document.getElementById('profile-drawer-overlay');
   const drawer  = document.getElementById('profile-drawer');
   if (!overlay || !drawer) return;
