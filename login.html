@@ -271,7 +271,7 @@
     const lbl = document.getElementById('forgot-label');
     btn.disabled = true; sp.style.display = 'block'; lbl.textContent = 'Envoi…';
     const { error } = await sbClient.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://karim-yc.github.io/brief-bw-studio/dashboard.html'
+      redirectTo: 'https://karim-yc.github.io/brief-bw-studio/login.html'
     });
     btn.disabled = false; sp.style.display = 'none'; lbl.textContent = 'Envoyer le lien';
     if (error) { errEl.textContent = error.message; errEl.classList.add('show'); return; }
