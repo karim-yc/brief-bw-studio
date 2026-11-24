@@ -183,6 +183,26 @@
     </div>
   </div>
 
+  <!-- Set password (invite / recovery flow) -->
+  <div class="card" id="set-password-card" style="display:none;flex-direction:column;gap:20px">
+    <div id="set-password-title" style="font-size:14px;font-weight:600;color:#ccc">Choisir un mot de passe</div>
+    <div class="field">
+      <label for="new-password">Nouveau mot de passe</label>
+      <input type="password" id="new-password" placeholder="8 caractères minimum"
+        onkeydown="if(event.key==='Enter')doSetPassword()">
+    </div>
+    <div class="field">
+      <label for="new-password2">Confirmer le mot de passe</label>
+      <input type="password" id="new-password2" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')doSetPassword()">
+    </div>
+    <div class="error-msg" id="set-pw-error"></div>
+    <button class="btn-submit" id="btn-set-pw" onclick="doSetPassword()">
+      <div class="spinner" id="set-pw-spinner"></div>
+      <span id="set-pw-label">Confirmer</span>
+    </button>
+  </div>
+
   <p class="footer-note">Pas encore de compte ? Contactez l'équipe studio.</p>
 </div>
 
@@ -194,8 +214,28 @@
 
   const _nextPage = new URLSearchParams(location.search).get('next') || 'dashboard.html';
 
-  // Si déjà connecté, redirect direct
+  // Detect invite / recovery token in hash fragment
   (async () => {
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    const type = hash.get('type');
+    if (type === 'invite' || type === 'recovery') {
+      // Supabase has already established the session from the hash
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (session) {
+        // Hide login/forgot cards, show set-password card
+        document.querySelector('.card').style.display = 'none';
+        document.getElementById('forgot-card').style.display = 'none';
+        const spCard = document.getElementById('set-password-card');
+        spCard.style.display = 'flex';
+        if (type === 'invite') {
+          document.getElementById('set-password-title').textContent = 'Bienvenue ! Choisissez votre mot de passe';
+        }
+        document.getElementById('new-password').focus();
+        // Clear hash without reload
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+      return;
+    }
     const { data: { session } } = await sbClient.auth.getSession();
     if (session) window.location.href = _nextPage;
   })();
@@ -269,6 +309,26 @@
     if (/email not confirmed/i.test(msg)) return 'Confirme d\'abord ton adresse email (vérifie ta boite mail).';
     if (/too many/i.test(msg))        return 'Trop de tentatives. Réessaie dans quelques minutes.';
     return msg;
+  }
+
+  async function doSetPassword() {
+    const pw1 = document.getElementById('new-password').value;
+    const pw2 = document.getElementById('new-password2').value;
+    const errEl = document.getElementById('set-pw-error');
+    errEl.classList.remove('show');
+    if (pw1.length < 8) { errEl.textContent = 'Le mot de passe doit faire au moins 8 caractères.'; errEl.classList.add('show'); return; }
+    if (pw1 !== pw2) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.classList.add('show'); return; }
+    const btn = document.getElementById('btn-set-pw');
+    const sp  = document.getElementById('set-pw-spinner');
+    const lbl = document.getElementById('set-pw-label');
+    btn.disabled = true; sp.style.display = 'block'; lbl.textContent = 'Enregistrement…';
+    const { error } = await sbClient.auth.updateUser({ password: pw1 });
+    if (error) {
+      btn.disabled = false; sp.style.display = 'none'; lbl.textContent = 'Confirmer';
+      errEl.textContent = error.message; errEl.classList.add('show');
+      return;
+    }
+    window.location.href = _nextPage;
   }
 </script>
 </body>
