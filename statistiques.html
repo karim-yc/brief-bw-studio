@@ -11,40 +11,57 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="style.css">
 <style>
-/* ── Stat KPI grid ──────────────────────────────────────── */
-.stat-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-@media(max-width:860px){.stat-kpi-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.stat-kpi-grid{grid-template-columns:1fr 1fr}}
-.stat-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-card)}
-.stat-kpi-val{font-size:32px;font-weight:700;color:var(--text);letter-spacing:-1.5px;line-height:1}
-.stat-kpi-lbl{font-size:12px;color:var(--text-secondary);margin-top:5px}
+/* ── Période selector ───────────────────────────────────── */
+.period-bar{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.period-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.period-btn.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+
+/* ── KPI grid ───────────────────────────────────────────── */
+.stat-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:860px){.stat-kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.stat-kpi-grid{grid-template-columns:1fr 1fr}}
+.stat-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-card);position:relative;overflow:hidden}
+.stat-kpi-val{font-size:30px;font-weight:700;color:var(--text);letter-spacing:-1.5px;line-height:1}
+.stat-kpi-lbl{font-size:11.5px;color:var(--text-secondary);margin-top:5px}
+.stat-kpi-sub{font-size:10.5px;color:var(--text-tertiary);margin-top:3px}
 .stat-kpi-val.red{color:#dc2626}
 .stat-kpi-val.green{color:#16a34a}
 .stat-kpi-val.indigo{color:#6366f1}
+.stat-kpi-val.amber{color:#d97706}
+.stat-kpi-accent{position:absolute;bottom:0;left:0;right:0;height:3px}
 
-/* ── Stat cards grid ────────────────────────────────────── */
+/* ── Charts grid ────────────────────────────────────────── */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 @media(max-width:720px){.stat-grid{grid-template-columns:1fr}}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-card)}
-.stat-card-full{margin-bottom:16px}
+.stat-card-full{margin-bottom:12px}
 .stat-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px}
 .stat-card-title i{color:var(--indigo);font-size:15px}
+.stat-card-title .title-sub{font-size:11px;font-weight:400;color:var(--text-tertiary);margin-left:auto}
 
 /* ── Bar rows ───────────────────────────────────────────── */
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .bar-row:last-child{margin-bottom:0}
 .bar-label{font-size:12px;color:var(--text-secondary);min-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
-.bar-track{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.bar-track{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;display:flex}
 .bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.bar-fill-b{height:100%;border-radius:0 4px 4px 0;transition:width .5s cubic-bezier(.4,0,.2,1)}
 .bar-count{font-size:11.5px;font-weight:600;color:var(--text);min-width:28px;text-align:right;flex-shrink:0}
 
 /* ── Monthly chart ──────────────────────────────────────── */
-.month-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:4px}
-.month-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.month-chart{display:flex;align-items:flex-end;gap:4px;height:90px;margin-top:8px}
+.month-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
 .month-bar-wrap{flex:1;display:flex;align-items:flex-end;width:100%}
-.month-bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;background:#6366f1;transition:height .5s cubic-bezier(.4,0,.2,1)}
-.month-label{font-size:9.5px;color:var(--text-tertiary);font-weight:500;text-align:center}
+.month-bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;background:var(--indigo,#6366f1);transition:height .5s cubic-bezier(.4,0,.2,1)}
+.month-label{font-size:9px;color:var(--text-tertiary);font-weight:500;text-align:center}
 .month-val{font-size:10px;font-weight:700;color:var(--text-secondary)}
+
+/* ── Gauge ──────────────────────────────────────────────── */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:4px 0 0}
+.gauge-arc{position:relative;width:100px;height:52px;overflow:hidden;margin-bottom:6px}
+.gauge-arc svg{position:absolute;top:0;left:0}
+.gauge-pct{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:18px;font-weight:700;color:var(--text)}
+.gauge-lbl{font-size:11px;color:var(--text-tertiary)}
 
 /* ── Sync bar ───────────────────────────────────────────── */
 .stat-sync{font-size:11px;color:var(--text-tertiary);margin-bottom:14px;display:flex;align-items:center;gap:6px}
@@ -55,6 +72,9 @@
 /* ── Skeleton ───────────────────────────────────────────── */
 .sk{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:sk-pulse 1.2s infinite}
 @keyframes sk-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── Empty ──────────────────────────────────────────────── */
+.chart-empty{font-size:12px;color:var(--text-tertiary);padding:16px 0;text-align:center}
 </style>
 </head>
 <body>
@@ -117,15 +137,25 @@
       <span id="stat-sync-lbl">Chargement…</span>
     </div>
 
-    <!-- KPIs -->
-    <div class="stat-kpi-grid" id="kpi-grid">
-      <div class="stat-kpi"><div class="sk" style="height:32px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
-      <div class="stat-kpi"><div class="sk" style="height:32px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
-      <div class="stat-kpi"><div class="sk" style="height:32px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
-      <div class="stat-kpi"><div class="sk" style="height:32px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+    <!-- Période -->
+    <div class="period-bar" id="period-bar">
+      <button class="period-btn" data-days="30"  onclick="setPeriod(30)">30 jours</button>
+      <button class="period-btn" data-days="90"  onclick="setPeriod(90)">90 jours</button>
+      <button class="period-btn" data-days="365" onclick="setPeriod(365)">1 an</button>
+      <button class="period-btn active" data-days="0" onclick="setPeriod(0)">Tout</button>
     </div>
 
-    <!-- Charts 2-col -->
+    <!-- KPIs — 2 lignes de 3 -->
+    <div class="stat-kpi-grid" id="kpi-grid">
+      <div class="stat-kpi"><div class="sk" style="height:30px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+      <div class="stat-kpi"><div class="sk" style="height:30px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+      <div class="stat-kpi"><div class="sk" style="height:30px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+      <div class="stat-kpi"><div class="sk" style="height:30px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+      <div class="stat-kpi"><div class="sk" style="height:30px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+      <div class="stat-kpi"><div class="sk" style="height:30px;width:50px;border-radius:6px;margin-bottom:6px"></div><div class="sk" style="height:10px;width:80px;border-radius:4px"></div></div>
+    </div>
+
+    <!-- Row 1 : marque + type -->
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-card-title"><i class="ti ti-brand-angular"></i>Par marque</div>
@@ -135,19 +165,29 @@
         <div class="stat-card-title"><i class="ti ti-tag"></i>Par type de demande</div>
         <div id="chart-type"></div>
       </div>
+    </div>
+
+    <!-- Row 2 : statut + assigné (charge split) -->
+    <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-card-title"><i class="ti ti-circle-dot"></i>Par statut</div>
         <div id="chart-statut"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-title"><i class="ti ti-users"></i>Par assigné</div>
+        <div class="stat-card-title"><i class="ti ti-users"></i>Charge par personne <span class="title-sub">actifs · livrés</span></div>
         <div id="chart-assignee"></div>
       </div>
     </div>
 
-    <!-- Évolution mensuelle -->
+    <!-- Row 3 : retard par type (full width) -->
     <div class="stat-card stat-card-full">
-      <div class="stat-card-title"><i class="ti ti-trending-up"></i>Briefs soumis par mois <span style="font-size:11px;font-weight:400;color:var(--text-tertiary);margin-left:4px">(6 derniers mois)</span></div>
+      <div class="stat-card-title"><i class="ti ti-alert-triangle"></i>Taux de retard par type <span class="title-sub">% de briefs hors délai</span></div>
+      <div id="chart-retard-type"></div>
+    </div>
+
+    <!-- Row 4 : évolution mensuelle -->
+    <div class="stat-card stat-card-full">
+      <div class="stat-card-title"><i class="ti ti-trending-up"></i>Briefs soumis par mois <span class="title-sub" id="monthly-period-lbl">12 derniers mois</span></div>
       <div class="month-chart" id="chart-monthly"></div>
     </div>
 
@@ -177,11 +217,11 @@ const sbClient = (typeof window.supabase !== 'undefined')
   : null;
 
 const TEAM_MEMBERS = [
-  { id:'unassigned', name:'Non assigné' },
-  { id:'karim',     name:'Karim'   },
-  { id:'heifa',     name:'Heifa'   },
-  { id:'emilie',    name:'Émilie'  },
-  { id:'ndieumbe',  name:'Ndieumbe'},
+  { id:'unassigned', name:'Non assigné',  color:'#9ca3af' },
+  { id:'karim',      name:'Karim',        color:'#6366f1' },
+  { id:'heifa',      name:'Heifa',        color:'#ec4899' },
+  { id:'emilie',     name:'Émilie',       color:'#f59e0b' },
+  { id:'ndieumbe',   name:'Ndieumbe',     color:'#10b981' },
 ];
 
 const STATUS_LABELS = { soumis:'Soumis', encours:'En cours', simulation:'Simulation', valide:'Validé', livre:'Livré' };
@@ -193,27 +233,38 @@ const TYPE_LABELS   = {
   'Vitrophanie / Travaux':'Vitrophanie / Travaux', 'Autre demande':'Autre demande'
 };
 
+let _allBriefs = [];
+let _periodDays = 0; // 0 = tout
+
 /* ── Helpers ────────────────────────────────────────────── */
 function setSyncState(state, msg) {
   const dot = document.getElementById('stat-sync-dot');
   const lbl = document.getElementById('stat-sync-lbl');
-  if (dot) { dot.className = 'stat-sync-dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : ''); }
+  if (dot) dot.className = 'stat-sync-dot' + (state==='ok'?' ok':state==='err'?' err':'');
   if (lbl) lbl.textContent = msg;
 }
 
-function getStatuts() {
-  try { return JSON.parse(localStorage.getItem(STATUS_KEY)||'{}'); } catch(e) { return {}; }
-}
+function getStatuts() { try { return JSON.parse(localStorage.getItem(STATUS_KEY)||'{}'); } catch(e) { return {}; } }
 function getStatut(id) { return getStatuts()[id] || 'soumis'; }
-function getAssignments() {
-  try { return JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}'); } catch(e) { return {}; }
+function getAssignments() { try { return JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}'); } catch(e) { return {}; } }
+function getLocalHistory() {
+  try { const r = JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); return Array.isArray(r) ? r.filter(b=>b.briefId) : []; }
+  catch(e) { return []; }
 }
 
-function getLocalHistory() {
-  try {
-    const raw = JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
-    return Array.isArray(raw) ? raw.filter(b => b.briefId) : [];
-  } catch(e) { return []; }
+function setPeriod(days) {
+  _periodDays = days;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('active', +b.dataset.days === days));
+  renderStats(computeStats(filteredBriefs()));
+}
+
+function filteredBriefs() {
+  if (!_periodDays) return _allBriefs;
+  const cutoff = Date.now() - _periodDays * 86400000;
+  return _allBriefs.filter(b => {
+    if (!b.submittedAt) return false;
+    try { return new Date(b.submittedAt).getTime() >= cutoff; } catch(e) { return false; }
+  });
 }
 
 /* ── Data loading ───────────────────────────────────────── */
@@ -222,13 +273,15 @@ async function fetchBriefs() {
     try {
       const { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, submitted_at, marque')
+        .select('data, statut, submitted_at, marque, assigned_to, statut_history')
         .order('submitted_at', { ascending: false });
       if (error) throw new Error(error.message);
       const data = (rows||[]).map(row => ({
         ...row.data,
-        statut: row.statut || row.data?.statut || 'soumis',
-        _marqueId: row.marque || null,
+        statut:         row.statut           || row.data?.statut || 'soumis',
+        _marqueId:      row.marque           || null,
+        assigned_to:    row.assigned_to      || row.data?.assigned_to || null,
+        statut_history: row.statut_history   || row.data?.statut_history || [],
       })).filter(b => b.briefId);
       if (data.length > 0) return { data, status: 'supabase' };
     } catch(e) { console.warn('[Stats] Supabase:', e.message); }
@@ -246,21 +299,21 @@ async function fetchBriefs() {
 }
 
 /* ── Stats computation ──────────────────────────────────── */
-function count(arr, key, val) { return arr.filter(b => (b[key]||'') === val).length; }
-
 function computeStats(briefs) {
-  const statuts   = getStatuts();
-  const assigns   = getAssignments();
-  const today     = new Date(); today.setHours(0,0,0,0);
+  const statuts = getStatuts();
+  const assigns = getAssignments();
+  const today   = new Date(); today.setHours(0,0,0,0);
 
-  const getS = id => statuts[id] || 'soumis';
-  const isLivré = b => { const s = getS(b.briefId); return s === 'livre' || s === 'valide'; };
+  const getS    = b => b.statut || statuts[b.briefId] || 'soumis';
+  const isLivré = b => { const s = getS(b); return s === 'livre' || s === 'valide'; };
+  const isActive = b => !isLivré(b);
 
-  const total   = briefs.length;
-  const livrés  = briefs.filter(isLivré).length;
-  const actifs  = total - livrés;
+  const total  = briefs.length;
+  const livrés = briefs.filter(isLivré).length;
+  const actifs = total - livrés;
+  const txLiv  = total ? Math.round(livrés / total * 100) : 0;
 
-  // En retard : deadline dépassée, non livré
+  // En retard
   const enRetard = briefs.filter(b => {
     if (isLivré(b)) return false;
     const dates = [b.dateRetourSimul, b.dateLancement, b.dateValidation]
@@ -270,63 +323,79 @@ function computeStats(briefs) {
     return dates.some(d => d < today);
   }).length;
 
-  // Par marque — utilise _marqueId (slug depuis colonne Supabase)
-  const marques = { bnw: 0, marquise: 0, pokawa: 0, autre: 0 };
-  briefs.forEach(b => { const m = b._marqueId || 'autre'; if (marques[m] !== undefined) marques[m]++; else marques.autre++; });
+  // Temps de cycle moyen : soumis → (livre ou valide) via statut_history
+  const cycles = [];
+  briefs.forEach(b => {
+    if (!isLivré(b) || !b.submittedAt) return;
+    const hist = Array.isArray(b.statut_history) ? b.statut_history : [];
+    const livreEntry = hist.filter(h => h.to === 'livre' || h.to === 'valide').sort((a,z) => z.ts - a.ts)[0];
+    if (!livreEntry?.ts) return;
+    const days = (livreEntry.ts - new Date(b.submittedAt).getTime()) / 86400000;
+    if (days >= 0 && days < 365) cycles.push(days);
+  });
+  const cycleMoy = cycles.length
+    ? Math.round(cycles.sort((a,b)=>a-b)[Math.floor(cycles.length/2)])  // médiane
+    : null;
+
+  // Urgents actifs
+  const urgents = briefs.filter(b => isActive(b) && b.priorite === 'urgent').length;
+
+  // Par marque
+  const marques = { bnw:0, marquise:0, pokawa:0, autre:0 };
+  briefs.forEach(b => { const m = b._marqueId||'autre'; if(marques[m]!==undefined) marques[m]++; else marques.autre++; });
 
   // Par type
   const types = {};
-  briefs.forEach(b => {
-    const t = b.typeDemande || 'autre';
-    const lbl = TYPE_LABELS[t] || t;
-    types[lbl] = (types[lbl] || 0) + 1;
-  });
+  briefs.forEach(b => { const lbl = TYPE_LABELS[b.typeDemande]||b.typeDemande||'Autre demande'; types[lbl]=(types[lbl]||0)+1; });
 
   // Par statut
   const statsByStatut = {};
+  briefs.forEach(b => { const lbl = STATUS_LABELS[getS(b)]||getS(b); statsByStatut[lbl]=(statsByStatut[lbl]||0)+1; });
+
+  // Charge par personne : { name: { actifs, livrés } }
+  const charge = {};
   briefs.forEach(b => {
-    const s = getS(b.briefId);
-    const lbl = STATUS_LABELS[s] || s;
-    statsByStatut[lbl] = (statsByStatut[lbl] || 0) + 1;
+    const memberId = b.assigned_to || assigns[b.briefId] || 'unassigned';
+    const member = TEAM_MEMBERS.find(m=>m.id===memberId) || { name: memberId, color:'#9ca3af' };
+    if (!charge[member.name]) charge[member.name] = { actifs:0, livrés:0, color: member.color };
+    if (isLivré(b)) charge[member.name].livrés++;
+    else            charge[member.name].actifs++;
   });
 
-  // Par assigné
-  const statsByAssignee = {};
+  // Retard par type
+  const retardByType = {};
   briefs.forEach(b => {
-    const memberId = assigns[b.briefId] || 'unassigned';
-    const member = TEAM_MEMBERS.find(m => m.id === memberId);
-    const name = member ? member.name : memberId;
-    statsByAssignee[name] = (statsByAssignee[name] || 0) + 1;
+    const lbl = TYPE_LABELS[b.typeDemande]||b.typeDemande||'Autre demande';
+    if (!retardByType[lbl]) retardByType[lbl] = { total:0, retard:0 };
+    retardByType[lbl].total++;
+    if (!isLivré(b)) {
+      const dates = [b.dateRetourSimul, b.dateLancement, b.dateValidation]
+        .filter(d=>d&&d!=='—').map(d=>{try{const x=new Date(d);x.setHours(0,0,0,0);return x;}catch(e){return null;}}).filter(Boolean);
+      if (dates.some(d=>d<today)) retardByType[lbl].retard++;
+    }
   });
 
-  // Par mois (6 derniers mois)
+  // Par mois (12 derniers)
   const now = new Date();
   const months = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({
-      label: d.toLocaleDateString('fr-FR', { month: 'short' }),
-      year: d.getFullYear(),
-      month: d.getMonth(),
-      count: 0,
-    });
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    months.push({ label: d.toLocaleDateString('fr-FR',{month:'short'}), year:d.getFullYear(), month:d.getMonth(), count:0 });
   }
   briefs.forEach(b => {
     if (!b.submittedAt) return;
-    try {
-      const d = new Date(b.submittedAt);
-      const m = months.find(x => x.year === d.getFullYear() && x.month === d.getMonth());
-      if (m) m.count++;
-    } catch(e) {}
+    try { const d=new Date(b.submittedAt); const m=months.find(x=>x.year===d.getFullYear()&&x.month===d.getMonth()); if(m) m.count++; }
+    catch(e) {}
   });
 
-  return { total, actifs, livrés, enRetard, marques, types, statsByStatut, statsByAssignee, months };
+  return { total, actifs, livrés, txLiv, enRetard, urgents, cycleMoy, marques, types, statsByStatut, charge, retardByType, months };
 }
 
 /* ── Render helpers ─────────────────────────────────────── */
 function barChart(container, rows, maxVal, colorFn) {
   if (!container) return;
-  const max = maxVal || Math.max(...rows.map(r => r.val), 1);
+  if (!rows.length) { container.innerHTML = '<div class="chart-empty">Aucune donnée</div>'; return; }
+  const max = maxVal || Math.max(...rows.map(r=>r.val), 1);
   container.innerHTML = rows.map(r => `
     <div class="bar-row">
       <div class="bar-label" title="${r.label}">${r.label}</div>
@@ -335,8 +404,43 @@ function barChart(container, rows, maxVal, colorFn) {
     </div>`).join('');
 }
 
-function kpiCard(val, lbl, colorClass) {
-  return `<div class="stat-kpi"><div class="stat-kpi-val ${colorClass||''}">${val}</div><div class="stat-kpi-lbl">${lbl}</div></div>`;
+function splitBarChart(container, rows) {
+  if (!container) return;
+  if (!rows.length) { container.innerHTML = '<div class="chart-empty">Aucune donnée</div>'; return; }
+  const max = Math.max(...rows.map(r=>r.actifs+r.livrés), 1);
+  container.innerHTML = rows.map(r => {
+    const pA = Math.round(r.actifs/max*100);
+    const pL = Math.round(r.livrés/max*100);
+    return `<div class="bar-row">
+      <div class="bar-label" title="${r.name}">${r.name}</div>
+      <div class="bar-track" title="${r.actifs} actifs · ${r.livrés} livrés">
+        <div class="bar-fill"   style="width:${pA}%;background:${r.color}"></div>
+        <div class="bar-fill-b" style="width:${pL}%;background:#22c55e;opacity:.55"></div>
+      </div>
+      <div class="bar-count" style="color:${r.color}">${r.actifs}<span style="color:#9ca3af;font-weight:400"> +${r.livrés}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function retardChart(container, data) {
+  if (!container) return;
+  const rows = Object.entries(data).filter(([,v])=>v.total>0).sort((a,b)=>b[1].retard/b[1].total - a[1].retard/a[1].total);
+  if (!rows.length) { container.innerHTML = '<div class="chart-empty">Aucune donnée</div>'; return; }
+  container.innerHTML = rows.map(([lbl, v]) => {
+    const pct = Math.round(v.retard / v.total * 100);
+    const color = pct >= 40 ? '#dc2626' : pct >= 20 ? '#d97706' : '#22c55e';
+    return `<div class="bar-row">
+      <div class="bar-label" title="${lbl}">${lbl}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-count" style="color:${color}">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function kpiCard(val, lbl, colorClass, sub, accentColor) {
+  const accent = accentColor ? `<div class="stat-kpi-accent" style="background:${accentColor}"></div>` : '';
+  const subHtml = sub ? `<div class="stat-kpi-sub">${sub}</div>` : '';
+  return `<div class="stat-kpi">${accent}<div class="stat-kpi-val ${colorClass||''}">${val}</div><div class="stat-kpi-lbl">${lbl}</div>${subHtml}</div>`;
 }
 
 /* ── Render stats ───────────────────────────────────────── */
@@ -344,45 +448,58 @@ function renderStats(s) {
   // KPIs
   const grid = document.getElementById('kpi-grid');
   if (grid) grid.innerHTML =
-    kpiCard(s.total,      'Briefs au total',    'indigo') +
-    kpiCard(s.actifs,     'Briefs actifs',       '') +
-    kpiCard(s.livrés,     'Livrés / validés',   'green') +
-    kpiCard(s.enRetard,   'En retard',           s.enRetard > 0 ? 'red' : '');
+    kpiCard(s.total,    'Briefs au total',       'indigo',  null,                  '#6366f1') +
+    kpiCard(s.actifs,   'Briefs actifs',          '',        null,                  '#8b5cf6') +
+    kpiCard(s.livrés,   'Livrés / validés',       'green',   null,                  '#22c55e') +
+    kpiCard(s.enRetard, 'En retard',              s.enRetard>0?'red':'',  null,     s.enRetard>0?'#dc2626':'#9ca3af') +
+    kpiCard(`${s.txLiv}%`, 'Taux de livraison',  s.txLiv>=70?'green':s.txLiv>=40?'amber':'red', null, s.txLiv>=70?'#22c55e':s.txLiv>=40?'#f59e0b':'#dc2626') +
+    kpiCard(
+      s.cycleMoy !== null ? `${s.cycleMoy}j` : '—',
+      'Délai médian livraison',
+      s.cycleMoy !== null ? (s.cycleMoy<=7?'green':s.cycleMoy<=21?'':'red') : '',
+      s.cycleMoy !== null ? `sur ${s.livrés} brief${s.livrés>1?'s':''} livrés` : 'Pas encore de données',
+      '#6366f1'
+    );
 
   // Marques
   barChart(document.getElementById('chart-marque'), [
-    { label: 'Black & White', val: s.marques.bnw },
-    { label: 'Maison Marquise', val: s.marques.marquise },
-    { label: 'Pokawa', val: s.marques.pokawa },
-    { label: 'Autre', val: s.marques.autre },
-  ].filter(r => r.val > 0), null, r =>
-    r.label === 'Black & White' ? '#111' :
-    r.label === 'Maison Marquise' ? '#a84f2a' :
-    r.label === 'Pokawa' ? '#16a34a' : '#6B7280');
+    { label:'Black & White', val:s.marques.bnw },
+    { label:'Maison Marquise', val:s.marques.marquise },
+    { label:'Pokawa', val:s.marques.pokawa },
+    { label:'Autre', val:s.marques.autre },
+  ].filter(r=>r.val>0), null,
+    r => r.label==='Black & White'?'#111':r.label==='Maison Marquise'?'#a84f2a':r.label==='Pokawa'?'#16a34a':'#6B7280');
 
   // Types
-  const typeRows = Object.entries(s.types).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
-  barChart(document.getElementById('chart-type'), typeRows, null, ()=>'#6366f1');
+  barChart(document.getElementById('chart-type'),
+    Object.entries(s.types).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val})),
+    null, ()=>'#6366f1');
 
   // Statuts
-  const statutColors = { 'Soumis':'#6b7280', 'En cours':'#6366f1', 'Simulation':'#8b5cf6', 'Validé':'#059669', 'Livré':'#16a34a' };
-  const statutRows = Object.entries(s.statsByStatut).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
-  barChart(document.getElementById('chart-statut'), statutRows, null, r => statutColors[r.label] || '#6366f1');
+  const statutColors = { 'Soumis':'#6b7280','En cours':'#6366f1','Simulation':'#8b5cf6','Validé':'#059669','Livré':'#16a34a' };
+  barChart(document.getElementById('chart-statut'),
+    Object.entries(s.statsByStatut).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val})),
+    null, r=>statutColors[r.label]||'#6366f1');
 
-  // Assignés
-  const assigneeRows = Object.entries(s.statsByAssignee).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
-  const assigneeColors = { 'Karim':'#6366f1','Heifa':'#ec4899','Émilie':'#f59e0b','Ndieumbe':'#10b981','Non assigné':'#9ca3af' };
-  barChart(document.getElementById('chart-assignee'), assigneeRows, null, r => assigneeColors[r.label] || '#6366f1');
+  // Charge par personne (split)
+  const chargeRows = Object.entries(s.charge)
+    .filter(([,v])=>v.actifs+v.livrés>0)
+    .sort((a,b)=>(b[1].actifs+b[1].livrés)-(a[1].actifs+a[1].livrés))
+    .map(([name,v])=>({name, ...v}));
+  splitBarChart(document.getElementById('chart-assignee'), chargeRows);
 
-  // Mensuel
+  // Retard par type
+  retardChart(document.getElementById('chart-retard-type'), s.retardByType);
+
+  // Mensuel (12 mois)
   const monthly = document.getElementById('chart-monthly');
   if (monthly) {
     const maxM = Math.max(...s.months.map(m=>m.count), 1);
     monthly.innerHTML = s.months.map(m => `
       <div class="month-col">
-        <div class="month-val">${m.count || ''}</div>
+        <div class="month-val">${m.count||''}</div>
         <div class="month-bar-wrap">
-          <div class="month-bar" style="height:${Math.round(m.count/maxM*72)+4}px;opacity:${m.count>0?1:.15}"></div>
+          <div class="month-bar" style="height:${Math.round(m.count/maxM*82)+3}px;opacity:${m.count>0?1:.12}"></div>
         </div>
         <div class="month-label">${m.label}</div>
       </div>`).join('');
@@ -395,45 +512,35 @@ async function loadStats() {
 
   const { data: remote, status } = await fetchBriefs();
   const local = getLocalHistory();
-  const remoteIds = new Set(remote.map(b => b.briefId));
-  const all = [...remote, ...local.filter(b => b.briefId && !remoteIds.has(b.briefId))];
+  const remoteIds = new Set(remote.map(b=>b.briefId));
+  _allBriefs = [...remote, ...local.filter(b=>b.briefId&&!remoteIds.has(b.briefId))];
 
-  const src = status === 'supabase' ? 'Supabase' : status === 'github' ? 'GitHub JSON' : 'Local uniquement';
-  const t = new Date().toLocaleTimeString('fr-BE', {hour:'2-digit',minute:'2-digit'});
-  setSyncState(all.length > 0 ? 'ok' : 'err', `${all.length} brief${all.length>1?'s':''} · ${src} · ${t}`);
+  const src = status==='supabase'?'Supabase':status==='github'?'GitHub JSON':'Local uniquement';
+  const t = new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+  setSyncState(_allBriefs.length>0?'ok':'err', `${_allBriefs.length} brief${_allBriefs.length>1?'s':''} · ${src} · ${t}`);
 
-  if (all.length === 0) {
+  if (!_allBriefs.length) {
     document.getElementById('kpi-grid').innerHTML =
       '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-tertiary);font-size:13px"><i class="ti ti-database-off" style="font-size:28px;display:block;margin-bottom:8px;opacity:.4"></i>Aucun brief chargé — vérifiez la connexion.</div>';
     return;
   }
 
-  renderStats(computeStats(all));
+  renderStats(computeStats(filteredBriefs()));
 }
 
 async function loadUserProfile() {
   if (!sbClient) return;
   const { data: { user } } = await sbClient.auth.getUser();
   if (!user) { window.location.replace('login.html'); return; }
-  const { data: profile } = await sbClient
-    .from('bw_profiles')
-    .select('role,nom,avatar_url')
-    .eq('id', user.id)
-    .single();
-  const nom = (profile?.nom) || user.email?.split('@')[0] || '—';
-  const initials = nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const { data: profile } = await sbClient.from('bw_profiles').select('role,nom,avatar_url').eq('id', user.id).single();
+  const nom = profile?.nom || user.email?.split('@')[0] || '—';
+  const initials = nom.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const avEl = document.getElementById('snav-user-av');
-  if (avEl) {
-    if (profile?.avatar_url) {
-      avEl.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-    } else {
-      avEl.textContent = initials;
-    }
-  }
+  if (avEl) { profile?.avatar_url ? (avEl.innerHTML=`<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`) : (avEl.textContent=initials); }
   const nameEl = document.getElementById('snav-user-name');
   const roleEl = document.getElementById('snav-user-role');
   if (nameEl) nameEl.textContent = nom;
-  if (roleEl) roleEl.textContent = profile?.role === 'studio' ? 'Studio Admin' : 'Demandeur';
+  if (roleEl) roleEl.textContent = profile?.role==='studio'?'Studio Admin':'Demandeur';
 }
 
 (async () => {
