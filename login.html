@@ -1,335 +1,311 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BW Brief Studio — Connexion</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#0a0a0a;
-    --surface:#141414;
-    --border:#2a2a2a;
-    --accent:#DFFF00;
-    --text:#f0f0f0;
-    --text-sec:#888;
-    --radius:12px;
-    --err:#ff4d4d;
-  }
-  body{
-    font-family:'Inter',sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-  }
-
-  .login-wrap{
-    width:100%;
-    max-width:400px;
-    display:flex;
-    flex-direction:column;
-    gap:32px;
-  }
-
-  .brand{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:8px;
-    text-align:center;
-  }
-  .brand-logo{
-    width:52px;height:52px;
-    background:var(--accent);
-    border-radius:14px;
-    display:flex;align-items:center;justify-content:center;
-    font-weight:700;font-size:20px;color:#000;letter-spacing:-0.5px;
-  }
-  .brand h1{
-    font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.4px;
-  }
-  .brand p{
-    font-size:13px;color:var(--text-sec);
-  }
-
-  .card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:28px;
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-  }
-
-  .field{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }
-  .field label{
-    font-size:12.5px;font-weight:500;color:#ccc;
-  }
-  .field input{
-    background:#1e1e1e;
-    border:1.5px solid var(--border);
-    border-radius:8px;
-    padding:11px 14px;
-    font-size:14px;font-family:inherit;
-    color:var(--text);
-    outline:none;
-    transition:border-color .15s;
-    width:100%;
-  }
-  .field input:focus{border-color:var(--accent);}
-  .field input::placeholder{color:#555;}
-
-  .btn-submit{
-    background:var(--accent);
-    color:#000;
-    border:none;
-    border-radius:8px;
-    padding:12px 20px;
-    font-size:14px;font-weight:600;font-family:inherit;
-    cursor:pointer;
-    width:100%;
-    transition:opacity .15s;
-    display:flex;align-items:center;justify-content:center;gap:8px;
-  }
-  .btn-submit:hover{opacity:.88;}
-  .btn-submit:disabled{opacity:.4;cursor:not-allowed;}
-
-  .error-msg{
-    background:#2a0a0a;
-    border:1px solid #5a1a1a;
-    border-radius:8px;
-    padding:10px 14px;
-    font-size:13px;color:var(--err);
-    display:none;
-  }
-  .error-msg.show{display:block;}
-
-  .footer-note{
-    text-align:center;
-    font-size:12px;color:var(--text-sec);
-  }
-
-  .spinner{
-    width:16px;height:16px;
-    border:2px solid rgba(0,0,0,.3);
-    border-top-color:#000;
-    border-radius:50%;
-    animation:spin .6s linear infinite;
-    display:none;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BW Studio — Accès</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.7);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: #DFFF00;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #000;
+      letter-spacing: -.5px;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: #f0f0f0; }
+    .logo-sub  { font-size: 11px; color: #444; }
+    h1 { font-size: 20px; font-weight: 700; color: #f0f0f0; margin-bottom: 6px; }
+    .subtitle { font-size: 13px; color: #555; margin-bottom: 28px; line-height: 1.5; }
+    label { display: block; font-size: 12px; font-weight: 500; color: #888; margin-bottom: 6px; }
+    input[type="password"], input[type="email"] {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1.5px solid #252525;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 14px;
+      color: #f0f0f0;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+    }
+    input:focus { border-color: rgba(223,255,0,.4); }
+    .field { margin-bottom: 14px; }
+    .strength-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: #1e1e1e;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width .3s, background .3s;
+      width: 0;
+    }
+    .strength-label { font-size: 11px; color: #444; margin-top: 4px; }
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: #DFFF00;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #000;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 20px;
+      transition: opacity .15s;
+    }
+    .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+    .error { color: #ff4d4d; font-size: 12.5px; margin-top: 12px; min-height: 16px; }
+    .success-state { text-align: center; }
+    .success-icon {
+      width: 56px;
+      height: 56px;
+      background: rgba(74,222,128,.12);
+      border: 1px solid rgba(74,222,128,.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 24px;
+      color: #4ade80;
+    }
+    .success-state h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .success-state p { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 24px; }
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: #DFFF00;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #000;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .error-state { text-align: center; }
+    .error-icon {
+      width: 56px;
+      height: 56px;
+      background: rgba(255,77,77,.1);
+      border: 1px solid rgba(255,77,77,.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 24px;
+      color: #ff4d4d;
+    }
+  </style>
 </head>
 <body>
-
-<div class="login-wrap">
-  <div class="brand">
-    <div class="brand-logo">BW</div>
-    <h1>Brief Studio</h1>
-    <p>Accès réservé à l'équipe BW</p>
-  </div>
-
-  <div class="card">
-    <div class="field">
-      <label for="email">Adresse email</label>
-      <input type="email" id="email" placeholder="vous@bnwburger.com" autocomplete="email">
-    </div>
-    <div class="field">
-      <label for="password">Mot de passe</label>
-      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <div class="error-msg" id="error-msg"></div>
-    <button class="btn-submit" id="btn-login" onclick="doLogin()">
-      <div class="spinner" id="spinner"></div>
-      <span id="btn-label">Se connecter</span>
-    </button>
-    <div style="text-align:center;margin-top:4px">
-      <button onclick="toggleForgot()" style="background:none;border:none;color:#888;font-size:12px;font-family:inherit;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:2px">
-        Mot de passe oublié ?
-      </button>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">BW</div>
+    <div>
+      <div class="logo-text">Studio Créatif</div>
+      <div class="logo-sub">Multi-marques</div>
     </div>
   </div>
 
-  <!-- Forgot password section (hidden by default) -->
-  <div class="card" id="forgot-card" style="display:none">
-    <div style="font-size:14px;font-weight:600;color:#ccc;margin-bottom:-8px">Réinitialiser le mot de passe</div>
-    <div class="field">
-      <label for="forgot-email">Adresse email</label>
-      <input type="email" id="forgot-email" placeholder="vous@bnwburger.com" autocomplete="email"
-        onkeydown="if(event.key==='Enter')doForgot()">
-    </div>
-    <div class="error-msg" id="forgot-error"></div>
-    <div id="forgot-success" style="display:none;background:#0a2a0a;border:1px solid #1a5a1a;border-radius:8px;padding:10px 14px;font-size:13px;color:#4caf50"></div>
-    <button class="btn-submit" id="btn-forgot" onclick="doForgot()">
-      <div class="spinner" id="forgot-spinner"></div>
-      <span id="forgot-label">Envoyer le lien</span>
-    </button>
-    <div style="text-align:center;margin-top:-8px">
-      <button onclick="toggleForgot()" style="background:none;border:none;color:#888;font-size:12px;font-family:inherit;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:2px">
-        ← Retour à la connexion
-      </button>
-    </div>
+  <!-- État : chargement -->
+  <div id="state-loading">
+    <div style="text-align:center;color:#444;font-size:13px;padding:20px 0">Vérification du lien…</div>
   </div>
 
-  <!-- Set password (invite / recovery flow) -->
-  <div class="card" id="set-password-card" style="display:none;flex-direction:column;gap:20px">
-    <div id="set-password-title" style="font-size:14px;font-weight:600;color:#ccc">Choisir un mot de passe</div>
+  <!-- État : définir le mot de passe -->
+  <div id="state-setpwd" style="display:none">
+    <h1>Définissez votre mot de passe</h1>
+    <p class="subtitle">Choisissez un mot de passe sécurisé pour accéder au Studio.</p>
     <div class="field">
-      <label for="new-password">Nouveau mot de passe</label>
-      <input type="password" id="new-password" placeholder="8 caractères minimum"
-        onkeydown="if(event.key==='Enter')doSetPassword()">
+      <label for="pwd1">Mot de passe</label>
+      <input type="password" id="pwd1" placeholder="Minimum 8 caractères" oninput="checkStrength(this.value)">
+      <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+      <div class="strength-label" id="strength-label"></div>
     </div>
     <div class="field">
-      <label for="new-password2">Confirmer le mot de passe</label>
-      <input type="password" id="new-password2" placeholder="••••••••"
-        onkeydown="if(event.key==='Enter')doSetPassword()">
+      <label for="pwd2">Confirmer le mot de passe</label>
+      <input type="password" id="pwd2" placeholder="Répétez le mot de passe">
     </div>
-    <div class="error-msg" id="set-pw-error"></div>
-    <button class="btn-submit" id="btn-set-pw" onclick="doSetPassword()">
-      <div class="spinner" id="set-pw-spinner"></div>
-      <span id="set-pw-label">Confirmer</span>
-    </button>
+    <div class="error" id="pwd-error"></div>
+    <button class="btn-primary" id="pwd-btn" onclick="submitPassword()">Enregistrer et accéder</button>
   </div>
 
-  <p class="footer-note">Pas encore de compte ? Contactez l'équipe studio.</p>
+  <!-- État : succès -->
+  <div id="state-success" style="display:none" class="success-state">
+    <div class="success-icon"><i class="ti ti-check"></i></div>
+    <h2>Mot de passe défini !</h2>
+    <p>Votre compte est prêt. Vous pouvez maintenant soumettre vos demandes au Studio.</p>
+    <a href="index.html" class="btn-link"><i class="ti ti-arrow-right"></i> Accéder au formulaire</a>
+  </div>
+
+  <!-- État : lien invalide / expiré -->
+  <div id="state-error" style="display:none" class="error-state">
+    <div class="error-icon"><i class="ti ti-link-off"></i></div>
+    <h2 style="font-size:17px;margin-bottom:8px">Lien expiré ou invalide</h2>
+    <p style="font-size:13px;color:#555;line-height:1.6;margin-bottom:24px">
+      Ce lien n'est utilisable qu'une seule fois et expire après 24 h.<br>
+      Demandez à votre administrateur de vous renvoyer une invitation.
+    </p>
+    <a href="index.html" style="font-size:13px;color:#555;text-decoration:none">← Retour à l'accueil</a>
+  </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.6/dist/umd/supabase.js"></script>
 <script>
-  const SUPABASE_URL = 'https://zpapoywzilwubjglhsmu.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_PhHq5kbGxyntZ8JlSumImA_pqzR8tKL';
-  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+'use strict';
 
-  const _nextPage = new URLSearchParams(location.search).get('next') || 'dashboard.html';
+const SUPABASE_URL      = 'https://zpapoywzilwubjglhsmu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_PhHq5kbGxyntZ8JlSumImA_pqzR8tKL';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Detect invite / recovery token in hash fragment
-  (async () => {
-    const hash = new URLSearchParams(window.location.hash.slice(1));
-    const type = hash.get('type');
-    if (type === 'invite' || type === 'recovery') {
-      // Supabase has already established the session from the hash
-      const { data: { session } } = await sbClient.auth.getSession();
-      if (session) {
-        // Hide login/forgot cards, show set-password card
-        document.querySelector('.card').style.display = 'none';
-        document.getElementById('forgot-card').style.display = 'none';
-        const spCard = document.getElementById('set-password-card');
-        spCard.style.display = 'flex';
-        if (type === 'invite') {
-          document.getElementById('set-password-title').textContent = 'Bienvenue ! Choisissez votre mot de passe';
-        }
-        document.getElementById('new-password').focus();
-        // Clear hash without reload
-        history.replaceState(null, '', location.pathname + location.search);
-      }
-      return;
-    }
-    const { data: { session } } = await sbClient.auth.getSession();
-    if (session) window.location.href = _nextPage;
-  })();
+function show(id) {
+  ['state-loading','state-setpwd','state-success','state-error'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+}
 
-  const emailEl    = document.getElementById('email');
-  const passEl     = document.getElementById('password');
-  const btnLogin   = document.getElementById('btn-login');
-  const errorMsg   = document.getElementById('error-msg');
-  const spinner    = document.getElementById('spinner');
-  const btnLabel   = document.getElementById('btn-label');
+// Parse hash fragment (#access_token=...&refresh_token=...&type=recovery)
+function parseHash() {
+  const hash = window.location.hash.slice(1);
+  const params = {};
+  hash.split('&').forEach(part => {
+    const [k, v] = part.split('=');
+    if (k) params[decodeURIComponent(k)] = decodeURIComponent(v || '');
+  });
+  return params;
+}
 
-  passEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') passEl.focus(); });
+async function init() {
+  const params = parseHash();
 
-  function toggleForgot() {
-    const card = document.getElementById('forgot-card');
-    const loginCard = card.previousElementSibling;
-    const showing = card.style.display !== 'none';
-    card.style.display = showing ? 'none' : 'flex';
-    loginCard.style.display = showing ? 'flex' : 'none';
-    if (!showing) document.getElementById('forgot-email').focus();
+  if (!params.access_token) {
+    // Pas de token — pas d'accès direct
+    show('state-error');
+    return;
   }
 
-  async function doForgot() {
-    const email = document.getElementById('forgot-email').value.trim();
-    const errEl = document.getElementById('forgot-error');
-    const sucEl = document.getElementById('forgot-success');
-    if (!email) { errEl.textContent = 'Saisis ton adresse email.'; errEl.classList.add('show'); return; }
-    errEl.classList.remove('show');
-    sucEl.style.display = 'none';
-    const btn = document.getElementById('btn-forgot');
-    const sp  = document.getElementById('forgot-spinner');
-    const lbl = document.getElementById('forgot-label');
-    btn.disabled = true; sp.style.display = 'block'; lbl.textContent = 'Envoi…';
-    const { error } = await sbClient.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://karim-yc.github.io/brief-bw-studio/login.html'
-    });
-    btn.disabled = false; sp.style.display = 'none'; lbl.textContent = 'Envoyer le lien';
-    if (error) { errEl.textContent = error.message; errEl.classList.add('show'); return; }
-    sucEl.style.display = 'block';
-    sucEl.textContent = '✓ Email envoyé ! Vérifie ta boîte mail et clique sur le lien pour définir ton mot de passe.';
+  if (params.type !== 'recovery' && params.type !== 'invite') {
+    // Token de confirmation (type=signup) — session déjà gérée par Supabase
+    // Rediriger directement vers le formulaire
+    window.location.replace('index.html');
+    return;
   }
 
-  async function doLogin() {
-    const email    = emailEl.value.trim();
-    const password = passEl.value;
-    if (!email || !password) { showError('Remplis tous les champs.'); return; }
+  // Établir la session à partir du token
+  const { error } = await sb.auth.setSession({
+    access_token:  params.access_token,
+    refresh_token: params.refresh_token || ''
+  });
 
-    setLoading(true);
-    hideError();
-
-    const { error } = await sbClient.auth.signInWithPassword({ email, password });
-    if (error) {
-      setLoading(false);
-      showError(friendlyError(error.message));
-      return;
-    }
-    window.location.href = _nextPage;
+  if (error) {
+    show('state-error');
+    return;
   }
 
-  function setLoading(on) {
-    btnLogin.disabled = on;
-    spinner.style.display   = on ? 'block' : 'none';
-    btnLabel.textContent = on ? 'Connexion…' : 'Se connecter';
-  }
-  function showError(msg) { errorMsg.textContent = msg; errorMsg.classList.add('show'); }
-  function hideError()    { errorMsg.classList.remove('show'); }
+  show('state-setpwd');
+}
 
-  function friendlyError(msg) {
-    if (/invalid login/i.test(msg))   return 'Email ou mot de passe incorrect.';
-    if (/email not confirmed/i.test(msg)) return 'Confirme d\'abord ton adresse email (vérifie ta boite mail).';
-    if (/too many/i.test(msg))        return 'Trop de tentatives. Réessaie dans quelques minutes.';
-    return msg;
+function checkStrength(pwd) {
+  const fill  = document.getElementById('strength-fill');
+  const label = document.getElementById('strength-label');
+  if (!pwd) { fill.style.width = '0'; label.textContent = ''; return; }
+  let score = 0;
+  if (pwd.length >= 8)  score++;
+  if (pwd.length >= 12) score++;
+  if (/[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+  const levels = [
+    { pct: '20%', bg: '#ff4d4d', txt: 'Très faible' },
+    { pct: '40%', bg: '#ff7d00', txt: 'Faible' },
+    { pct: '60%', bg: '#facc15', txt: 'Moyen' },
+    { pct: '80%', bg: '#a3e635', txt: 'Fort' },
+    { pct: '100%', bg: '#4ade80', txt: 'Très fort' },
+  ];
+  const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+  fill.style.width = lvl.pct;
+  fill.style.background = lvl.bg;
+  label.textContent = lvl.txt;
+  label.style.color = lvl.bg;
+}
+
+async function submitPassword() {
+  const pwd1  = document.getElementById('pwd1').value;
+  const pwd2  = document.getElementById('pwd2').value;
+  const errEl = document.getElementById('pwd-error');
+  const btn   = document.getElementById('pwd-btn');
+
+  errEl.textContent = '';
+
+  if (pwd1.length < 8) {
+    errEl.textContent = 'Le mot de passe doit faire au moins 8 caractères.';
+    return;
+  }
+  if (pwd1 !== pwd2) {
+    errEl.textContent = 'Les mots de passe ne correspondent pas.';
+    return;
   }
 
-  async function doSetPassword() {
-    const pw1 = document.getElementById('new-password').value;
-    const pw2 = document.getElementById('new-password2').value;
-    const errEl = document.getElementById('set-pw-error');
-    errEl.classList.remove('show');
-    if (pw1.length < 8) { errEl.textContent = 'Le mot de passe doit faire au moins 8 caractères.'; errEl.classList.add('show'); return; }
-    if (pw1 !== pw2) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.classList.add('show'); return; }
-    const btn = document.getElementById('btn-set-pw');
-    const sp  = document.getElementById('set-pw-spinner');
-    const lbl = document.getElementById('set-pw-label');
-    btn.disabled = true; sp.style.display = 'block'; lbl.textContent = 'Enregistrement…';
-    const { error } = await sbClient.auth.updateUser({ password: pw1 });
-    if (error) {
-      btn.disabled = false; sp.style.display = 'none'; lbl.textContent = 'Confirmer';
-      errEl.textContent = error.message; errEl.classList.add('show');
-      return;
-    }
-    window.location.href = _nextPage;
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement…';
+
+  const { error } = await sb.auth.updateUser({ password: pwd1 });
+
+  if (error) {
+    errEl.textContent = error.message || 'Erreur lors de la mise à jour du mot de passe.';
+    btn.disabled = false;
+    btn.textContent = 'Enregistrer et accéder';
+    return;
   }
+
+  show('state-success');
+}
+
+init();
 </script>
 </body>
 </html>
