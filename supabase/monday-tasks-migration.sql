@@ -16,9 +16,11 @@ CREATE TABLE IF NOT EXISTS public.monday_tasks (
 -- 2. Activer RLS
 ALTER TABLE public.monday_tasks ENABLE ROW LEVEL SECURITY;
 
--- 3. Policy : lecture réservée aux utilisateurs authentifiés
-CREATE POLICY "auth_read_monday" ON public.monday_tasks
-  FOR SELECT USING (auth.role() = 'authenticated');
+-- 3. Policy : lecture réservée aux administrateurs (table admins)
+CREATE POLICY "admin_read_monday" ON public.monday_tasks
+  FOR SELECT USING (EXISTS (
+    SELECT 1 FROM public.admins WHERE admins.user_id = auth.uid()
+  ));
 
 -- 4. Policy : écriture réservée au service_role (GitHub Action)
 CREATE POLICY "service_write_monday" ON public.monday_tasks
