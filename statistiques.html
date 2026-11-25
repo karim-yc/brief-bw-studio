@@ -439,7 +439,7 @@ async function loadUserProfile() {
 (async () => {
   if (sbClient) {
     const { data: { session } } = await sbClient.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    if (!session) { window.location.replace('login.html'); return; }
     loadUserProfile();
   }
   loadStats();
