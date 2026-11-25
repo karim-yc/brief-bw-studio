@@ -107,23 +107,23 @@ const State = {
   clearHistory() {
     try {
       localStorage.removeItem(HISTORY_KEY);
-      localStorage.removeItem('bw_brief_v2_statuses');
+      localStorage.removeItem('bw_brief_statuts');
       return true;
     } catch (e) { return false; }
   },
 
   getBriefStatus(briefId) {
     try {
-      const statuses = JSON.parse(localStorage.getItem('bw_brief_v2_statuses') || '{}');
+      const statuses = JSON.parse(localStorage.getItem('bw_brief_statuts') || '{}');
       return statuses[briefId] || 'soumis';
     } catch (e) { return 'soumis'; }
   },
 
   setBriefStatus(briefId, status) {
     try {
-      const statuses = JSON.parse(localStorage.getItem('bw_brief_v2_statuses') || '{}');
+      const statuses = JSON.parse(localStorage.getItem('bw_brief_statuts') || '{}');
       statuses[briefId] = status;
-      localStorage.setItem('bw_brief_v2_statuses', JSON.stringify(statuses));
+      localStorage.setItem('bw_brief_statuts', JSON.stringify(statuses));
     } catch (e) {}
   },
 
