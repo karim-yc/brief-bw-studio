@@ -1012,6 +1012,23 @@ body { overflow-x: hidden; max-width: 100vw; }
 .notif-panel-footer{padding:8px 14px;border-top:1px solid var(--border);text-align:center;display:flex;justify-content:center}
 .notif-perm-btn{font-size:11px;font-weight:600;color:var(--indigo);background:none;border:none;cursor:pointer;padding:3px 8px;border-radius:4px;font-family:inherit}
 .notif-perm-btn:hover{background:var(--indigo-bg)}
+/* Activity feed */
+.notif-section-hd{font-size:10.5px;font-weight:700;color:var(--text-tertiary);letter-spacing:.5px;text-transform:uppercase;padding:9px 14px 5px;border-bottom:1px solid var(--border)}
+.notif-section-hd+.notif-section-hd{border-top:1px solid var(--border)}
+.np-ev-item{display:flex;gap:9px;padding:9px 14px;border-bottom:1px solid var(--border);align-items:flex-start}
+.np-ev-item:last-child{border-bottom:none}
+.np-ev-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px}
+.np-ev-icon.insert{background:#ede9fe;color:#7c3aed}
+.np-ev-icon.status{background:#dbeafe;color:#2563eb}
+.np-ev-icon.comment{background:#dcfce7;color:#15803d}
+.np-ev-icon.assign{background:#fef3c7;color:#d97706}
+.np-ev-body{flex:1;min-width:0}
+.np-ev-text{font-size:12px;color:var(--text);line-height:1.4}
+.np-ev-time{font-size:10.5px;color:var(--text-tertiary);margin-top:2px}
+.np-ev-unread{width:6px;height:6px;border-radius:50%;background:#6366f1;flex-shrink:0;margin-top:7px}
+.notif-mark-read{font-size:11px;font-weight:600;color:var(--indigo);background:none;border:none;cursor:pointer;padding:0;font-family:inherit}
+.notif-mark-read:hover{text-decoration:underline}
+.notif-panel-hd-row{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 9px;border-bottom:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -2004,6 +2021,7 @@ function getStatut(id) { return getStatuts()[id] || 'soumis'; }
 const STATUS_HIST_KEY = 'bw_status_hist_v1';
 const COMMENTS_KEY    = 'bw_comments_v1';
 const LAST_SEEN_KEY   = 'bw_last_seen_v1';
+const NOTIFS_KEY      = 'bw_rt_notifs_v1';
 
 function _lastActivity(b) {
   let ts = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
@@ -4548,6 +4566,7 @@ async function fetchMondayTasks() {
   });
 
   // Init
+  _refreshNotifBell();
   loadData();
 
   setInterval(loadData, 5*60*1000);
@@ -4561,9 +4580,11 @@ async function fetchMondayTasks() {
     sbClient.channel('bw-briefs-live')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'briefs' },
         payload => {
-          console.log('[BW Realtime] Nouveau brief →', payload.new?.brief_id);
+          const bid = payload.new?.brief_id || payload.new?.data?.briefId || '—';
+          console.log('[BW Realtime] Nouveau brief →', bid);
           loadData();
           showRealtimeToast(`Nouveau brief soumis`);
+          _pushNotif('insert', bid, `Nouveau brief soumis · ${bid}`);
         }
       )
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'briefs' },
@@ -4577,11 +4598,33 @@ async function fetchMondayTasks() {
           // Patch en mémoire uniquement les champs qui changent
           const prev = allBriefs[idx];
           let changed = [];
-          if (updated.statut && updated.statut !== prev.statut) { allBriefs[idx].statut = updated.statut; setStatut(briefId, updated.statut); changed.push('statut'); }
-          if (updated.assigned_to !== undefined && updated.assigned_to !== prev.assigned_to) { allBriefs[idx].assigned_to = updated.assigned_to; changed.push('attribution'); }
+          if (updated.statut && updated.statut !== prev.statut) {
+            allBriefs[idx].statut = updated.statut; setStatut(briefId, updated.statut); changed.push('statut');
+            const lbl = {soumis:'Soumis',encours:'En cours',simulation:'Simulation',valide:'Validé',livre:'Livré'}[updated.statut]||updated.statut;
+            const ctx = (prev.contexte||prev.typeDemande||briefId).slice(0,40);
+            _pushNotif('status', briefId, `Statut → ${lbl} · ${ctx}`);
+          }
+          if (updated.assigned_to !== undefined && updated.assigned_to !== prev.assigned_to) {
+            allBriefs[idx].assigned_to = updated.assigned_to; changed.push('attribution');
+            const member = TEAM_MEMBERS.find(m=>m.id===updated.assigned_to);
+            if (member && member.id !== 'unassigned') {
+              const ctx = (prev.contexte||briefId).slice(0,35);
+              _pushNotif('assign', briefId, `Assigné à ${member.name} · ${ctx}`);
+            }
+          }
           if (updated.checklist_state) { allBriefs[idx].checklist_state = updated.checklist_state; changed.push('checklist'); }
           if (updated.statut_history) { allBriefs[idx].statut_history = updated.statut_history; changed.push('historique'); }
-          if (updated.comments) { allBriefs[idx].comments = updated.comments; changed.push('commentaire'); }
+          if (updated.comments) {
+            const prevLen = Array.isArray(prev.comments) ? prev.comments.length : 0;
+            const newLen  = Array.isArray(updated.comments) ? updated.comments.length : 0;
+            allBriefs[idx].comments = updated.comments; changed.push('commentaire');
+            if (newLen > prevLen) {
+              const last = updated.comments[updated.comments.length - 1];
+              const author = last?.author || 'Studio';
+              const ctx = (prev.contexte||briefId).slice(0,30);
+              _pushNotif('comment', briefId, `${author} a commenté · ${ctx}`);
+            }
+          }
 
           if (!changed.length) return; // Pas de changement visible — ignorer
 
@@ -4840,6 +4883,7 @@ function openNotifPanel() {
   renderNotifPanel();
   const p = document.getElementById('notif-panel');
   if (p) p.style.display = 'block';
+  setTimeout(() => { _markNotifsRead(); }, 400);
   setTimeout(() => document.addEventListener('click', _notifOut, {once:true, capture:true}), 20);
 }
 function closeNotifPanel() {
@@ -4857,20 +4901,48 @@ function renderNotifPanel() {
   const list = document.getElementById('notif-panel-list');
   const badge = document.getElementById('notif-cnt-badge');
   if (!list) return;
+
+  // — Activité récente (Realtime) —
+  const events = _getNotifs();
+  const unread = events.filter(e => !e.read).length;
+
+  // — Alertes (retard/urgent) —
   const alerts = allBriefs
     .map(b => ({ b, c: categorizeBrief(b) }))
     .filter(x => x.c && ['retard','today','urgent'].includes(x.c.cat))
     .sort((a, b) => (b.c.score||0) - (a.c.score||0))
-    .slice(0, 8);
-  if (badge) { badge.textContent = alerts.length; badge.style.display = alerts.length > 0 ? 'inline' : 'none'; }
-  if (alerts.length === 0) {
-    list.innerHTML = '<div class="notif-panel-empty"><i class="ti ti-checks"></i>Aucune alerte — tout est à jour !</div>';
-  } else {
-    list.innerHTML = alerts.map(({ b, c }) => {
+    .slice(0, 5);
+
+  const totalBadge = unread + alerts.length;
+  if (badge) { badge.textContent = totalBadge; badge.style.display = totalBadge > 0 ? 'inline' : 'none'; }
+
+  let html = '';
+
+  // Section activité
+  if (events.length > 0) {
+    const clearBtn = `<button class="notif-mark-read" onclick="event.stopPropagation();_clearNotifs()">Effacer</button>`;
+    html += `<div class="notif-section-hd" style="display:flex;justify-content:space-between;align-items:center">Activité récente ${clearBtn}</div>`;
+    html += events.slice(0, 8).map(ev => {
+      const icon = _EV_ICON[ev.type] || 'ti-activity';
+      return `<div class="np-ev-item" onclick="closeNotifPanel();openDrawer('${ev.briefId}')">
+        <div class="np-ev-icon ${ev.type}"><i class="ti ${icon}"></i></div>
+        <div class="np-ev-body">
+          <div class="np-ev-text">${ev.text}</div>
+          <div class="np-ev-time">${_relTime(ev.ts)}</div>
+        </div>
+        ${!ev.read ? '<div class="np-ev-unread"></div>' : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // Section alertes
+  if (alerts.length > 0) {
+    html += `<div class="notif-section-hd">Alertes délai</div>`;
+    html += alerts.map(({ b, c }) => {
       const dotCls = c.cat === 'retard' ? 'red' : 'orange';
       const badgeTxt = c.cat === 'retard' ? 'En retard' : c.cat === 'today' ? "Aujourd'hui" : 'Urgent';
       const title = (b.contexte || b.demandeur || '').slice(0, 55) || b.briefId;
-      return `<button class="notif-panel-item" onclick="closeNotifPanel();document.getElementById('${b.briefId}')?.scrollIntoView({behavior:'smooth'})">
+      return `<button class="notif-panel-item" onclick="closeNotifPanel();openDrawer('${b.briefId}')">
         <div class="np-dot ${dotCls}"></div>
         <div class="np-item-body">
           <div class="np-item-id">${b.briefId}</div>
@@ -4880,12 +4952,60 @@ function renderNotifPanel() {
       </button>`;
     }).join('');
   }
+
+  if (!html) {
+    html = '<div class="notif-panel-empty"><i class="ti ti-checks"></i>Aucune notification — tout est à jour !</div>';
+  }
+
+  list.innerHTML = html;
   updateNotifFooter();
 }
 function updateNotifFooter() {
   const f = document.getElementById('notif-panel-footer');
   if (f) f.style.display = ('Notification' in window && Notification.permission === 'default') ? 'flex' : 'none';
 }
+
+/* ── Realtime activity feed ──────────────────────────────── */
+function _getNotifs() {
+  try { const d = JSON.parse(localStorage.getItem(NOTIFS_KEY)||'{}'); return Array.isArray(d.events) ? d.events : []; } catch(e) { return []; }
+}
+function _pushNotif(type, briefId, text) {
+  try {
+    const events = _getNotifs();
+    events.unshift({ id: Date.now() + Math.random(), type, briefId, text, ts: Date.now(), read: false });
+    localStorage.setItem(NOTIFS_KEY, JSON.stringify({ events: events.slice(0, 25) }));
+    _refreshNotifBell();
+    renderNotifPanel();
+  } catch(e) {}
+}
+function _markNotifsRead() {
+  try {
+    const events = _getNotifs().map(e => ({ ...e, read: true }));
+    localStorage.setItem(NOTIFS_KEY, JSON.stringify({ events }));
+    _refreshNotifBell();
+  } catch(e) {}
+}
+function _unreadNotifCount() {
+  return _getNotifs().filter(e => !e.read).length;
+}
+function _clearNotifs() {
+  try { localStorage.setItem(NOTIFS_KEY, JSON.stringify({ events: [] })); _refreshNotifBell(); renderNotifPanel(); } catch(e) {}
+}
+function _refreshNotifBell() {
+  const unread = _unreadNotifCount();
+  const dot = G('notif-dot');
+  if (dot) dot.classList.toggle('has-notif', unread > 0);
+  const btn = G('notif-btn');
+  if (btn) btn.title = unread > 0 ? `${unread} notification${unread>1?'s':''} non lue${unread>1?'s':''}` : 'Notifications';
+}
+function _relTime(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return 'à l\'instant';
+  if (s < 3600) return `il y a ${Math.floor(s/60)} min`;
+  if (s < 86400) return `il y a ${Math.floor(s/3600)}h`;
+  return `il y a ${Math.floor(s/86400)}j`;
+}
+const _EV_ICON = { insert:'ti-sparkles', status:'ti-git-branch', comment:'ti-message-2', assign:'ti-user-check' };
 
 function showRealtimeToast(msg, type) {
   let t = document.getElementById('bw-rt-toast');
