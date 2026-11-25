@@ -1665,17 +1665,26 @@ async function loadAccessList() {
     const name     = p.nom || p.email || '—';
     const initials = name.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
     const selfBadge = isSelf ? ' <span style="font-size:10px;color:#444;font-weight:400">(vous)</span>' : '';
+    const hasEmail  = !!(p.email && p.email.trim());
+    const emailDisplay = hasEmail
+      ? `<span id="ue-text-${p.id}">${p.email}</span>`
+      : `<span id="ue-text-${p.id}" style="color:#333;font-style:italic">Ajouter un email…</span>`;
     return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:#181818;border-radius:10px;border:1px solid #222">
       <div style="width:34px;height:34px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${selfBadge}</div>
-        <div style="font-size:11px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.email || ''}</div>
+        <div id="ue-row-${p.id}" style="display:flex;align-items:center;gap:5px;min-width:0">
+          <div style="font-size:11px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">${emailDisplay}</div>
+          <button onclick="startEditEmail('${p.id}','${(p.email||'').replace(/'/g,"\\'")}',this)" title="Modifier l'email"
+            style="flex-shrink:0;padding:2px 4px;border:none;background:transparent;color:#333;cursor:pointer;font-size:11px;line-height:1;font-family:inherit;transition:color .15s"
+            onmouseover="this.style.color='#888'" onmouseout="this.style.color='#333'"><i class="ti ti-pencil"></i></button>
+        </div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-        <button onclick="resetUserPassword('${p.email}',this)" title="Envoyer un lien de réinitialisation du mot de passe"
-          ${!p.email ? 'disabled' : ''}
-          style="padding:5px 8px;border-radius:7px;font-size:13px;background:rgba(255,255,255,.04);border:1px solid #252525;color:#555;cursor:pointer;font-family:inherit;transition:all .15s;line-height:1"
-          onmouseover="this.style.color='#aaa'" onmouseout="this.style.color='#555'">
+        <button id="ue-key-${p.id}" onclick="resetUserPassword('${(p.email||'').replace(/'/g,"\\'")}',this)" title="${hasEmail ? 'Envoyer un lien de réinitialisation' : 'Email manquant — ajoutez un email d\'abord'}"
+          ${!hasEmail ? 'disabled' : ''}
+          style="padding:5px 8px;border-radius:7px;font-size:13px;background:rgba(255,255,255,.04);border:1px solid #252525;${hasEmail ? 'color:#555;cursor:pointer;' : 'color:#2a2a2a;cursor:not-allowed;opacity:.4;'}font-family:inherit;transition:all .15s;line-height:1"
+          ${hasEmail ? 'onmouseover="this.style.color=\'#aaa\'" onmouseout="this.style.color=\'#555\'"' : ''}>
           <i class="ti ti-key"></i>
         </button>
         <button onclick="toggleUserRole('${p.id}','${p.role}',this)"
@@ -1702,6 +1711,39 @@ async function resetUserPassword(email, btn) {
   }
   if (fb) { fb.textContent = `✓ Lien de réinitialisation envoyé à ${email}`; fb.style.color = '#4ade80'; setTimeout(() => { if(fb) fb.textContent=''; }, 4000); }
   btn.disabled = false;
+}
+
+function startEditEmail(userId, currentEmail, pencilBtn) {
+  const row = document.getElementById(`ue-row-${userId}`);
+  if (!row) return;
+  row.innerHTML = `
+    <input id="ue-input-${userId}" type="email" value="${currentEmail.replace(/"/g,'&quot;')}"
+      style="flex:1;min-width:0;background:#1a1a1a;border:1px solid rgba(223,255,0,.35);border-radius:6px;padding:3px 7px;font-size:11px;color:#f0f0f0;font-family:inherit;outline:none"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();saveEmail('${userId}',this.value)}else if(event.key==='Escape'){loadAccessList()}">
+    <button onclick="saveEmail('${userId}',document.getElementById('ue-input-${userId}').value)"
+      style="flex-shrink:0;padding:2px 7px;border-radius:6px;font-size:11px;background:rgba(223,255,0,.12);border:1px solid rgba(223,255,0,.3);color:#DFFF00;cursor:pointer;font-family:inherit">✓</button>
+    <button onclick="loadAccessList()"
+      style="flex-shrink:0;padding:2px 6px;border-radius:6px;font-size:11px;background:transparent;border:1px solid #252525;color:#555;cursor:pointer;font-family:inherit">✕</button>
+  `;
+  const inp = document.getElementById(`ue-input-${userId}`);
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+async function saveEmail(userId, newEmail) {
+  if (!sbClient) return;
+  const fb = G('access-feedback');
+  newEmail = (newEmail || '').trim();
+  if (newEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+    if (fb) { fb.textContent = '⚠ Adresse email invalide'; fb.style.color = '#ff4d4d'; setTimeout(() => { if(fb) fb.textContent=''; }, 3000); }
+    return;
+  }
+  const { error } = await sbClient.from('bw_profiles').update({ email: newEmail || null }).eq('id', userId);
+  if (error) {
+    if (fb) { fb.textContent = '⚠ ' + (error.message || 'Erreur'); fb.style.color = '#ff4d4d'; setTimeout(() => { if(fb) fb.textContent=''; }, 3000); }
+    return;
+  }
+  if (fb) { fb.textContent = newEmail ? `✓ Email mis à jour : ${newEmail}` : '✓ Email supprimé'; fb.style.color = '#4ade80'; setTimeout(() => { if(fb) fb.textContent=''; }, 3000); }
+  loadAccessList();
 }
 
 async function toggleUserRole(userId, currentRoleVal, btn) {
