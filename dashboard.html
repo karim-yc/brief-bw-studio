@@ -415,6 +415,14 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .activity-body{flex:1;min-width:0}
 .activity-text{font-size:12.5px;color:var(--text);line-height:1.4}
 .activity-time{font-size:10.5px;color:var(--text-tertiary);margin-top:2px}
+.activity-dot.dot-user-comment{background:#8b5cf6}
+.comment-compose{padding:12px 0 2px;border-top:1px solid var(--border-light);margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.comment-compose textarea{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:12.5px;font-family:'Inter',sans-serif;color:var(--text);background:var(--surface);resize:none;min-height:60px;outline:none;transition:border-color .15s;line-height:1.5}
+.comment-compose textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px var(--indigo-bg)}
+.comment-compose-row{display:flex;justify-content:flex-end}
+.comment-submit{padding:6px 14px;background:var(--indigo);color:#fff;border:none;border-radius:var(--r-sm);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s;letter-spacing:.2px}
+.comment-submit:hover{background:var(--indigo-dark)}
+.comment-submit:disabled{opacity:.45;cursor:not-allowed}
 
 /* ── Status modal ─────────────────────────────────────────────── */
 .status-modal{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
@@ -1573,6 +1581,7 @@ async function loadCurrentUserProfile() {
   if (profile) {
     currentRole = profile.role;
     const nom   = profile.nom || user.email.split('@')[0];
+    window._currentProfileNom = nom;
     const initials = nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
     const avEl   = G('snav-user-av');
     const nameEl = G('snav-user-name');
@@ -1981,6 +1990,39 @@ function setStatut(id, st) { const s=getStatuts(); s[id]=st; localStorage.setIte
 function getStatut(id) { return getStatuts()[id] || 'soumis'; }
 
 const STATUS_HIST_KEY = 'bw_status_hist_v1';
+const COMMENTS_KEY    = 'bw_comments_v1';
+
+function getComments(briefId) {
+  const brief = allBriefs.find(b => b.briefId === briefId);
+  if (brief && Array.isArray(brief.comments) && brief.comments.length) return brief.comments;
+  try { return (JSON.parse(localStorage.getItem(COMMENTS_KEY)||'{}')[briefId])||[]; } catch(e) { return []; }
+}
+function addComment(briefId, text) {
+  if (!text.trim()) return;
+  const authorName = (window._currentProfileNom) || (currentUser?.email?.split('@')[0]) || 'Studio';
+  const comment = { text: text.trim(), author: authorName, ts: Date.now() };
+  try {
+    const all = JSON.parse(localStorage.getItem(COMMENTS_KEY)||'{}');
+    if (!all[briefId]) all[briefId] = [];
+    all[briefId].push(comment);
+    if (all[briefId].length > 50) all[briefId] = all[briefId].slice(-50);
+    localStorage.setItem(COMMENTS_KEY, JSON.stringify(all));
+    const brief = allBriefs.find(b => b.briefId === briefId);
+    if (brief) brief.comments = all[briefId];
+    if (sbClient) sbClient.from('briefs').update({ comments: all[briefId] }).eq('brief_id', briefId)
+      .then(({ error }) => { if (error) console.error('[BW] comments sync:', error.message); });
+  } catch(e) {}
+}
+function submitComment(briefId) {
+  const ta = G('comment-textarea-' + briefId);
+  if (!ta || !ta.value.trim()) return;
+  addComment(briefId, ta.value);
+  ta.value = '';
+  // Re-render activity panel only
+  const b = allBriefs.find(x => x.briefId === briefId);
+  if (b) _renderActivityPanel(b);
+}
+
 function getStatusHistory(briefId) {
   const brief = allBriefs.find(b => b.briefId === briefId);
   if (brief && Array.isArray(brief.statut_history) && brief.statut_history.length) return brief.statut_history;
@@ -2233,7 +2275,7 @@ async function fetchBriefs() {
       // Essai avec colonnes de sync équipe (migration 20261125)
       let { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, archived, submitted_at, marque, user_id, assigned_to, checklist_state, statut_history')
+        .select('data, statut, archived, submitted_at, marque, user_id, assigned_to, checklist_state, statut_history, comments')
         .order('submitted_at', { ascending: false });
 
       // Fallback si les colonnes de migration n'existent pas encore
@@ -2258,6 +2300,7 @@ async function fetchBriefs() {
         assigned_to: row.assigned_to !== undefined ? (row.assigned_to || null) : undefined,
         checklist_state: row.checklist_state !== undefined ? (row.checklist_state || {}) : undefined,
         statut_history: row.statut_history !== undefined ? (row.statut_history || []) : undefined,
+        comments: row.comments !== undefined ? (row.comments || []) : undefined,
         _fromSupabase: true,
       })).filter(b => b.briefId);
 
@@ -3623,7 +3666,41 @@ function getActivityLog(b) {
       log.push({ type:'comment', text:`${openCount} info${openCount>1?'s':''} en attente de confirmation`, time: null });
     }
   }
+  // Commentaires équipe
+  getComments(b.briefId).forEach(c => {
+    log.push({ type:'user-comment', text:`<strong>${c.author||'Studio'}</strong> : ${c.text}`, time: new Date(c.ts) });
+  });
   return log.sort((a,b) => (a.time||0) - (b.time||0)).reverse();
+}
+
+function _renderActivityPanel(b) {
+  const actPanel = G('panel-activity');
+  if (!actPanel) return;
+  const log = getActivityLog(b);
+  const timeline = log.length
+    ? `<div class="activity-log">${log.map((entry,i) => `
+        <div class="activity-entry">
+          <div class="activity-dot-col">
+            <div class="activity-dot dot-${entry.type}"></div>
+            ${i < log.length-1 ? '<div class="activity-line"></div>' : ''}
+          </div>
+          <div class="activity-body">
+            <div class="activity-text">${entry.text}</div>
+            ${entry.time ? `<div class="activity-time">${entry.time.toLocaleDateString('fr-BE',{day:'2-digit',month:'short',year:'numeric'})} à ${entry.time.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}</div>` : ''}
+          </div>
+        </div>`).join('')}
+      </div>`
+    : '<div style="color:var(--text-tertiary);font-size:13px;padding:8px 0">Aucune activité enregistrée.</div>';
+
+  actPanel.innerHTML = `
+    ${timeline}
+    <div class="comment-compose">
+      <textarea id="comment-textarea-${b.briefId}" placeholder="Ajouter un commentaire équipe…" rows="2"
+        onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){submitComment('${b.briefId}');event.preventDefault();}"></textarea>
+      <div class="comment-compose-row">
+        <button class="comment-submit" onclick="submitComment('${b.briefId}')">Envoyer</button>
+      </div>
+    </div>`;
 }
 
 function renderChecklistPanel(b) {
@@ -3853,26 +3930,7 @@ function renderDrawer(b) {
   renderFichiersPanel(b);
 
   /* ── Onglet Activité ── */
-  const actPanel = G('panel-activity');
-  if (actPanel) {
-    const log = getActivityLog(b);
-    if (!log.length) {
-      actPanel.innerHTML = '<div style="color:var(--text-tertiary);font-size:13px;padding:8px 0">Aucune activité enregistrée.</div>';
-    } else {
-      actPanel.innerHTML = `<div class="activity-log">${log.map((entry,i) => `
-        <div class="activity-entry">
-          <div class="activity-dot-col">
-            <div class="activity-dot dot-${entry.type}"></div>
-            ${i < log.length-1 ? '<div class="activity-line"></div>' : ''}
-          </div>
-          <div class="activity-body">
-            <div class="activity-text">${entry.text}</div>
-            ${entry.time ? `<div class="activity-time">${entry.time.toLocaleDateString('fr-BE',{day:'2-digit',month:'short',year:'numeric'})} à ${entry.time.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}</div>` : ''}
-          </div>
-        </div>`).join('')}
-      </div>`;
-    }
-  }
+  _renderActivityPanel(b);
 
   const isArchived = isBriefArchived(b.briefId);
   if (currentRole === 'demandeur') {
@@ -3919,6 +3977,7 @@ function _purgeLocalBrief(briefId) {
   // Statuts
   try { const s=JSON.parse(localStorage.getItem(STATUS_KEY)||'{}'); delete s[briefId]; localStorage.setItem(STATUS_KEY,JSON.stringify(s)); } catch(e){}
   try { const h=JSON.parse(localStorage.getItem(STATUS_HIST_KEY)||'{}'); delete h[briefId]; localStorage.setItem(STATUS_HIST_KEY,JSON.stringify(h)); } catch(e){}
+  try { const c=JSON.parse(localStorage.getItem(COMMENTS_KEY)||'{}'); delete c[briefId]; localStorage.setItem(COMMENTS_KEY,JSON.stringify(c)); } catch(e){}
 }
 
 async function deleteBrief(briefId) {
@@ -4385,9 +4444,10 @@ async function fetchMondayTasks() {
 
   setInterval(loadData, 5*60*1000);
 
-  /* ── Supabase Realtime — mise à jour automatique ─────────────
-     INSERT  → recharge les données + toast notification
-     UPDATE  → recharge les données (changement de statut)
+  /* ── Supabase Realtime — mise à jour intelligente ────────────
+     INSERT  → recharge toutes les données + toast
+     UPDATE  → patch en mémoire, re-render ciblé (pas de reload)
+     DELETE  → recharge (cas rare)
      ─────────────────────────────────────────────────────────── */
   if (sbClient) {
     sbClient.channel('bw-briefs-live')
@@ -4395,14 +4455,48 @@ async function fetchMondayTasks() {
         payload => {
           console.log('[BW Realtime] Nouveau brief →', payload.new?.brief_id);
           loadData();
-          showRealtimeToast(`📋 Nouveau brief — ${payload.new?.brief_id || ''}`);
+          showRealtimeToast(`Nouveau brief soumis`);
         }
       )
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'briefs' },
+        payload => {
+          const updated = payload.new;
+          if (!updated?.brief_id) { loadData(); return; }
+          const briefId = updated.brief_id;
+          const idx = allBriefs.findIndex(b => b.briefId === briefId);
+          if (idx === -1) { loadData(); return; }
+
+          // Patch en mémoire uniquement les champs qui changent
+          const prev = allBriefs[idx];
+          let changed = [];
+          if (updated.statut && updated.statut !== prev.statut) { allBriefs[idx].statut = updated.statut; setStatut(briefId, updated.statut); changed.push('statut'); }
+          if (updated.assigned_to !== undefined && updated.assigned_to !== prev.assigned_to) { allBriefs[idx].assigned_to = updated.assigned_to; changed.push('attribution'); }
+          if (updated.checklist_state) { allBriefs[idx].checklist_state = updated.checklist_state; changed.push('checklist'); }
+          if (updated.statut_history) { allBriefs[idx].statut_history = updated.statut_history; changed.push('historique'); }
+          if (updated.comments) { allBriefs[idx].comments = updated.comments; changed.push('commentaire'); }
+
+          if (!changed.length) return; // Pas de changement visible — ignorer
+
+          // Re-render ciblé
+          applyFilters();
+          if (_currentDrawerBrief?.briefId === briefId) {
+            Object.assign(_currentDrawerBrief, allBriefs[idx]);
+            renderDrawer(_currentDrawerBrief);
+          }
+
+          // Toast discret (seulement si ce n'est pas notre propre écriture)
+          // On ne peut pas distinguer auteur ici, donc on affiche toujours
+          showRealtimeToast(`Brief mis à jour (${changed.join(', ')})`);
+          console.log('[BW Realtime] UPDATE', briefId, changed);
+        }
+      )
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'briefs' },
         () => loadData()
       )
       .subscribe(status => {
         console.log('[BW Realtime] état :', status);
+        const dot = document.querySelector('.sync-dot');
+        if (dot) dot.className = 'sync-dot' + (status === 'SUBSCRIBED' ? '' : ' loading');
       });
   }
 })();
