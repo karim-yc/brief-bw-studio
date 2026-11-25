@@ -1982,6 +1982,8 @@ function getStatut(id) { return getStatuts()[id] || 'soumis'; }
 
 const STATUS_HIST_KEY = 'bw_status_hist_v1';
 function getStatusHistory(briefId) {
+  const brief = allBriefs.find(b => b.briefId === briefId);
+  if (brief && Array.isArray(brief.statut_history) && brief.statut_history.length) return brief.statut_history;
   try { return (JSON.parse(localStorage.getItem(STATUS_HIST_KEY)||'{}')[briefId])||[]; } catch(e) { return []; }
 }
 function logStatusChange(briefId, newSt) {
@@ -1991,6 +1993,10 @@ function logStatusChange(briefId, newSt) {
     all[briefId].push({ st: newSt, ts: Date.now() });
     if (all[briefId].length > 30) all[briefId] = all[briefId].slice(-30);
     localStorage.setItem(STATUS_HIST_KEY, JSON.stringify(all));
+    const brief = allBriefs.find(b => b.briefId === briefId);
+    if (brief) brief.statut_history = all[briefId];
+    if (sbClient) sbClient.from('briefs').update({ statut_history: all[briefId] }).eq('brief_id', briefId)
+      .then(({ error }) => { if (error) console.error('[BW] statut_history sync:', error.message); });
   } catch(e) {}
 }
 
@@ -2224,10 +2230,20 @@ async function fetchBriefs() {
     try {
       D('source', 'Supabase');
       console.log('[BW] Supabase → SELECT briefs ORDER BY submitted_at DESC');
-      const { data: rows, error } = await sbClient
+      // Essai avec colonnes de sync équipe (migration 20261125)
+      let { data: rows, error } = await sbClient
         .from('briefs')
-        .select('data, statut, archived, submitted_at, marque, user_id')
+        .select('data, statut, archived, submitted_at, marque, user_id, assigned_to, checklist_state, statut_history')
         .order('submitted_at', { ascending: false });
+
+      // Fallback si les colonnes de migration n'existent pas encore
+      if (error && /column|does not exist/i.test(error.message)) {
+        console.warn('[BW] Colonnes de sync absentes — lancez supabase/migrations/20261125_sync_columns.sql');
+        ({ data: rows, error } = await sbClient
+          .from('briefs')
+          .select('data, statut, archived, submitted_at, marque, user_id')
+          .order('submitted_at', { ascending: false }));
+      }
 
       if (error) throw new Error(error.message);
 
@@ -2239,6 +2255,9 @@ async function fetchBriefs() {
         archived: row.archived ?? false,
         _marqueId: row.marque || null,
         user_id: row.user_id || null,
+        assigned_to: row.assigned_to !== undefined ? (row.assigned_to || null) : undefined,
+        checklist_state: row.checklist_state !== undefined ? (row.checklist_state || {}) : undefined,
+        statut_history: row.statut_history !== undefined ? (row.statut_history || []) : undefined,
         _fromSupabase: true,
       })).filter(b => b.briefId);
 
@@ -3493,14 +3512,20 @@ const TEAM_MEMBERS = [
   { id: 'ndieumbe',   name: 'Ndieumbe',initials: 'N',  color: '#10b981' },
 ];
 function getAssignment(briefId) {
+  const brief = allBriefs.find(b => b.briefId === briefId);
+  if (brief && brief.assigned_to !== undefined) return brief.assigned_to || null;
   try { return JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}')[briefId]||null; } catch(e){ return null; }
 }
 function setAssignment(briefId, memberId) {
   try {
+    const val = (!memberId || memberId === 'unassigned') ? null : memberId;
     const all = JSON.parse(localStorage.getItem(ASSIGN_KEY)||'{}');
-    if (!memberId || memberId === 'unassigned') { delete all[briefId]; }
-    else { all[briefId] = memberId; }
+    if (!val) { delete all[briefId]; } else { all[briefId] = val; }
     localStorage.setItem(ASSIGN_KEY, JSON.stringify(all));
+    const brief = allBriefs.find(b => b.briefId === briefId);
+    if (brief) brief.assigned_to = val;
+    if (sbClient) sbClient.from('briefs').update({ assigned_to: val }).eq('brief_id', briefId)
+      .then(({ error }) => { if (error) console.error('[BW] assigned_to sync:', error.message); });
     if (_currentDrawerBrief && _currentDrawerBrief.briefId === briefId) renderDrawer(_currentDrawerBrief);
     renderBriefs(filteredBriefs);
   } catch(e) {}
@@ -3541,6 +3566,8 @@ function closeAssignPicker() {
   if (p) p.hidden = true;
 }
 function getChecklist(briefId) {
+  const brief = allBriefs.find(b => b.briefId === briefId);
+  if (brief && brief.checklist_state !== undefined) return brief.checklist_state || {};
   try { return JSON.parse(localStorage.getItem(CL_KEY)||'{}')[briefId]||{}; } catch(e){ return {}; }
 }
 function toggleChecklistItem(briefId, idx) {
@@ -3549,6 +3576,10 @@ function toggleChecklistItem(briefId, idx) {
     if (!all[briefId]) all[briefId] = {};
     all[briefId][idx] = !all[briefId][idx];
     localStorage.setItem(CL_KEY, JSON.stringify(all));
+    const brief = allBriefs.find(b => b.briefId === briefId);
+    if (brief) brief.checklist_state = all[briefId];
+    if (sbClient) sbClient.from('briefs').update({ checklist_state: all[briefId] }).eq('brief_id', briefId)
+      .then(({ error }) => { if (error) console.error('[BW] checklist_state sync:', error.message); });
     renderChecklistPanel(_currentDrawerBrief);
   } catch(e) {}
 }
