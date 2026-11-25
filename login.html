@@ -228,11 +228,16 @@ async function init() {
     return;
   }
 
-  if (params.type !== 'recovery' && params.type !== 'invite') {
-    // Token de confirmation (type=signup) — session déjà gérée par Supabase
-    // Rediriger directement vers le formulaire
+  if (params.type !== 'recovery' && params.type !== 'invite' && params.type !== 'signup') {
+    // Type inconnu — redirection vers l'accueil
     window.location.replace('index.html');
     return;
+  }
+
+  // Adapter le titre selon le contexte
+  if (params.type === 'signup' || params.type === 'invite') {
+    document.querySelector('#state-setpwd h1').textContent = 'Bienvenue ! Définissez votre mot de passe';
+    document.querySelector('#state-setpwd .subtitle').textContent = 'Votre adresse a été confirmée. Choisissez un mot de passe pour accéder au Studio.';
   }
 
   // Établir la session à partir du token
@@ -301,6 +306,22 @@ async function submitPassword() {
     btn.textContent = 'Enregistrer et accéder';
     return;
   }
+
+  // Redirection basée sur le rôle : studio → dashboard, demandeur → formulaire
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) {
+      const { data: profile } = await sb
+        .from('bw_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (profile?.role === 'studio') {
+        window.location.replace('dashboard.html');
+        return;
+      }
+    }
+  } catch (_) {}
 
   show('state-success');
 }

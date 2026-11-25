@@ -1781,10 +1781,13 @@ async function submitInvite() {
   const tmpClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { storageKey: 'bw_tmp_invite', persistSession: false }
   });
-  const { error } = await tmpClient.auth.signUp({
+  const { data: signUpData, error } = await tmpClient.auth.signUp({
     email,
     password: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2).toUpperCase() + '!9',
-    options: { data: { role, nom } }
+    options: {
+      data: { role, nom },
+      emailRedirectTo: 'https://karim-yc.github.io/brief-bw-studio/login.html'
+    }
   });
   if (error) {
     btn.disabled = false;
@@ -1792,12 +1795,18 @@ async function submitInvite() {
     errEl.textContent = error.message || 'Erreur lors de l\'invitation.';
     return;
   }
-  // Envoyer un lien pour définir le mot de passe (arrive après la confirmation d'email)
-  await tmpClient.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://karim-yc.github.io/brief-bw-studio/login.html'
-  });
+  // Créer le profil bw_profiles immédiatement (best-effort)
+  if (signUpData?.user?.id && sbClient) {
+    await sbClient.from('bw_profiles').insert({
+      id: signUpData.user.id,
+      nom,
+      email,
+      role
+    }).catch(() => {});
+    _bwProfilesCache = null;
+  }
   sucEl.style.display = 'block';
-  sucEl.textContent = `✓ Invitation envoyée à ${email}. Ils recevront un email pour confirmer leur adresse, puis un lien pour définir leur mot de passe.`;
+  sucEl.textContent = `✓ Invitation envoyée à ${email}. Ils recevront un email pour confirmer leur compte et définir leur mot de passe.`;
   btn.textContent = 'Envoyé ✓';
   setTimeout(() => closeInviteModal(), 4000);
 }
