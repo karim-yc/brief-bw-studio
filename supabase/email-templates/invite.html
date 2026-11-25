@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invitation BW Studio</title>
+</head>
+<body style="margin:0;padding:0;background:#f2f2f2;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+  <!-- Wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2f2;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+
+          <!-- Header dark -->
+          <tr>
+            <td style="background:#0a0a0a;border-radius:14px 14px 0 0;padding:28px 36px;">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background:#DFFF00;border-radius:8px;width:36px;height:36px;text-align:center;vertical-align:middle;">
+                    <span style="font-size:12px;font-weight:800;color:#000;letter-spacing:-0.5px;line-height:36px;display:block;">BW</span>
+                  </td>
+                  <td style="padding-left:12px;vertical-align:middle;">
+                    <span style="font-size:15px;font-weight:700;color:#f0f0f0;display:block;line-height:1.2">Studio Créatif</span>
+                    <span style="font-size:11px;color:#555;display:block;">Multi-marques</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background:#ffffff;padding:36px 36px 28px;">
+              <p style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0a0a0a;line-height:1.3">
+                Vous êtes invité·e à rejoindre BW Studio
+              </p>
+              <p style="margin:0 0 24px;font-size:14px;color:#555;line-height:1.6">
+                Un accès vous a été créé sur la plateforme de gestion des briefs créatifs de Black&nbsp;&amp;&nbsp;White&nbsp;Burger.
+                Cliquez sur le bouton ci-dessous pour définir votre mot de passe et accéder à votre espace.
+              </p>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="background:#DFFF00;border-radius:10px;">
+                    <a href="{{ .ConfirmationURL }}"
+                       style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:700;color:#000;text-decoration:none;letter-spacing:0.01em;">
+                      Créer mon mot de passe →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 6px;font-size:12px;color:#999;line-height:1.5">
+                Ce lien est valable <strong>24 heures</strong> et ne peut être utilisé qu'une seule fois.<br>
+                Si vous n'attendiez pas cette invitation, ignorez ce message.
+              </p>
+
+              <!-- Fallback URL -->
+              <p style="margin:20px 0 0;font-size:11px;color:#bbb;line-height:1.5;word-break:break-all;">
+                Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
+                <span style="color:#888;">{{ .ConfirmationURL }}</span>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f8f8f8;border-radius:0 0 14px 14px;padding:18px 36px;border-top:1px solid #ebebeb;">
+              <p style="margin:0;font-size:11px;color:#aaa;line-height:1.5;text-align:center;">
+                © 2026 Black &amp; White Burger — Studio Créatif interne<br>
+                Cet email a été envoyé à <strong style="color:#888;">{{ .Email }}</strong>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
