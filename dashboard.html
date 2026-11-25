@@ -416,6 +416,18 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .activity-text{font-size:12.5px;color:var(--text);line-height:1.4}
 .activity-time{font-size:10.5px;color:var(--text-tertiary);margin-top:2px}
 .activity-dot.dot-user-comment{background:#8b5cf6}
+/* ── Badges non-lu ── */
+.unread-dot{width:8px;height:8px;border-radius:50%;background:#6366f1;box-shadow:0 0 0 2px #fff;display:inline-block;flex-shrink:0}
+tr.has-unread .bt-title{font-weight:700}
+.kanban-card.has-unread{border-left:3px solid #6366f1}
+/* ── Mention picker ── */
+.comment-compose-wrap{position:relative}
+.mention-picker{position:absolute;bottom:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);box-shadow:0 4px 20px rgba(0,0,0,.12);overflow:hidden;z-index:50;animation:fadeIn .1s ease}
+.mention-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:12.5px;transition:background .1s}
+.mention-item:hover,.mention-item.m-active{background:var(--indigo-bg)}
+.mention-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.mention-name{font-weight:500;color:var(--text)}
+.comment-mention{font-weight:600;border-radius:3px;padding:0 3px;font-size:inherit}
 .comment-compose{padding:12px 0 2px;border-top:1px solid var(--border-light);margin-top:8px;display:flex;flex-direction:column;gap:8px}
 .comment-compose textarea{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:12.5px;font-family:'Inter',sans-serif;color:var(--text);background:var(--surface);resize:none;min-height:60px;outline:none;transition:border-color .15s;line-height:1.5}
 .comment-compose textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px var(--indigo-bg)}
@@ -1991,6 +2003,30 @@ function getStatut(id) { return getStatuts()[id] || 'soumis'; }
 
 const STATUS_HIST_KEY = 'bw_status_hist_v1';
 const COMMENTS_KEY    = 'bw_comments_v1';
+const LAST_SEEN_KEY   = 'bw_last_seen_v1';
+
+function _lastActivity(b) {
+  let ts = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+  if (Array.isArray(b.statut_history)) b.statut_history.forEach(h => { if (h.ts > ts) ts = h.ts; });
+  if (Array.isArray(b.comments))       b.comments.forEach(c => { if (c.ts > ts) ts = c.ts; });
+  return ts;
+}
+function getLastSeen(briefId) {
+  try { return JSON.parse(localStorage.getItem(LAST_SEEN_KEY)||'{}')[briefId]||0; } catch(e) { return 0; }
+}
+function markSeen(briefId) {
+  try {
+    const all = JSON.parse(localStorage.getItem(LAST_SEEN_KEY)||'{}');
+    all[briefId] = Date.now();
+    localStorage.setItem(LAST_SEEN_KEY, JSON.stringify(all));
+  } catch(e) {}
+}
+function isUnread(b) {
+  if (!b) return false;
+  const last = _lastActivity(b);
+  if (!last) return false;
+  return last > getLastSeen(b.briefId);
+}
 
 function getComments(briefId) {
   const brief = allBriefs.find(b => b.briefId === briefId);
@@ -2016,11 +2052,73 @@ function addComment(briefId, text) {
 function submitComment(briefId) {
   const ta = G('comment-textarea-' + briefId);
   if (!ta || !ta.value.trim()) return;
+  _hideMentionPicker(briefId);
   addComment(briefId, ta.value);
   ta.value = '';
-  // Re-render activity panel only
   const b = allBriefs.find(x => x.briefId === briefId);
   if (b) _renderActivityPanel(b);
+}
+
+let _mentionQuery = '';
+let _mentionActiveIdx = 0;
+function _commentInput(e, briefId) {
+  const ta = e.target;
+  const val = ta.value;
+  const pos = ta.selectionStart;
+  const before = val.slice(0, pos);
+  const match = before.match(/@(\w*)$/);
+  if (match) {
+    _mentionQuery = match[1].toLowerCase();
+    const filtered = TEAM_MEMBERS.filter(m => m.id !== 'unassigned' && m.name.toLowerCase().startsWith(_mentionQuery));
+    if (filtered.length) { _showMentionPicker(briefId, filtered); return; }
+  }
+  _hideMentionPicker(briefId);
+}
+function _commentKeydown(e, briefId) {
+  const picker = G('mention-picker-' + briefId);
+  if (picker && picker.style.display !== 'none') {
+    const items = picker.querySelectorAll('.mention-item');
+    if (e.key === 'ArrowDown')   { e.preventDefault(); _mentionActiveIdx = Math.min(_mentionActiveIdx+1, items.length-1); _updateMentionActive(picker); return; }
+    if (e.key === 'ArrowUp')     { e.preventDefault(); _mentionActiveIdx = Math.max(_mentionActiveIdx-1, 0); _updateMentionActive(picker); return; }
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      const active = items[_mentionActiveIdx];
+      if (active) { e.preventDefault(); active.click(); return; }
+    }
+    if (e.key === 'Escape') { _hideMentionPicker(briefId); return; }
+  }
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { submitComment(briefId); e.preventDefault(); }
+}
+function _showMentionPicker(briefId, members) {
+  const picker = G('mention-picker-' + briefId);
+  if (!picker) return;
+  _mentionActiveIdx = 0;
+  picker.innerHTML = members.map((m, i) =>
+    `<div class="mention-item${i===0?' m-active':''}" onmousedown="event.preventDefault();_insertMention('${briefId}','${m.name}')">
+      <div class="mention-avatar" style="background:${m.color}">${m.initials}</div>
+      <span class="mention-name">${m.name}</span>
+    </div>`
+  ).join('');
+  picker.style.display = 'block';
+}
+function _hideMentionPicker(briefId) {
+  const picker = G('mention-picker-' + briefId);
+  if (picker) picker.style.display = 'none';
+}
+function _updateMentionActive(picker) {
+  picker.querySelectorAll('.mention-item').forEach((el, i) => el.classList.toggle('m-active', i === _mentionActiveIdx));
+}
+function _insertMention(briefId, name) {
+  const ta = G('comment-textarea-' + briefId);
+  if (!ta) return;
+  const pos = ta.selectionStart;
+  const before = ta.value.slice(0, pos);
+  const after  = ta.value.slice(pos);
+  const replaced = before.replace(/@(\w*)$/, `@${name} `);
+  ta.value = replaced + after;
+  const newPos = replaced.length;
+  ta.setSelectionRange(newPos, newPos);
+  ta.focus();
+  _hideMentionPicker(briefId);
 }
 
 function getStatusHistory(briefId) {
@@ -3084,9 +3182,9 @@ function renderBriefs(data) {
     const compBadge = filled < fields.length
       ? `<span class="bt-complete-badge" title="${filled}/${fields.length} champs renseignés">✓ ${filled}/${fields.length}</span>`
       : '';
-    return `<tr onclick="openDrawer('${b.briefId}', ${_i})">
+    return `<tr onclick="openDrawer('${b.briefId}', ${_i})"${isUnread(b)?' class="has-unread"':''}>
       <td class="bt-demande-wrap">
-        <div class="bt-title">${b.contexte||b.typeDemande||'Aucun contexte'}</div>
+        <div class="bt-title">${isUnread(b)?'<span class="unread-dot" style="margin-right:5px"></span>':''}${b.contexte||b.typeDemande||'Aucun contexte'}</div>
         <div class="bt-id-row">
           <span class="bt-subid">${b.briefId||'—'}</span>
           ${b.archived?'<span class="badge-marque" style="background:#78716c;color:#fff">Archivé</span>':''}
@@ -3166,7 +3264,7 @@ function renderKanban(data) {
     const cards = briefs.length
       ? briefs.map(b => {
           const cat = categorizeBrief(b);
-          return `<div class="kanban-card"
+          return `<div class="kanban-card${isUnread(b)?' has-unread':''}"
             draggable="true"
             data-brief-id="${b.briefId}"
             ondragstart="kDragStart(event,'${b.briefId}')"
@@ -3500,6 +3598,7 @@ function openDrawer(briefId, idx) {
   const b = (idx !== undefined && allBriefs[idx]) ? allBriefs[idx] : allBriefs.find(x=>x.briefId===briefId);
   if(!b) return;
   _currentDrawerBrief = b;
+  markSeen(briefId);
   renderDrawer(b);
   G('brief-drawer').classList.add('open');
   G('drawer-overlay').classList.add('open');
@@ -3668,7 +3767,12 @@ function getActivityLog(b) {
   }
   // Commentaires équipe
   getComments(b.briefId).forEach(c => {
-    log.push({ type:'user-comment', text:`<strong>${c.author||'Studio'}</strong> : ${c.text}`, time: new Date(c.ts) });
+    const rendered = (c.text||'').replace(/@(\w[\wÀ-ÿ]*)/g, (m, name) => {
+      const member = TEAM_MEMBERS.find(t => t.name.toLowerCase() === name.toLowerCase());
+      const color = member ? member.color : '#6366f1';
+      return `<span class="comment-mention" style="color:${color};background:${color}18">@${name}</span>`;
+    });
+    log.push({ type:'user-comment', text:`<strong>${c.author||'Studio'}</strong> : ${rendered}`, time: new Date(c.ts) });
   });
   return log.sort((a,b) => (a.time||0) - (b.time||0)).reverse();
 }
@@ -3695,8 +3799,12 @@ function _renderActivityPanel(b) {
   actPanel.innerHTML = `
     ${timeline}
     <div class="comment-compose">
-      <textarea id="comment-textarea-${b.briefId}" placeholder="Ajouter un commentaire équipe…" rows="2"
-        onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){submitComment('${b.briefId}');event.preventDefault();}"></textarea>
+      <div class="comment-compose-wrap">
+        <div class="mention-picker" id="mention-picker-${b.briefId}" style="display:none"></div>
+        <textarea id="comment-textarea-${b.briefId}" placeholder="Ajouter un commentaire équipe… (@ pour mentionner)" rows="2"
+          onkeydown="_commentKeydown(event,'${b.briefId}')"
+          oninput="_commentInput(event,'${b.briefId}')"></textarea>
+      </div>
       <div class="comment-compose-row">
         <button class="comment-submit" onclick="submitComment('${b.briefId}')">Envoyer</button>
       </div>
