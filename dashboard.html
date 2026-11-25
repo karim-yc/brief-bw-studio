@@ -1567,7 +1567,7 @@ let currentRole = null; // 'studio' | 'demandeur'
 async function loadCurrentUserProfile() {
   if (!sbClient) return;
   const { data: { user } } = await sbClient.auth.getUser();
-  if (!user) { window.location.href = 'login.html'; return; }
+  if (!user) { window.location.replace('login.html'); return; }
   currentUser = user;
   const { data: profile } = await sbClient.from('bw_profiles').select('role,nom,email,telephone,avatar_url').eq('id', user.id).single();
   if (profile) {
@@ -1604,7 +1604,7 @@ async function loadCurrentUserProfile() {
 async function signOutUser() {
   if (sbClient) await sbClient.auth.signOut();
   sessionStorage.removeItem('bw_dash_v1_auth');
-  window.location.href = 'login.html';
+  window.location.replace('login.html');
 }
 
 function _syncRoleLabels() {
@@ -4334,7 +4334,7 @@ async function fetchMondayTasks() {
 (async function _initDashboard() {
   /* ── Auth — redirection vers login.html si non connecté ─── */
   if (!(await _checkExistingSession())) {
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
     return;
   }
   await loadCurrentUserProfile();

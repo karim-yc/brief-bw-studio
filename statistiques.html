@@ -414,7 +414,7 @@ async function loadStats() {
 async function loadUserProfile() {
   if (!sbClient) return;
   const { data: { user } } = await sbClient.auth.getUser();
-  if (!user) { window.location.href = 'login.html'; return; }
+  if (!user) { window.location.replace('login.html'); return; }
   const { data: profile } = await sbClient
     .from('bw_profiles')
     .select('role,nom,avatar_url')

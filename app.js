@@ -1245,7 +1245,7 @@
       (async () => {
         const { data: { user } } = await sbClient.auth.getUser();
         if (!user) {
-          window.location.href = 'login.html?next=index.html';
+          window.location.replace('login.html');
           return;
         }
         window._bwCurrentUser = user;
@@ -1886,7 +1886,7 @@ Il restera accessible dans le dashboard.`)) {
 
 function openProfileDrawer() {
   if (!window._bwCurrentUser) {
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
     return;
   }
   const overlay = document.getElementById('profile-drawer-overlay');
@@ -2039,6 +2039,6 @@ async function saveProfile() {
 async function signOutUser() {
   if (typeof sbClient !== 'undefined' && sbClient) {
     await sbClient.auth.signOut();
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
   }
 }

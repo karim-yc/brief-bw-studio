@@ -409,7 +409,7 @@
     </div>
 
     <!-- Calendar (hidden until loaded) -->
-    <div id="cal-main" style="display:none;flex:1;display:none;flex-direction:column">
+    <div id="cal-main" style="display:none;flex:1;flex-direction:column">
 
       <!-- Toolbar -->
       <div class="cal-toolbar">
@@ -500,7 +500,7 @@ function fmtDate(s) {
 
 function getStatutLocal(briefId) {
   try {
-    const s = JSON.parse(localStorage.getItem('bw_brief_v2_statuses') || '{}');
+    const s = JSON.parse(localStorage.getItem('bw_brief_statuts') || '{}');
     return s[briefId] || 'soumis';
   } catch(e) { return 'soumis'; }
 }
@@ -755,7 +755,7 @@ async function loadUserProfile() {
   // Auth check
   const { data: { session } } = await sbClient.auth.getSession();
   if (!session) {
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
     return;
   }
 
