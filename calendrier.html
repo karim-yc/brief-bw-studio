@@ -498,6 +498,13 @@ function fmtDate(s) {
   try { const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; } catch(e) { return s; }
 }
 
+function fmtSupports(supports) {
+  if (!supports) return '';
+  if (typeof supports === 'string') return supports;
+  if (Array.isArray(supports)) return supports.map(s => typeof s === 'object' ? (s.label || s.id || '') : s).filter(Boolean).join(', ');
+  return String(supports);
+}
+
 function getStatutLocal(briefId) {
   try {
     const s = JSON.parse(localStorage.getItem('bw_brief_statuts') || '{}');
@@ -664,7 +671,7 @@ function openDrawer(briefId) {
       <div class="drawer-label">Contexte</div>
       <div class="drawer-val muted" style="font-size:12px;line-height:1.5">${b.contexte}</div>
     </div>` : ''}
-    ${row('Supports',  b.supports, true)}
+    ${row('Supports',  fmtSupports(b.supports), true)}
     ${b.submittedAt ? `<hr class="drawer-sep">${row('Soumis le', new Date(b.submittedAt).toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'}), true)}` : ''}
     <hr class="drawer-sep">
     <div>
@@ -682,6 +689,41 @@ function openDrawer(briefId) {
 function closeDrawer() {
   G('brief-drawer').classList.remove('open');
   G('drawer-overlay').classList.remove('open');
+}
+
+function openDayModal(dateKey) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const briefs = [];
+  allBriefs.forEach(b => {
+    getDatesForBrief(b).forEach(({ date, type }) => {
+      if (date === dateKey) briefs.push({ ...b, _dateType: type });
+    });
+  });
+  if (!briefs.length) return;
+
+  const dateLabel = new Date(dateKey + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  G('dr-id').textContent    = dateLabel;
+  G('dr-title').textContent = `${briefs.length} brief${briefs.length > 1 ? 's' : ''}`;
+
+  G('dr-body').innerHTML = briefs.map(b => {
+    const dStr = b.dateLancement || b.dateRetourSimul || b.dateValidation;
+    const dDate = new Date(dStr); dDate.setHours(0, 0, 0, 0);
+    const diff = Math.round((dDate - today) / 86400000);
+    const cls = diff < 0 ? 'cb-retard' : diff <= 1 ? 'cb-urgent' : diff <= 3 ? 'cb-soon' : 'cb-later';
+    const typeLabel = b._dateType === 'validation' ? 'Validation' : b._dateType === 'simul' ? 'Simulation' : 'Lancement';
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--border-light)">
+      <div class="cal-brief ${cls}" style="font-size:11px;padding:4px 8px;margin-bottom:4px;cursor:pointer"
+           onclick="openDrawer('${b.briefId}')">
+        ${(b.demandeur || b.departement || b.briefId || '—').slice(0, 28)}
+      </div>
+      <div style="font-size:10px;color:var(--text-tertiary);padding:0 2px">
+        ${typeLabel} · ${b.typeDemande || '—'} · ${STATUS_LABELS[b.statut] || b.statut || 'Soumis'}
+      </div>
+    </div>`;
+  }).join('');
+
+  G('brief-drawer').classList.add('open');
+  G('drawer-overlay').classList.add('open');
 }
 
 /* ── Data loading ─────────────────────────────────────────── */
