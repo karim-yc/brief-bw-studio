@@ -558,7 +558,9 @@ function renderCalendar() {
   G('cal-title').textContent = `${MONTHS[mo]} ${yr}`;
 
   const briefChip = (b) => {
-    const dStr = b.dateLancement || b.dateRetourSimul || b.dateValidation;
+    const dStr = b._dateType === 'validation' ? b.dateValidation
+               : b._dateType === 'simul'       ? b.dateRetourSimul
+               : (b.dateLancement || b.dateRetourSimul || b.dateValidation);
     const dLaunch = new Date(dStr); dLaunch.setHours(0,0,0,0);
     const diff = Math.round((dLaunch - today) / 86400000);
     const cls = diff < 0 ? 'cb-retard' : diff <= 1 ? 'cb-urgent' : diff <= 3 ? 'cb-soon' : 'cb-later';
@@ -706,7 +708,9 @@ function openDayModal(dateKey) {
   G('dr-title').textContent = `${briefs.length} brief${briefs.length > 1 ? 's' : ''}`;
 
   G('dr-body').innerHTML = briefs.map(b => {
-    const dStr = b.dateLancement || b.dateRetourSimul || b.dateValidation;
+    const dStr = b._dateType === 'validation' ? b.dateValidation
+               : b._dateType === 'simul'       ? b.dateRetourSimul
+               : (b.dateLancement || b.dateRetourSimul || b.dateValidation);
     const dDate = new Date(dStr); dDate.setHours(0, 0, 0, 0);
     const diff = Math.round((dDate - today) / 86400000);
     const cls = diff < 0 ? 'cb-retard' : diff <= 1 ? 'cb-urgent' : diff <= 3 ? 'cb-soon' : 'cb-later';
@@ -753,7 +757,7 @@ async function loadBriefs() {
       archived: row.archived ?? false,
       _marqueId: row.marque || null,
       _fromSupabase: true,
-    })).filter(b => b && b.briefId);
+    })).filter(b => b && b.briefId && !b.archived);
 
     const n = allBriefs.length;
     const t = new Date().toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
