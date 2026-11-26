@@ -202,7 +202,7 @@
   <a href="statistiques.html" class="mob-nav-item active"><i class="ti ti-chart-bar"></i><span>Stats</span></a>
 </nav>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.6/dist/umd/supabase.js"></script>
 <script>
 /* ── Config ─────────────────────────────────────────────── */
 const SB_URL  = 'https://zpapoywzilwubjglhsmu.supabase.co';
@@ -318,7 +318,7 @@ function computeStats(briefs) {
     if (isLivré(b)) return false;
     const dates = [b.dateRetourSimul, b.dateLancement, b.dateValidation]
       .filter(d => d && d !== '—')
-      .map(d => { try { const x = new Date(d); x.setHours(0,0,0,0); return x; } catch(e){ return null; } })
+      .map(d => { try { const [yy,mm,dd]=d.split('-').map(Number); return new Date(yy,mm-1,dd); } catch(e){ return null; } })
       .filter(Boolean);
     return dates.some(d => d < today);
   }).length;
@@ -370,7 +370,7 @@ function computeStats(briefs) {
     retardByType[lbl].total++;
     if (!isLivré(b)) {
       const dates = [b.dateRetourSimul, b.dateLancement, b.dateValidation]
-        .filter(d=>d&&d!=='—').map(d=>{try{const x=new Date(d);x.setHours(0,0,0,0);return x;}catch(e){return null;}}).filter(Boolean);
+        .filter(d=>d&&d!=='—').map(d=>{try{const [yy,mm,dd]=d.split('-').map(Number);return new Date(yy,mm-1,dd);}catch(e){return null;}}).filter(Boolean);
       if (dates.some(d=>d<today)) retardByType[lbl].retard++;
     }
   });
