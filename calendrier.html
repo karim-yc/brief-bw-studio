@@ -355,11 +355,7 @@
   <!-- ════════ SIDEBAR GAUCHE ════════ -->
   <div class="sidebar" id="sidebar" role="navigation" aria-label="Navigation principale">
     <div class="sidebar-logo-wrap">
-      <div class="sidebar-logo-icon">BW</div>
-      <div>
-        <div class="sidebar-logo-name">Studio Créatif</div>
-        <div class="sidebar-logo-sub">Multi-marques</div>
-      </div>
+      <img src="assets/logo-brief-studio.png" alt="Brief Studio" class="sidebar-logo-img">
     </div>
     <nav class="sidebar-nav">
       <a class="snav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
@@ -370,11 +366,16 @@
       <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
       <a class="snav-item" href="dashboard.html#archives" title="Afficher les briefs archivés"><i class="ti ti-archive"></i><span>Archivés</span></a>
     </nav>
-    <div class="snav-user">
-      <div class="snav-user-av" id="snav-user-av">KY</div>
-      <div class="snav-user-info">
-        <div class="snav-user-name" id="snav-user-name">—</div>
-        <div class="snav-user-role" id="snav-user-role">Chargement…</div>
+    <div class="sidebar-bottom">
+      <div class="snav-user">
+        <div class="snav-user-av" id="snav-user-av">KY</div>
+        <div class="snav-user-info">
+          <div class="snav-user-name" id="snav-user-name">—</div>
+          <div class="snav-user-role" id="snav-user-role">Chargement…</div>
+        </div>
+      </div>
+      <div style="padding:8px 10px;display:flex;gap:6px">
+        <button onclick="signOutUser()" style="width:100%;padding:5px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit">Déconnexion</button>
       </div>
     </div>
   </div>
@@ -767,6 +768,11 @@ async function loadBriefs() {
     setSyncState('error', '⚠ Données inaccessibles');
     allBriefs = [];
   }
+}
+
+async function signOutUser() {
+  await sbClient.auth.signOut();
+  window.location.replace('login.html');
 }
 
 async function loadUserProfile() {
