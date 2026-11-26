@@ -84,11 +84,7 @@
   <!-- ════════ SIDEBAR ════════ -->
   <div class="sidebar" id="sidebar" role="navigation" aria-label="Navigation principale">
     <div class="sidebar-logo-wrap">
-      <div class="sidebar-logo-icon">BW</div>
-      <div>
-        <div class="sidebar-logo-name">Studio Créatif</div>
-        <div class="sidebar-logo-sub">Multi-marques</div>
-      </div>
+      <img src="assets/logo-brief-studio.png" alt="Brief Studio" class="sidebar-logo-img">
     </div>
     <nav class="sidebar-nav">
       <a class="snav-item" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
@@ -104,11 +100,16 @@
       <div class="snav-brand-item"><span class="snav-brand-dot pokawa"></span><span>Pokawa</span></div>
       <div class="snav-brand-item"><span class="snav-brand-dot autre"></span><span>Autre</span></div>
     </nav>
-    <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">
-      <div id="snav-user-av" style="width:30px;height:30px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">—</div>
-      <div class="snav-user-info" style="flex:1;min-width:0">
-        <div id="snav-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chargement…</div>
-        <div id="snav-user-role" style="font-size:10px;color:rgba(255,255,255,.35)">—</div>
+    <div class="sidebar-bottom">
+      <div class="snav-user">
+        <div class="snav-user-av" id="snav-user-av">—</div>
+        <div class="snav-user-info">
+          <div class="snav-user-name" id="snav-user-name">Chargement…</div>
+          <div class="snav-user-role" id="snav-user-role">—</div>
+        </div>
+      </div>
+      <div style="padding:8px 10px;display:flex;gap:6px">
+        <button onclick="signOutUser()" style="width:100%;padding:5px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:11px;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit">Déconnexion</button>
       </div>
     </div>
   </div>
@@ -526,6 +527,11 @@ async function loadStats() {
   }
 
   renderStats(computeStats(filteredBriefs()));
+}
+
+async function signOutUser() {
+  await sbClient.auth.signOut();
+  window.location.replace('login.html');
 }
 
 async function loadUserProfile() {
