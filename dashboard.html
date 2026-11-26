@@ -1061,7 +1061,7 @@ body { overflow-x: hidden; max-width: 100vw; }
     <a class="snav-item active" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
     <a class="snav-item" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
     <div class="snav-sep"></div>
-    <div class="snav-item" onclick="setViewMode('list');document.querySelector('.snav-item.cal-nav-item')?.classList.remove('active');this.classList.add('active')"><i class="ti ti-list"></i><span>Demandes</span></div>
+    <div class="snav-item" onclick="setViewMode('list');document.querySelector('.snav-item.cal-nav-item')?.classList.remove('active');this.classList.add('active');document.getElementById('briefs-section')?.scrollIntoView({behavior:'smooth',block:'start'})"><i class="ti ti-list"></i><span>Demandes</span></div>
     <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
     <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
     <div class="snav-item" id="snav-archived-toggle" onclick="toggleShowArchived()" title="Afficher les briefs archivés"><i class="ti ti-archive"></i><span>Archivés <span id="snav-archived-count" style="display:none;font-size:10px;opacity:.6;margin-left:4px"></span></span></div>
@@ -1223,7 +1223,7 @@ body { overflow-x: hidden; max-width: 100vw; }
   </div>
 
   <!-- TABS + BRIEFS TABLE -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+  <div id="briefs-section" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <div class="page-tabs" id="page-tabs">
         <button class="page-tab active" data-tab="ouvert" onclick="setTabFilter(this,'ouvert')">Briefs en cours <span class="tab-badge" id="tab-cnt-ouvert">—</span></button>
