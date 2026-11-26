@@ -160,7 +160,7 @@ const State = {
     const complete = [];
 
     fields.forEach(f => {
-      const filled = this.isFieldFilled(f);
+      const filled = this.isFieldFilledOverride(f);
       if (f.gravity === 'blocking') {
         if (!filled) blocking.push({ field: f, reason: 'manquant' });
         else complete.push(f);
