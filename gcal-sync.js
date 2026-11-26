@@ -60,7 +60,7 @@ const GCalSync = (() => {
     if (!val) return null;
     const d = new Date(val);
     if (isNaN(d)) return null;
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
   }
 
   /* Point d'entrée principal — appelé après sendWebhook() */
