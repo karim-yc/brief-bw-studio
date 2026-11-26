@@ -562,7 +562,7 @@ ${Recap.toHtml(r)}
         <div class="wz-card-header">
           <div class="wz-card-label">Informations spécifiques</div>
           <div class="wz-card-title">Détails de la demande</div>
-          <div class="wz-card-sub">Informations propres au type « ${type} » sélectionné.</div>
+          <div class="wz-card-sub">Informations propres au type « ${CONFIG.typesDemande.find(t => t.id === type)?.label || type} » sélectionné.</div>
         </div>
         ${specificFields.map(f => this.field(f)).join('')}
       </div>` : '';
