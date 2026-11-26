@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page introuvable | BW Studio</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Anton&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0a;
+      --bg-raised: #111;
+      --border:    #1e1e1e;
+      --text-1:    #f0f0f0;
+      --text-2:    #888;
+      --text-3:    #3a3a3a;
+      --accent:    #DFFF00;
+      --accent-dim:rgba(223,255,0,.12);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      overflow: hidden;
+    }
+
+    /* ─── Grain texture overlay ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Logo ─── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: absolute;
+      top: 28px;
+      left: 28px;
+      text-decoration: none;
+      z-index: 1;
+    }
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #000;
+      letter-spacing: -.5px;
+      flex-shrink: 0;
+    }
+    .logo-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-1);
+      line-height: 1.2;
+    }
+    .logo-sub {
+      font-size: 10px;
+      color: var(--text-3);
+      font-weight: 400;
+    }
+
+    /* ─── Main content ─── */
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      gap: 0;
+    }
+
+    /* ─── 404 display ─── */
+    .num {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(120px, 22vw, 200px);
+      line-height: 1;
+      letter-spacing: -.02em;
+      color: var(--text-1);
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+    .num span {
+      color: var(--accent);
+    }
+
+    /* Lignes décoratives sous le chiffre */
+    .num::after {
+      content: '';
+      display: block;
+      width: 48px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin: 16px auto 0;
+    }
+
+    /* ─── Badge ─── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(223,255,0,.2);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-top: 28px;
+      margin-bottom: 20px;
+    }
+    .badge svg { opacity: .8; }
+
+    /* ─── Headline ─── */
+    h1 {
+      font-size: clamp(22px, 4vw, 28px);
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.65;
+      max-width: 360px;
+      margin-bottom: 36px;
+    }
+
+    /* ─── Buttons ─── */
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-2);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color .15s, color .15s, transform .1s;
+    }
+    .btn-ghost:hover { border-color: #333; color: var(--text-1); transform: translateY(-1px); }
+    .btn-ghost:active { transform: translateY(0); }
+
+    /* ─── Background 404 ghost ─── */
+    .ghost-num {
+      position: fixed;
+      bottom: -60px;
+      right: -20px;
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(180px, 32vw, 360px);
+      line-height: 1;
+      color: rgba(223,255,0,.025);
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    /* ─── Bottom nav hint ─── */
+    .hint {
+      position: absolute;
+      bottom: 24px;
+      font-size: 11.5px;
+      color: var(--text-3);
+      z-index: 1;
+    }
+
+    @media (max-width: 480px) {
+      .logo { top: 20px; left: 20px; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .btn-primary, .btn-ghost { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="logo" aria-label="BW Studio – Accueil">
+    <div class="logo-mark">BW</div>
+    <div>
+      <div class="logo-name">Studio Créatif</div>
+      <div class="logo-sub">Multi-marques</div>
+    </div>
+  </a>
+
+  <div class="ghost-num" aria-hidden="true">404</div>
+
+  <div class="container">
+
+    <div class="num" aria-hidden="true">4<span>0</span>4</div>
+
+    <div class="badge" role="status">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+        <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M6 4v2.5M6 8v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Page introuvable
+    </div>
+
+    <h1>Ce brief n'existe pas…<br>ou plus.</h1>
+    <p>L'URL que vous avez demandée n'est pas disponible. Elle a peut-être été déplacée ou n'a jamais existé.</p>
+
+    <div class="actions">
+      <a href="index.html" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><path d="M7.5 2L2 7.5h3V13h5V7.5h3L7.5 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        Nouvelle demande
+      </a>
+      <a href="dashboard.html" class="btn-ghost">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><rect x="2" y="2" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="8.5" y="2" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="8.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="8.5" y="8.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+        Tableau de bord
+      </a>
+    </div>
+
+  </div>
+
+  <p class="hint" aria-hidden="true">Brief Studio © 2025 — Black &amp; White Burger</p>
+
+</body>
+</html>
