@@ -6,7 +6,7 @@
 
 const CONFIG = {
 
-  /* ── Départements ──────────────────────────────────────────── */
+  /* ── Marques ───────────────────────────────────────────────── */
   marques: [
     { id: 'bnw',      label: 'Black & White Burger' },
     { id: 'marquise', label: 'Maison Marquise'       },
@@ -274,7 +274,7 @@ const CONFIG = {
     { id: 1, key: 'qui', title: 'Qui demande ?' },
     { id: 2, key: 'quoi', title: 'Que faut-il créer ?' },
     { id: 3, key: 'infos', title: 'Infos indispensables' },
-    { id: 4, key: 'supports', title: 'Deadlines & priorité' },
+    { id: 4, key: 'supports', title: 'Supports & Deadlines' },
     { id: 5, key: 'recap', title: 'Récapitulatif' }
   ]
 };
