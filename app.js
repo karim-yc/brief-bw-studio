@@ -1771,6 +1771,30 @@ Il restera accessible dans le dashboard.`)) {
     if (!_currentDetailBrief) return;
     const { brief, r } = _currentDetailBrief;
 
+    // Brief Sheet-only : r est null — réutiliser le HTML du détail déjà rendu
+    if (!r) {
+      const content = document.getElementById('brief-detail-content').innerHTML;
+      document.getElementById('brief-print-area-v2').innerHTML = `
+        <div class="bp-page">
+          <div class="bp-header">
+            <div class="bp-brand">Black &amp; White Burger · Studio Graphique</div>
+            <div class="bp-id">${brief.briefId||'—'}</div>
+          </div>
+          ${content}
+          <div class="bp-footer">
+            <span>Généré le ${new Date().toLocaleDateString('fr-BE',{day:'2-digit',month:'long',year:'numeric'})}</span>
+            <span>${brief.briefId||''}</span>
+          </div>
+        </div>`;
+      document.body.classList.add('print-brief');
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('print-brief');
+        document.getElementById('brief-print-area-v2').innerHTML = '';
+      }, 2000);
+      return;
+    }
+
     const fmtD = s => { if(!s||s==='—')return'—'; try{const[y,m,d]=s.split('-');return`${d}/${m}/${y}`}catch(e){return s}};
     const row = (label, val) => val && val!=='—' ? `<div class="bp-section"><div class="bp-label">${label}</div><div class="bp-val">${val}</div></div>` : '';
 
