@@ -4711,6 +4711,8 @@ async function fetchMondayTasks() {
 
   // Init
   _refreshNotifBell();
+  const _vp = new URLSearchParams(location.search).get('view');
+  if (_vp === 'list' || _vp === 'kanban' || _vp === 'calendar') setViewMode(_vp);
   loadData();
 
   setInterval(loadData, 5*60*1000);
