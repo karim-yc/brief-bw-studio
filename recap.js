@@ -229,7 +229,7 @@ const Recap = {
 
     const priorityBadge = r.priorite === 'urgent'
       ? `<span style="display:inline-block;background:${c.danger};color:#fff;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-left:8px">URGENT</span>`
-      : r.priorite === 'standard' ? `<span style="display:inline-block;background:#e8e8ea;color:#5a5a5f;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-left:8px">${r.priorite}</span>` : '';
+      : r.priorite === 'prioritaire' ? `<span style="display:inline-block;background:#e8e8ea;color:#5a5a5f;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-left:8px">PRIORITAIRE</span>` : '';
 
     const block = (title, body, titleColor) => `
       <tr><td style="padding:14px 20px;border-bottom:1px solid ${c.border}">
