@@ -4713,6 +4713,10 @@ async function fetchMondayTasks() {
   _refreshNotifBell();
   const _vp = new URLSearchParams(location.search).get('view');
   if (_vp === 'list' || _vp === 'kanban' || _vp === 'calendar') setViewMode(_vp);
+  if (new URLSearchParams(location.search).get('archived') === '1') {
+    showArchived = true;
+    document.getElementById('snav-archived-toggle')?.classList.add('active');
+  }
   loadData();
 
   setInterval(loadData, 5*60*1000);
