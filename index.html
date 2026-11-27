@@ -31,16 +31,16 @@
       <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
       <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
     </nav>
-    <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px">
+    <div class="snav-user">
       <div id="snav-user-row" onclick="openProfileDrawer()" title="Mon profil">
-        <div id="snav-user-av" style="width:30px;height:30px;background:#1a1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">—</div>
-        <div class="snav-user-info" style="flex:1;min-width:0">
-          <div id="snav-user-name" style="font-size:var(--text-sm);font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chargement…</div>
-          <div id="snav-user-role" style="font-size:var(--text-2xs);color:rgba(255,255,255,.35)">—</div>
+        <div id="snav-user-av" class="snav-user-av">—</div>
+        <div class="snav-user-info">
+          <div id="snav-user-name" class="snav-user-name">Chargement…</div>
+          <div id="snav-user-role" class="snav-user-role">—</div>
         </div>
       </div>
       <div id="snav-user-logout" style="display:none">
-        <button onclick="signOutUser()" style="width:100%;padding:5px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:var(--text-xs);color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit">Déconnexion</button>
+        <button onclick="signOutUser()" class="snav-logout-btn">Déconnexion</button>
       </div>
     </div>
   </div>
@@ -63,7 +63,7 @@
         <button class="hdr-tab" data-mode="rapide" role="tab" hidden>Brief rapide</button>
       </nav>
     </div>
-    <div class="hdr-search-bar" onclick="document.getElementById('btn-history')?.click()" style="cursor:pointer" role="button" title="Voir l'historique des briefs">
+    <div class="hdr-search-bar" onclick="document.getElementById('btn-history')?.click()" role="button" title="Voir l'historique des briefs">
       <svg viewBox="0 0 20 20" fill="none" class="hdr-search-icon"><circle cx="8.5" cy="8.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       <span class="hdr-search-text">Rechercher un brief, une marque…</span>
       <kbd class="hdr-search-kbd">⌘ K</kbd>
@@ -214,8 +214,8 @@
           </div>
         </div>
 
-        <div class="field" style="margin-top:8px">
-          <label class="field-label">Fichiers joints <span style="font-weight:400;text-transform:none;font-size:var(--text-2xs);color:var(--text-tertiary)">(optionnel · max 3 · 5 Mo)</span></label>
+        <div class="field mt-sm">
+          <label class="field-label">Fichiers joints <span class="field-label-opt">(optionnel · max 3 · 5 Mo)</span></label>
           <label class="att-dropzone rapide-att-dropzone" id="r-att-dropzone">
             <input type="file" id="r-att-input" multiple accept="image/*,.pdf,.doc,.docx,.pptx,.xlsx,.zip" style="display:none">
             <span class="att-icon-add">＋</span>
@@ -224,7 +224,7 @@
           <div class="att-list" id="r-att-list"></div>
         </div>
 
-        <button class="btn-submit" id="r-submit" disabled style="margin-top:8px">Soumettre le brief rapide</button>
+        <button class="btn-submit mt-sm" id="r-submit" disabled>Soumettre le brief rapide</button>
         <button class="rapide-link" id="r-to-full">Besoin d'ajouter des infos ? → Passer au formulaire complet</button>
       </div>
     </div>
@@ -260,12 +260,12 @@
 
 <!-- ════════ MODAL DÉTAIL BRIEF ════════ -->
 <div class="modal-overlay" id="brief-detail-overlay">
-  <div class="modal-box" id="brief-detail-box" style="max-width:560px;text-align:left">
-    <div class="rapide-head" style="border-radius:16px 16px 0 0">
-      <h2 id="brief-detail-title" style="font-size:var(--text-md)">Brief</h2>
+  <div class="modal-box" id="brief-detail-box">
+    <div class="rapide-head">
+      <h2 id="brief-detail-title">Brief</h2>
       <p id="brief-detail-sub">—</p>
     </div>
-    <div id="brief-detail-content" style="padding:20px;max-height:60vh;overflow-y:auto;font-size:12.5px;line-height:1.8;color:var(--text-secondary)"></div>
+    <div id="brief-detail-content"></div>
     <div class="modal-actions">
       <button class="modal-cancel" id="brief-detail-close">Fermer</button>
       <button class="btn-pdf-hist" id="brief-detail-pdf" title="Télécharger en PDF">

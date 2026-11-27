@@ -2989,7 +2989,8 @@ function prioBadge(p) {
 }
 function typeBadge(t) {
   const map={'Campagne Marketing':'b-campagne','Packaging':'b-packaging','Vitrophanie / Travaux':'b-vitro','Autre demande':'b-autre'};
-  return `<span class="badge ${map[t]||'b-autre'}">${t||'—'}</span>`;
+  const ico={'Campagne Marketing':'ti-speakerphone','Packaging':'ti-package','Vitrophanie / Travaux':'ti-paint','Autre demande':'ti-dots'};
+  return `<span class="badge ${map[t]||'b-autre'}"><i class="ti ${ico[t]||'ti-dots'}" aria-hidden="true"></i> ${t||'—'}</span>`;
 }
 function ctxDetail(b) {
   const t=b.typeDemande;
