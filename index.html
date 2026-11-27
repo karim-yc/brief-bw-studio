@@ -285,12 +285,6 @@
 <script src="supabase-config.js?v=1"></script>
 <script src="config.js?v=4"></script>
 <script>
-async function signOutUser() {
-  if (typeof sbClient !== 'undefined') await sbClient.auth.signOut();
-  window.location.replace('login.html');
-}
-</script>
-<script>
 // "autre" est une option de saisie ponctuelle — toujours présente dans le formulaire,
 // jamais dans la table Supabase.
 const _AUTRE_OPTION = { id: 'autre', label: 'Autre' };
