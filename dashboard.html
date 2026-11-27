@@ -622,6 +622,8 @@ body { overflow-x: hidden; max-width: 100vw; }
 .filter-sep   { flex-shrink: 0; }
 .search-wrap  { min-width: 0; }
 .search-input { min-width: 120px; max-width: 100%; }
+.fchips-group { flex-shrink: 0; }
+.filters-grp-label { display: none; }
 
 /* 4. Cards brief — contenu ne doit jamais pousser la largeur */
 .brief-card   { min-width: 0; width: 100%; }
@@ -890,6 +892,36 @@ body { overflow-x: hidden; max-width: 100vw; }
 .kpi-delta-down{background:rgba(16,185,129,.1);color:#10b981}
 .kpi-delta-flat{background:rgba(100,116,139,.1);color:#64748b}
 
+/* ── KPI gradient cards (inspirés des références design) ─── */
+.kpi-grad-dark{background:linear-gradient(135deg,#111 0%,#2d2d2d 100%);border-color:transparent}
+.kpi-grad-orange{background:linear-gradient(135deg,#c2410c 0%,#ea580c 60%,#f97316 100%);border-color:transparent}
+.kpi-grad-red{background:linear-gradient(135deg,#991b1b 0%,#dc2626 60%,#ef4444 100%);border-color:transparent}
+.kpi-grad-green{background:linear-gradient(135deg,#065f46 0%,#059669 55%,#10b981 100%);border-color:transparent}
+[class*="kpi-grad-"]{box-shadow:0 4px 20px rgba(0,0,0,.18)}
+[class*="kpi-grad-"]:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,0,0,.28)}
+[class*="kpi-grad-"] .kpi-val{color:#fff}
+[class*="kpi-grad-"] .kpi-val.red{color:#fca5a5}
+[class*="kpi-grad-"] .kpi-lbl{color:rgba(255,255,255,.65)}
+[class*="kpi-grad-"] .kpi-icon-wrap{background:rgba(255,255,255,.18);color:#fff}
+[class*="kpi-grad-"] .kpi-delta-up{background:rgba(220,38,38,.35);color:#fca5a5}
+[class*="kpi-grad-"] .kpi-delta-down{background:rgba(16,185,129,.3);color:#6ee7b7}
+[class*="kpi-grad-"] .kpi-delta-flat{background:rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+[class*="kpi-grad-"] .tooltip-icon{color:rgba(255,255,255,.45) !important}
+
+/* ── Filter chip groups (nouvelle UI filtres) ─────────────── */
+.fchips-group{display:flex;gap:3px;align-items:center;flex-wrap:nowrap}
+.filters-grp-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-tertiary);white-space:nowrap;margin-right:3px;flex-shrink:0}
+.fchip{padding:5px 11px;border:1.5px solid var(--border);border-radius:var(--r-pill);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;color:var(--text-secondary);background:#fff;cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1}
+.fchip:hover{border-color:#111;color:#111;background:#f4f3f0}
+.fchip.active{background:#111;border-color:#111;color:#fff}
+.fchip.fchip-urgent.active{background:var(--urgent);border-color:var(--urgent)}
+.fchip.fchip-prio.active{background:var(--prio);border-color:var(--prio)}
+.fchip.fchip-soumis.active{background:var(--status-soumis);border-color:var(--status-soumis)}
+.fchip.fchip-encours.active{background:var(--status-encours);border-color:var(--status-encours)}
+.fchip.fchip-simul.active{background:var(--status-simul);border-color:var(--status-simul)}
+.fchip.fchip-valide.active{background:var(--status-valide);border-color:var(--status-valide)}
+.fchip.fchip-livre.active{background:#1E1B4B;border-color:#1E1B4B}
+
 /* ── Page header search + icon buttons ─────────────────── */
 .page-hdr-search{position:relative;display:flex;align-items:center;background:#fff;border:1px solid #DEDAD3;border-radius:var(--r-sm);padding:0 10px;gap:7px;height:34px;min-width:200px;transition:background .15s}
 .page-hdr-search:hover,.page-hdr-search:focus-within{background:#fff;border-color:#C4BFB6;box-shadow:0 0 0 3px rgba(0,0,0,.06)}
@@ -1154,29 +1186,67 @@ body { overflow-x: hidden; max-width: 100vw; }
     <i class="ti ti-chevron-down filters-toggle-chevron" id="filters-toggle-chevron"></i>
   </button>
   <div class="filters-row" id="filters-body" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-    <select class="f-select" id="filter-periode" onchange="onSelPeriode(this.value)">
+    <!-- Période -->
+    <div class="fchips-group" id="chips-periode">
+      <span class="filters-grp-label">Période</span>
+      <button class="fchip active" onclick="setFChip('periode','0',this)">Tout</button>
+      <button class="fchip" onclick="setFChip('periode','7',this)">7 jours</button>
+      <button class="fchip" onclick="setFChip('periode','30',this)">30 jours</button>
+      <button class="fchip" onclick="setFChip('periode','90',this)">3 mois</button>
+    </div>
+    <div class="filter-sep"></div>
+    <!-- Type -->
+    <div class="fchips-group" id="chips-type">
+      <button class="fchip active" onclick="setFChip('type','',this)">Tous types</button>
+      <button class="fchip" onclick="setFChip('type','Campagne Marketing',this)">Campagne</button>
+      <button class="fchip" onclick="setFChip('type','Packaging',this)">Packaging</button>
+      <button class="fchip" onclick="setFChip('type','Vitrophanie / Travaux',this)">Vitro</button>
+      <button class="fchip" onclick="setFChip('type','Autre demande',this)">Autre</button>
+    </div>
+    <div class="filter-sep"></div>
+    <!-- Priorité -->
+    <div class="fchips-group" id="chips-prio">
+      <button class="fchip active" onclick="setFChip('prio','',this)">Toutes priorités</button>
+      <button class="fchip fchip-urgent" onclick="setFChip('prio','urgent',this)">Urgent</button>
+      <button class="fchip fchip-prio" onclick="setFChip('prio','prioritaire',this)">Prioritaire</button>
+      <button class="fchip" onclick="setFChip('prio','normal',this)">Normal</button>
+    </div>
+    <div class="filter-sep"></div>
+    <!-- Statut -->
+    <div class="fchips-group" id="chips-statut">
+      <button class="fchip active" onclick="setFChip('statut','',this)">Tous statuts</button>
+      <button class="fchip fchip-soumis" onclick="setFChip('statut','soumis',this)">Soumis</button>
+      <button class="fchip fchip-encours" onclick="setFChip('statut','encours',this)">En cours</button>
+      <button class="fchip fchip-simul" onclick="setFChip('statut','simulation',this)">Simulation</button>
+      <button class="fchip fchip-valide" onclick="setFChip('statut','valide',this)">Validé</button>
+      <button class="fchip fchip-livre" onclick="setFChip('statut','livre',this)">Livré</button>
+    </div>
+    <div class="filter-sep"></div>
+    <!-- Marque (dynamique → reste un select amélioré) -->
+    <select class="f-select" id="filter-marque" onchange="onSelMarque(this.value)" style="height:30px">
+      <option value="">Toutes marques</option>
+    </select>
+    <!-- Selects cachés pour compatibilité JS (resetFilters, _fActiveSel, URL params) -->
+    <select id="filter-periode" style="display:none" onchange="onSelPeriode(this.value)">
       <option value="0">Toutes périodes</option>
       <option value="7">7 jours</option>
       <option value="30">30 jours</option>
       <option value="90">3 mois</option>
     </select>
-    <select class="f-select" id="filter-type" onchange="onSelType(this.value)">
+    <select id="filter-type" style="display:none" onchange="onSelType(this.value)">
       <option value="">Tous types</option>
       <option value="Campagne Marketing">Campagne</option>
       <option value="Packaging">Packaging</option>
       <option value="Vitrophanie / Travaux">Vitro</option>
       <option value="Autre demande">Autre</option>
     </select>
-    <select class="f-select" id="filter-prio" onchange="onSelPrio(this.value)">
+    <select id="filter-prio" style="display:none" onchange="onSelPrio(this.value)">
       <option value="">Toutes priorités</option>
       <option value="urgent">Urgent</option>
       <option value="prioritaire">Prioritaire</option>
       <option value="normal">Normal</option>
     </select>
-    <select class="f-select" id="filter-marque" onchange="onSelMarque(this.value)">
-      <option value="">Toutes marques</option>
-    </select>
-    <select class="f-select" id="filter-statut" onchange="onSelStatut(this.value)">
+    <select id="filter-statut" style="display:none" onchange="onSelStatut(this.value)">
       <option value="">Tous statuts</option>
       <option value="soumis">Soumis</option>
       <option value="encours">En cours</option>
@@ -2658,11 +2728,31 @@ function toggleFiltersPanel() {
   btn.setAttribute('aria-expanded', open?'false':'true');
   body.classList.toggle('mobile-open', !open);
 }
+function setFChip(filterId, val, btn) {
+  const sel = document.getElementById('filter-' + filterId);
+  if (sel) sel.value = val || '';
+  const group = document.getElementById('chips-' + filterId);
+  if (group) {
+    group.querySelectorAll('.fchip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const fns = {periode:onSelPeriode, type:onSelType, prio:onSelPrio, statut:onSelStatut};
+  if (fns[filterId]) fns[filterId](val || '');
+}
+
 function resetFilters(){
   fDays=0;fType=new Set();fPrio=new Set();fStatut=new Set();fMarque=new Set();fSearch='';
   try { localStorage.removeItem('bw_last_marque'); } catch(e){}
   ['filter-periode','filter-type','filter-prio','filter-marque','filter-statut'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.value='';el.classList.remove('f-active');}
+  });
+  // Reset chip groups visual state
+  ['periode','type','prio','statut'].forEach(filterId=>{
+    const group=document.getElementById('chips-'+filterId);
+    if(!group) return;
+    group.querySelectorAll('.fchip').forEach(b=>b.classList.remove('active'));
+    const first=group.querySelector('.fchip');
+    if(first) first.classList.add('active');
   });
   const si=document.getElementById('hdr-search-input'); if(si) si.value='';
   document.getElementById('btn-reset-filters').style.display='none';
@@ -2915,11 +3005,11 @@ function renderKPIs(data) {
   const checkIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
 
   G('kpi-grid').innerHTML = [
-    {val:total,         lbl:'Total briefs',    color:'',                   tip:'Nombre total de briefs actifs.',     iconCls:'kpi-icon-indigo', icon:layersIcon, d:delta(total,     prevSnap?.total)},
-    {val:urgent,        lbl:'Urgents',          color:urgent>0?'red':'',    tip:'Briefs marqués comme urgents.',      iconCls:'kpi-icon-orange', icon:zapIcon,    d:deltaInv(urgent, prevSnap?.urgent)},
-    {val:enRetard,      lbl:'En retard',        color:enRetard>0?'red':'',  tip:'Deadlines dépassées, non livrés.',   iconCls:'kpi-icon-red',    icon:clockIcon,  d:deltaInv(enRetard, prevSnap?.enRetard), onclick:'toggleRetardFilter()'},
-    {val: onTimePct !== null ? onTimePct+'%' : '—', lbl:'Dans les délais', color: onTimePct !== null && onTimePct < 80 ? 'red' : '', tip:'% de briefs sans retard. Affiché uniquement avec au moins 1 brief.', iconCls:'kpi-icon-green', icon:checkIcon, d: onTimePct !== null ? deltaPct(onTimePct, prevSnap?.onTimePct) : ''},
-  ].map(k=>`<div class="kpi-card kpi-card-lg${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
+    {val:total,         lbl:'Total briefs',    color:'',                   tip:'Nombre total de briefs actifs.',     iconCls:'kpi-icon-indigo', icon:layersIcon, d:delta(total,     prevSnap?.total),                                          cardGrad:'kpi-grad-dark'},
+    {val:urgent,        lbl:'Urgents',          color:urgent>0?'red':'',    tip:'Briefs marqués comme urgents.',      iconCls:'kpi-icon-orange', icon:zapIcon,    d:deltaInv(urgent, prevSnap?.urgent),                                      cardGrad:'kpi-grad-orange'},
+    {val:enRetard,      lbl:'En retard',        color:enRetard>0?'red':'',  tip:'Deadlines dépassées, non livrés.',   iconCls:'kpi-icon-red',    icon:clockIcon,  d:deltaInv(enRetard, prevSnap?.enRetard), onclick:'toggleRetardFilter()', cardGrad:'kpi-grad-red'},
+    {val: onTimePct !== null ? onTimePct+'%' : '—', lbl:'Dans les délais', color: onTimePct !== null && onTimePct < 80 ? 'red' : '', tip:'% de briefs sans retard. Affiché uniquement avec au moins 1 brief.', iconCls:'kpi-icon-green', icon:checkIcon, d: onTimePct !== null ? deltaPct(onTimePct, prevSnap?.onTimePct) : '', cardGrad:'kpi-grad-green'},
+  ].map(k=>`<div class="kpi-card kpi-card-lg ${k.cardGrad||''}${k.onclick?' kpi-clickable':''}" ${k.onclick?`onclick="${k.onclick}" title="Filtrer par retard"`:''}">
     <div class="kpi-top">
       <div class="kpi-icon-wrap ${k.iconCls}">${k.icon}</div>
       ${k.d}
