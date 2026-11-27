@@ -7,7 +7,7 @@
 <meta name="description" content="Statistiques et indicateurs de production du studio créatif — volumes, délais et performance par marque.">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="style.css">
 <style>
@@ -21,12 +21,12 @@
 @media(max-width:860px){.stat-kpi-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:520px){.stat-kpi-grid{grid-template-columns:1fr 1fr}}
 .stat-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-card);position:relative;overflow:hidden}
-.stat-kpi-val{font-size:30px;font-weight:700;color:var(--text);letter-spacing:-1.5px;line-height:1}
+.stat-kpi-val{font-family:'Anton',sans-serif;font-size:30px;color:var(--text);line-height:1}
 .stat-kpi-lbl{font-size:11.5px;color:var(--text-secondary);margin-top:5px}
 .stat-kpi-sub{font-size:10.5px;color:var(--text-tertiary);margin-top:3px}
 .stat-kpi-val.red{color:#dc2626}
 .stat-kpi-val.green{color:#16a34a}
-.stat-kpi-val.indigo{color:#6366f1}
+.stat-kpi-val.indigo{color:var(--black)}
 .stat-kpi-val.amber{color:#d97706}
 .stat-kpi-accent{position:absolute;bottom:0;left:0;right:0;height:3px}
 
@@ -52,7 +52,7 @@
 .month-chart{display:flex;align-items:flex-end;gap:4px;height:90px;margin-top:8px}
 .month-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
 .month-bar-wrap{flex:1;display:flex;align-items:flex-end;width:100%}
-.month-bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;background:var(--indigo,#6366f1);transition:height .5s cubic-bezier(.4,0,.2,1)}
+.month-bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;background:var(--black);transition:height .5s cubic-bezier(.4,0,.2,1)}
 .month-label{font-size:9px;color:var(--text-tertiary);font-weight:500;text-align:center}
 .month-val{font-size:10px;font-weight:700;color:var(--text-secondary)}
 
@@ -219,7 +219,7 @@ const sbClient = (typeof window.supabase !== 'undefined')
 
 const TEAM_MEMBERS = [
   { id:'unassigned', name:'Non assigné',  color:'#9ca3af' },
-  { id:'karim',      name:'Karim',        color:'#6366f1' },
+  { id:'karim',      name:'Karim',        color:'#000000' },
   { id:'heifa',      name:'Heifa',        color:'#ec4899' },
   { id:'emilie',     name:'Émilie',       color:'#f59e0b' },
   { id:'ndieumbe',   name:'Ndieumbe',     color:'#10b981' },
@@ -449,8 +449,8 @@ function renderStats(s) {
   // KPIs
   const grid = document.getElementById('kpi-grid');
   if (grid) grid.innerHTML =
-    kpiCard(s.total,    'Briefs au total',       'indigo',  null,                  '#6366f1') +
-    kpiCard(s.actifs,   'Briefs actifs',          '',        null,                  '#8b5cf6') +
+    kpiCard(s.total,    'Briefs au total',       'indigo',  null,                  '#DFFF00') +
+    kpiCard(s.actifs,   'Briefs actifs',          '',        null,                  '#DFFF00') +
     kpiCard(s.livrés,   'Livrés / validés',       'green',   null,                  '#22c55e') +
     kpiCard(s.enRetard, 'En retard',              s.enRetard>0?'red':'',  null,     s.enRetard>0?'#dc2626':'#9ca3af') +
     kpiCard(`${s.txLiv}%`, 'Taux de livraison',  s.txLiv>=70?'green':s.txLiv>=40?'amber':'red', null, s.txLiv>=70?'#22c55e':s.txLiv>=40?'#f59e0b':'#dc2626') +
@@ -459,7 +459,7 @@ function renderStats(s) {
       'Délai médian livraison',
       s.cycleMoy !== null ? (s.cycleMoy<=7?'green':s.cycleMoy<=21?'':'red') : '',
       s.cycleMoy !== null ? `sur ${s.livrés} brief${s.livrés>1?'s':''} livrés` : 'Pas encore de données',
-      '#6366f1'
+      '#DFFF00'
     );
 
   // Marques
@@ -474,10 +474,10 @@ function renderStats(s) {
   // Types
   barChart(document.getElementById('chart-type'),
     Object.entries(s.types).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val})),
-    null, ()=>'#6366f1');
+    null, ()=>'#000000');
 
   // Statuts
-  const statutColors = { 'Soumis':'#6b7280','En cours':'#6366f1','Simulation':'#8b5cf6','Validé':'#059669','Livré':'#16a34a' };
+  const statutColors = { 'Soumis':'#3D3A34','En cours':'#000000','Simulation':'#5C5A54','Validé':'#059669','Livré':'#16a34a' };
   barChart(document.getElementById('chart-statut'),
     Object.entries(s.statsByStatut).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val})),
     null, r=>statutColors[r.label]||'#6366f1');

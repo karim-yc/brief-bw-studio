@@ -284,9 +284,9 @@
   font-size: 11px; font-weight: 600;
   border: 1px solid;
 }
-.st-soumis    { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-.st-encours   { background: #EFF6FF; color: #2563EB; border-color: #BFDBFE; }
-.st-simulation{ background: #F5F3FF; color: #7C3AED; border-color: #DDD6FE; }
+.st-soumis    { background: var(--status-soumis-bg,#F4F2ED);  color: var(--status-soumis,#3D3A34);  border-color: var(--status-soumis-border,#DEDAD3); }
+.st-encours   { background: var(--status-encours-bg,#EDEAE3); color: var(--status-encours,#000);    border-color: var(--status-encours-border,#CCC8C0); }
+.st-simulation{ background: var(--status-simul-bg,#E8E6DF);   color: var(--status-simul,#5C5A54);   border-color: var(--status-simul-border,#C8C4BC); }
 .st-valide    { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
 .st-livre     { background: #F0FDF4; color: #15803D; border-color: #86EFAC; }
 
@@ -679,7 +679,7 @@ function openDrawer(briefId) {
     <hr class="drawer-sep">
     <div>
       <a href="dashboard.html?open=${encodeURIComponent(b.briefId)}"
-         style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#4F46E5;text-decoration:none">
+         style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--black,#000000);text-decoration:none">
         <i class="ti ti-external-link" style="font-size:13px"></i>Voir dans le dashboard
       </a>
     </div>
