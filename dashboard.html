@@ -42,7 +42,7 @@
   --status-simul:#5C5A54;--status-simul-bg:#E8E6DF;--status-simul-border:#C8C4BC;
   --status-valide:#059669;--status-valide-bg:#ECFDF5;--status-valide-border:#A7F3D0;
 
-  --r:14px;--r-sm:8px;--r-pill:50px;
+  --r:14px;--r-sm:8px;--r-pill:50px;--icon-sm:12px;--icon-md:14px;--icon-lg:16px;
   --shadow:0 1px 3px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.06);
   --shadow-lg:0 8px 32px rgba(0,0,0,.14);
   --shadow-card:0 1px 2px rgba(0,0,0,.04),0 2px 8px rgba(0,0,0,.06);
@@ -64,7 +64,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .hdr-actions{display:flex;align-items:center;gap:8px}
 .hdr-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text-secondary);font-size:12px;font-weight:600;letter-spacing:.2px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;transition:all .15s;white-space:nowrap}
 .hdr-btn:hover{border-color:var(--indigo);color:var(--indigo);background:#fff}
-.hdr-btn i{font-size:14px}
+.hdr-btn i{font-size:var(--icon-md)}
 .hdr-btn-primary{background:#DFFF00;border-color:#DFFF00;color:#000;font-weight:700}
 .hdr-btn-primary:hover{background:#c8e800;border-color:#c8e800;color:#000}
 
@@ -90,7 +90,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .fadv-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border:1.5px solid var(--border);border-radius:var(--r-pill);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;color:var(--text-secondary);background:#fff;cursor:pointer;white-space:nowrap;transition:all .15s;line-height:1}
 .fadv-btn:hover{border-color:#111;color:#111}
 .fadv-btn[aria-expanded="true"]{background:#111;border-color:#111;color:#fff}
-.fadv-chevron{font-size:11px;transition:transform .2s}
+.fadv-chevron{font-size:var(--icon-sm);transition:transform .2s}
 .fadv-btn[aria-expanded="true"] .fadv-chevron{transform:rotate(180deg)}
 .fadv-badge{background:var(--accent);color:#000;border-radius:10px;padding:1px 5px;font-size:10px;font-weight:700;line-height:1.4}
 .fadv-btn[aria-expanded="true"] .fadv-badge{background:rgba(255,255,255,.25);color:#fff}
@@ -102,7 +102,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .search-input input{width:100%;padding:7px 10px 7px 32px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:12px;font-family:'Inter',sans-serif;color:var(--text);background:#fff;outline:none;transition:border-color .15s;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 :focus{outline:none}:focus-visible{outline:2px solid var(--acid);outline-offset:2px;border-radius:4px}
 .search-input input:focus{border-color:var(--black);background:#fff;box-shadow:0 0 0 3px rgba(223,255,0,.25)}
-.search-input i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:13px;pointer-events:none}
+.search-input i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);font-size:var(--icon-sm);pointer-events:none}
 .filter-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-tertiary);white-space:nowrap}
 .filter-chip{padding:4px 11px;border:1.5px solid var(--border);border-radius:var(--r-pill);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;color:var(--text-secondary);background:#fff;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -208,7 +208,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .brief-who strong{color:var(--text-secondary);font-weight:600}
 .brief-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .brief-date{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;white-space:nowrap}
-.brief-date i{font-size:12px}
+.brief-date i{font-size:var(--icon-sm)}
 /* Accent priorité à gauche */
 .brief-card.is-urgent{border-left:3px solid var(--urgent)}
 .brief-card.is-prio{border-left:3px solid var(--prio)}
@@ -217,7 +217,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 
 /* ── Vue toggle Liste / Kanban / Calendrier ──────────────── */
 .view-toggle{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:2px}
-.view-btn{width:28px;height:26px;border:none;background:none;border-radius:4px;cursor:pointer;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.view-btn{width:28px;height:26px;border:none;background:none;border-radius:4px;cursor:pointer;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;font-size:var(--icon-md);transition:all .15s}
 .view-btn:hover{color:var(--black)}
 .view-btn.active{background:var(--black);color:#fff}
 
@@ -248,7 +248,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .briefs-calendar{display:none}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .cal-title{font-family:'Anton',sans-serif;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text)}
-.cal-btn{width:30px;height:30px;border:1px solid var(--border);background:var(--surface);border-radius:var(--r-sm);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all .15s}
+.cal-btn{width:30px;height:30px;border:1px solid var(--border);background:var(--surface);border-radius:var(--r-sm);cursor:pointer;font-size:var(--icon-md);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);transition:all .15s}
 .cal-btn:hover{border-color:var(--black);color:var(--black)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal-day-hd{font-size:9.5px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:.6px;color:var(--text-tertiary);padding:4px 0}
@@ -306,7 +306,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .integrations-section{margin-top:0}
 .integrations-toggle{display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer;user-select:none;color:var(--text-secondary);font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:none;background:none;font-family:'Inter',sans-serif;width:100%}
 .integrations-toggle:hover{color:var(--text-primary)}
-.integrations-toggle i{font-size:14px;transition:transform .2s}
+.integrations-toggle i{font-size:var(--icon-md);transition:transform .2s}
 .integrations-toggle.open i.chevron-int{transform:rotate(180deg)}
 .integrations-body{display:none}
 .integrations-body.open{display:block}
@@ -314,7 +314,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .stats-section{margin-top:24px}
 .stats-toggle{display:flex;align-items:center;gap:8px;padding:10px 0;cursor:pointer;user-select:none;color:var(--text-secondary);font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:none;background:none;font-family:'Inter',sans-serif}
 .stats-toggle:hover{color:var(--indigo)}
-.stats-toggle i{font-size:14px;transition:transform .2s}
+.stats-toggle i{font-size:var(--icon-md);transition:transform .2s}
 .stats-toggle.open i.chevron{transform:rotate(180deg)}
 .stats-grid{display:none;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:8px}
 .stats-grid.open{display:grid}
@@ -341,7 +341,7 @@ body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min
 .drawer-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:14px}
 .drawer-id{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.65);margin-bottom:4px;text-transform:uppercase}
 .drawer-type{font-size:15px;color:#fff;font-weight:600;line-height:1.3}
-.drawer-close{width:32px;height:32px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.drawer-close{width:32px;height:32px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:var(--icon-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .drawer-close:hover{background:rgba(255,255,255,.3)}
 /* Drawer tabs */
 .drawer-tabs{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.12);overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -1098,23 +1098,23 @@ body { overflow-x: hidden; max-width: 100vw; }
     <img src="assets/logo-brief-studio.png" alt="Brief Studio" class="sidebar-logo-img">
   </div>
   <div class="sidebar-nav">
-    <a class="snav-item" id="snav-dashboard" href="dashboard.html"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></a>
-    <a class="snav-item" href="index.html"><i class="ti ti-plus-circle"></i><span>Nouvelle demande</span></a>
+    <a class="snav-item" id="snav-dashboard" href="dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Tableau de bord</span></a>
+    <a class="snav-item" href="index.html"><i class="ti ti-plus-circle" aria-hidden="true"></i><span>Nouvelle demande</span></a>
     <div class="snav-sep"></div>
-    <div class="snav-item" onclick="setViewMode('list');document.getElementById('briefs-section')?.scrollIntoView({behavior:'smooth',block:'start'})"><i class="ti ti-list"></i><span>Demandes</span></div>
-    <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month"></i><span>Calendrier</span></a>
-    <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar"></i><span>Statistiques</span></a>
-    <div class="snav-item" id="snav-archived-toggle" onclick="toggleShowArchived()" title="Afficher les briefs archivés"><i class="ti ti-archive"></i><span>Archivés <span id="snav-archived-count" style="display:none;font-size:10px;opacity:.6;margin-left:4px"></span></span></div>
-    <div class="snav-item" id="snav-manage-access" style="display:none" onclick="openAccessModal()"><i class="ti ti-shield-lock"></i><span>Gestion des accès</span></div>
+    <div class="snav-item" onclick="setViewMode('list');document.getElementById('briefs-section')?.scrollIntoView({behavior:'smooth',block:'start'})"><i class="ti ti-list" aria-hidden="true"></i><span>Demandes</span></div>
+    <a class="snav-item" href="calendrier.html"><i class="ti ti-calendar-month" aria-hidden="true"></i><span>Calendrier</span></a>
+    <a class="snav-item" href="statistiques.html"><i class="ti ti-chart-bar" aria-hidden="true"></i><span>Statistiques</span></a>
+    <div class="snav-item" id="snav-archived-toggle" onclick="toggleShowArchived()" title="Afficher les briefs archivés"><i class="ti ti-archive" aria-hidden="true"></i><span>Archivés <span id="snav-archived-count" style="display:none;font-size:10px;opacity:.6;margin-left:4px"></span></span></div>
+    <div class="snav-item" id="snav-manage-access" style="display:none" onclick="openAccessModal()"><i class="ti ti-shield-lock" aria-hidden="true"></i><span>Gestion des accès</span></div>
     <div class="snav-sep"></div>
-    <div class="snav-section-label" style="display:flex;align-items:center;justify-content:space-between;padding-right:8px"><span>Marques</span><button onclick="openMarqueModal()" title="Gérer les marques" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.35);font-size:14px;padding:0;line-height:1;flex-shrink:0;transition:color .15s" onmouseover="this.style.color='rgba(255,255,255,.8)'" onmouseout="this.style.color='rgba(255,255,255,.35)'"><i class="ti ti-settings-2"></i></button></div>
+    <div class="snav-section-label" style="display:flex;align-items:center;justify-content:space-between;padding-right:8px"><span>Marques</span><button onclick="openMarqueModal()" title="Gérer les marques" aria-label="Gérer les marques" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.35);font-size:14px;padding:0;line-height:1;flex-shrink:0;transition:color .15s" onmouseover="this.style.color='rgba(255,255,255,.8)'" onmouseout="this.style.color='rgba(255,255,255,.35)'"><i class="ti ti-settings-2" aria-hidden="true"></i></button></div>
     <div id="snav-brands-container"></div>
   </div>
   <div class="sidebar-bottom">
     <div class="sidebar-sync-row">
       <span class="sync-dot" id="sync-dot"></span>
       <span class="sync-lbl" id="sync-label">Chargement...</span>
-      <button class="sync-btn" onclick="loadData()" title="Actualiser"><i class="ti ti-refresh"></i></button>
+      <button class="sync-btn" onclick="loadData()" title="Actualiser" aria-label="Actualiser"><i class="ti ti-refresh" aria-hidden="true"></i></button>
     </div>
   </div>
   <div class="snav-user" style="padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px">
@@ -1146,16 +1146,16 @@ body { overflow-x: hidden; max-width: 100vw; }
     </div>
     <div class="page-actions">
       <div class="page-hdr-search">
-        <i class="ti ti-search"></i>
+        <i class="ti ti-search" aria-hidden="true"></i>
         <input type="text" placeholder="Rechercher un brief, une marque…" id="hdr-search-input" oninput="debouncedSearch(this.value)" onkeydown="if(event.key==='Escape'){this.value='';fSearch='';clearTimeout(_searchDebounceTimer);applyFilters();this.blur();}">
         <span class="page-hdr-search-kbd">/</span>
       </div>
       <div class="notif-panel-wrap">
-        <button class="page-hdr-icon-btn" id="notif-btn" title="Notifications" onclick="toggleNotifPanel()"><i class="ti ti-bell"></i><span class="notif-dot" id="notif-dot"></span></button>
+        <button class="page-hdr-icon-btn" id="notif-btn" title="Notifications" aria-label="Notifications" onclick="toggleNotifPanel()"><i class="ti ti-bell" aria-hidden="true"></i><span class="notif-dot" id="notif-dot"></span></button>
         <div class="notif-panel" id="notif-panel">
           <div class="notif-panel-hd">
             <span class="notif-panel-title">Alertes <span class="notif-cnt-badge" id="notif-cnt-badge" style="display:none"></span></span>
-            <button class="notif-panel-close" onclick="closeNotifPanel()"><i class="ti ti-x"></i></button>
+            <button class="notif-panel-close" onclick="closeNotifPanel()" aria-label="Fermer les alertes"><i class="ti ti-x" aria-hidden="true"></i></button>
           </div>
           <div class="notif-panel-list" id="notif-panel-list"></div>
           <div class="notif-panel-footer" id="notif-panel-footer" style="display:none">
@@ -1163,7 +1163,7 @@ body { overflow-x: hidden; max-width: 100vw; }
           </div>
         </div>
       </div>
-      <button class="page-hdr-icon-btn" title="Aide"><i class="ti ti-help"></i></button>
+      <button class="page-hdr-icon-btn" title="Aide" aria-label="Aide"><i class="ti ti-help" aria-hidden="true"></i></button>
       <button class="hdr-btn" onclick="loadData()"><i class="ti ti-refresh"></i><span class="hdr-btn-lbl"> Actualiser</span></button>
       <a href="index.html" class="hdr-btn hdr-btn-primary"><i class="ti ti-plus"></i><span class="hdr-btn-lbl"> Nouvelle demande</span></a>
     </div>
@@ -1328,9 +1328,9 @@ body { overflow-x: hidden; max-width: 100vw; }
     <div style="display:flex;align-items:center;gap:8px">
       <span id="briefs-count" style="font-size:12px;color:var(--text-tertiary)"></span>
       <div class="view-toggle">
-        <button class="view-btn active" id="btn-list"   onclick="setViewMode('list')"     title="Vue liste"><i class="ti ti-list"></i></button>
-        <button class="view-btn"        id="btn-kanban" onclick="setViewMode('kanban')"   title="Vue kanban"><i class="ti ti-layout-columns"></i></button>
-        <button class="view-btn"        id="btn-cal"    onclick="setViewMode('calendar')" title="Vue calendrier"><i class="ti ti-calendar-month"></i></button>
+        <button class="view-btn active" id="btn-list"   onclick="setViewMode('list')"     title="Vue liste"       aria-label="Vue liste"><i class="ti ti-list" aria-hidden="true"></i></button>
+        <button class="view-btn"        id="btn-kanban" onclick="setViewMode('kanban')"   title="Vue kanban"      aria-label="Vue kanban"><i class="ti ti-layout-columns" aria-hidden="true"></i></button>
+        <button class="view-btn"        id="btn-cal"    onclick="setViewMode('calendar')" title="Vue calendrier"  aria-label="Vue calendrier"><i class="ti ti-calendar-month" aria-hidden="true"></i></button>
       </div>
       <button class="hdr-btn" onclick="exportCSV()" title="Exporter en CSV" style="margin-left:4px"><i class="ti ti-download"></i> CSV</button>
     </div>
@@ -3631,9 +3631,9 @@ function renderCalendar(data) {
 
   el.innerHTML = `
     <div class="cal-nav">
-      <button class="cal-btn" onclick="calNav(-1)"><i class="ti ti-chevron-left"></i></button>
+      <button class="cal-btn" onclick="calNav(-1)" aria-label="Mois précédent"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
       <span class="cal-title">${MONTHS[mo]} ${yr}</span>
-      <button class="cal-btn" onclick="calNav(1)"><i class="ti ti-chevron-right"></i></button>
+      <button class="cal-btn" onclick="calNav(1)" aria-label="Mois suivant"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
     </div>
     <div class="cal-grid">${dayHds}${cells}</div>
   `;
