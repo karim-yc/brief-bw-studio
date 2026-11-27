@@ -492,7 +492,7 @@ input[type=text], input[type=number], input[type=date], input[type=email], texta
   transition: border-color var(--t-fast);
 }
 input::placeholder, textarea::placeholder { color: var(--text-tertiary); }
-input:focus, textarea:focus { border-bottom-color: var(--indigo); }
+input:focus, textarea:focus { border-bottom-color:var(--black); }
 
 textarea {
   border: 1px solid var(--border);
@@ -501,7 +501,7 @@ textarea {
   resize: vertical; min-height: 76px;
   line-height: 1.5; font-size: var(--text-md);
 }
-textarea:focus { border-color: var(--indigo); }
+textarea:focus { border-color:var(--black); }
 
 select {
   width: 100%;
@@ -517,7 +517,7 @@ select {
   background-position: right 2px center;
   transition: border-color var(--t-fast);
 }
-select:focus { border-bottom-color: var(--indigo); }
+select:focus { border-bottom-color:var(--black); }
 
 /* Champ avec liseré bloquant / recommandé */
 .field.is-blocking input,
@@ -679,7 +679,7 @@ select:focus { border-bottom-color: var(--indigo); }
   padding: 4px 0; font-size: var(--text-base); background: transparent; color: var(--text);
   outline: none; transition: border-color var(--t-fast);
 }
-.pack-row input:focus { border-bottom-color: var(--indigo); }
+.pack-row input:focus { border-bottom-color:var(--black); }
 .pack-row-actions { display: flex; align-items: center; gap: 2px; justify-content: flex-end; }
 .pack-del, .pack-add-inline {
   width: 22px; height: 22px; border-radius: 6px;
@@ -940,7 +940,7 @@ select:focus { border-bottom-color: var(--indigo); }
     color: var(--text-secondary); cursor: pointer; border-radius: 8px;
     margin-right: 4px;
   }
-  .btn-hamburger:focus-visible { outline: 2px solid var(--indigo); }
+  .btn-hamburger:focus-visible { outline:2px solid var(--accent); }
   /* Bouton fermeture sidebar */
   .sidebar-close-btn {
     display: flex; align-items: center; justify-content: center;
@@ -1451,7 +1451,7 @@ select:focus { border-bottom-color: var(--indigo); }
   border: 1px solid var(--border); border-radius: var(--r);
   overflow: hidden; transition: border-color var(--t-base);
 }
-.rapide-rte-wrap:focus-within { border-color: var(--indigo); }
+.rapide-rte-wrap:focus-within { border-color:var(--black); }
 .rapide-rte-wrap .rte-toolbar { background: var(--bg-soft); }
 .rapide-rte-wrap .rte-editor { min-height: 90px; }
 
@@ -2391,3 +2391,12 @@ select:focus { border-bottom-color: var(--indigo); }
 .pf-success{color:#4ade80;font-size:12.5px;line-height:1.5}
 .pf-save-btn{width:100%;padding:12px;background:#DFFF00;border:none;border-radius:8px;font-size:var(--text-md);font-weight:700;color:#000;cursor:pointer;font-family:inherit;transition:opacity var(--t-fast)}
 .pf-save-btn:hover{opacity:.88}
+
+/* ── Accessibilité — prefers-reduced-motion (WCAG 2.3.3) ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:    0.01ms !important;
+    animation-iteration-count: 1  !important;
+    transition-duration:   0.01ms !important;
+  }
+}

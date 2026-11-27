@@ -320,7 +320,7 @@ window.getAppMarques = function() {
 
 <!-- ═══ DRAWER PROFIL ══════════════════════════════════════= -->
 <div id="profile-drawer-overlay" onclick="closeProfileDrawer()" class="pf-overlay" style="display:none"></div>
-<div id="profile-drawer" class="pf-drawer" style="display:none">
+<div id="profile-drawer" class="pf-drawer" role="dialog" aria-modal="true" aria-label="Mon profil" style="display:none">
   <div class="pf-drawer-head">
     <div class="pf-drawer-title">Mon profil</div>
     <button onclick="closeProfileDrawer()" class="pf-drawer-close">×</button>
