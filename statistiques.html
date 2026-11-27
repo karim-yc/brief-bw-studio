@@ -13,7 +13,7 @@
 <style>
 /* ── Période selector ───────────────────────────────────── */
 .period-bar{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
-.period-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.period-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:12px;font-weight:500;cursor:pointer;transition:all var(--t-fast)}
 .period-btn.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
 
 /* ── KPI grid ───────────────────────────────────────────── */
@@ -70,7 +70,7 @@
 .stat-sync-dot.err{background:#ef4444}
 
 /* ── Skeleton ───────────────────────────────────────────── */
-.sk{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:sk-pulse 1.2s infinite}
+.sk{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:sk-pulse 1var(--t-base) infinite}
 @keyframes sk-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 /* ── Empty ──────────────────────────────────────────────── */
